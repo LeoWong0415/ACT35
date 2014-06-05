@@ -1,0 +1,2315 @@
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SPIFLASHMAP
+OBJECT MODULE PLACED IN .\Output\SpiFlashMap.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE SpiFlashMap.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
+                    -OWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\SpiFlashMap.lst) OBJECT(.\Outpu
+                    -t\SpiFlashMap.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * SpiFlashMap.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      SpiFlash Map for images
+  10          */
+  11          //*****************************************************************************
+  12          //
+  13          //                                                              SPI_MAP.c
+  14          //
+  15          //*****************************************************************************
+  16          // SPI FLASH total MAP
+  17          // +----------------------------+    
+  18          // |                            |
+  19          // |     CODE BANK              |
+  20          // |                            |
+  21          // +----------------------------+    
+  22          // | 080000~0x09FFFF            |
+  23          // |     EEPROM Emulation       |
+  24          // |                            |
+  25          // +----------------------------+    
+  26          // | 0A0000                     |
+  27          // |     Blank Space            |
+  28          // +----------------------------+    
+  29          // | 100000                     |
+  30          // |     Demo Image             |
+  31          // |                            |
+  32          // | ParkGrid                   |
+  33          // |  start 0x100000            |
+  34          // | Pigeon                     |
+  35          // |  start 0x170000            |
+  36          // | Rose                       |
+  37          // |  start 0x190D00            |
+  38          // | LUT for Pigion&Rose        |
+  39          // |  start 0x317700            |
+  40          // +----------------------------+    
+  41          // | 400000                     |
+  42          // |     Default Font           |
+  43          // |     max 0x2800             |
+  44          // | FontAll.bin                |
+  45          // |  start:0x400000 size:0x10F0|
+  46          // | consolas16x26_606C90.bin   |
+  47          // |  start:0x402000 size:0x1B38|
+  48          // |                            |
+  49          // | other test fonts           |
+  50          // | test16x32xA0_A0_A0_A0      |
+  51          // |  start:0x404000 size:0x2800|
+  52          // | test16x32xA0_20_20_20      |
+  53          // |  start:0x407000 size:0x2800|
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 2   
+
+  54          // | consolas22_16x26_2BPP      |
+  55          // |  start:0x40A000 size:0x2700|
+  56          // | otehr                      |
+  57          // |  start:0x40D00             |
+  58          // +----------------------------+    
+  59          // | 410000                     |
+  60          // |     MENU IMG               |
+  61          // |                            |
+  62          // |                            |
+  63          // | 7FFFFF                     |
+  64          // +----------------------------+    
+  65          // | test image                 |
+  66          // |                            |
+  67          // |                            |
+  68          // +----------------------------+    
+  69          // 
+  70          //
+  71          // detail DEMO IMG MAP
+  72          // +----------------------------+    
+  73          // | PIGEON                     |
+  74          // +----------------------------+    
+  75          // | ROSE                       |
+  76          // +----------------------------+    
+  77          // | LUT for PIGEON&ROSE        |
+  78          // +----------------------------+    
+  79          // | GENESIS & LUT              |
+  80          // +----------------------------+    
+  81          // | GRID & LUT                 |
+  82          // +----------------------------+    
+  83          // | MESSAGE & LUT              |
+  84          // +----------------------------+    
+  85          // | COMPASS & LUT              |
+  86          // +----------------------------+    
+  87          // | Dynamic Grid & LUT         |
+  88          // +----------------------------+    
+  89          // | Dynamic Message & LUT      |
+  90          // +----------------------------+    
+  91          
+  92          #include "Config.h"
+  93          #include "reg.h"
+  94          #include "typedefs.h"
+  95          #include "TW8835.h"
+  96          
+  97          #include "Global.h"
+  98          #include "CPU.h"
+  99          #include "printf.h"
+ 100          #include "util.h"
+ 101          #include "monitor.h"
+ 102          
+ 103          #include "I2C.h"
+ 104          #include "InputCtrl.h"
+ 105          
+ 106          #include "SOsd.h"
+ 107          #include "FOsd.h"
+ 108          
+ 109          #include "SpiFlashMap.h"
+ 110          #include "SOsdMenu.h"
+ 111          
+ 112          #ifdef SUPPORT_SPIOSD
+ 113          
+ 114          #define MAP0_START      SFLASH_IMG_ADDR
+ 115          //#define MAP0_START    0
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 3   
+
+ 116          
+ 117          //===================================
+ 118          //BKANG test area
+ 119          //0x300000
+ 120          //===================================
+ 121          
+ 122          
+ 123          
+ 124          code image_info_t img_main_test1_header = {1, 0x86, 800, 480 /*,0x01803E*/};
+ 125          code image_info_t img_main_test2_header = {1, 0x86, 800, 480 /*,0x015307*/};
+ 126          code image_info_t img_main_test3_header = {1, 0x86, 800, 480 /*,0x0136E8*/};
+ 127          
+ 128          
+ 129          code image_item_info_t img_main_test1   = {0, MENU_TEST_FLASH_START+0x000000, &img_main_test1_header, 0xff};
+             -    
+ 130          code image_item_info_t img_main_test2   = {0, MENU_TEST_FLASH_START+0x01803E, &img_main_test1_header, 0xff};
+             -    
+ 131          code image_item_info_t img_main_test3   = {0, MENU_TEST_FLASH_START+0x02D345, &img_main_test1_header, 0xff};
+             -    
+ 132          
+ 133          
+ 134          
+ 135          
+ 136          
+ 137          //===============
+ 138          // DEFAULT FONT
+ 139          // 0x400000
+ 140          //===============
+ 141          
+ 142          
+ 143          code WORD default_LUT_bpp2[4]           = { 0x0000,0x001F,0xF800,0xFFFF };
+ 144          code WORD default_LUT_bpp3[8]           = { 0x0000,0x001F,0x07E0,0x07FF,0xF800,0xF81F,0xFFE0,0xFFFF };
+ 145          code WORD default_LUT_bpp4[16]          = { 0x0000,0x0010,0x0400,0x0410,0x8000,0x8010,0x8400,0x8410,
+ 146                                                                                          0xC618,0x001F,0x07E0,0x07FF,0xF800,0xF81F,0xFFE0,0xFFFF };
+ 147          
+ 148          //code WORD consolas_LUT_bpp2[4]        = {     0x0000,0x001F,0xF800,0xFFFF };
+ 149          //code WORD consolas_LUT_bpp3[8]        = { 0x0000,0x001F,0x07E0,0x07FF,0xF800,0xF81F,0xFFE0,0xFFFF };
+ 150          //code WORD consolas_LUT_bpp4[16]       = { 0x07FF,0x20E3,0xF79E,0x62E8,0xE104,0xA944,0x39A6,0x7BAC,
+ 151          //                                                                                      0x51A6,0xC617,0x9CD1,0xB5B5,0x9BC9,0xDD85,0xF643,0xAC87 };
+ 152          
+ 153          //code WORD graynum_LUT_bpp2[4]         = { 0xF7DE,0x0000,0x5AAB,0xC000  };
+ 154          code WORD graynum_LUT_bpp3[8]           = { 0xFFFF,0x0000,0xDEDB,0x9492,0x6B6D,0xB5B6,0x4A49,0x2124 };
+ 155          //code WORD graynum_LUT_bpp4[16]        = {     0xD6BA,0x20E3,0xF79E,0x62E8,0xE104,0xA944,0x39A6,0x7BAC,
+ 156          //                                                                              0x51A6,0xC617,0x9CD1,0xB5B5,0x9BC9,0xDD85,0xF643,0xAC87};
+ 157          
+ 158          
+ 159          //TW8835 max FontRam size is 0x2800. But FW use 0x3000 space. The remain 0x800 will be used for Font Infor
+             -mation.
+ 160          //                                              loc,      size    W   H   2BPP   3BPP   4BPP   MAX    pale
+             -tte for 2bpp,3bpp,4bpp
+ 161          code FONT_SPI_INFO_t default_font                       = { 0x400000, 0x27F9, 12, 18, 0x100, 0x120, 0x15F, 0x17B, default_
+             -LUT_bpp2, default_LUT_bpp3, default_LUT_bpp4 };
+ 162          code FONT_SPI_INFO_t consolas16x26_606C90       = { 0x403000, 0x2080, 16, 26, 0x060, 0x06C, 0x090, 0x0A0, NULL,
+             - NULL, NULL };
+ 163          code FONT_SPI_INFO_t consolas16x26_graynum      = { 0x406000, 0x0618, 16, 26, 0x000, 0x000, 0x01E, 0x01E, NULL
+             -, graynum_LUT_bpp3, NULL };
+ 164          code FONT_SPI_INFO_t kor_font                           = { 0x409000, 0x0A20, 12, 18, 0x000, 0x000, 0x000, 0x060, NULL, NULL, NU
+             -LL };
+ 165          code FONT_SPI_INFO_t ram_font                           = { 0x40B000, 0x2080, 16, 18, 0x060, 0x06C, 0x090, 0x0A0, NULL, NULL, NU
+             -LL };
+ 166          //next 0x400000+0xB000
+ 167          //next you have to move the menu images.
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 4   
+
+ 168          
+ 169          
+ 170          //===================================
+ 171          // for TEST
+ 172          FAR CONST MY_SLIDEIMAGE test_IMG[] = {
+ 173              { MAP0_START+0x0EF71A, 0x0100, 0x002B1D },    // Test_PBARPTR100_64
+ 174          };
+ 175          FAR CONST MY_RLE_INFO test_INFO[] = {
+ 176                  { 0x60, 327,45  },              //Test_PBARPTR100_64
+ 177          };
+ 178          
+ 179          
+ 180          //====================================================
+ 181          // MENU IMAGE MAP
+ 182          // 0x410000
+ 183          //====================================================
+ 184          
+ 185          //for fast
+ 186          code image_info_t img_navi_close0_header        =  {1, 0x70, 0x30, 0x30 };
+ 187          code image_info_t img_navi_close1_header        =  {1, 0x70, 0x30, 0x30 };
+ 188          code image_info_t img_navi_setup0_header        =  {1, 0x70, 0x30, 0x30 };
+ 189          code image_info_t img_navi_setup1_header        =  {1, 0x70, 0x30, 0x30 };
+ 190          
+ 191          
+ 192          
+ 193          code image_info_t img_main_input_header =  {1, 0x80, 118, 110 /*,0x01803E*/};
+ 194          code image_info_t img_main_audio_header =  {1, 0x80, 106, 114 /*,0x01803E*/};
+ 195          code image_info_t img_main_system_header = {1, 0x80, 138, 117 /*,0x01803E*/};
+ 196          code image_info_t img_wait_header                = {1, 0x70,  48, 50 /*,0x01803E*/};
+ 197          
+ 198          code image_info_t img_input_bg_bottom_header    = {1, 0x88, 0x320, 0x042 }; //:45F13D:49 54 88 88 20 03 42 0
+             -0 95 18 00 00 01 FF 60 01 
+ 199          code image_info_t img_input_nodvi_bg_top_header = {1, 0x80, 0x320, 0x046 }; //:46EFD2:49 54 88 00 20 03 46
+             - 00 C0 DA 00 00 01 FF 60 01 
+ 200          code image_info_t img_input_select_header               = {1, 0x80, 0x009, 0x009 }; //:47CEA2:49 54 88 00 09 00 09 00 5
+             -1 00 00 00 01 FF 60 01 
+ 201          code image_info_t img_input_cvbs0_header        = {1, 0x80, 0x3E, 0x40 };
+ 202          code image_info_t img_input_cvbs1_header        = {1, 0x80, 0x3E, 0x40 };
+ 203          code image_info_t img_input_svideo0_header      = {1, 0x80, 0x4F, 0x3E };
+ 204          code image_info_t img_input_svideo1_header      = {1, 0x80, 0x4F, 0x3E };
+ 205          code image_info_t img_input_ypbpr0_header       = {1, 0x80, 0x46, 0x42 };
+ 206          code image_info_t img_input_ypbpr1_header       = {1, 0x80, 0x46, 0x42 };
+ 207          code image_info_t img_input_pc0_header          = {1, 0x80, 0x47, 0x3F };
+ 208          code image_info_t img_input_pc1_header          = {1, 0x80, 0x47, 0x3F };
+ 209          //code image_info_t img_input_dvi0_header       = {1, 0x80, 0x4F, 0x3E };
+ 210          //code image_info_t img_input_dvi1_header       = {1, 0x80, 0x4F, 0x3E };
+ 211          code image_info_t img_input_hdmi0_header        = {1, 0x80, 0x48, 0x3F };
+ 212          code image_info_t img_input_hdmi1_header        = {1, 0x80, 0x48, 0x3F };
+ 213          code image_info_t img_input_ext0_header         = {1, 0x80, 0x3D, 0x3D };
+ 214          code image_info_t img_input_ext1_header         = {1, 0x80, 0x3D, 0x3D };
+ 215          code image_info_t img_input_return0_header      = {1, 0x70, 0x22, 0x22 };
+ 216          code image_info_t img_input_return1_header      = {1, 0x70, 0x22, 0x22 };
+ 217          
+ 218          
+ 219          
+ 220          
+ 221          
+ 222          
+ 223          
+ 224          //code image_item_info_t img_ = {+0x000000, 0x0010F0 },    // FontAll 
+ 225          code image_item_info_t img_logo                                                 = {1, MENU_B_FLASH_START+0x000000, NULL,        0xff};    // Intersil-Techw
+             -ell
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 5   
+
+ 226          code image_item_info_t img_navi_menu                                    = {1, MENU_B_FLASH_START+0x0049B1, NULL,        0x00};    // img_navi_
+             -bg 
+ 227          code image_item_info_t img_navi_return                                  = {1, MENU_B_FLASH_START+0x0071D1, NULL,        0xff};    // img_navi
+             -_return 
+ 228          code image_item_info_t img_navi_return1                                 = {1, MENU_B_FLASH_START+0x007CE1, NULL,        0xff};    // img_nav
+             -i_return1 
+ 229          code image_item_info_t img_navi_home                                    = {1, MENU_B_FLASH_START+0x0087F1, NULL,        0xff};    // img_navi_
+             -home 
+ 230          code image_item_info_t img_navi_home1                                   = {1, MENU_B_FLASH_START+0x009301, NULL,        0xff};    // img_navi
+             -_home1 
+ 231          code image_item_info_t img_navi_close                                   = {2, MENU_B_FLASH_START+0x009E11, &img_navi_close0_header,     0x
+             -ff};    // img_navi_close 
+ 232          code image_item_info_t img_navi_close1                                  = {1, MENU_B_FLASH_START+0x00A921, NULL,        0xff};    // img_navi
+             -_close1 
+ 233          code image_item_info_t img_navi_demo                                    = {1, MENU_B_FLASH_START+0x00B431, NULL,        0xff};    // img_navi_
+             -demo 
+ 234          code image_item_info_t img_navi_demo1                                   = {1, MENU_B_FLASH_START+0x00BF41, NULL,        0xff};    // img_navi
+             -_demo1 
+ 235          code image_item_info_t img_navi_setup                                   = {2, MENU_B_FLASH_START+0x00CA51, &img_navi_setup0_header,     0x
+             -ff};    // img_navi_setup 
+ 236          code image_item_info_t img_navi_setup1                                  = {1, MENU_B_FLASH_START+0x00D561, NULL,        0xff};    // img_navi
+             -_setup1 
+ 237          code image_item_info_t img_main_bg                                      = {1, MENU_B_FLASH_START+0x00E071, NULL,        0xff};    // img_main_bg
+             - 
+ 238          code image_item_info_t img_main_input                                   = {2, MENU_B_FLASH_START+0x0236A7, &img_main_input_header,      0xf
+             -f};    // img_main_input 
+ 239          code image_item_info_t img_main_input1                                  = {1, MENU_B_FLASH_START+0x026D6B, NULL,        0xff};    // img_main
+             -_input1 
+ 240          code image_item_info_t img_main_audio                                   = {2, MENU_B_FLASH_START+0x02A42F, &img_main_audio_header,      0xf
+             -f};    // img_main_audio 
+ 241          code image_item_info_t img_main_audio1                                  = {1, MENU_B_FLASH_START+0x02D773, NULL,        0xff};    // img_main
+             -_audio1 
+ 242          code image_item_info_t img_main_system                                  = {2, MENU_B_FLASH_START+0x030AB7, &img_main_system_header,     0x
+             -ff};    // img_main_system 
+ 243          code image_item_info_t img_main_system1                                 = {1, MENU_B_FLASH_START+0x034DD9, NULL,        0xff};    // img_mai
+             -n_system1 
+ 244          code image_item_info_t img_main_gps                                     = {1, MENU_B_FLASH_START+0x0390FB, NULL,        0xff};    // img_main_g
+             -ps 
+ 245          code image_item_info_t img_main_gps1                                    = {1, MENU_B_FLASH_START+0x03C925, NULL,        0xff};    // img_main_
+             -gps1 
+ 246          code image_item_info_t img_main_phone                                   = {1, MENU_B_FLASH_START+0x04014F, NULL,        0xff};    // img_main
+             -_phone 
+ 247          code image_item_info_t img_main_phone1                                  = {1, MENU_B_FLASH_START+0x043779, NULL,        0xff};    // img_main
+             -_phone1 
+ 248          code image_item_info_t img_main_carinfo                                 = {1, MENU_B_FLASH_START+0x046DA3, NULL,        0xff};    // img_mai
+             -n_carinfo 
+ 249          code image_item_info_t img_main_carinfo1                                = {1, MENU_B_FLASH_START+0x04AF70, NULL,        0xff};    // img_ma
+             -in_carinfo1 
+ 250          code image_item_info_t img_input_bg_bottom                      = {2, MENU_B_FLASH_START+0x04F13D, &img_input_bg_bottom_hea
+             -der,        0x5B};    // img_input_bg_bottom 
+ 251          code image_item_info_t img_input_bg_top                                 = {1, MENU_B_FLASH_START+0x050DE2, NULL,        0x5B};    // img_inp
+             -ut_bg_top 
+ 252          code image_item_info_t img_input_nodvi_bg_top                   = {2, MENU_B_FLASH_START+0x05EFD2, &img_input_nodvi_bg_t
+             -op_header,        0x5B};    // img_input_nodvi_bg_top 
+ 253          code image_item_info_t img_input_select                                 = {2, MENU_B_FLASH_START+0x06CEA2, &img_input_select_header,    
+             -0x5B};    // img_input_select 
+ 254          code image_item_info_t img_input_cvbs                                   = {2, MENU_B_FLASH_START+0x06D303, &img_input_cvbs0_header,     0x
+             -ff};    // img_input_cvbs 
+ 255          code image_item_info_t img_input_cvbs1                                  = {1, MENU_B_FLASH_START+0x06E693, NULL,        0xff};    // img_inp
+             -ut_cvbs1 
+ 256          code image_item_info_t img_input_svideo                                 = {2, MENU_B_FLASH_START+0x06FA63, &img_input_svideo0_header,
+             -        0xff};    // img_input_svideo 
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 6   
+
+ 257          code image_item_info_t img_input_svideo1                                = {1, MENU_B_FLASH_START+0x071195, NULL,        0xff};    // img_in
+             -put_svideo1 
+ 258          code image_item_info_t img_input_ypbpr                                  = {2, MENU_B_FLASH_START+0x0728C7, &img_input_ypbpr0_header,    0
+             -xff};    // img_input_Ypbpr 
+ 259          code image_item_info_t img_input_ypbpr1                                 = {1, MENU_B_FLASH_START+0x073EE3, NULL,        0xff};    // img_inp
+             -ut_Ypbpr1 
+ 260          code image_item_info_t img_input_pc                                     = {2, MENU_B_FLASH_START+0x0754BD, &img_input_pc0_header,       0xff};
+             -    // img_input_pc 
+ 261          code image_item_info_t img_input_pc1                                    = {1, MENU_B_FLASH_START+0x076A46, NULL,        0xff};    // img_input
+             -_pc1 
+ 262          code image_item_info_t img_input_dvi                                    = {1, MENU_B_FLASH_START+0x078004, NULL,        0xff};    // img_input
+             -_dvi 
+ 263          code image_item_info_t img_input_dvi1                                   = {1, MENU_B_FLASH_START+0x079452, NULL,        0xff};    // img_inpu
+             -t_dvi1 
+ 264          code image_item_info_t img_input_hdmi                                   = {2, MENU_B_FLASH_START+0x07A8A0, &img_input_hdmi0_header,     0x
+             -ff};    // img_input_hdmi 
+ 265          code image_item_info_t img_input_hdmi1                                  = {1, MENU_B_FLASH_START+0x07BE68, NULL,        0xff};    // img_inpu
+             -t_hdmi1 
+ 266          code image_item_info_t img_input_ext                                    = {2, MENU_B_FLASH_START+0x07D3B2, &img_input_ext0_header,      0xff
+             -};    // img_input_ext 
+ 267          code image_item_info_t img_input_ext1                                   = {1, MENU_B_FLASH_START+0x07E64B, NULL,        0xFF};    // img_inpu
+             -t_ext1 
+ 268          code image_item_info_t img_input_return                                 = {2, MENU_B_FLASH_START+0x07F8E4, &img_input_return0_header,
+             -        0xff};    // img_input_return 
+ 269          code image_item_info_t img_input_return1                                = {1, MENU_B_FLASH_START+0x07FF78, NULL,        0xFF};    // img_in
+             -put_return1 
+ 270          code image_item_info_t img_audio_bg                                             = {1, MENU_B_FLASH_START+0x08060C, NULL,        0xff};    // img_audio
+             -_bg 
+ 271          code image_item_info_t img_system_bg_bottom                     = {1, MENU_B_FLASH_START+0x090CCC, NULL,        0x61};    // img_
+             -system_bg_bottom 
+ 272          code image_item_info_t img_system_bg_top                                = {1, MENU_B_FLASH_START+0x09277E, NULL,        0x61};    // img_sy
+             -stem_bg_top 
+ 273          code image_item_info_t img_system_touch                                 = {1, MENU_B_FLASH_START+0x0A096E, NULL,        0xff};    // img_sys
+             -tem_touch 
+ 274          code image_item_info_t img_system_touch1                                = {1, MENU_B_FLASH_START+0x0A19F0, NULL,        0xff};    // img_sy
+             -stem_touch1 
+ 275          code image_item_info_t img_system_display                               = {1, MENU_B_FLASH_START+0x0A2A72, NULL,        0xff};    // img_sy
+             -stem_display 
+ 276          code image_item_info_t img_system_display1                              = {1, MENU_B_FLASH_START+0x0A3D85, NULL,        0xff};    // img_s
+             -ystem_display1 
+ 277          code image_item_info_t img_system_btooth                                = {1, MENU_B_FLASH_START+0x0A5098, NULL,        0xff};    // img_sy
+             -stem_btooth 
+ 278          code image_item_info_t img_system_btooth1                               = {1, MENU_B_FLASH_START+0x0A627A, NULL,        0xff};    // img_s
+             -ystem_btooth1 
+ 279          code image_item_info_t img_system_restore                               = {1, MENU_B_FLASH_START+0x0A7422, NULL,        0xff};    // img_s
+             -ystem_restore 
+ 280          code image_item_info_t img_system_restore1                      = {1, MENU_B_FLASH_START+0x0A846E, NULL,        0xff};    // img_s
+             -ystem_restore1 
+ 281          code image_item_info_t img_system_sys_info                      = {1, MENU_B_FLASH_START+0x0A94BA, NULL,        0xff};    // img_s
+             -ystem_sys_info 
+ 282          code image_item_info_t img_system_sys_info1                     = {1, MENU_B_FLASH_START+0x0AA662, NULL,        0xff};    // img_
+             -system_sys_info1 
+ 283          code image_item_info_t img_gps_bg                                               = {1, MENU_B_FLASH_START+0x0AB80A, NULL,        0xff};    // img-gps-bg 
+ 284          code image_item_info_t img_phone_bg                                             = {1, MENU_B_FLASH_START+0x0DCEAE, NULL,        0xff};    // img-phone
+             --bg
+ 285          code image_item_info_t img_phone_00                                     = {1, MENU_B_FLASH_START+0x0E8D44, NULL,        0xff};    // img_phone_0
+             -0          
+ 286          code image_item_info_t img_phone_01                                     = {1, MENU_B_FLASH_START+0x0E9BE8, NULL,        0xff};    // img_phone_0
+             -1          
+ 287          code image_item_info_t img_phone_10                                     = {1, MENU_B_FLASH_START+0x0EAAD2, NULL,        0xff};    // img_phone_1
+             -0          
+ 288          code image_item_info_t img_phone_11                                     = {1, MENU_B_FLASH_START+0x0EB948, NULL,        0xff};    // img_phone_1
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 7   
+
+             -1          
+ 289          code image_item_info_t img_phone_20                                     = {1, MENU_B_FLASH_START+0x0EC832, NULL,        0xff};    // img_phone_2
+             -0          
+ 290          code image_item_info_t img_phone_21                                     = {1, MENU_B_FLASH_START+0x0ED6A8, NULL,        0xff};    // img_phone_2
+             -1          
+ 291          code image_item_info_t img_phone_30                                     = {1, MENU_B_FLASH_START+0x0EE592, NULL,        0xff};    // img_phone_3
+             -0          
+ 292          code image_item_info_t img_phone_31                                     = {1, MENU_B_FLASH_START+0x0EF408, NULL,        0xff};    // img_phone_3
+             -1          
+ 293          code image_item_info_t img_phone_40                                     = {1, MENU_B_FLASH_START+0x0F02F2, NULL,        0xff};    // img_phone_4
+             -0          
+ 294          code image_item_info_t img_phone_41                                     = {1, MENU_B_FLASH_START+0x0F1168, NULL,        0xff};    // img_phone_4
+             -1          
+ 295          code image_item_info_t img_phone_50                                     = {1, MENU_B_FLASH_START+0x0F2052, NULL,        0xff};    // img_phone_5
+             -0          
+ 296          code image_item_info_t img_phone_51                                     = {1, MENU_B_FLASH_START+0x0F2EC8, NULL,        0xff};    // img_phone_5
+             -1          
+ 297          code image_item_info_t img_phone_60                                     = {1, MENU_B_FLASH_START+0x0F3DB2, NULL,        0xff};    // img_phone_6
+             -0          
+ 298          code image_item_info_t img_phone_61                                     = {1, MENU_B_FLASH_START+0x0F4C28, NULL,        0xff};    // img_phone_6
+             -1          
+ 299          code image_item_info_t img_phone_70                                     = {1, MENU_B_FLASH_START+0x0F5B12, NULL,        0xff};    // img_phone_7
+             -0          
+ 300          code image_item_info_t img_phone_71                                     = {1, MENU_B_FLASH_START+0x0F6988, NULL,        0xff};    // img_phone_7
+             -1          
+ 301          code image_item_info_t img_phone_80                                     = {1, MENU_B_FLASH_START+0x0F7872, NULL,        0xff};    // img_phone_8
+             -0          
+ 302          code image_item_info_t img_phone_81                                     = {1, MENU_B_FLASH_START+0x0F86E8, NULL,        0xff};    // img_phone_8
+             -1          
+ 303          code image_item_info_t img_phone_90                                     = {1, MENU_B_FLASH_START+0x0F95D2, NULL,        0xff};    // img_phone_9
+             -0          
+ 304          code image_item_info_t img_phone_91                                     = {1, MENU_B_FLASH_START+0x0FA448, NULL,        0xff};    // img_phone_9
+             -1          
+ 305          code image_item_info_t img_phone_star0                                  = {1, MENU_B_FLASH_START+0x0FB332, NULL,        0xff};    // img_phon
+             -e_star0          
+ 306          code image_item_info_t img_phone_star1                                  = {1, MENU_B_FLASH_START+0x0FC1A8, NULL,        0xff};    // img_phon
+             -e_star1          
+ 307          code image_item_info_t img_phone_sharp0                                 = {1, MENU_B_FLASH_START+0x0FD092, NULL,        0xff};    // img_phon
+             -e_sharp0  
+ 308          code image_item_info_t img_phone_sharp1                                 = {1, MENU_B_FLASH_START+0x0FDF08, NULL,        0xff};    // img_phon
+             -e_sharp1  
+ 309          code image_item_info_t img_phone_dial0                                  = {1, MENU_B_FLASH_START+0x0FEDF2, NULL,        0xff};    // img_phon
+             -e_dial0          
+ 310          code image_item_info_t img_phone_dial1                                  = {1, MENU_B_FLASH_START+0x101928, NULL,        0xff};    // img_phon
+             -e_dial1          
+ 311          code image_item_info_t img_phone_up0                                    = {1, MENU_B_FLASH_START+0x104572, NULL,        0xff};    // img_phone_
+             -up0          
+ 312          code image_item_info_t img_phone_up1                                    = {1, MENU_B_FLASH_START+0x1053E8, NULL,        0xff};    // img_phone_
+             -up1          
+ 313          code image_item_info_t img_phone_down0                                  = {1, MENU_B_FLASH_START+0x1062D2, NULL,        0xff};    // img_phon
+             -e_down0          
+ 314          code image_item_info_t img_phone_down1                                  = {1, MENU_B_FLASH_START+0x107148, NULL,        0xff};    // img_phon
+             -e_down1          
+ 315          code image_item_info_t img_phone_left0                                  = {1, MENU_B_FLASH_START+0x108032, NULL,        0xff};    // img_phon
+             -e_left0          
+ 316          code image_item_info_t img_phone_left1                                  = {1, MENU_B_FLASH_START+0x108EA8, NULL,        0xff};    // img_phon
+             -e_left1          
+ 317          code image_item_info_t img_phone_right0                                 = {1, MENU_B_FLASH_START+0x109D92, NULL,        0xff};    // img_phon
+             -e_right0  
+ 318          code image_item_info_t img_phone_right1                                 = {1, MENU_B_FLASH_START+0x10AC08, NULL,        0xff};    // img_phon
+             -e_right1  
+ 319          code image_item_info_t img_phone_check0                                 = {1, MENU_B_FLASH_START+0x10BAF2, NULL,        0xff};    // img_phon
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 8   
+
+             -e_check0  
+ 320          code image_item_info_t img_phone_check1                                 = {1, MENU_B_FLASH_START+0x10C968, NULL,        0xff};    // img_phon
+             -e_check1  
+ 321          code image_item_info_t img_phone_help0                                  = {1, MENU_B_FLASH_START+0x10D852, NULL,        0xff};    // img_phon
+             -e_help0          
+ 322          code image_item_info_t img_phone_help1                                  = {1, MENU_B_FLASH_START+0x10E70D, NULL,        0xff};    // img_phon
+             -e_help1          
+ 323          code image_item_info_t img_phone_dir0                                   = {1, MENU_B_FLASH_START+0x10F5B1, NULL,        0xff};    // img_phone
+             -_dir0          
+ 324          code image_item_info_t img_phone_dir1                                   = {1, MENU_B_FLASH_START+0x110FD5, NULL,        0xff};    // img_phone
+             -_dir1          
+ 325          code image_item_info_t img_phone_set0                                   = {1, MENU_B_FLASH_START+0x1129F9, NULL,        0xff};    // img_phone
+             -_set0          
+ 326          code image_item_info_t img_phone_set1                                   = {1, MENU_B_FLASH_START+0x11441D, NULL,        0xff};    // img_phone
+             -_set1          
+ 327          code image_item_info_t img_phone_msg0                                   = {1, MENU_B_FLASH_START+0x115EC7, NULL,        0xff};    // img_phone
+             -_msg0          
+ 328          code image_item_info_t img_phone_msg1                                   = {1, MENU_B_FLASH_START+0x1178EB, NULL,        0xff};    // img_phone
+             -_msg1          
+ 329          code image_item_info_t img_phone_menu0                                  = {1, MENU_B_FLASH_START+0x11930F, NULL,        0xff};    // img_phon
+             -e_menu0          
+ 330          code image_item_info_t img_phone_menu1                                  = {1, MENU_B_FLASH_START+0x11AD33, NULL,        0xff};    // img_phon
+             -e_menu1          
+ 331          code image_item_info_t img_carinfo_bg                                   = {1, MENU_B_FLASH_START+0x11C757, NULL,        0xff};    // img_cari
+             -nfo_bg 
+ 332          code image_item_info_t img_demo_bg                                      = {1, MENU_B_FLASH_START+0x1296CF, NULL,        0xff};    // img_demo_bg
+             - 
+ 333          code image_item_info_t img_demo_grid                                    = {1, MENU_B_FLASH_START+0x13BA74, NULL,        0xff};    // img_demo_
+             -grid          
+ 334          code image_item_info_t img_demo_grid1                                   = {1, MENU_B_FLASH_START+0x13E9F0, NULL,        0xff};    // img_demo
+             -_grid1          
+ 335          code image_item_info_t img_demo_rose                                    = {1, MENU_B_FLASH_START+0x14196C, NULL,        0xff};    // img_demo_
+             -rose          
+ 336          code image_item_info_t img_demo_rose1                                   = {1, MENU_B_FLASH_START+0x144DC2, NULL,        0xff};    // img_demo
+             -_rose1          
+ 337          code image_item_info_t img_demo_ani                                             = {1, MENU_B_FLASH_START+0x148218, NULL,        0xff};    // img_demo_
+             -ani                
+ 338          code image_item_info_t img_demo_ani1                                    = {1, MENU_B_FLASH_START+0x14B00C, NULL,        0xff};    // img_demo_
+             -ani1        
+ 339          code image_item_info_t img_demo_palette                                 = {1, MENU_B_FLASH_START+0x14DE6A, NULL,        0xff};    // img_de
+             -mo_palette        
+ 340          code image_item_info_t img_demo_palette1                                = {1, MENU_B_FLASH_START+0x150F50, NULL,        0xff};    // img_de
+             -mo_palette1
+ 341          code image_item_info_t img_demo_demoA                                   = {1, MENU_B_FLASH_START+0x154036, NULL,        0xff};    // img_demo
+             -_demoA        
+ 342          code image_item_info_t img_demo_demoA1                                  = {1, MENU_B_FLASH_START+0x156E2A, NULL,        0xff};    // img_dem
+             -o_demoA1        
+ 343          code image_item_info_t img_demo_demoB                                   = {1, MENU_B_FLASH_START+0x159C1E, NULL,        0xff};    // img_demo
+             -_demoB        
+ 344          code image_item_info_t img_demo_demoB1                                  = {1, MENU_B_FLASH_START+0x15CA12, NULL,        0xff};    // img_dem
+             -o_demoB1        
+ 345          code image_item_info_t img_touch_bg                                     = {1, MENU_B_FLASH_START+0x15F806, NULL,        0xff};    // img_touch_
+             -bg 
+ 346          code image_item_info_t img_touch_bg_end                                 = {1, MENU_B_FLASH_START+0x1612C0, NULL,        0xff};    // img_touc
+             -h_bg 
+ 347          code image_item_info_t img_touch_button                                 = {1, MENU_B_FLASH_START+0x16416B, NULL,        0xff};    // img_tou
+             -ch_button 
+ 348          code image_item_info_t img_touch_button1                                = {1, MENU_B_FLASH_START+0x16437D, NULL,        0xff};    // img_to
+             -uch_button1 
+ 349          code image_item_info_t img_btooth_bg                                    = {1, MENU_B_FLASH_START+0x16458F, NULL,        0xff};    // img_btoot
+             -h_bg 
+ 350          code image_item_info_t img_yuv_menu_bg                                  = {1, MENU_B_FLASH_START+0x188842, NULL,        0x00};    // img_yuv_
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 9   
+
+             -menu_bg 
+ 351          code image_item_info_t img_yuv_bright                                   = {1, MENU_B_FLASH_START+0x19B0D2, NULL,        0xff};    // img_yuv_
+             -bright 
+ 352          code image_item_info_t img_yuv_bright1                                  = {1, MENU_B_FLASH_START+0x19DCB8, NULL,        0xff};    // img_yuv_
+             -bright1 
+ 353          code image_item_info_t img_yuv_contrast                                 = {1, MENU_B_FLASH_START+0x1A089E, NULL,        0xff};    // img_yuv
+             -_contrast 
+ 354          code image_item_info_t img_yuv_contrast1                                = {1, MENU_B_FLASH_START+0x1A3484, NULL,        0xff};    // img_yu
+             -v_contrast1 
+ 355          code image_item_info_t img_yuv_hue                                      = {1, MENU_B_FLASH_START+0x1A606A, NULL,        0xff};    // img_yuv_hue
+             - 
+ 356          code image_item_info_t img_yuv_hue1                                     = {1, MENU_B_FLASH_START+0x1A8C50, NULL,        0xff};    // img_yuv_hu
+             -e1 
+ 357          code image_item_info_t img_yuv_saturate                                 = {1, MENU_B_FLASH_START+0x1AB836, NULL,        0xff};    // img_yuv
+             -_saturate 
+ 358          code image_item_info_t img_yuv_saturate1                                = {1, MENU_B_FLASH_START+0x1AE41C, NULL,        0xff};    // img_yu
+             -v_saturate1 
+ 359          code image_item_info_t img_yuv_sharp                                    = {1, MENU_B_FLASH_START+0x1B1002, NULL,        0xff};    // img_yuv_s
+             -harp 
+ 360          code image_item_info_t img_yuv_sharp1                                   = {1, MENU_B_FLASH_START+0x1B3BE8, NULL,        0xff};    // img_yuv_
+             -sharp1 
+ 361          code image_item_info_t img_rgb_menu_bg                                  = {1, MENU_B_FLASH_START+0x1B67CE, NULL,        0x00};    // img_rgb_
+             -menu_bg 
+ 362          code image_item_info_t img_rgb_bright                                   = {1, MENU_B_FLASH_START+0x1C905E, NULL,        0xff};    // img_rgb_
+             -bright 
+ 363          code image_item_info_t img_rgb_bright1                                  = {1, MENU_B_FLASH_START+0x1CD8F4, NULL,        0xff};    // img_rgb_
+             -bright1 
+ 364          code image_item_info_t img_rgb_contrast                                 = {1, MENU_B_FLASH_START+0x1D218A, NULL,        0xff};    // img_rgb
+             -_contrast 
+ 365          code image_item_info_t img_rgb_contrast1                                = {1, MENU_B_FLASH_START+0x1D6A20, NULL,        0xff};    // img_rg
+             -b_contrast1 
+ 366          code image_item_info_t img_rgb_color                                    = {1, MENU_B_FLASH_START+0x1DB2B6, NULL,        0xff};    // img_rgb_co
+             -lor 
+ 367          code image_item_info_t img_rgb_color1                                   = {1, MENU_B_FLASH_START+0x1DFB4C, NULL,        0xff};    // img_rgb_c
+             -olor1 
+ 368          code image_item_info_t img_apc_menu_bg                                  = {1, MENU_B_FLASH_START+0x1E43E2, NULL,        0x00};    // img_apc_
+             -menu_bg 
+ 369          code image_item_info_t img_apc_bright                                   = {1, MENU_B_FLASH_START+0x1F6C72, NULL,        0xff};    // img_apc_
+             -bright 
+ 370          code image_item_info_t img_apc_bright1                                  = {1, MENU_B_FLASH_START+0x1F8835, NULL,        0xff};    // img_apc_
+             -bright1 
+ 371          code image_item_info_t img_apc_contrast                                 = {1, MENU_B_FLASH_START+0x1FA3F8, NULL,        0xff};    // img_apc
+             -_contrast 
+ 372          code image_item_info_t img_apc_contrast1                                = {1, MENU_B_FLASH_START+0x1FBFBB, NULL,        0xff};    // img_ap
+             -c_contrast1 
+ 373          code image_item_info_t img_apc_color                                    = {1, MENU_B_FLASH_START+0x1FDB7E, NULL,        0xff};    // img_apc_c
+             -olor 
+ 374          code image_item_info_t img_apc_color1                                   = {1, MENU_B_FLASH_START+0x1FF741, NULL,        0xff};    // img_apc_
+             -color1
+ 375          code image_item_info_t img_apc_position                                 = {1, MENU_B_FLASH_START+0x201304, NULL,        0xff};    // img_apc
+             -_position 
+ 376          code image_item_info_t img_apc_position1                                = {1, MENU_B_FLASH_START+0x202EC7, NULL,        0xff};    // img_ap
+             -c_position1 
+ 377          code image_item_info_t img_apc_phase                                    = {1, MENU_B_FLASH_START+0x204A8A, NULL,        0xff};    // img_apc_p
+             -hase 
+ 378          code image_item_info_t img_apc_phase1                                   = {1, MENU_B_FLASH_START+0x20664D, NULL,        0xff};    // img_apc_
+             -phase1 
+ 379          code image_item_info_t img_apc_pclock                                   = {1, MENU_B_FLASH_START+0x208210, NULL,        0xff};    // img_apc_
+             -pclock 
+ 380          code image_item_info_t img_apc_pclock1                                  = {1, MENU_B_FLASH_START+0x209DD3, NULL,        0xff};    // img_apc_
+             -pclock1 
+ 381          code image_item_info_t img_apc_autoadj                                  = {1, MENU_B_FLASH_START+0x20B996, NULL,        0xff};    // img_apc_
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 10  
+
+             -autoadj 
+ 382          code image_item_info_t img_apc_autoadj1                                 = {1, MENU_B_FLASH_START+0x20D559, NULL,        0xff};    // img_apc
+             -_autoadj1 
+ 383          code image_item_info_t img_apc_autocolor                                = {1, MENU_B_FLASH_START+0x20F11C, NULL,        0xff};    // img_ap
+             -c_autocolor
+ 384          code image_item_info_t img_apc_autocolor1                               = {1, MENU_B_FLASH_START+0x210CDF, NULL,        0xff};    // img_a
+             -pc_autocolor1
+ 385          code image_item_info_t img_hdmi_menu_bg                                 = {1, MENU_B_FLASH_START+0x2128A2, NULL,        0x00};    // img_hdm
+             -i_menu_bg 
+ 386          code image_item_info_t img_hdmi_mode                                    = {1, MENU_B_FLASH_START+0x225132, NULL,        0xff};    // img_hdmi_
+             -mode 
+ 387          code image_item_info_t img_hdmi_mode1                                   = {1, MENU_B_FLASH_START+0x22BDA4, NULL,        0xff};    // img_hdmi
+             -_mode1 
+ 388          code image_item_info_t img_hdmi_setting                                 = {1, MENU_B_FLASH_START+0x232964, NULL,        0xff};    // img_hdm
+             -i_setting 
+ 389          code image_item_info_t img_hdmi_setting1                                = {1, MENU_B_FLASH_START+0x2395D6, NULL,        0xff};    // img_hd
+             -mi_setting1 
+ 390          code image_item_info_t img_display_bg                                   = {1, MENU_B_FLASH_START+0x240248, NULL,        0x00};    // img_disp
+             -lay_bg 
+ 391          code image_item_info_t img_display_aspect                               = {1, MENU_B_FLASH_START+0x252AD8, NULL,        0xff};    // img_d
+             -isplay_aspect 
+ 392          code image_item_info_t img_display_aspect1                              = {1, MENU_B_FLASH_START+0x2556BE, NULL,        0xff};    // img_d
+             -isplay_aspect1 
+ 393          code image_item_info_t img_display_osd                                  = {1, MENU_B_FLASH_START+0x2582A4, NULL,        0xff};    // img_disp
+             -lay_osd 
+ 394          code image_item_info_t img_display_osd1                                 = {1, MENU_B_FLASH_START+0x25AE8A, NULL,        0xff};    // img_dis
+             -play_osd1 
+ 395          code image_item_info_t img_display_flip                                 = {1, MENU_B_FLASH_START+0x25DA70, NULL,        0xff};    // img_dis
+             -play_flip 
+ 396          code image_item_info_t img_display_flip1                                = {1, MENU_B_FLASH_START+0x260656, NULL,        0xff};    // img_di
+             -splay_flip1 
+ 397          code image_item_info_t img_display_backlight                    = {1, MENU_B_FLASH_START+0x26323C, NULL,        0xff};    // img
+             -_display_backlight 
+ 398          code image_item_info_t img_display_backlight1                   = {1, MENU_B_FLASH_START+0x265E22, NULL,        0xff};    // im
+             -g_display_backlight1 
+ 399          code image_item_info_t img_display_resolution                   = {1, MENU_B_FLASH_START+0x268A08, NULL,        0xff};    // im
+             -g_display_resolution 
+ 400          code image_item_info_t img_display_resolution1                  = {1, MENU_B_FLASH_START+0x26B5EE, NULL,        0xff};    // im
+             -g_display_resolution1 
+ 401          code image_item_info_t img_osd_bg                                               = {1, MENU_B_FLASH_START+0x26E1D4, NULL,        0x00};    // img_osd_bg 
+ 402          code image_item_info_t img_osd_timer                                    = {1, MENU_B_FLASH_START+0x280A64, NULL,        0xff};    // img_osd_t
+             -imer 
+ 403          code image_item_info_t img_osd_timer1                                   = {1, MENU_B_FLASH_START+0x2876D6, NULL,        0xff};    // img_osd_
+             -timer1 
+ 404          code image_item_info_t img_osd_trans                                    = {1, MENU_B_FLASH_START+0x28E348, NULL,        0xff};    // img_osd_t
+             -rans 
+ 405          code image_item_info_t img_osd_trans1                                   = {1, MENU_B_FLASH_START+0x294FBA, NULL,        0xff};    // img_osd_
+             -trans1 
+ 406          code image_item_info_t img_dialog_ok                                    = {1, MENU_B_FLASH_START+0x29BC2C, NULL,        0xff};    // img_dialo
+             -g_ok 
+ 407          code image_item_info_t img_dialog_ok1                                   = {1, MENU_B_FLASH_START+0x29C83C, NULL,        0xff};    // img_dial
+             -og_ok1 
+ 408          code image_item_info_t img_dialog_cancel                                = {1, MENU_B_FLASH_START+0x29D44C, NULL,        0xff};    // img_di
+             -alog_cancel 
+ 409          code image_item_info_t img_dialog_cancel1                               = {1, MENU_B_FLASH_START+0x29E69C, NULL,        0xff};    // img_d
+             -ialog_cancel1 
+ 410          code image_item_info_t img_autoadj_bg                                   = {1, MENU_B_FLASH_START+0x29F8EC, NULL,        0xff};    // img_auto
+             -adj_bg 
+ 411          code image_item_info_t img_autocolor_bg                                 = {1, MENU_B_FLASH_START+0x2A2FF3, NULL,        0xff};    // img_aut
+             -ocolor_bg 
+ 412          code image_item_info_t img_flip_bg                                      = {1, MENU_B_FLASH_START+0x2A602D, NULL,        0xff};    // img_flip_bg
+             - 
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 11  
+
+ 413          code image_item_info_t img_sysrestore_bg                                = {1, MENU_B_FLASH_START+0x2A81A9, NULL,        0xff};    // img_sy
+             -srestore_bg 
+ 414          code image_item_info_t img_sysinfo_bg                                   = {1, MENU_B_FLASH_START+0x2AB31C, NULL,        0xff};    // img_sysi
+             -nfo_bg 
+ 415          code image_item_info_t img_resolution_bg                                = {1, MENU_B_FLASH_START+0x2ACDD7, NULL,        0xff};    // img_re
+             -solution_bg 
+ 416          code image_item_info_t img_slide_bg                                     = {1, MENU_B_FLASH_START+0x2AE2B2, NULL,        0xff};    // img_slide_
+             -bg 
+ 417          code image_item_info_t img_slide3_bg                                    = {1, MENU_B_FLASH_START+0x2AFAF3, NULL,        0xff};    // img_slide
+             -3_bg 
+ 418          code image_item_info_t img_slide_gray                                   = {1, MENU_B_FLASH_START+0x2B1444, NULL,        0xff};    // img_slid
+             -e_gray 
+ 419          code image_item_info_t img_slide_red                                    = {1, MENU_B_FLASH_START+0x2B1C45, NULL,        0xff};    // img_slide
+             -_red 
+ 420          code image_item_info_t img_slide_left                                   = {1, MENU_B_FLASH_START+0x2B2446, NULL,        0xff};    // img_slid
+             -e_left 
+ 421          code image_item_info_t img_slide_left1                                  = {1, MENU_B_FLASH_START+0x2B2EEE, NULL,        0xff};    // img_slid
+             -e_lef1t 
+ 422          code image_item_info_t img_slide_right                                  = {1, MENU_B_FLASH_START+0x2B3996, NULL,        0xff};    // img_slid
+             -e_right 
+ 423          code image_item_info_t img_slide_right1                                 = {1, MENU_B_FLASH_START+0x2B443E, NULL,        0xff};    // img_sli
+             -de_right1 
+ 424          code image_item_info_t img_slide_backlight                      = {1, MENU_B_FLASH_START+0x2B4EE6, NULL,        0xff};    // img_s
+             -lide_backlight 
+ 425          code image_item_info_t img_slide_bright                                 = {1, MENU_B_FLASH_START+0x2B55D5, NULL,        0xff};    // img_sli
+             -de_bright 
+ 426          code image_item_info_t img_slide_clock                                  = {1, MENU_B_FLASH_START+0x2B5D8A, NULL,        0xff};    // img_slid
+             -e_clock 
+ 427          code image_item_info_t img_slide_contrast                               = {1, MENU_B_FLASH_START+0x2B6431, NULL,        0xff};    // img_s
+             -lide_contrast 
+ 428          code image_item_info_t img_slide_rgb                                    = {1, MENU_B_FLASH_START+0x2B6970, NULL,        0xff};    // img_slide
+             -_rgb 
+ 429          code image_item_info_t img_slide_hue                                    = {1, MENU_B_FLASH_START+0x2B6C7E, NULL,        0xff};    // img_slide
+             -_hue 
+ 430          code image_item_info_t img_slide_phase                                  = {1, MENU_B_FLASH_START+0x2B6F80, NULL,        0xff};    // img_slid
+             -e_phase 
+ 431          code image_item_info_t img_slide_saturate                               = {1, MENU_B_FLASH_START+0x2B7393, NULL,        0xff};    // img_s
+             -lide_saturate 
+ 432          code image_item_info_t img_slide_sharp                                  = {1, MENU_B_FLASH_START+0x2B79B9, NULL,        0xff};    // img_slid
+             -e_sharp 
+ 433          code image_item_info_t img_slide_timer                                  = {1, MENU_B_FLASH_START+0x2B813B, NULL,        0xff};    // img_slid
+             -e_timer 
+ 434          code image_item_info_t img_slide_trans                                  = {1, MENU_B_FLASH_START+0x2B8530, NULL,        0xff};    // img_slid
+             -e_trasn 
+ 435          code image_item_info_t img_position_bg                                  = {1, MENU_B_FLASH_START+0x2B8EC2, NULL,        0xff};    // img_posi
+             -tion_bg 
+ 436          code image_item_info_t img_position_box_gray                    = {1, MENU_B_FLASH_START+0x2BBEDF, NULL,        0xff};    // img
+             -_position_box_gray 
+ 437          code image_item_info_t img_position_box_red                     = {1, MENU_B_FLASH_START+0x2C00FF, NULL,        0xff};    // img_
+             -position_box_red 
+ 438          code image_item_info_t img_position_up                                  = {1, MENU_B_FLASH_START+0x2C427B, NULL,        0xff};    // img_posi
+             -tion_up 
+ 439          code image_item_info_t img_position_down                                = {1, MENU_B_FLASH_START+0x2C4953, NULL,        0xff};    // img_po
+             -sition_down 
+ 440          code image_item_info_t img_position_left                                = {1, MENU_B_FLASH_START+0x2C502B, NULL,        0xff};    // img_po
+             -sition_left 
+ 441          code image_item_info_t img_position_right                               = {1, MENU_B_FLASH_START+0x2C5703, NULL,        0xff};    // img_p
+             -osition_right 
+ 442          code image_item_info_t img_popup_aspect_bg                      = {1, MENU_B_FLASH_START+0x2C5DDB, NULL,        0xff};    // img_a
+             -spect_bg 
+ 443          code image_item_info_t img_popup_aspect_normal                  = {1, MENU_B_FLASH_START+0x2C9F88, NULL,        0xff};    // im
+             -g_aspect_normal 
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 12  
+
+ 444          code image_item_info_t img_popup_aspect_normal1                 = {1, MENU_B_FLASH_START+0x2CA8DE, NULL,        0xff};    // im
+             -g_aspect_normal1 
+ 445          code image_item_info_t img_popup_aspect_normal_select   = {1, MENU_B_FLASH_START+0x2CB219, NULL,        0xff};    /
+             -/ img_aspect_normal_select 
+ 446          code image_item_info_t img_popup_aspect_zoom                    = {1, MENU_B_FLASH_START+0x2CBA40, NULL,        0xff};    // img
+             -_aspect_zoom 
+ 447          code image_item_info_t img_popup_aspect_zoom1                   = {1, MENU_B_FLASH_START+0x2CC1C8, NULL,        0xff};    // im
+             -g_aspect_zoom1 
+ 448          code image_item_info_t img_popup_aspect_zoom_select             = {1, MENU_B_FLASH_START+0x2CC9D1, NULL,        0xff};    //
+             - img_aspect_zoom_select 
+ 449          code image_item_info_t img_popup_aspect_full                    = {1, MENU_B_FLASH_START+0x2CD1DA, NULL,        0xff};    // img
+             -_aspect_full
+ 450          code image_item_info_t img_popup_aspect_full1                   = {1, MENU_B_FLASH_START+0x2CD83C, NULL,        0xff};    // im
+             -g_aspect_full1
+ 451          code image_item_info_t img_popup_aspect_full_select             = {1, MENU_B_FLASH_START+0x2CDEC8, NULL,        0xff};    //
+             - img_aspect_full_select
+ 452          code image_item_info_t img_popup_aspect_pano                    = {1, MENU_B_FLASH_START+0x2CE6A4, NULL,        0xff};    // img
+             -_aspect_pano
+ 453          code image_item_info_t img_popup_aspect_pano1                   = {1, MENU_B_FLASH_START+0x2CF1DD, NULL,        0xff};    // im
+             -g_aspect_pano1
+ 454          code image_item_info_t img_popup_aspect_pano_sel                = {1, MENU_B_FLASH_START+0x2CFD31, NULL,        0xff};    // im
+             -g_aspect_pano_sel
+ 455          code image_item_info_t img_dvi_mode_bg                                  = {1, MENU_B_FLASH_START+0x2D050D, NULL,        0xff};    // img_dvi_
+             -mode_bg 
+ 456          code image_item_info_t img_dvi_mode_24bit                               = {1, MENU_B_FLASH_START+0x2E33E5, NULL,        0xff};    // img_d
+             -vi_mode_24bit 
+ 457          code image_item_info_t img_dvi_mode_24bit1                      = {1, MENU_B_FLASH_START+0x2E4415, NULL,        0xff};    // img_d
+             -vi_mode_24bit1 
+ 458          code image_item_info_t img_dvi_mode_16bit                               = {1, MENU_B_FLASH_START+0x2E5505, NULL,        0xff};    // img_d
+             -vi_mode_16bit 
+ 459          code image_item_info_t img_dvi_mode_16bit1                      = {1, MENU_B_FLASH_START+0x2E65D3, NULL,        0xff};    // img_d
+             -vi_mode_16bit1 
+ 460          code image_item_info_t img_dvi_mode_select24                    = {1, MENU_B_FLASH_START+0x2E76E5, NULL,        0xff};    // img
+             -_dvi_mode_select24 
+ 461          code image_item_info_t img_dvi_mode_select16                    = {1, MENU_B_FLASH_START+0x2E834B, NULL,        0xff};    // img
+             -_dvi_mode_select16 
+ 462          code image_item_info_t img_hdmi_mode_bg                                 = {1, MENU_B_FLASH_START+0x2E8FB5, NULL,        0xff};    // img_hdm
+             -i_mode_bg 
+ 463          code image_item_info_t img_hdmi_mode_pc                                 = {1, MENU_B_FLASH_START+0x2FBE8D, NULL,        0xff};    // img_hdm
+             -i_mode_pc 
+ 464          code image_item_info_t img_hdmi_mode_pc1                                = {1, MENU_B_FLASH_START+0x2FCD31, NULL,        0xff};    // img_hd
+             -mi_mode_pc1 
+ 465          code image_item_info_t img_hdmi_mode_tv                                 = {1, MENU_B_FLASH_START+0x2FDB79, NULL,        0xff};    // img_hdm
+             -i_mode_tv 
+ 466          code image_item_info_t img_hdmi_mode_tv1                                = {1, MENU_B_FLASH_START+0x2FEA05, NULL,        0xff};    // img_hd
+             -mi_mode_tv1 
+ 467          code image_item_info_t img_hdmi_mode_selectPC                   = {1, MENU_B_FLASH_START+0x2FF86F, NULL,        0xff};    // im
+             -g_hdmi_mode_selectPC 
+ 468          code image_item_info_t img_hdmi_mode_selectTV                   = {1, MENU_B_FLASH_START+0x30091F, NULL,        0xff};    // im
+             -g_hdmi_mode_selectTV 
+ 469          code image_item_info_t img_wait                                                 = {2, MENU_B_FLASH_START+0x301A02, &img_wait_header,    0x00};    // i
+             -mg_wait. 48x50x10 
+ 470          
+ 471          
+ 472          //=================================
+ 473          // FPGA TEST IMAGE
+ 474          //=================================
+ 475          code image_item_info_t img_fpga_200                     = {1, FPGA_TEST_IMG+0x000000, NULL, 0xff};
+ 476          code image_item_info_t img_fpga_300                     = {1, FPGA_TEST_IMG+0x0005D7, NULL, 0xff};
+ 477          code image_item_info_t img_fpga_400                     = {1, FPGA_TEST_IMG+0x000AE9, NULL, 0xff};
+ 478          code image_item_info_t img_fpga_800                     = {1, FPGA_TEST_IMG+0x000FF3, NULL, 0xff};
+ 479          
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 13  
+
+ 480          #define FPGA_TEST_IMG2  0x330000
+ 481          code image_item_info_t img_bgr_bar                      = {1, FPGA_TEST_IMG2+0x000000, NULL, 0xff};
+ 482          code image_item_info_t img_alpha_bar            = {1, FPGA_TEST_IMG2+0x013C90, NULL, 0xff};
+ 483          
+ 484          
+ 485          
+ 486          typedef struct MonOsdData_s {
+ 487                  struct image_item_info_s *image;
+ 488                  BYTE name[10];  
+ 489          } MonOsdData_t;
+ 490          
+ 491          code MonOsdData_t MonSOsdImgTable[] = {
+ 492                  { &img_logo,                    "logo     "},
+ 493                  { &img_main_bg,                 "main_bg  "},
+ 494                  { &img_main_input,              "input0   " },
+ 495                  { &img_main_input1,             "input1   " },
+ 496                  { &img_main_system,             "system0  "},
+ 497                  { &img_main_system1,    "system1  "},
+ 498                  { &img_input_bg_bottom, "input_bg0"},
+ 499                  { &img_input_bg_top,    "input_bg1"},
+ 500                  { &img_input_cvbs,              "cvbs0    "     },
+ 501                  { &img_input_cvbs1,             "cvbs1    " },
+ 502                  { &img_navi_return,             "return0  "},
+ 503                  { &img_navi_return1,    "return1  " },
+ 504                  //===================================
+ 505                  { &img_fpga_200,                "fpga_200 "},
+ 506                  { &img_fpga_300,                "fpga_300 "},
+ 507                  { &img_fpga_400,                "fpga_400 "},
+ 508                  { &img_fpga_800,                "fpga_800 "},
+ 509                  //===================================
+ 510                  { &img_bgr_bar,                 "bgr_bar "},
+ 511                  { &img_alpha_bar,               "alpha_bar"},
+ 512          };
+ 513          
+ 514          extern menu_image_header_t header_table;
+ 515          extern void MenuPrepareImageHeader(struct image_item_info_s *image);
+ 516          void MonSOsdImgInfo(void)
+ 517          {
+ 518   1              struct image_item_info_s *image;
+ 519   1              //image_info_t *info;
+ 520   1              menu_image_header_t *header = &header_table;    //link header buffer.
+ 521   1              BYTE i;
+ 522   1      
+ 523   1              for(i=0; i < (12+4+2); i++) {
+ 524   2                      Printf("\n%02bd %s",i,MonSOsdImgTable[i].name);
+ 525   2                      image = MonSOsdImgTable[i].image;
+ 526   2                      Printf(" loc:%lx alpha:%bx",image->loc,image->alpha);
+ 527   2      
+ 528   2                      //prepare header
+ 529   2                      MenuPrepareImageHeader(image);
+ 530   2      
+ 531   2                      //header info
+ 532   2                      Printf(" bpp%bd", header->bpp);
+ 533   2                      Printf(" rle%bd", header->rle);
+ 534   2                      Printf(" %dx%d", header->dx, header->dy);
+ 535   2                      Printf(" alpha:%2bx",image->alpha);
+ 536   2                      Printf(" lut%s size:%d*4",header->lut_type? "s": " ", header->lut_size >> 2);            
+ 537   2              }
+ 538   1      }
+ 539          void MonOsdLutLoad(BYTE img_n, BYTE sosd_win, WORD lut)
+ 540          {
+ 541   1              struct image_item_info_s *image;
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 14  
+
+ 542   1              menu_image_header_t *header = &header_table;    //link header buffer.
+ 543   1      
+ 544   1      
+ 545   1              Printf("\nMonOsdLutLoad(%bd,%bd,%d)",img_n,lut);
+ 546   1      
+ 547   1              //BYTE i;
+ 548   1              image = MonSOsdImgTable[img_n].image;
+ 549   1              //prepare header
+ 550   1              MenuPrepareImageHeader(image);
+ 551   1              
+ 552   1              //Load Palette
+ 553   1              SpiOsdLoadLUT(sosd_win, header->lut_type, lut, header->lut_size, header->lut_loc);
+ 554   1      }
+ 555          
+ 556          extern BYTE UseSOsdHwBuff;
+ 557          extern WORD SOsdHwBuff_alpha;
+ 558          
+ 559          void MonOsdImgLoad(BYTE img_n, BYTE sosd_win, WORD item_lut)
+ 560          {
+ 561   1              struct image_item_info_s *image;
+ 562   1              menu_image_header_t *header = &header_table;    //link header buffer.
+ 563   1      //      BYTE i;
+ 564   1              WORD sx,sy;
+ 565   1      
+ 566   1              Printf("\nMonOsdImgLoad(%bd,%bd,%d)",img_n,sosd_win,item_lut);
+ 567   1      
+ 568   1      #if 0
+                      UseSOsdHwBuff=1;
+              #endif
+ 571   1              sx=sy=0;
+ 572   1      //      SOsdWinBuffClean(0);
+ 573   1      
+ 574   1              image = MonSOsdImgTable[img_n].image;
+ 575   1      
+ 576   1              //prepare header
+ 577   1              MenuPrepareImageHeader(image);
+ 578   1      
+ 579   1      
+ 580   1              //see MenuDrawCurrImage
+ 581   1              //fill out sosd_buff
+ 582   1              SpiOsdWinImageLoc( sosd_win, header->image_loc); 
+ 583   1              SpiOsdWinImageSizeWH( sosd_win, header->dx, header->dy );
+ 584   1              SpiOsdWinScreen( sosd_win, sx, sy, header->dx, header->dy );
+ 585   1              if(sosd_win==0) {
+ 586   2                      SpiOsdWin0ImageOffsetXY( 0, 0 );
+ 587   2                      SpiOsdWin0Animation( 1, 0, 0, 0);
+ 588   2              }
+ 589   1              if(image->alpha != 0xFF)
+ 590   1                      SpiOsdWinPixelAlpha( sosd_win, ON );
+ 591   1              else {
+ 592   2                      SpiOsdWinGlobalAlpha( sosd_win, 0 /*EE_Read(EEP_OSD_TRANSPARENCY)*/);
+ 593   2              }
+ 594   1              SpiOsdWinPixelWidth(sosd_win, header->bpp);
+ 595   1              SpiOsdWinLutOffset(sosd_win, item_lut);
+ 596   1      
+ 597   1              SpiOsdWinBuffEnable( sosd_win, ON );
+ 598   1              //
+ 599   1              //write to HW
+ 600   1              //
+ 601   1      #if 1
+ 602   1              if(UseSOsdHwBuff) 
+ 603   1              {
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 15  
+
+ 604   2                      if(header->rle)
+ 605   2                              SOsdHwBuffSetRle(sosd_win,header->bpp,header->rle);
+ 606   2                      SOsdHwBuffSetLut(sosd_win, /*header->lut_type,*/ item_lut, header->lut_size, header->lut_loc);
+ 607   2              
+ 608   2                      //pixel alpha blending. after load Palette
+ 609   2                      if(image->alpha != 0xFF)
+ 610   2                              SOsdHwBuffSetAlpha(item_lut+image->alpha);
+ 611   2      
+ 612   2                      SOsdWinBuffWrite2Hw(sosd_win, sosd_win); //SOsdHwBuffWrite2Hw();
+ 613   2                      UseSOsdHwBuff = 0;
+ 614   2      
+ 615   2                      //update ALPHA
+ 616   2                      if(SOsdHwBuff_alpha != 0xFFFF) {
+ 617   3                              WriteTW88Page(4);
+ 618   3                              WriteTW88(REG410, 0xc3 );               // LUT Write Mode, En & byte ptr inc.
+ 619   3      
+ 620   3                              if(SOsdHwBuff_alpha >> 8)       WriteTW88(REG410, ReadTW88(REG410) | 0x08);     //support 512 palette
+ 621   3                              else                                    WriteTW88(REG410, ReadTW88(REG410) & 0xF7);
+ 622   3                              WriteTW88(REG411, (BYTE)SOsdHwBuff_alpha );     // alpha index
+ 623   3                              WriteTW88(REG412, 0x7F/*value*/ );                      // alpha value
+ 624   3      
+ 625   3                              SOsdHwBuff_alpha = 0xFFFF;
+ 626   3                      }
+ 627   2              }
+ 628   1      #endif
+ 629   1              //else 
+ 630   1      #if 1
+ 631   1              {
+ 632   2                      //WaitVBlank(1);
+ 633   2                      if(header->rle) {       //need RLE ?
+ 634   3                              //SpiOsdEnableRLC(ON);
+ 635   3                              SpiOsdRLC( sosd_win, header->bpp,header->rle);
+ 636   3                      }       
+ 637   2                      else {
+ 638   3                              //We using RLE only on the background.
+ 639   3                              //if(item == 0) {
+ 640   3                              //      SpiOsdDisableRLC(??winno)
+ 641   3                              //              SpiOsdEnableRLC(OFF);           //disable RLE
+ 642   3                              //      //SpiOsdEnableRLC is not enough. So, assign win0
+ 643   3                              //      SpiOsdRLC( 0,0,0); //BK110217
+ 644   3                              //}
+ 645   3                      }
+ 646   2                      WaitVBlank(1);
+ 647   2              
+ 648   2                      //Load Palette
+ 649   2      //              SpiOsdLoadLUT(header->lut_type, menu_item->lut, header->lut_size, header->lut_loc);
+ 650   2              
+ 651   2                      //WaitVBlank(1);
+ 652   2                      //update HW
+ 653   2                      SOsdWinBuffWrite2Hw(sosd_win, sosd_win);
+ 654   2              
+ 655   2                      //pixel alpha blending. after load Palette
+ 656   2                      if(image->alpha != 0xFF) {
+ 657   3                              SpiOsdPixelAlphaAttr(item_lut+image->alpha, 0x7F);
+ 658   3                      }
+ 659   2              }
+ 660   1      #endif
+ 661   1      }
+ 662          
+ 663          
+ 664          #endif //..SUPPORT_SPIOSD
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 16  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com0017 (BEGIN)
+0000         L?0024:
+0000         L?0025:
+0000 900000      R     MOV     DPTR,#sosd_win
+0003 E0                MOVX    A,@DPTR
+0004 FF                MOV     R7,A
+0005         L?0026:
+0005 900000      R     MOV     DPTR,#header
+0008         L?0027:
+0008 E0                MOVX    A,@DPTR
+0009 FB                MOV     R3,A
+000A A3                INC     DPTR
+000B E0                MOVX    A,@DPTR
+000C FA                MOV     R2,A
+000D A3                INC     DPTR
+000E E0                MOVX    A,@DPTR
+000F F9                MOV     R1,A
+0010 22                RET     
+0011         L?0028:
+0011         L?0029:
+0011 E500        E     MOV     A,regTW88+01H
+0013 2410              ADD     A,#010H
+0015         L?0030:
+0015 F582              MOV     DPL,A
+0017 E500        E     MOV     A,regTW88
+0019 3404              ADDC    A,#04H
+001B F583              MOV     DPH,A
+001D 22                RET     
+001E         L?0031:
+001E         L?0032:
+001E E0                MOVX    A,@DPTR
+001F 75F00D            MOV     B,#0DH
+0022 A4                MUL     AB
+0023 2400        R     ADD     A,#LOW MonSOsdImgTable
+0025 F582              MOV     DPL,A
+0027 E4                CLR     A
+0028 3400        R     ADDC    A,#HIGH MonSOsdImgTable
+002A F583              MOV     DPH,A
+002C E4                CLR     A
+002D 93                MOVC    A,@A+DPTR
+002E 22                RET     
+002F         L?0033:
+002F         L?0034:
+002F 900008            MOV     DPTR,#08H
+0032 020000      E     LJMP    ?C?CLDOPTR
+0035         L?0035:
+0035         L?0036:
+0035 7401              MOV     A,#01H
+0037 F0                MOVX    @DPTR,A
+0038 A3                INC     DPTR
+0039 7400        E     MOV     A,#HIGH header_table
+003B F0                MOVX    @DPTR,A
+003C A3                INC     DPTR
+003D 7400        E     MOV     A,#LOW header_table
+003F F0                MOVX    @DPTR,A
+0040 22                RET     
+0041         L?0037:
+0041 900000      R     MOV     DPTR,#sosd_win
+0044 E0                MOVX    A,@DPTR
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 17  
+
+0045 FF                MOV     R7,A
+0046         L?0038:
+0046 900009            MOV     DPTR,#09H
+0049 020000      E     LJMP    ?C?CLDOPTR
+004C         L?0039:
+004C C9                XCH     A,R1
+004D         L?0040:
+004D F0                MOVX    @DPTR,A
+004E A3                INC     DPTR
+004F EA                MOV     A,R2
+0050 F0                MOVX    @DPTR,A
+0051 A3                INC     DPTR
+0052 E9                MOV     A,R1
+0053 F0                MOVX    @DPTR,A
+0054 22                RET     
+0055         L?0041:
+0055 7E00              MOV     R6,#00H
+0057 900000      R     MOV     DPTR,#item_lut
+005A E0                MOVX    A,@DPTR
+005B FC                MOV     R4,A
+005C A3                INC     DPTR
+005D E0                MOVX    A,@DPTR
+005E 2F                ADD     A,R7
+005F FD                MOV     R5,A
+0060 EE                MOV     A,R6
+0061 3C                ADDC    A,R4
+0062 AF05              MOV     R7,AR5
+0064 FE                MOV     R6,A
+0065 22                RET     
+0066         L?0042:
+0066 FF                MOV     R7,A
+0067         L?0043:
+0067 E5F0              MOV     A,B
+0069 F0                MOVX    @DPTR,A
+006A A3                INC     DPTR
+006B EF                MOV     A,R7
+006C F0                MOVX    @DPTR,A
+006D 22                RET     
+006E         L?0045:
+006E F9                MOV     R1,A
+006F         L?0046:
+006F 7401              MOV     A,#01H
+0071 93                MOVC    A,@A+DPTR
+0072 FA                MOV     R2,A
+0073 7402              MOV     A,#02H
+0075 93                MOVC    A,@A+DPTR
+0076 22                RET     
+0077         L?0047:
+0077 EF                MOV     A,R7
+0078 F0                MOVX    @DPTR,A
+0079 A3                INC     DPTR
+007A ED                MOV     A,R5
+007B F0                MOVX    @DPTR,A
+007C A3                INC     DPTR
+007D EA                MOV     A,R2
+007E F0                MOVX    @DPTR,A
+007F A3                INC     DPTR
+0080 EB                MOV     A,R3
+0081 F0                MOVX    @DPTR,A
+0082 22                RET     
+0083         L?0048:
+0083 AC00              MOV     R4,AR0
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 18  
+
+0085 AD01              MOV     R5,AR1
+0087 AE02              MOV     R6,AR2
+0089 AF03              MOV     R7,AR3
+008B 020000      E     LJMP    ?C?LSTXDATA
+008E         L?0049:
+008E         L?0050:
+008E 90000A            MOV     DPTR,#0AH
+0091 020000      E     LJMP    ?C?CLDOPTR
+0094         L?0051:
+0094         L?0052:
+0094 90000B            MOV     DPTR,#0BH
+0097 020000      E     LJMP    ?C?ILDOPTR
+009A         L?0053:
+009A         L?0054:
+009A 90000D            MOV     DPTR,#0DH
+009D 020000      E     LJMP    ?C?ILDOPTR
+00A0         L?0055:
+00A0         L?0056:
+00A0 90000F            MOV     DPTR,#0FH
+00A3 020000      E     LJMP    ?C?ILDOPTR
+             ; FUNCTION Com0017 (END)
+
+             ; FUNCTION MonSOsdImgInfo (BEGIN)
+                                           ; SOURCE LINE # 516
+                                           ; SOURCE LINE # 517
+                                           ; SOURCE LINE # 520
+0000 900000      R     MOV     DPTR,#header
+0003 120000      R     LCALL   L?0035
+                                           ; SOURCE LINE # 523
+0006 E4                CLR     A
+0007 A3                INC     DPTR
+0008 F0                MOVX    @DPTR,A
+0009         ?C0001:
+                                           ; SOURCE LINE # 524
+0009 900000      R     MOV     DPTR,#i
+000C E0                MOVX    A,@DPTR
+000D 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0010 F0                MOVX    @DPTR,A
+0011 75F00D            MOV     B,#0DH
+0014 A4                MUL     AB
+0015 2400        R     ADD     A,#LOW MonSOsdImgTable+03H
+0017 F9                MOV     R1,A
+0018 7400        R     MOV     A,#HIGH MonSOsdImgTable+03H
+001A 35F0              ADDC    A,B
+001C FA                MOV     R2,A
+001D A3                INC     DPTR
+001E 74FF              MOV     A,#0FFH
+0020 120000      R     LCALL   L?0040
+0023 7BFF              MOV     R3,#0FFH
+0025 7A00        R     MOV     R2,#HIGH ?SC_0
+0027 7900        R     MOV     R1,#LOW ?SC_0
+0029 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 525
+002C 900000      R     MOV     DPTR,#i
+002F 120000      R     LCALL   L?0031
+0032 120000      R     LCALL   L?0045
+0035 900000      R     MOV     DPTR,#image
+0038 120000      R     LCALL   L?0039
+                                           ; SOURCE LINE # 526
+003B 900000      R     MOV     DPTR,#image
+003E 120000      R     LCALL   L?0027
+0041 900001            MOV     DPTR,#01H
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 19  
+
+0044 120000      E     LCALL   ?C?LLDOPTR
+0047 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+004A 120000      E     LCALL   ?C?LSTXDATA
+004D 120000      R     LCALL   L?0033
+0050 900000      E     MOV     DPTR,#?_Printf?BYTE+07H
+0053 F0                MOVX    @DPTR,A
+0054 7BFF              MOV     R3,#0FFH
+0056 7A00        R     MOV     R2,#HIGH ?SC_10
+0058 7900        R     MOV     R1,#LOW ?SC_10
+005A 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 529
+005D 900000      R     MOV     DPTR,#image
+0060 120000      R     LCALL   L?0027
+0063 120000      E     LCALL   _MenuPrepareImageHeader
+                                           ; SOURCE LINE # 532
+0066 900000      R     MOV     DPTR,#header
+0069 120000      R     LCALL   L?0027
+006C 120000      R     LCALL   L?0038
+006F 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0072 F0                MOVX    @DPTR,A
+0073 7A00        R     MOV     R2,#HIGH ?SC_29
+0075 7900        R     MOV     R1,#LOW ?SC_29
+                                           ; SOURCE LINE # 533
+0077 120000      R     LCALL   L?0044
+007A 120000      R     LCALL   L?0027
+007D 120000      R     LCALL   L?0049
+0080 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0083 F0                MOVX    @DPTR,A
+0084 7A00        R     MOV     R2,#HIGH ?SC_37
+0086 7900        R     MOV     R1,#LOW ?SC_37
+                                           ; SOURCE LINE # 534
+0088 120000      R     LCALL   L?0044
+008B 120000      R     LCALL   L?0027
+008E 120000      R     LCALL   L?0051
+0091 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0094 120000      R     LCALL   L?0042
+0097 120000      R     LCALL   L?0053
+009A 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
+009D 120000      R     LCALL   L?0042
+00A0 7BFF              MOV     R3,#0FFH
+00A2 7A00        R     MOV     R2,#HIGH ?SC_45
+00A4 7900        R     MOV     R1,#LOW ?SC_45
+00A6 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 535
+00A9 900000      R     MOV     DPTR,#image
+00AC 120000      R     LCALL   L?0027
+00AF 120000      R     LCALL   L?0033
+00B2 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+00B5 F0                MOVX    @DPTR,A
+00B6 7BFF              MOV     R3,#0FFH
+00B8 7A00        R     MOV     R2,#HIGH ?SC_52
+00BA 7900        R     MOV     R1,#LOW ?SC_52
+00BC 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 536
+00BF 900000      R     MOV     DPTR,#header
+00C2 120000      R     LCALL   L?0027
+00C5 120000      R     LCALL   L?0034
+00C8 7BFF              MOV     R3,#0FFH
+00CA 6006              JZ      ?C0004
+00CC 7A00        R     MOV     R2,#HIGH ?SC_81
+00CE 7900        R     MOV     R1,#LOW ?SC_81
+00D0 8004              SJMP    ?C0005
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 20  
+
+00D2         ?C0004:
+00D2 7A00        R     MOV     R2,#HIGH ?SC_83
+00D4 7900        R     MOV     R1,#LOW ?SC_83
+00D6         ?C0005:
+00D6 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+00D9 EB                MOV     A,R3
+00DA 120000      R     LCALL   L?0040
+00DD 900000      R     MOV     DPTR,#header
+00E0 120000      R     LCALL   L?0027
+00E3 120000      R     LCALL   L?0055
+00E6 AEF0              MOV     R6,B
+00E8 7802              MOV     R0,#02H
+00EA         ?C0021:
+00EA CE                XCH     A,R6
+00EB C3                CLR     C
+00EC 13                RRC     A
+00ED CE                XCH     A,R6
+00EE 13                RRC     A
+00EF D8F9              DJNZ    R0,?C0021
+00F1 FF                MOV     R7,A
+00F2 900000      E     MOV     DPTR,#?_Printf?BYTE+06H
+00F5 EE                MOV     A,R6
+00F6 F0                MOVX    @DPTR,A
+00F7 A3                INC     DPTR
+00F8 EF                MOV     A,R7
+00F9 F0                MOVX    @DPTR,A
+00FA 7BFF              MOV     R3,#0FFH
+00FC 7A00        R     MOV     R2,#HIGH ?SC_64
+00FE 7900        R     MOV     R1,#LOW ?SC_64
+0100 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 537
+0103 900000      R     MOV     DPTR,#i
+0106 E0                MOVX    A,@DPTR
+0107 04                INC     A
+0108 F0                MOVX    @DPTR,A
+0109 E0                MOVX    A,@DPTR
+010A C3                CLR     C
+010B 9412              SUBB    A,#012H
+010D 5003              JNC     $ + 5H
+010F 020000      R     LJMP    ?C0001
+                                           ; SOURCE LINE # 538
+0112         ?C0006:
+0112 22                RET     
+0113         L?0044:
+0113 7BFF              MOV     R3,#0FFH
+0115 120000      E     LCALL   _Printf
+0118 900000      R     MOV     DPTR,#header
+011B 22                RET     
+             ; FUNCTION MonSOsdImgInfo (END)
+
+             ; FUNCTION _MonOsdLutLoad (BEGIN)
+                                           ; SOURCE LINE # 539
+0000 900000      R     MOV     DPTR,#img_n
+0003 120000      R     LCALL   L?0047
+                                           ; SOURCE LINE # 540
+                                           ; SOURCE LINE # 542
+0006 A3                INC     DPTR
+0007 120000      R     LCALL   L?0035
+                                           ; SOURCE LINE # 545
+000A 7BFF              MOV     R3,#0FFH
+000C 7A00        R     MOV     R2,#HIGH ?SC_85
+000E 7900        R     MOV     R1,#LOW ?SC_85
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 21  
+
+0010 900000      R     MOV     DPTR,#img_n
+0013 E0                MOVX    A,@DPTR
+0014 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0017 F0                MOVX    @DPTR,A
+0018 900000      R     MOV     DPTR,#lut
+001B E0                MOVX    A,@DPTR
+001C FF                MOV     R7,A
+001D A3                INC     DPTR
+001E E0                MOVX    A,@DPTR
+001F 900000      E     MOV     DPTR,#?_Printf?BYTE+04H
+0022 CF                XCH     A,R7
+0023 F0                MOVX    @DPTR,A
+0024 A3                INC     DPTR
+0025 EF                MOV     A,R7
+0026 F0                MOVX    @DPTR,A
+0027 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 548
+002A 900000      R     MOV     DPTR,#img_n
+002D 120000      R     LCALL   L?0031
+0030 FB                MOV     R3,A
+0031 120000      R     LCALL   L?0046
+0034 F9                MOV     R1,A
+;---- Variable 'image' assigned to Register 'R1/R2/R3' ----
+                                           ; SOURCE LINE # 550
+0035 120000      E     LCALL   _MenuPrepareImageHeader
+                                           ; SOURCE LINE # 553
+0038 900000      R     MOV     DPTR,#header
+003B 120000      R     LCALL   L?0027
+003E 120000      R     LCALL   L?0034
+0041 FD                MOV     R5,A
+0042 C005              PUSH    AR5
+0044 120000      R     LCALL   L?0055
+0047 FF                MOV     R7,A
+0048 900000      E     MOV     DPTR,#?_SpiOsdLoadLUT?BYTE+04H
+004B 120000      R     LCALL   L?0043
+004E 120000      E     LCALL   ?C?LLDPTR
+0051 900000      E     MOV     DPTR,#?_SpiOsdLoadLUT?BYTE+06H
+0054 120000      E     LCALL   ?C?LSTXDATA
+0057 900000      R     MOV     DPTR,#lut
+005A E0                MOVX    A,@DPTR
+005B FA                MOV     R2,A
+005C A3                INC     DPTR
+005D E0                MOVX    A,@DPTR
+005E FB                MOV     R3,A
+005F 900000      R     MOV     DPTR,#sosd_win
+0062 E0                MOVX    A,@DPTR
+0063 FF                MOV     R7,A
+0064 D005              POP     AR5
+0066 020000      E     LJMP    _SpiOsdLoadLUT
+             ; FUNCTION _MonOsdLutLoad (END)
+
+             ; FUNCTION _MonOsdImgLoad (BEGIN)
+                                           ; SOURCE LINE # 559
+0000 900000      R     MOV     DPTR,#img_n
+0003 120000      R     LCALL   L?0047
+                                           ; SOURCE LINE # 560
+                                           ; SOURCE LINE # 562
+0006 900000      R     MOV     DPTR,#header
+0009 120000      R     LCALL   L?0036
+                                           ; SOURCE LINE # 566
+000C 7BFF              MOV     R3,#0FFH
+000E 7A00        R     MOV     R2,#HIGH ?SC_112
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 22  
+
+0010 7900        R     MOV     R1,#LOW ?SC_112
+0012 900000      R     MOV     DPTR,#img_n
+0015 E0                MOVX    A,@DPTR
+0016 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0019 F0                MOVX    @DPTR,A
+001A 900000      R     MOV     DPTR,#sosd_win
+001D E0                MOVX    A,@DPTR
+001E 900000      E     MOV     DPTR,#?_Printf?BYTE+04H
+0021 F0                MOVX    @DPTR,A
+0022 900000      R     MOV     DPTR,#item_lut
+0025 E0                MOVX    A,@DPTR
+0026 FF                MOV     R7,A
+0027 A3                INC     DPTR
+0028 E0                MOVX    A,@DPTR
+0029 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
+002C CF                XCH     A,R7
+002D F0                MOVX    @DPTR,A
+002E A3                INC     DPTR
+002F EF                MOV     A,R7
+0030 F0                MOVX    @DPTR,A
+0031 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 571
+0034 E4                CLR     A
+0035 900000      R     MOV     DPTR,#sy
+0038 F0                MOVX    @DPTR,A
+0039 A3                INC     DPTR
+003A F0                MOVX    @DPTR,A
+003B 900000      R     MOV     DPTR,#sx
+003E F0                MOVX    @DPTR,A
+003F A3                INC     DPTR
+0040 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 574
+0041 900000      R     MOV     DPTR,#img_n
+0044 120000      R     LCALL   L?0032
+0047 120000      R     LCALL   L?0045
+004A 900000      R     MOV     DPTR,#image
+004D 120000      R     LCALL   L?0039
+                                           ; SOURCE LINE # 577
+0050 900000      R     MOV     DPTR,#image
+0053 120000      R     LCALL   L?0027
+0056 120000      E     LCALL   _MenuPrepareImageHeader
+                                           ; SOURCE LINE # 582
+0059 120000      R     LCALL   L?0026
+005C 900004            MOV     DPTR,#04H
+005F 120000      E     LCALL   ?C?LLDOPTR0
+0062 900000      E     MOV     DPTR,#?_SpiOsdWinImageLoc?BYTE+01H
+0065 120000      R     LCALL   L?0048
+0068 900000      R     MOV     DPTR,#sosd_win
+006B E0                MOVX    A,@DPTR
+006C FF                MOV     R7,A
+006D 120000      E     LCALL   _SpiOsdWinImageLoc
+                                           ; SOURCE LINE # 583
+0070 120000      R     LCALL   L?0024
+0073 120000      R     LCALL   L?0051
+0076 FD                MOV     R5,A
+0077 ACF0              MOV     R4,B
+0079 120000      R     LCALL   L?0053
+007C FB                MOV     R3,A
+007D AAF0              MOV     R2,B
+007F 120000      E     LCALL   _SpiOsdWinImageSizeWH
+                                           ; SOURCE LINE # 584
+0082 120000      R     LCALL   L?0024
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 23  
+
+0085 120000      R     LCALL   L?0052
+0088 FD                MOV     R5,A
+0089 900000      E     MOV     DPTR,#?_SpiOsdWinScreen?BYTE+05H
+008C E5F0              MOV     A,B
+008E F0                MOVX    @DPTR,A
+008F A3                INC     DPTR
+0090 ED                MOV     A,R5
+0091 F0                MOVX    @DPTR,A
+0092 120000      R     LCALL   L?0054
+0095 FD                MOV     R5,A
+0096 900000      E     MOV     DPTR,#?_SpiOsdWinScreen?BYTE+07H
+0099 E5F0              MOV     A,B
+009B F0                MOVX    @DPTR,A
+009C A3                INC     DPTR
+009D ED                MOV     A,R5
+009E F0                MOVX    @DPTR,A
+009F 900000      R     MOV     DPTR,#sy
+00A2 E0                MOVX    A,@DPTR
+00A3 FA                MOV     R2,A
+00A4 A3                INC     DPTR
+00A5 E0                MOVX    A,@DPTR
+00A6 FB                MOV     R3,A
+00A7 900000      R     MOV     DPTR,#sx
+00AA E0                MOVX    A,@DPTR
+00AB FC                MOV     R4,A
+00AC A3                INC     DPTR
+00AD E0                MOVX    A,@DPTR
+00AE FD                MOV     R5,A
+00AF 120000      E     LCALL   _SpiOsdWinScreen
+                                           ; SOURCE LINE # 585
+00B2 900000      R     MOV     DPTR,#sosd_win
+00B5 E0                MOVX    A,@DPTR
+00B6 7012              JNZ     ?C0008
+                                           ; SOURCE LINE # 586
+00B8 FD                MOV     R5,A
+00B9 FC                MOV     R4,A
+00BA FF                MOV     R7,A
+00BB FE                MOV     R6,A
+00BC 120000      E     LCALL   _SpiOsdWin0ImageOffsetXY
+                                           ; SOURCE LINE # 587
+00BF E4                CLR     A
+00C0 900000      E     MOV     DPTR,#?_SpiOsdWin0Animation?BYTE+03H
+00C3 F0                MOVX    @DPTR,A
+00C4 FB                MOV     R3,A
+00C5 7F01              MOV     R7,#01H
+00C7 120000      E     LCALL   _SpiOsdWin0Animation
+                                           ; SOURCE LINE # 588
+00CA         ?C0008:
+                                           ; SOURCE LINE # 589
+00CA 900000      R     MOV     DPTR,#image
+00CD 120000      R     LCALL   L?0027
+00D0 120000      R     LCALL   L?0034
+00D3 F4                CPL     A
+00D4 900000      R     MOV     DPTR,#sosd_win
+00D7 6009              JZ      ?C0009
+                                           ; SOURCE LINE # 590
+00D9 E0                MOVX    A,@DPTR
+00DA FF                MOV     R7,A
+00DB 7D01              MOV     R5,#01H
+00DD 120000      E     LCALL   _SpiOsdWinPixelAlpha
+00E0 8007              SJMP    ?C0010
+00E2         ?C0009:
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 24  
+
+                                           ; SOURCE LINE # 591
+                                           ; SOURCE LINE # 592
+00E2 E0                MOVX    A,@DPTR
+00E3 FF                MOV     R7,A
+00E4 E4                CLR     A
+00E5 FD                MOV     R5,A
+00E6 120000      E     LCALL   _SpiOsdWinGlobalAlpha
+                                           ; SOURCE LINE # 593
+00E9         ?C0010:
+                                           ; SOURCE LINE # 594
+00E9 120000      R     LCALL   L?0025
+00EC 120000      R     LCALL   L?0038
+00EF FD                MOV     R5,A
+00F0 120000      E     LCALL   _SpiOsdWinPixelWidth
+                                           ; SOURCE LINE # 595
+00F3 900000      R     MOV     DPTR,#sosd_win
+00F6 E0                MOVX    A,@DPTR
+00F7 FF                MOV     R7,A
+00F8 A3                INC     DPTR
+00F9 E0                MOVX    A,@DPTR
+00FA FC                MOV     R4,A
+00FB A3                INC     DPTR
+00FC E0                MOVX    A,@DPTR
+00FD FD                MOV     R5,A
+00FE 120000      E     LCALL   _SpiOsdWinLutOffset
+                                           ; SOURCE LINE # 597
+0101 900000      R     MOV     DPTR,#sosd_win
+0104 E0                MOVX    A,@DPTR
+0105 FF                MOV     R7,A
+0106 7D01              MOV     R5,#01H
+0108 120000      E     LCALL   _SpiOsdWinBuffEnable
+                                           ; SOURCE LINE # 602
+010B 900000      E     MOV     DPTR,#UseSOsdHwBuff
+010E E0                MOVX    A,@DPTR
+010F 7003              JNZ     $ + 5H
+0111 020000      R     LJMP    ?C0011
+                                           ; SOURCE LINE # 603
+                                           ; SOURCE LINE # 604
+0114 120000      R     LCALL   L?0026
+0117 120000      R     LCALL   L?0049
+011A FE                MOV     R6,A
+011B 6009              JZ      ?C0012
+                                           ; SOURCE LINE # 605
+011D 120000      R     LCALL   L?0037
+0120 FD                MOV     R5,A
+0121 AB06              MOV     R3,AR6
+0123 120000      E     LCALL   _SOsdHwBuffSetRle
+0126         ?C0012:
+                                           ; SOURCE LINE # 606
+0126 120000      R     LCALL   L?0026
+0129 120000      R     LCALL   L?0056
+012C FB                MOV     R3,A
+012D AAF0              MOV     R2,B
+012F C002              PUSH    AR2
+0131 C003              PUSH    AR3
+0133 900000      R     MOV     DPTR,#header
+0136 E0                MOVX    A,@DPTR
+0137 FB                MOV     R3,A
+0138 A3                INC     DPTR
+0139 E0                MOVX    A,@DPTR
+013A FA                MOV     R2,A
+013B A3                INC     DPTR
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 25  
+
+013C E0                MOVX    A,@DPTR
+013D 120000      E     LCALL   ?C?LLDPTR0
+0140 900000      E     MOV     DPTR,#?_SOsdHwBuffSetLut?BYTE+05H
+0143 120000      R     LCALL   L?0048
+0146 900000      R     MOV     DPTR,#item_lut
+0149 E0                MOVX    A,@DPTR
+014A FC                MOV     R4,A
+014B A3                INC     DPTR
+014C E0                MOVX    A,@DPTR
+014D FD                MOV     R5,A
+014E 900000      R     MOV     DPTR,#sosd_win
+0151 E0                MOVX    A,@DPTR
+0152 FF                MOV     R7,A
+0153 D003              POP     AR3
+0155 D002              POP     AR2
+0157 120000      E     LCALL   _SOsdHwBuffSetLut
+                                           ; SOURCE LINE # 609
+015A 900000      R     MOV     DPTR,#image
+015D 120000      R     LCALL   L?0027
+0160 120000      R     LCALL   L?0034
+0163 FF                MOV     R7,A
+0164 F4                CPL     A
+0165 6006              JZ      ?C0013
+                                           ; SOURCE LINE # 610
+0167 120000      R     LCALL   L?0041
+016A 120000      E     LCALL   _SOsdHwBuffSetAlpha
+016D         ?C0013:
+                                           ; SOURCE LINE # 612
+016D 120000      R     LCALL   L?0057
+                                           ; SOURCE LINE # 613
+0170 E4                CLR     A
+0171 900000      E     MOV     DPTR,#UseSOsdHwBuff
+0174 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 616
+0175 900000      E     MOV     DPTR,#SOsdHwBuff_alpha
+0178 E0                MOVX    A,@DPTR
+0179 FE                MOV     R6,A
+017A A3                INC     DPTR
+017B E0                MOVX    A,@DPTR
+017C F4                CPL     A
+017D 7002              JNZ     ?C0022
+017F EE                MOV     A,R6
+0180 F4                CPL     A
+0181         ?C0022:
+0181 603A              JZ      ?C0011
+                                           ; SOURCE LINE # 618
+0183 120000      R     LCALL   L?0028
+0186 74C3              MOV     A,#0C3H
+0188 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 620
+0189 EE                MOV     A,R6
+018A 6009              JZ      ?C0015
+018C 120000      R     LCALL   L?0028
+018F E0                MOVX    A,@DPTR
+0190 4408              ORL     A,#08H
+0192 F0                MOVX    @DPTR,A
+0193 8007              SJMP    ?C0016
+0195         ?C0015:
+                                           ; SOURCE LINE # 621
+0195 120000      R     LCALL   L?0029
+0198 E0                MOVX    A,@DPTR
+0199 54F7              ANL     A,#0F7H
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 26  
+
+019B F0                MOVX    @DPTR,A
+019C         ?C0016:
+                                           ; SOURCE LINE # 622
+019C 900000      E     MOV     DPTR,#SOsdHwBuff_alpha
+019F A3                INC     DPTR
+01A0 E0                MOVX    A,@DPTR
+01A1 FF                MOV     R7,A
+01A2 E500        E     MOV     A,regTW88+01H
+01A4 2411              ADD     A,#011H
+01A6 120000      R     LCALL   L?0030
+01A9 EF                MOV     A,R7
+01AA F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 623
+01AB E500        E     MOV     A,regTW88+01H
+01AD 2412              ADD     A,#012H
+01AF 120000      R     LCALL   L?0030
+01B2 747F              MOV     A,#07FH
+01B4 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 625
+01B5 74FF              MOV     A,#0FFH
+01B7 900000      E     MOV     DPTR,#SOsdHwBuff_alpha
+01BA F0                MOVX    @DPTR,A
+01BB A3                INC     DPTR
+01BC F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 626
+                                           ; SOURCE LINE # 627
+01BD         ?C0011:
+                                           ; SOURCE LINE # 631
+                                           ; SOURCE LINE # 633
+01BD 120000      R     LCALL   L?0026
+01C0 120000      R     LCALL   L?0050
+01C3 FE                MOV     R6,A
+01C4 6009              JZ      ?C0018
+                                           ; SOURCE LINE # 635
+01C6 120000      R     LCALL   L?0037
+01C9 FD                MOV     R5,A
+01CA AB06              MOV     R3,AR6
+01CC 120000      E     LCALL   _SpiOsdRLC
+                                           ; SOURCE LINE # 636
+                                           ; SOURCE LINE # 637
+                                           ; SOURCE LINE # 645
+01CF         ?C0018:
+                                           ; SOURCE LINE # 646
+01CF 7F01              MOV     R7,#01H
+01D1 120000      E     LCALL   _WaitVBlank
+                                           ; SOURCE LINE # 653
+01D4 120000      R     LCALL   L?0057
+                                           ; SOURCE LINE # 656
+01D7 900000      R     MOV     DPTR,#image
+01DA 120000      R     LCALL   L?0027
+01DD 120000      R     LCALL   L?0034
+01E0 FF                MOV     R7,A
+01E1 F4                CPL     A
+01E2 6008              JZ      ?C0020
+                                           ; SOURCE LINE # 657
+01E4 120000      R     LCALL   L?0041
+01E7 7D7F              MOV     R5,#07FH
+01E9 120000      E     LCALL   _SpiOsdPixelAlphaAttr
+                                           ; SOURCE LINE # 658
+                                           ; SOURCE LINE # 659
+                                           ; SOURCE LINE # 661
+01EC         ?C0020:
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 27  
+
+01EC 22                RET     
+01ED         L?0057:
+01ED 900000      R     MOV     DPTR,#sosd_win
+01F0 E0                MOVX    A,@DPTR
+01F1 FD                MOV     R5,A
+01F2 FF                MOV     R7,A
+01F3 120000      E     LCALL   _SOsdWinBuffWrite2Hw
+01F6 22                RET     
+             ; FUNCTION _MonOsdImgLoad (END)
+
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 28  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_display_aspect . . . . . . . . . .  PUBLIC   CODE   STRUCT   07F8H  9
+img_phone_20 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0462H  9
+img_phone_11 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0459H  9
+img_hdmi_mode_pc . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A80H  9
+img_dialog_ok1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0888H  9
+img_phone_30 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0474H  9
+img_phone_21 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   046BH  9
+test_IMG . . . . . . . . . . . . . . .  PUBLIC   CODE   ARRAY    017DH  10
+img_demo_grid1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05F7H  9
+img_phone_40 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0486H  9
+img_phone_31 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   047DH  9
+img_system_touch1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   03DBH  9
+img_phone_50 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0498H  9
+img_phone_41 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   048FH  9
+img_main_system1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02C4H  9
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+img_popup_aspect_full1 . . . . . . . .  PUBLIC   CODE   STRUCT   0A0BH  9
+img_slide_saturate . . . . . . . . . .  PUBLIC   CODE   STRUCT   0960H  9
+img_phone_60 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04AAH  9
+img_phone_51 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04A1H  9
+img_input_ext0_header. . . . . . . . .  PUBLIC   CODE   STRUCT   020AH  6
+img_input_nodvi_bg_top_header. . . . .  PUBLIC   CODE   STRUCT   01C2H  6
+img_phone_70 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04BCH  9
+img_phone_61 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04B3H  9
+default_font . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0100H  25
+img_input_ext1_header. . . . . . . . .  PUBLIC   CODE   STRUCT   0210H  6
+img_input_pc0_header . . . . . . . . .  PUBLIC   CODE   STRUCT   01F2H  6
+img_input_select_header. . . . . . . .  PUBLIC   CODE   STRUCT   01C8H  6
+img_phone_menu0. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05CAH  9
+img_phone_80 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04CEH  9
+img_phone_71 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04C5H  9
+img_input_pc1_header . . . . . . . . .  PUBLIC   CODE   STRUCT   01F8H  6
+img_hdmi_menu_bg . . . . . . . . . . .  PUBLIC   CODE   STRUCT   07C2H  9
+img_yuv_saturate1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   06CFH  9
+img_phone_menu1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05D3H  9
+img_phone_90 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04E0H  9
+img_phone_81 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04D7H  9
+img_input_ext. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0393H  9
+img_navi_return1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   023DH  9
+img_yuv_sharp. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06D8H  9
+img_phone_91 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04E9H  9
+img_input_pc . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   035DH  9
+img_slide_contrast . . . . . . . . . .  PUBLIC   CODE   STRUCT   093CH  9
+img_display_resolution1. . . . . . . .  PUBLIC   CODE   STRUCT   0849H  9
+img_phone_down0. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   053AH  9
+img_apc_color1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   075FH  9
+img_touch_bg_end . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0663H  9
+img_phone_down1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0543H  9
+img_input_return1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   03AEH  9
+img_input_hdmi1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   038AH  9
+img_navi_demo1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0273H  9
+img_main_audio_header. . . . . . . . .  PUBLIC   CODE   STRUCT   01AAH  6
+img_phone_star0. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04F2H  9
+img_yuv_contrast1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   06ABH  9
+img_phone_star1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04FBH  9
+img_main_input1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02A0H  9
+img_navi_home1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   024FH  9
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 29  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+_SpiOsdWinImageLoc . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_popup_aspect_normal_select . . . .  PUBLIC   CODE   STRUCT   09DEH  9
+img_phone_dir0 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0594H  9
+img_main_carinfo . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02F1H  9
+_MonOsdLutLoad . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  img_n. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  sosd_win . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  lut. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0002H  2
+  image. . . . . . . . . . . . . . . .  * REG *  DATA   PTR      0001H  3
+  header . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0004H  3
+img_dialog_cancel1 . . . . . . . . . .  PUBLIC   CODE   STRUCT   089AH  9
+img_phone_dir1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   059DH  9
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+img_rgb_color1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0720H  9
+img_demo_demoA . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0636H  9
+_SpiOsdWinPixelWidth . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_slide3_bg. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08E2H  9
+img_osd_bg . . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0852H  9
+img_demo_demoB . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0648H  9
+img_demo_ani1. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   061BH  9
+menu_fitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+img_apc_autocolor. . . . . . . . . . .  PUBLIC   CODE   STRUCT   07B0H  9
+img_demo_rose1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0609H  9
+menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 30  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_popup_aspect_zoom1 . . . . . . . .  PUBLIC   CODE   STRUCT   09F0H  9
+img_gps_bg . . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   042CH  9
+img_input_ypbpr1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0354H  9
+img_input_cvbs1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0330H  9
+_SOsdHwBuffSetRle. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_dvi_mode_bg. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A38H  9
+img_phone_msg0 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05B8H  9
+img_navi_setup1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0285H  9
+default_LUT_bpp2 . . . . . . . . . . .  PUBLIC   CODE   ARRAY    00B8H  8
+img_hdmi_mode_tv . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A92H  9
+img_apc_menu_bg. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0729H  9
+img_phone_msg1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05C1H  9
+default_LUT_bpp3 . . . . . . . . . . .  PUBLIC   CODE   ARRAY    00C0H  16
+img_slide_bright . . . . . . . . . . .  PUBLIC   CODE   STRUCT   092AH  9
+default_LUT_bpp4 . . . . . . . . . . .  PUBLIC   CODE   ARRAY    00D0H  32
+img_system_sys_info. . . . . . . . . .  PUBLIC   CODE   STRUCT   041AH  9
+menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+consolas16x26_graynum. . . . . . . . .  PUBLIC   CODE   STRUCT   0132H  25
+img_main_test1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   009DH  9
+img_yuv_bright1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0699H  9
+img_demo_palette . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0624H  9
+img_phone_set0 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05A6H  9
+menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+img_main_test2 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   00A6H  9
+img_position_right . . . . . . . . . .  PUBLIC   CODE   STRUCT   09BAH  9
+img_phone_set1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05AFH  9
+img_main_test3 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   00AFH  9
+img_osd_timer1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0864H  9
+img_main_system_header . . . . . . . .  PUBLIC   CODE   STRUCT   01B0H  6
+img_rgb_menu_bg. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06EAH  9
+_MenuPrepareImageHeader. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 31  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+menu_sitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+img_apc_autoadj. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   079EH  9
+RLE2_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  16
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  op_bmpbits . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  rledata_cnt. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  LUT_format . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  LUT_colors . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000DH  1
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000EH  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+img_slide_clock. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0933H  9
+MonOsdData_s . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  13
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0000H  3
+  name . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0003H  10
+img_wait_header. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   01B6H  6
+img_osd_trans1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0876H  9
+img_system_display . . . . . . . . . .  PUBLIC   CODE   STRUCT   03E4H  9
+img_main_gps1. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02D6H  9
+MonOsdData_t . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  13
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0000H  3
+  name . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0003H  10
+img_dvi_mode_24bit1. . . . . . . . . .  PUBLIC   CODE   STRUCT   0A4AH  9
+img_resolution_bg. . . . . . . . . . .  PUBLIC   CODE   STRUCT   08D0H  9
+img_dvi_mode_16bit1. . . . . . . . . .  PUBLIC   CODE   STRUCT   0A5CH  9
+img_hdmi_setting . . . . . . . . . . .  PUBLIC   CODE   STRUCT   07DDH  9
+_SOsdHwBuffSetLut. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_main_input_header. . . . . . . . .  PUBLIC   CODE   STRUCT   01A4H  6
+img_position_left. . . . . . . . . . .  PUBLIC   CODE   STRUCT   09B1H  9
+img_slide_phase. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0957H  9
+img_autocolor_bg . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08ACH  9
+img_display_flip . . . . . . . . . . .  PUBLIC   CODE   STRUCT   081CH  9
+img_system_bg_top. . . . . . . . . . .  PUBLIC   CODE   STRUCT   03C9H  9
+img_popup_aspect_normal. . . . . . . .  PUBLIC   CODE   STRUCT   09CCH  9
+img_apc_contrast . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0744H  9
+img_yuv_hue. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06B4H  9
+img_input_dvi1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0378H  9
+_SpiOsdWinLutOffset. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 32  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_display_backlight. . . . . . . . .  PUBLIC   CODE   STRUCT   082EH  9
+SOsdHwBuff_alpha . . . . . . . . . . .  EXTERN   XDATA  U_INT    -----  2
+_SpiOsdWinImageSizeWH. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
+  ram. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  zoom . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  ch_space_low . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  color. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  alpha_value. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  alpha_color_index. . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  reserved9. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  reserved10 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  reserved11 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+img_display_aspect1. . . . . . . . . .  PUBLIC   CODE   STRUCT   0801H  9
+img_apc_position . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0768H  9
+img_rgb_contrast . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0705H  9
+img_carinfo_bg . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05DCH  9
+img_hdmi_mode_pc1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A89H  9
+MonSOsdImgTable. . . . . . . . . . . .  PUBLIC   CODE   ARRAY    0AF5H  234
+img_fpga_200 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0ABFH  9
+img_system_restore . . . . . . . . . .  PUBLIC   CODE   STRUCT   0408H  9
+img_input_bg_top . . . . . . . . . . .  PUBLIC   CODE   STRUCT   030CH  9
+img_fpga_300 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0AC8H  9
+img_phone_up0. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0528H  9
+_SOsdWinBuffWrite2Hw . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_fpga_400 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0AD1H  9
+img_sysrestore_bg. . . . . . . . . . .  PUBLIC   CODE   STRUCT   08BEH  9
+img_phone_up1. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0531H  9
+img_position_down. . . . . . . . . . .  PUBLIC   CODE   STRUCT   09A8H  9
+img_slide_sharp. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0969H  9
+img_slide_right. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   090FH  9
+img_apc_pclock . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   078CH  9
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+graynum_LUT_bpp3 . . . . . . . . . . .  PUBLIC   CODE   ARRAY    00F0H  16
+img_popup_aspect_full_select . . . . .  PUBLIC   CODE   STRUCT   0A14H  9
+img_autoadj_bg . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08A3H  9
+img_input_nodvi_bg_top . . . . . . . .  PUBLIC   CODE   STRUCT   0315H  9
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 33  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_dvi_mode_select24. . . . . . . . .  PUBLIC   CODE   STRUCT   0A65H  9
+img_input_ext1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   039CH  9
+img_input_select . . . . . . . . . . .  PUBLIC   CODE   STRUCT   031EH  9
+img_fpga_800 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0ADAH  9
+img_dvi_mode_select16. . . . . . . . .  PUBLIC   CODE   STRUCT   0A6EH  9
+img_slide_timer. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0972H  9
+img_yuv_sharp1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06E1H  9
+img_input_pc1. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0366H  9
+_SpiOsdRLC . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_apc_bright . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0732H  9
+_SpiOsdWin0ImageOffsetXY . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_main_audio . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02A9H  9
+img_system_btooth. . . . . . . . . . .  PUBLIC   CODE   STRUCT   03F6H  9
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+img_alpha_bar. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0AECH  9
+img_input_svideo0_header . . . . . . .  PUBLIC   CODE   STRUCT   01DAH  6
+img_slide_trans. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   097BH  9
+img_main_carinfo1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   02FAH  9
+menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+img_input_svideo1_header . . . . . . .  PUBLIC   CODE   STRUCT   01E0H  6
+img_rgb_bright . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06F3H  9
+menu_image_header_t. . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+img_slide_left . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08FDH  9
+img_demo_demoA1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   063FH  9
+img_input_svideo . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0339H  9
+img_display_osd. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   080AH  9
+img_demo_demoB1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0651H  9
+img_slide_backlight. . . . . . . . . .  PUBLIC   CODE   STRUCT   0921H  9
+img_input_bg_bottom_header . . . . . .  PUBLIC   CODE   STRUCT   01BCH  6
+img_hdmi_mode_selectPC . . . . . . . .  PUBLIC   CODE   STRUCT   0AA4H  9
+img_position_bg. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0984H  9
+img_display_bg . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   07EFH  9
+img_main_phone . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02DFH  9
+img_apc_autocolor1 . . . . . . . . . .  PUBLIC   CODE   STRUCT   07B9H  9
+_SpiOsdWinGlobalAlpha. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_touch_button . . . . . . . . . . .  PUBLIC   CODE   STRUCT   066CH  9
+img_navi_close0_header . . . . . . . .  PUBLIC   CODE   STRUCT   018CH  6
+img_yuv_menu_bg. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0687H  9
+img_navi_close1_header . . . . . . . .  PUBLIC   CODE   STRUCT   0192H  6
+img_hdmi_mode_tv1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A9BH  9
+img_popup_aspect_zoom_select . . . . .  PUBLIC   CODE   STRUCT   09F9H  9
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 34  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_slide_gray . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08EBH  9
+img_apc_phase. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   077AH  9
+img_navi_close . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0258H  9
+img_system_sys_info1 . . . . . . . . .  PUBLIC   CODE   STRUCT   0423H  9
+img_hdmi_mode. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   07CBH  9
+img_popup_aspect_pano. . . . . . . . .  PUBLIC   CODE   STRUCT   0A1DH  9
+img_demo_palette1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   062DH  9
+img_dialog_ok. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   087FH  9
+img_phone_check0 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0570H  9
+img_demo_grid. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05EEH  9
+img_phone_check1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0579H  9
+img_system_touch . . . . . . . . . . .  PUBLIC   CODE   STRUCT   03D2H  9
+_SpiOsdLoadLUT . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+test_INFO. . . . . . . . . . . . . . .  PUBLIC   CODE   ARRAY    0187H  5
+img_slide_rgb. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0945H  9
+img_slide_red. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08F4H  9
+img_main_system. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02BBH  9
+img_popup_aspect_full. . . . . . . . .  PUBLIC   CODE   STRUCT   0A02H  9
+img_logo . . . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0222H  9
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+img_apc_autoadj1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   07A7H  9
+img_yuv_saturate . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06C6H  9
+img_navi_return. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0234H  9
+img_input_return0_header . . . . . . .  PUBLIC   CODE   STRUCT   0216H  6
+img_input_hdmi0_header . . . . . . . .  PUBLIC   CODE   STRUCT   01FEH  6
+img_system_display1. . . . . . . . . .  PUBLIC   CODE   STRUCT   03EDH  9
+MonSOsdImgInfo . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  image. . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0000H  3
+  header . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0003H  3
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0006H  1
+img_input_return1_header . . . . . . .  PUBLIC   CODE   STRUCT   021CH  6
+img_input_hdmi1_header . . . . . . . .  PUBLIC   CODE   STRUCT   0204H  6
+img_wait . . . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0AB6H  9
+img_display_resolution . . . . . . . .  PUBLIC   CODE   STRUCT   0840H  9
+img_slide_hue. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   094EH  9
+img_apc_color. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0756H  9
+img_input_return . . . . . . . . . . .  PUBLIC   CODE   STRUCT   03A5H  9
+img_input_hdmi . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0381H  9
+img_navi_demo. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   026AH  9
+_SpiOsdWinBuffEnable . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+header_table . . . . . . . . . . . . .  EXTERN   XDATA  STRUCT   -----  17
+img_hdmi_setting1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   07E6H  9
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 35  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+img_sysinfo_bg . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08C7H  9
+img_display_flip1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0825H  9
+img_yuv_contrast . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06A2H  9
+_SOsdHwBuffSetAlpha. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_WaitVBlank. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+img_popup_aspect_normal1 . . . . . . .  PUBLIC   CODE   STRUCT   09D5H  9
+img_apc_contrast1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   074DH  9
+img_yuv_hue1 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06BDH  9
+img_main_input . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0297H  9
+img_hdmi_mode_selectTV . . . . . . . .  PUBLIC   CODE   STRUCT   0AADH  9
+img_position_box_gray. . . . . . . . .  PUBLIC   CODE   STRUCT   098DH  9
+img_display_backlight1 . . . . . . . .  PUBLIC   CODE   STRUCT   0837H  9
+img_navi_home. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0246H  9
+ram_font . . . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0164H  25
+consolas16x26_606C90 . . . . . . . . .  PUBLIC   CODE   STRUCT   0119H  25
+regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
+img_slide_bg . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08D9H  9
+img_dialog_cancel. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0891H  9
+img_btooth_bg. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   067EH  9
+_SpiOsdWin0Animation . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_rgb_color. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0717H  9
+img_audio_bg . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   03B7H  9
+MY_SLIDEIMAGE. . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  10
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0006H  4
+img_position_up. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   099FH  9
+img_demo_ani . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0612H  9
+img_input_ypbpr0_header. . . . . . . .  PUBLIC   CODE   STRUCT   01E6H  6
+img_input_cvbs0_header . . . . . . . .  PUBLIC   CODE   STRUCT   01CEH  6
+img_apc_position1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0771H  9
+img_rgb_contrast1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   070EH  9
+img_input_ypbpr1_header. . . . . . . .  PUBLIC   CODE   STRUCT   01ECH  6
+img_input_cvbs1_header . . . . . . . .  PUBLIC   CODE   STRUCT   01D4H  6
+img_navi_setup0_header . . . . . . . .  PUBLIC   CODE   STRUCT   0198H  6
+img_position_box_red . . . . . . . . .  PUBLIC   CODE   STRUCT   0996H  9
+img_demo_rose. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0600H  9
+img_navi_setup1_header . . . . . . . .  PUBLIC   CODE   STRUCT   019EH  6
+img_popup_aspect_zoom. . . . . . . . .  PUBLIC   CODE   STRUCT   09E7H  9
+img_system_restore1. . . . . . . . . .  PUBLIC   CODE   STRUCT   0411H  9
+img_input_ypbpr. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   034BH  9
+img_input_cvbs . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0327H  9
+_SpiOsdPixelAlphaAttr. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_navi_setup . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   027CH  9
+img_popup_aspect_bg. . . . . . . . . .  PUBLIC   CODE   STRUCT   09C3H  9
+img_slide_right1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0918H  9
+img_apc_pclock1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0795H  9
+img_phone_bg . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0435H  9
+img_navi_menu. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   022BH  9
+kor_font . . . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   014BH  25
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 36  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+img_main_test1_header. . . . . . . . .  PUBLIC   CODE   STRUCT   008BH  6
+image_info_s . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+img_main_test2_header. . . . . . . . .  PUBLIC   CODE   STRUCT   0091H  6
+img_yuv_bright . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0690H  9
+img_phone_dial0. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0516H  9
+image_info_t . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+img_main_test3_header. . . . . . . . .  PUBLIC   CODE   STRUCT   0097H  6
+img_apc_bright1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   073BH  9
+img_phone_dial1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   051FH  9
+_SpiOsdWinScreen . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_osd_timer. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   085BH  9
+img_system_bg_bottom . . . . . . . . .  PUBLIC   CODE   STRUCT   03C0H  9
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+img_main_audio1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02B2H  9
+img_phone_right0 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   055EH  9
+img_phone_sharp0 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0504H  9
+img_system_btooth1 . . . . . . . . . .  PUBLIC   CODE   STRUCT   03FFH  9
+img_touch_bg . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   065AH  9
+img_phone_right1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0567H  9
+img_phone_sharp1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   050DH  9
+UseSOsdHwBuff. . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
+img_demo_bg. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05E5H  9
+img_main_bg. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   028EH  9
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 37  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_rgb_bright1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06FCH  9
+img_bgr_bar. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0AE3H  9
+img_popup_aspect_pano_sel. . . . . . .  PUBLIC   CODE   STRUCT   0A2FH  9
+img_slide_left1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0906H  9
+img_osd_trans. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   086DH  9
+img_input_svideo1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0342H  9
+img_main_gps . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02CDH  9
+img_dvi_mode_24bit . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A41H  9
+img_display_osd1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0813H  9
+img_dvi_mode_16bit . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A53H  9
+img_hdmi_mode_bg . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A77H  9
+img_main_phone1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02E8H  9
+_MonOsdImgLoad . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  img_n. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  sosd_win . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  item_lut . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0002H  2
+  image. . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0004H  3
+  header . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0007H  3
+  sx . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    000AH  2
+  sy . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    000CH  2
+_SpiOsdWinPixelAlpha . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_flip_bg. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   08B5H  9
+img_input_bg_bottom. . . . . . . . . .  PUBLIC   CODE   STRUCT   0303H  9
+_Printf. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_touch_button1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0675H  9
+img_input_dvi. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   036FH  9
+img_phone_help0. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0582H  9
+MY_RLE_INFO. . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  5
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+img_phone_help1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   058BH  9
+img_apc_phase1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0783H  9
+img_phone_left0. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   054CH  9
+img_navi_close1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0261H  9
+image_item_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+img_phone_left1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0555H  9
+image_item_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+img_hdmi_mode1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   07D4H  9
+img_phone_00 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   043EH  9
+img_popup_aspect_pano1 . . . . . . . .  PUBLIC   CODE   STRUCT   0A26H  9
+img_phone_10 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0450H  9
+img_phone_01 . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0447H  9
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1058    ----
+   CONSTANT SIZE    =   3039    ----
+   XDATA SIZE       =   ----      28
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 38  
+
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

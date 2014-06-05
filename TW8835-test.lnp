@@ -1,0 +1,45 @@
+COMMON {"CPU.obj"},
+COMMON {"Util.obj"},
+COMMON {"Printf.obj"},
+COMMON {"main.obj"},
+COMMON {"i2c.obj"},
+COMMON {"SPI.obj"},
+COMMON {"Decoder.obj"},
+COMMON {"VADC.obj"},
+COMMON {"DTV.obj"},
+COMMON {"measure.obj"},
+COMMON {"Measure0.obj"},
+COMMON {"Scaler.obj"},
+COMMON {"InputCtrl.obj"},
+COMMON {"ImageCtrl.obj"},
+COMMON {"OutputCtrl.obj"},
+COMMON {"Settings.obj"},
+COMMON {"pc_eep.obj"},
+COMMON {"EEPROM.obj"},
+COMMON {"Remo.obj"},
+COMMON {"TouchKey.obj"},
+COMMON {"HID.obj"},
+COMMON {"misc.obj"},
+COMMON {"PC_modes.obj"},
+COMMON {"monitor.obj"},
+COMMON {"Monitor_MCU.obj"},
+COMMON {"monitor_SPI.obj"},
+COMMON {"monitor_menu.obj"},
+COMMON {"OSDFont.obj"},
+COMMON {"OSDSPI.obj"},
+COMMON {"spi_map_B.obj"},
+COMMON {"menu_map_B.obj"},
+COMMON {"menu_B.obj"},
+COMMON {"DemoMain.obj"},
+COMMON {"test_FOSD.obj"} 
+TO "TW8835-test" BankArea(0x0000,0xFFFF) 
+RAMSIZE(256) 
+RECURSIONS(30)
+BANK0(?CO?MAIN, ?CO?SPI, ?CO?Decoder, ?CO?VAdc, ?CO?MEASURE, ?CO?Scaler, ?CO?INPUTCTRL, ?CO?IMAGECTRL, ?CO?OutputCtrl, ?CO?SETTINGS, ?CO?pc_eep, ?CO?eeprom, ?CO?Remo, ?CO?TouchKey, ?CO?HID, ?CO?PC_modes)
+BANK1(?CO?MONITOR, ?CO?MONITOR_MCU, ?CO?MONITOR_SPI, ?CO?MONITOR_MENU)
+BANK2(?CO?MENU_B, ?CO?SPI_MAP_B, ?CO?MENU_MAP_B, ?CO?OSDFONT, ?CO?OSDSPI)
+BANK3(?CO?DemoMain, ?CO?Test_FOSD)
+
+
+CODE( 0X0000-0XFFFF )
+XDATA( 0X0000-0X0FFF,0XC000-0XC0FF )

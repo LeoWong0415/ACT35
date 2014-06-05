@@ -1,0 +1,734 @@
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE FOSDDISPLAY
+OBJECT MODULE PLACED IN .\Output\FOsdDisplay.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE FOsdDisplay.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
+                    -OWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\FOsdDisplay.lst) OBJECT(.\Outpu
+                    -t\FOsdDisplay.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * FOsdDisplay.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      FontOSD display routines
+  10          */
+  11          #include "Config.h"
+  12          #include "typedefs.h"
+  13          #include "TW8835.h"
+  14          
+  15          #include "Global.h"
+  16          #include "cpu.h"
+  17          #include "printf.h"
+  18          #include "util.h"
+  19          #include "Debug.h"
+  20          
+  21          #include "i2c.h"
+  22          
+  23          #include "main.h"
+  24          #include "EEPROM.h"
+  25          
+  26          #include "SOsd.h"
+  27          #include "FOsd.h"
+  28          
+  29          #include "FOsdMenu.h"
+  30          #include "FOsdDisplay.h"
+  31          //#include "RegMap.h"
+  32          
+  33          #include "InputCtrl.h"
+  34          #include "decoder.h"
+  35          #include "FOsdTable.h"
+  36          #include "FOsdString.h"
+  37          
+  38          #ifndef SUPPORT_FOSD_MENU
+  39          //==========================================
+  40          //----------------------------
+  41          //Trick for Bank Code Segment
+  42          //----------------------------
+  43          CODE BYTE DUMMY_FOSD_DISPINFO_CODE;
+  44          void Dummy_FosdDispInfo_func(void)
+  45          {
+  46   1              BYTE temp;
+  47   1              temp = DUMMY_FOSD_DISPINFO_CODE;
+  48   1      }
+  49          //==========================================
+  50          //==========================================
+  51          #else //..SUPPORT_FOSD_MENU
+              //==========================================
+                          WORD  OSDLastKeyInTime;             // in ms
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 2   
+
+              
+              //----------------------------------------------------------------------
+              
+              DATA    WORD  OSDDisplayedTime;         //in ms
+              DATA    BYTE  DisplayedOSD = 0;
+              //          DATA BYTE  DisplayedOSD = 0;
+              //extern        IDATA struct BarInfo BarInfo;
+              extern  bit   TVChManual;
+              extern  bit     DisplayInputHold;
+              
+              extern  BYTE    DummyChannel;
+              #ifdef SUPPORT_COMPONENT
+              extern  BYTE  ComponentMode;
+              #endif
+              
+              
+              
+              
+              CODE BYTE COMPONENT_STR[][15] = {
+                  "YPbPr 480i",       // 0
+                  "YPbPr 576i",       // 1
+                  "YPbPr 480p",       // 2
+                  "YPbPr 576p",       // 3
+                  "YPbPr 1080i",      // 4
+                  "YPbPr 720p",       // 5
+                      "YPbPr 1080p",  
+                  "YPbPr NONE",
+              };
+              
+              
+              //================================================================
+              //                                      Display information
+              //                                      Display Win0 :Intersil - from 0 ~ 3bit color, size 44
+              //                                      Display Win1 :Techwell - from 0x84 ~ 3bit color, size 15
+              //================================================================
+              #if 0
+              //code WORD LOGO_COLOR_8[16] = {
+              //     0xFFFF,0x0020,0xDEDB,0xA534,0x6B6D,0xC826,0x4A49,0xDCD5,
+              //     0xFFFF,0xC806,0xC98C,0xCB31,0xFE79,0xFCD9,0xCCD4,0xE71C
+              //};
+              //-------------------------------------------------------------------
+              // Display/Clear FOSD LOGO
+              //-------------------------------------------------------------------
+              void DisplayLogo(void)
+              {
+              #ifdef SUPPORT_8BIT_CHIP_ACCESS
+                      BYTE page;
+              #endif
+                      BYTE i;
+              
+                      ReadTW88Page(page);
+              
+                      InitFOsdMenuWindow(Init_Osd_DisplayLogo);
+                      #ifdef ADD_ANALOGPANEL
+                      if(IsAnalogOn())
+                              InitFOsdMenuWindow(Init_Osd_DisplayLogo_A);
+                      #endif
+                      
+                      InitFontRamByNum(FONT_NUM_LOGO, 0);     //FOsdDownloadFont(2);
+              
+                      FOsdSetPaletteColorArray(0, LOGO_COLOR_8, 16, 1);
+              
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 3   
+
+                      WriteTW88Page(PAGE4_CLOCK);
+                      dPrintf("\nDisplayLogo-Current MCU SPI Clock select : [0x4E0]=0x%02bx, [0x4E1]=0x%02bx", ReadTW88(REG4E0)
+             -, ReadTW88(REG4E1));
+              
+                      WriteTW88Page(PAGE3_FOSD );
+                      WriteTW88(REG304, ReadTW88(REG304)&0xFE); // OSD RAM Auto Access Enable
+                      WriteTW88(REG304, (ReadTW88(REG304)&0xF3)); // Normal
+              
+                      for ( i=0; i<70; i++ ) {
+                              WriteTW88(REG306, i );
+                              WriteTW88(REG307, i*3 );
+                              WriteTW88(REG308, (i / 42)*2 );
+                      }
+              
+                      WriteTW88(REG30B, 0 );                                          // 2bit multi color start = 0
+                      WriteTW88(REG_FOSD_MADD3, 0 );                          // 3bit multi color start = 0
+                      WriteTW88(REG_FOSD_MADD4, 0xff );                       // 4bit multi color start = 0
+              
+                      FOsdWinEnable(TECHWELLOGO_OSDWIN,TRUE);
+                      FOsdWinEnable(TECHWELLOGO_OSDWIN+1,FALSE);
+                      FOsdWinEnable(TECHWELLOGO_OSDWIN+2,TRUE);
+              }
+              void ClearLogo(void)
+              {
+                      DECLARE_LOCAL_page
+                      BYTE i, j;
+              
+                      ReadTW88Page(page);
+                      WriteTW88Page(PAGE3_FOSD );
+                      //=============================== Fade OUT ======================================
+                      for ( i=0; i<9; i++ ) {
+                              delay1ms(30);
+                              for ( j=0; j<16; j++ ) {
+                                      WriteTW88(REG_FOSD_ALPHA_SEL, j );
+                                      WriteTW88(FOSDWinBase[TECHWELLOGO_OSDWIN]  +1, i );
+                                      WriteTW88(FOSDWinBase[TECHWELLOGO_OSDWIN+2]+1, i );
+                              }
+                      }
+                      //============ Disable window and recover Trans value ============================
+                      FOsdOnOff(OFF, 1);      //with vdelay 1
+                      FOsdWinEnable(TECHWELLOGO_OSDWIN,FALSE);
+                      FOsdWinEnable(TECHWELLOGO_OSDWIN+2,FALSE);
+                      //assume page3
+                      for ( j=0; j<16; j++ ) {
+                              WriteTW88(REG_FOSD_ALPHA_SEL, j );
+                              WriteTW88(FOSDWinBase[TECHWELLOGO_OSDWIN]  +1, 0 );
+                              WriteTW88(FOSDWinBase[TECHWELLOGO_OSDWIN+2]+1, 0 );
+                      }
+              
+                      WriteTW88Page(page );
+              }
+              #endif
+              
+              //-------------------------------------------------------------------
+              // Display/Clear FOSD Info
+              //-------------------------------------------------------------------
+              //desc
+              //      set DisplayedOSD global flag.
+              void SetDisplayedOSD( BYTE newd )
+              {
+                      DisplayedOSD |= newd;
+              }
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 4   
+
+              
+              void ClearOSDInfo(void)
+              {
+                      BYTE dt;
+              
+                      dt = DisplayedOSD; 
+                      #ifdef DEBUG_OSD
+                      dPrintf("\r\nClearOSDInfo: DisplayedOSD:%2x",(WORD) DisplayedOSD);
+                      #endif
+              
+                      if( (dt & FOSD_TVVOL) || ( dt & FOSD_TVCHN) )   ClearTVInfo();
+                      if( dt & FOSD_MUTE )                                                    ClearMuteInfo();
+                      if( dt & FOSD_INPUTINFO )                                               FOsdClearInput();
+                      if( dt & FOSD_MENU )                                                    FOsdMenuClose();
+                      if( dt & FOSD_PCINFO )                                                  ClearPCInfo();
+                      
+              }
+              
+              //-------------------------------------------------------------------
+              // Display/Clear DisplayInput
+              //-------------------------------------------------------------------
+              void FOsdDisplayInput(void)
+              {
+                      BYTE    inputs, len1, len2,i, SystemAddr;
+                      #ifdef SUPPORT_COMPONENT
+                      BYTE CODE       *Str;
+                      #endif
+              
+                      SystemAddr=INPUTINFO1_ADDR;
+              
+                      if( (DisplayedOSD & FOSD_INPUTINFO ) && DisplayInputHold ) return;
+              
+                      ClearOSDInfo();
+              
+              
+                      inputs = InputMain;
+              
+                      #ifdef DEBUG_OSD
+                      dPrintf("\r\n++(DisplayInput) : %d", (WORD)inputs);
+                      #endif
+              
+                      #if 0
+                      #if defined( SUPPORT_PC ) || defined( SUPPORT_BT656 )
+                      if( inputs==PC || inputs==DTV )
+                              len2 = TWstrlen( GetPCInputSourceName() );
+                      else
+                      #endif
+                      #endif
+              
+                      #ifdef SUPPORT_COMPONENT
+                      if( inputs==INPUT_COMP ){
+                              WriteTW88Page(1 );
+                              i = ReadTW88(REG1C1) & 7;
+                              Str = COMPONENT_STR[i];
+                              len2 = TWstrlen(Str);
+                      }
+                      else
+                      #endif
+                              len2 = TWstrlen( struct_VInputStd[GetVInputStdInx()].Name );
+              
+              
+                      for (i=1; ;i++)
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 5   
+
+                              if( struct_InputSelection[i].Id==inputs )  break;
+              
+                      len1 = TWstrlen(struct_InputSelection[i].Name);
+              
+                      InitFOsdMenuWindow(Init_Osd_DisplayInput);
+                      #ifdef ADD_ANALOGPANEL
+                      if(IsAnalogOn())
+                              InitFOsdMenuWindow(Init_Osd_DisplayInput_A);
+                      #endif
+                      FOsdRamMemset(INPUTINFO_ADDR, 0x020, DEFAULT_COLOR, 51 );       // Total 42 Char.       
+                      WriteStringToAddr(INPUTINFO_ADDR, struct_InputSelection[i].Name, len1); 
+              
+                      #if 0
+                      #if defined( SUPPORT_PC ) || defined( SUPPORT_BT656 )
+                      if( inputs==PC || inputs==DTV )
+                              WriteStringToAddr(SystemAddr, GetPCInputSourceName(), len2); 
+                      else
+                      #endif
+                      #endif
+                      #ifdef SUPPORT_COMPONENT
+                      if( inputs==INPUT_COMP ){
+                              //i = DecoderIsNoInput();
+                              //Printf("\r\n Display Info==> Component Noinutcheck: %d ", (WORD)i );
+                              //if( DecoderIsNoInput() == 0 ) WriteStringToAddr(SystemAddr, Str, len2); 
+                              WriteStringToAddr(SystemAddr, Str, len2); 
+                      }
+                      else
+                      #endif
+                      {
+                              if( DecoderIsNoInput() == 0 ) 
+                              WriteStringToAddr(SystemAddr, struct_VInputStd[GetVInputStdInx()].Name, len2); 
+                      }
+              
+                      FOsdWinEnable(OSD_Win_Num(INPUTINFO_OSDWIN),TRUE);
+                      FOsdWinEnable(OSD_Win_Num(INPUTINFO_OSDWIN+1),TRUE);
+                      FOsdOnOff(ON, 1); //with vdelay 1
+              
+                      DisplayedOSD |= FOSD_INPUTINFO;
+                      OSDDisplayedTime = GetTime_ms();        
+              }
+              
+              BYTE FOsdClearInput(void)
+              {
+                      //FOsdOnOff(OFF, 1);    //with vdelay 1
+                      FOsdWinEnable(INPUTINFO_OSDWIN,         FALSE);
+                      FOsdWinEnable(INPUTINFO_OSDWIN+1,       FALSE);
+              
+                      DisplayedOSD &= (~(FOSD_INPUTINFO));
+                      //#ifdef DEBUG_OSD
+                      //dPrintf("\r\n++(ClearInput)");
+                      //#endif
+              
+                      return 1;
+              //      ClearBlending();
+              }
+              
+              //-------------------------------------------------------------------
+              // DisplayVol / ClearTVInfo
+              //-------------------------------------------------------------------
+              
+              void DisplayVol(void)
+              {
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 6   
+
+                      BYTE CODE *Str ;
+                      BYTE len;
+              
+                      //#ifdef DEBUG_OSD
+                      //dPuts("\r\n++(DisplayVol)");
+                      //#endif
+                      
+                      if(( DisplayedOSD & FOSD_TVVOL ) == 0 ) {
+                              ClearOSDInfo();
+                              FOsdDefaultLUT();
+                              delay1ms(100);
+                              
+                              InitFOsdMenuWindow(Init_Osd_BarWindow);
+                      
+                              FOsdRamMemset(FOSDMENU_BARADDR,    0x020, BG_COLOR_CYAN | FG_COLOR_WHITE, 25 );         // Total 25*2 Char. 
+                              FOsdRamMemset(FOSDMENU_BARADDR+25, 0x020, BG_COLOR_WHITE | FG_COLOR_CYAN, 25 );
+                      
+                              Str = StrVolume[OSDLang];
+                              len=TWstrlen(Str);
+                              WriteStringToAddr(FOSDMENU_BARADDR, Str, len);  
+                      
+                              FOsdWinEnable(FOSDMENU_BARWIN,TRUE);
+                              FOsdOnOff(ON, 1);       //with vdelay 1
+                      }
+                      DisplayVolumebar(AudioVol);
+              
+                      DisplayedOSD |= FOSD_TVVOL;
+                      OSDDisplayedTime = GetTime_ms();
+              }
+              BYTE ClearTVInfo(void)
+              {
+                      
+                      if( DisplayedOSD & FOSD_TVVOL ) {
+                              FOsdWinEnable(FOSDMENU_BARWIN, FALSE);
+                              DisplayedOSD &= (~(FOSD_TVVOL));
+                      }
+                      else  {
+                              FOsdWinEnable(TVINFO_OSDWIN, FALSE);
+                              DisplayedOSD &= (~(FOSD_TVCHN));
+                      }
+                      return 1;
+              }
+              
+              //-------------------------------------------------------------------
+              // Display/Clear Mute Info
+              //-------------------------------------------------------------------
+              void DisplayMuteInfo(void)
+              {
+                      BYTE CODE       *Str ;
+                      BYTE len;
+              
+                      ClearOSDInfo();
+                      InitFOsdMenuWindow(Init_Osd_DisplayMuteInfo);
+              
+                      Str = MuteOnStr[OSDLang];
+                      len = TWstrlen(Str);
+                      WriteStringToAddr(MUTEINFO_ADDR, Str, len);  
+                      FOsdRamMemsetAttr(MUTEINFO_ADDR, BACK_COLOR|FG_COLOR_RED, len );         
+              
+                      FOsdWinEnable(TVINFO_OSDWIN,TRUE);
+                      FOsdOnOff(ON, 1);       //with vdelay 1
+                      DisplayedOSD |= FOSD_MUTE;
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 7   
+
+              }
+              void ClearMuteInfo(void)
+              {
+                      FOsdWinEnable(TVINFO_OSDWIN,FALSE);
+                      DisplayedOSD &= (~(FOSD_MUTE));
+              }
+              
+              
+              //----------------------------------
+              // Display/Clear PCInfo
+              //
+              //      win: PCINFO_OSDWIN
+              //----------------------------------
+              void DisplayPCInfo(BYTE CODE *ptr)
+              {
+                      WORD xstart, ystart;
+                      BYTE len;
+              
+                      //#ifdef DEBUG_PC
+                      //Printf("\r\n==== DisplayPCInfo (%s) ====", ptr);
+                      //#endif
+              
+                      len  = TWstrlen(ptr);
+              
+                      xstart = ( PANEL_H - len*PCINFO_ZOOM*FONT_DEF_WIDTH ) / 2;
+                      ystart =  PANEL_V / 3;
+                      
+                      InitFOsdMenuWindow(Init_Osd_DisplayPCInfo);
+                      FOsdWinScreenXY(PCINFO_OSDWIN, xstart,ystart);
+                      FOsdWinSetW(PCINFO_OSDWIN, len);
+              
+                      FOsdRamMemset(PCMEASUREINFO_ADDR,0x020, FG_COLOR_RED, len);      
+              
+                      WriteStringToAddr(PCMEASUREINFO_ADDR, (BYTE CODE *)ptr, len);
+                      FOsdWinEnable(PCINFO_OSDWIN,TRUE);
+                      FOsdOnOff(ON, 1);       //with vdelay 1
+                      
+                      DisplayedOSD |=FOSD_PCINFO;
+              
+              }
+              void ClearPCInfo(void)
+              {
+                      if( !(DisplayedOSD & FOSD_PCINFO) )             
+                              return;
+              
+                      DisplayedOSD &= (~(FOSD_PCINFO));
+                      FOsdWinEnable(PCINFO_OSDWIN,FALSE);
+                      //dPuts("\r\n== ClearPCInfo ==");
+              }
+              
+              /*
+              //----------------------------------
+              // AutoAdjust
+              //----------------------------------
+              
+              void DisplayAutoAdjust(void)
+              {
+                      InitFOsdMenuWindow(Init_Osd_BarWindow);
+                      FOsdRamMemset(FOSDMENU_BARADDR, 0x020, BG_COLOR_CYAN | FG_COLOR_WHITE, 50 );    // Total 25*2 Char.      
+                      WriteStringToAddr(FOSDMENU_BARADDR, AutoAdjustInfo, 25);
+              
+                      FOsdWinEnable(FOSDMENU_BARWIN,TRUE);
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 8   
+
+                      FOsdOnOff(ON, 1);       //with vdelay 1
+              }
+              void ClearAutoAdjust(void)
+              {
+                      FOsdWinEnable(FOSDMENU_BARWIN,FALSE);
+              }
+              */
+              
+              
+              BYTE CheckAndClearFOsd(void)
+              {
+                      WORD    ctime,  stime, diff;
+                      BYTE    dt;
+                      BYTE    Result=0;
+              
+                      dt = DisplayedOSD;
+                      if ( dt & ( FOSD_MENU | FOSD_INPUTINFO | FOSD_TVCHN | FOSD_TVVOL  ) ) {
+              
+                              if( dt & FOSD_MENU )    { 
+                                      stime = OSDLastKeyInTime;       
+                                      diff =  20 * 1000; //GetOSDDuration()
+                              }
+                              else { 
+                                      stime = OSDDisplayedTime;       
+                                      diff = 2 * 1000;        
+                              }
+                      
+                              ctime = GetTime_ms();                   
+              
+                              if( DiffTime_ms( stime, ctime ) >= diff ) {
+              
+                                      #ifdef DEBUG_OSD
+                                      if( !(dt & FOSD_MENU) ) {
+                                              dPrintf("\r\n(CheckAndClearOSD)DisplayedOSD:0x%x, ", (WORD)dt);
+                                              dPrintf("starttime:%d, currtime:%d", stime, ctime);
+                                      }
+                                      #endif
+              
+                                      //if( dt & LOGO )                       ClearLogo();
+                                      if( !DisplayInputHold )
+                                              if( dt & FOSD_INPUTINFO )       
+                                                      Result = FOsdClearInput();
+                                      if( dt & FOSD_TVVOL )           
+                                              Result = ClearTVInfo();
+              
+                                      if( dt & FOSD_MENU ) {                  
+                                              Result = 1;
+                                              FOsdMenuClose();  
+                                      }
+              
+                                      if( Result == 1){
+                                              if( DisplayInputHold ) 
+                                                      FOsdDisplayInput();
+                                              else {
+                                                      if( IsAudioMuteOn() )   
+                                                              DisplayMuteInfo();
+                                              }
+                                      }
+                                      return 1;
+                              }
+                      }
+              
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 9   
+
+                      return 0;
+              }
+              
+              //==========================================
+              #endif //.. SUPPORT_FOSD_MENU
+ 492          //==========================================
+ 493          
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 10  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Dummy_FosdDispInfo_func (BEGIN)
+                                           ; SOURCE LINE # 44
+                                           ; SOURCE LINE # 45
+                                           ; SOURCE LINE # 47
+0000 900000      R     MOV     DPTR,#DUMMY_FOSD_DISPINFO_CODE
+0003 E4                CLR     A
+0004 93                MOVC    A,@A+DPTR
+0005 900000      R     MOV     DPTR,#temp
+0008 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 48
+0009 22                RET     
+             ; FUNCTION Dummy_FosdDispInfo_func (END)
+
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 11  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+ACTITEM. . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+Right_Key. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+NumberStringType . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  BackColor. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  Radix. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  NumColor . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  MaxLen . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  PrePostCharLen . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  PrePostChar. . . . . . . . . . . . .  MEMBER   -----  ARRAY    0008H  3
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+BAR_CURSOR . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+Left_Key . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+NOTHING. . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+Input_Key. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+Menu_Key . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+Down_Key . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+Mute_Key . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+CURSORDEC. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+BAR_CLOSE. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+Dummy_FosdDispInfo_func. . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  temp . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+Sel_Key. . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+BAR_LFKEY. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+TimeType . . . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  7
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  BackColor. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  Format . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  TimeColor. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  CursorColor. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 12  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+KeyDef . . . . . . . . . . . . . . . .  * TAG *  -----  ENUM     -----  -----
+EnumType . . . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
+  Sz . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  ByLang . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  Str. . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0002H  15
+MenuType . . . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  4
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  TitleColor . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  CursorColor. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+CURSORINC. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+BAR_RTKEY. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+BAR_EMPTY. . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+DNMENU . . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+VALUEDEC . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+Up_Key . . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+NumType. . . . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  5
+  PrePostCharLen . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  PrePostChar. . . . . . . . . . . . .  MEMBER   -----  ARRAY    0001H  4
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+DUMMY_FOSD_DISPINFO_CODE . . . . . . .  PUBLIC   CODE   U_CHAR   0000H  1
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+VALUEINC . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+bar_type . . . . . . . . . . . . . . .  * TAG *  -----  ENUM     -----  -----
+UPMENU . . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+DefineMenu . . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  16
+  Type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  Icon . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  2
+  IconColor. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 13  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  Desc . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0004H  3
+  DescColor. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  PreFnId. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  PostFnId . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  Child. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000AH  2
+  ActiveWithCursor . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  Id . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000DH  1
+  TypeData . . . . . . . . . . . . . .  MEMBER   -----  PTR      000EH  2
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+BAR_OPEN . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+BAR_FULL . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+PictureInfo. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  4
+  Register_Addr. . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  EEPROM_Addr. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  Control_Range. . . . . . . . . . . .  MEMBER   -----  PTR      0002H  2
+key_type . . . . . . . . . . . . . . .  * TAG *  -----  ENUM     -----  -----
+EXITMENU . . . . . . . . . . . . . . .  E_CONST  -----  U_CHAR   -----  1
+_ConvColor . . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  2
+  addr . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  color. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     10    ----
+   CONSTANT SIZE    =      1    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+C51 COMPILER V9.00   FOSDDISPLAY                                                           05/31/2013 20:18:35 PAGE 14  
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,290 @@
+### uVision2 Project, (C) Keil Software
+### Do not modify !
+
+Target (Target 1), 0x0000 // Tools: 'MCS-51'
+
+Group (Source Group 1)
+Group (Bank0)
+Group (Bank1)
+Group (Bank2)
+Group (Bank3)
+
+File 1,1,<.\CPU.c><CPU.c>
+File 1,1,<.\Util.c><Util.c>
+File 1,1,<.\Printf.c><Printf.c>
+File 1,5,<.\Release.txt><Release.txt>
+File 1,2,<.\L51_BANK.A51><L51_BANK.A51>
+File 2,1,<.\main.c><main.c>
+File 2,1,<.\Host.c><Host.c>
+File 2,1,<.\SPI.c><SPI.c>
+File 2,1,<.\i2c.c><i2c.c>
+File 2,1,<.\Decoder.c><Decoder.c>
+File 2,1,<.\VADC.c><VADC.c>
+File 2,1,<.\measure.c><measure.c>
+File 2,1,<.\Scaler.c><Scaler.c>
+File 2,1,<.\InputCtrl.c><InputCtrl.c>
+File 2,1,<.\ImageCtrl.c><ImageCtrl.c>
+File 2,1,<.\OutputCtrl.c><OutputCtrl.c>
+File 2,1,<.\Settings.c><Settings.c>
+File 2,1,<.\EEPROM.c><EEPROM.c>
+File 2,1,<.\Remo.c><Remo.c>
+File 2,1,<.\TouchKey.c><TouchKey.c>
+File 2,1,<.\HID.c><HID.c>
+File 2,1,<.\DTV.c><DTV.c>
+File 2,1,<.\PC_modes.c><PC_modes.c>
+File 2,1,<.\HDMI_EP9351.c><HDMI_EP9351.c>
+File 2,1,<.\HDMI_SIL9127.c><HDMI_SIL9127.c>
+File 2,1,<.\misc.c><misc.c>
+File 3,1,<.\monitor.c><monitor.c>
+File 3,1,<.\Monitor_MCU.c><Monitor_MCU.c>
+File 3,1,<.\monitor_SPI.c><monitor_SPI.c>
+File 3,1,<.\monitor_menu.c><monitor_menu.c>
+File 3,1,<.\DebugMsg.c><DebugMsg.c>
+File 4,1,<.\OSDFont.c><OSDFont.c>
+File 4,1,<.\OSDSPI.c><OSDSPI.c>
+File 4,1,<.\FOsdString.c><FOsdString.c>
+File 4,1,<.\FOsdTable.c><FOsdTable.c>
+File 4,1,<.\FOsdDisplay.c><FOsdDisplay.c>
+File 4,1,<.\FOsdMenu.c><FOsdMenu.c>
+File 4,1,<.\SpiFlashMap.c><SpiFlashMap.c>
+File 4,1,<.\SOsdMenuMap.c><SOsdMenuMap.c>
+File 4,1,<.\SOsdMenu.c><SOsdMenu.c>
+File 5,1,<.\DemoMain.c><DemoMain.c>
+File 5,1,<.\test_FOSD.c><test_FOSD.c>
+File 5,1,<.\junk.c><junk.c>
+
+
+Options 1,0,0  // Target 'Target 1'
+ Device (DS80C320)
+ Vendor (Dallas Semiconductor)
+ Cpu (IRAM(0-0xFF) CLOCK(33000000) MODDP2)
+ FlashUt ()
+ StupF ("LIB\STARTUP.A51" ("Standard 8051 Startup Code"))
+ FlashDR ()
+ DevID (2975)
+ Rgf (REG320.H)
+ Mem ()
+ C ()
+ A ()
+ RL ()
+ OH ()
+ DBC_IFX ()
+ DBC_CMS ()
+ DBC_AMS ()
+ DBC_LMS ()
+ UseEnv=0
+ EnvBin ()
+ EnvInc ()
+ EnvLib ()
+ EnvReg (Dallas\)
+ OrgReg (Dallas\)
+ TgStat=16
+ OutDir (.\Output\)
+ OutName (TW8835_REV31)
+ GenApp=1
+ GenLib=0
+ GenHex=1
+ Debug=1
+ Browse=1
+ LstDir (.\List\)
+ HexSel=0
+ MG32K=0
+ TGMORE=0
+ RunUsr 0 0 <>
+ RunUsr 1 0 <>
+ BrunUsr 0 0 <>
+ BrunUsr 1 0 <>
+ CrunUsr 0 0 <>
+ CrunUsr 1 0 <>
+ SVCSID <>
+ MODEL5=2
+ RTOS5=0
+ ROMSZ5=2
+ DHOLD5=0
+ XHOLD5=0
+ T51FL=8468
+ XT51FL=0
+ CBANKS5=1
+ XBANKS5=0
+ RCB51 { 0,0,0,0,0,255,255,0,0 }
+ RXB51 { 0,0,0,0,0,0,0,0,0 }
+ OCM51 { 0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ OCR51 { 0,0,0,0,0,0,16,0,0,0,0,192,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0 }
+ IRO51 { 0,0,0,0,0,0,0,0,0 }
+ IRA51 { 0,0,0,0,0,0,1,0,0 }
+ XRA51 { 0,0,0,0,0,0,0,0,0 }
+ XRA512 { 0,0,0,0,0,0,0,0,0 }
+ IROM512 { 0,0,0,0,0,0,0,0,0 }
+ C51FL=21646609
+ C51VA=0
+ C51MSC ()
+ C51DEF (EVB_30 EVB_31 nullFn="//")
+ C51UDF ()
+ INCC5 ()
+ AX51FL=4
+ AX51MSC ()
+ AX51SET ()
+ AX51RST ()
+ INCA5 ()
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=1
+ AlwaysBuild=0
+ GenAsm=0
+ AsmAsm=0
+ PublicsOnly=0
+ StopCode=3
+ CustArgs ()
+ LibMods ()
+ BankNo=65535
+ LX51FL=292
+ LX51OVL ()
+ LX51MSC (RECURSIONS (30)\~BANK0(?CO?MAIN, ?CO?HOST, ?CO?SPI, ?CO?Decoder, ?CO?VAdc, ?CO?MEASURE, ?CO?Scaler, ?CO?INPUTCTRL, ?CO?IMAGECTRL, ?CO?OutputCtrl, ?CO?SETTINGS, ?CO?eeprom, ?CO?TouchKey, ?CO?HID, ?CO?PC_modes, ?CO?DTV, ?CO?HDMI_EP9351)\~BANK1(?CO?MONITOR, ?CO?MONITOR_MCU, ?CO?MONITOR_SPI, ?CO?MONITOR_MENU, ?CO?DebugMsg)\~BANK2(?CO?SOsdMenu, ?CO?SpiFlashMap, ?CO?SOsdMenuMap, ?CO?OSDFONT, ?CO?OSDSPI, ?CO?FOsdString, ?CO?FOsdTable, ?CO?FOsdDisplay, ?CO?FOsdMenu)\~BANK3(?CO?DemoMain, ?CO?Test_FOSD)\~\~)
+ LX51DWN ()
+ LX51LFI ()
+ LX51ASN ()
+ LX51RES ()
+ LX51CCL ()
+ LX51UCL ()
+ LX51CSC ()
+ LX51UCS ()
+ LX51COB (0X0000-0XFFFF)
+ LX51XDB (0X0000-0X0FFF,0XC000-0XC0FF)
+ LX51PDB ()
+ LX51BIB ()
+ LX51DAB ()
+ LX51IDB ()
+ LX51PRC ()
+ LX51STK ()
+ LX51COS ()
+ LX51XDS ()
+ LX51BIS ()
+ LX51DAS ()
+ LX51IDS ()
+  OPTDL (S8051.DLL)()(DP51.DLL)(-p320)(S8051.DLL)()(TP51.DLL)(-p320)
+  OPTDBG 509,0,()()()()()()()()()() (BIN\MON51.DLL)()()()
+ FLASH1 { 1,0,0,0,0,0,0,0,255,255,255,255,0,0,0,0,0,0,0,0 }
+ FLASH2 ()
+ FLASH3 ("" ())
+ FLASH4 ()
+EndOpt
+
+Options 1,1,0  // Group 'Source Group 1'
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=2
+ AlwaysBuild=2
+ GenAsm=2
+ AsmAsm=2
+ PublicsOnly=2
+ StopCode=11
+ CustArgs ()
+ LibMods ()
+ BankNo=0
+ C51FL=177119914
+ C51VA=0
+ C51MSC ()
+ C51DEF ()
+ C51UDF ()
+ INCC5 ()
+ AX51FL=170
+ AX51MSC ()
+ AX51SET ()
+ AX51RST ()
+ INCA5 ()
+EndOpt
+
+Options 1,2,0  // Group 'Bank0'
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=2
+ AlwaysBuild=2
+ GenAsm=2
+ AsmAsm=2
+ PublicsOnly=2
+ StopCode=11
+ CustArgs ()
+ LibMods ()
+ BankNo=1
+ C51FL=177119914
+ C51VA=0
+ C51MSC ()
+ C51DEF ()
+ C51UDF ()
+ INCC5 ()
+ AX51FL=170
+ AX51MSC ()
+ AX51SET ()
+ AX51RST ()
+ INCA5 ()
+EndOpt
+
+Options 1,3,0  // Group 'Bank1'
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=2
+ AlwaysBuild=2
+ GenAsm=2
+ AsmAsm=2
+ PublicsOnly=2
+ StopCode=11
+ CustArgs ()
+ LibMods ()
+ BankNo=2
+ C51FL=177119914
+ C51VA=0
+ C51MSC ()
+ C51DEF ()
+ C51UDF ()
+ INCC5 ()
+ AX51FL=170
+ AX51MSC ()
+ AX51SET ()
+ AX51RST ()
+ INCA5 ()
+EndOpt
+
+Options 1,4,0  // Group 'Bank2'
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=2
+ AlwaysBuild=2
+ GenAsm=2
+ AsmAsm=2
+ PublicsOnly=2
+ StopCode=11
+ CustArgs ()
+ LibMods ()
+ BankNo=3
+ C51FL=177119914
+ C51VA=0
+ C51MSC ()
+ C51DEF ()
+ C51UDF ()
+ INCC5 ()
+ AX51FL=170
+ AX51MSC ()
+ AX51SET ()
+ AX51RST ()
+ INCA5 ()
+EndOpt
+
+Options 1,5,0  // Group 'Bank3'
+ PropFld { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 }
+ IncBld=2
+ AlwaysBuild=2
+ GenAsm=2
+ AsmAsm=2
+ PublicsOnly=2
+ StopCode=11
+ CustArgs ()
+ LibMods ()
+ BankNo=4
+ C51FL=177119914
+ C51VA=0
+ C51MSC ()
+ C51DEF ()
+ C51UDF ()
+ INCC5 ()
+ AX51FL=170
+ AX51MSC ()
+ AX51SET ()
+ AX51RST ()
+ INCA5 ()
+EndOpt
+

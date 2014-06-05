@@ -1,0 +1,501 @@
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MISC
+OBJECT MODULE PLACED IN .\Output\misc.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE misc.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
+                    -DDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\misc.lst) OBJECT(.\Output\misc.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * misc.c 
+   4           * @author Harry Han
+   5           * @author YoungHwan Bae
+   6           * @author Brian Kang
+   7           * @version 1.0
+   8           * @section LICENSE
+   9           *      Copyright (C) 2011~2012 Intersil Corporation
+  10           * @section DESCRIPTION
+  11           *      main file
+  12           * @section DESCRIPTION
+  13           *      developer code
+  14           ******************************************************************************
+  15           */
+  16          
+  17          #include "Config.h"
+  18          #include "reg.h"
+  19          #include "typedefs.h"
+  20          #include "TW8835.h"
+  21          
+  22          #include "Global.h"
+  23          #include "CPU.h"
+  24          #include "Printf.h"
+  25          #include "Monitor.h"
+  26          
+  27          #include "I2C.h"
+  28          #include "SPI.h"
+  29          
+  30          #include "main.h"
+  31          #include "misc.h"
+  32          
+  33          #include "SOsd.h"
+  34          #include "FOsd.h"
+  35          #include "Scaler.h"
+  36          #include "InputCtrl.h"
+  37          #include "EEPROM.h"
+  38          #include "ImageCtrl.h"
+  39          #include "decoder.h"
+  40          #include "InputCtrl.h"
+  41          #include "OutputCtrl.h"
+  42          #include "Settings.h"
+  43          #include "measure.h"
+  44          
+  45          #include "SOsdMenu.h"
+  46          
+  47          //=============================================================================
+  48          //      CHIP_MANUAL_TEST                                                               
+  49          //=============================================================================
+  50          
+  51          #ifdef CHIP_MANUAL_TEST
+              extern void TestUpper256Char(void);
+              
+              void ChipManualTest_InitPart(void)
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 2   
+
+              {       
+                      DCDC_StartUP();
+              
+                      FontOsdInit();
+                      FOsdSetDeValue();
+              
+              
+                      TestUpper256Char();
+              
+                      InitLogo1();
+                      LedPowerUp();
+                      RemoveLogoWithWait(1);
+              
+                      //recover FOSD
+                      FontOsdInit();
+                      FOsdSetDeValue();
+                      FOsdWinEnable(0, OFF);  //win0, disable..
+              }
+              
+              #ifdef SUPPORT_BT656
+              extern void InitBT656_Encoder(void);
+              #endif
+              extern XDATA BYTE Task_NoSignal_cmd;            //DONE,WAIT_VIDEO,WAIT,RUN,RUN_FORCE
+              
+              BYTE InitSystemForChipTest(BYTE fPowerUpBoot)
+              {
+                      BYTE ee_mode;
+                      BYTE value;
+                      BYTE FirstInitDone;
+              
+                      if(access==0) {
+                              //do nothing.
+                              return 0;
+                      }
+              
+                      //check EEPROM
+                      ee_mode = CheckEEPROM();
+                      if(ee_mode==1) {
+                              //---------- if FW version is not matched, initialize EEPROM data -----------
+                              InitWithNTSC();
+                              
+                              DebugLevel = 3;
+              
+                              #ifdef USE_SFLASH_EEPROM
+                              EE_Format();
+                              EE_FindCurrInfo();
+                              #endif
+                      
+                              InputMain = 0xff;       // start with saved input
+                              InitializeEE();         //save all default EE values.
+                      
+                              DebugLevel = 0;
+                              SaveDebugLevelEE(DebugLevel);
+              
+                              ee_mode = 0;
+                      }
+              
+                      //read debug level
+                      DebugLevel = GetDebugLevelEE();
+                      if((DebugLevel==0) && (fPowerUpBoot))
+                              Printf("\n===> Debugging was OFF (%02bx)", DebugLevel);
+                      else 
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 3   
+
+                              ePrintf("\n===> Debugging is ON (%02bx)", DebugLevel);
+              
+                      ePrintf("\nInitSystem(%bd)",fPowerUpBoot);
+              
+              
+              
+                      //set default setting.
+                      if(fPowerUpBoot) {
+              
+                              //Init HW with default
+                              InitWithNTSC();
+              
+                              //------------------
+                              //first GPIO position
+                              FP_GpioDefault();
+              
+                              SSPLL_PowerUp(ON);
+                              //DCDC data out needs 200ms.
+                              PrintSystemClockMsg("SSPLL_PowerUp");
+                      }
+              
+                      ChipManualTest_InitPart();
+                      FirstInitDone = 2;      
+              
+                      DumpClock(0);
+                      //------------------------
+                      //start with saved input
+                      //------------------------
+                      //++ StartVideoInput();
+                      //start from CVBS
+                      InputMain=INPUT_CVBS;
+                      LinkCheckAndSetInput();         //link CheckAndSetInput
+                      
+                      InputMain = 0xff;                       // start with saved input
+                      ChangeCVBS();
+              
+                      PrintSystemClockMsg("StartVideoInput");
+              
+                      //
+                      //Logo and LedPowetUp
+                      //
+                      if(FirstInitDone ==0) {
+                              InitLogo1();
+                              FirstInitDone =1;
+                      }
+              
+                      LedPowerUp();
+              
+              #ifdef SUPPORT_BT656
+                      //enable BT656 output encoder
+                      if(fPowerUpBoot)
+                              InitBT656_Encoder();
+              #endif
+              
+                      //remove InitLogo
+                      if(FirstInitDone ==1) {
+                              FirstInitDone = 2;
+                              RemoveLogoWithWait(1);
+                              if(Task_NoSignal_cmd == TASK_CMD_DONE)
+                                      FOsdWinEnable(0, OFF);  //win0, disable..
+                      }       
+              
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 4   
+
+                      //------------------------
+                      // setup eeprom effect
+                      //------------------------
+                      SetAspectHW(GetAspectModeEE());
+                      value = EE_Read(EEP_FLIP);      //mirror
+                      if(value) {
+                              WriteTW88Page(PAGE2_SCALER);
+                          WriteTW88(REG201, ReadTW88(REG201) | 0x80);
+                      }
+                      OsdSetTime(EE_Read(EEP_OSD_TIMEOUT));
+              
+              
+                      OsdSetTransRate(EE_Read(EEP_OSD_TRANSPARENCY));
+                      BackLightSetRate(EE_Read(EEP_BACKLIGHT));
+                      //set the Error Tolerance value for "En Changed Detection"
+                      MeasSetErrTolerance(0x04);              //tolerance set to 32
+              
+                      UpdateOsdTimerClock();
+                      //dPrintf("\nOsdTimerClock:%ld",OsdTimerClock);
+              
+                      //dPuts("\nInitSystem-END");
+              
+                      FOsdSetDeValue();       //??
+              
+                      return 0;
+              }
+              
+              //-----------------------------------------------------------------------------
+              //
+              //-----------------------------------------------------------------------------
+              void Chip_Manual_Test(void)
+              {
+                      BYTE    ch;
+              
+                      Puts("\nChip Manual Test with CVBS, DTV, PC");
+                      ChangeCVBS();
+              
+                      Puts("\nCVBS displayed...Press ANY key for Digital Input");
+                      while ( !RS_ready() ) ;
+                      ch = RS_rx();
+              #ifdef SUPPORT_DVI
+                      ChangeDVI();
+                      Puts("\nDigital Input displayed...Press ANY key for PC(aRGB)");
+                      while ( !RS_ready() ) ;
+                      ch = RS_rx();
+              #endif
+                      ChangePC();
+              
+              #if defined(EVB_20) || defined(EVB_21) || defined(EVB_30) || defined(EVB_31)
+                      Puts("\nPC (RGB)displayed...Press ANY key for BT656");
+                      while ( !RS_ready() ) ;
+                      ch = RS_rx();
+                      ChangeBT656();
+              #endif
+                      Puts("\nInput Test Finished");
+              
+              //??    WriteTW88Page(PAGE0_GENERAL);
+              //??    WriteTW88(REG0D6, ReadTW88(REG0D6) & ~0x70);    //clear TCLK output dely value
+              }
+              
+              #endif  //..CHIP_MANUAL_TEST
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 5   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 6   
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+menu_fitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 7   
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+menu_sitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
+  ram. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  zoom . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  ch_space_low . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  color. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  alpha_value. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  alpha_color_index. . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  reserved9. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  reserved10 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  reserved11 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 8   
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+menu_image_header_t. . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+image_info_s . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 9   
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+image_info_t . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+image_item_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+image_item_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

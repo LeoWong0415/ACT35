@@ -1,0 +1,53 @@
+COMMON {".\Output\CPU.obj"},
+COMMON {".\Output\Util.obj"},
+COMMON {".\Output\Printf.obj"},
+COMMON {".\Output\L51_BANK.obj"},
+BANK0 {".\Output\main.obj"},
+BANK0 {".\Output\Host.obj"},
+BANK0 {".\Output\SPI.obj"},
+BANK0 {".\Output\i2c.obj"},
+BANK0 {".\Output\Decoder.obj"},
+BANK0 {".\Output\VADC.obj"},
+BANK0 {".\Output\measure.obj"},
+BANK0 {".\Output\Scaler.obj"},
+BANK0 {".\Output\InputCtrl.obj"},
+BANK0 {".\Output\ImageCtrl.obj"},
+BANK0 {".\Output\OutputCtrl.obj"},
+BANK0 {".\Output\Settings.obj"},
+BANK0 {".\Output\EEPROM.obj"},
+BANK0 {".\Output\Remo.obj"},
+BANK0 {".\Output\TouchKey.obj"},
+BANK0 {".\Output\HID.obj"},
+BANK0 {".\Output\DTV.obj"},
+BANK0 {".\Output\PC_modes.obj"},
+BANK0 {".\Output\HDMI_EP9351.obj"},
+BANK0 {".\Output\HDMI_SIL9127.obj"},
+BANK0 {".\Output\misc.obj"},
+BANK1 {".\Output\monitor.obj"},
+BANK1 {".\Output\Monitor_MCU.obj"},
+BANK1 {".\Output\monitor_SPI.obj"},
+BANK1 {".\Output\monitor_menu.obj"},
+BANK1 {".\Output\DebugMsg.obj"},
+BANK2 {".\Output\OSDFont.obj"},
+BANK2 {".\Output\OSDSPI.obj"},
+BANK2 {".\Output\FOsdString.obj"},
+BANK2 {".\Output\FOsdTable.obj"},
+BANK2 {".\Output\FOsdDisplay.obj"},
+BANK2 {".\Output\FOsdMenu.obj"},
+BANK2 {".\Output\SpiFlashMap.obj"},
+BANK2 {".\Output\SOsdMenuMap.obj"},
+BANK2 {".\Output\SOsdMenu.obj"},
+BANK3 {".\Output\DemoMain.obj"},
+BANK3 {".\Output\test_FOSD.obj"},
+BANK3 {".\Output\junk.obj"} 
+TO ".\Output\TW8835_REV31" BankArea(0x0000,0xFFFF) REGFILE (.\Output\TW8835_REV31.ORC) 
+PRINT(".\List\TW8835_REV31.m51") RAMSIZE(256) 
+RECURSIONS (30)
+BANK0(?CO?MAIN, ?CO?HOST, ?CO?SPI, ?CO?Decoder, ?CO?VAdc, ?CO?MEASURE, ?CO?Scaler, ?CO?INPUTCTRL, ?CO?IMAGECTRL, ?CO?OutputCtrl, ?CO?SETTINGS, ?CO?eeprom, ?CO?TouchKey, ?CO?HID, ?CO?PC_modes, ?CO?DTV, ?CO?HDMI_EP9351)
+BANK1(?CO?MONITOR, ?CO?MONITOR_MCU, ?CO?MONITOR_SPI, ?CO?MONITOR_MENU, ?CO?DebugMsg)
+BANK2(?CO?SOsdMenu, ?CO?SpiFlashMap, ?CO?SOsdMenuMap, ?CO?OSDFONT, ?CO?OSDSPI, ?CO?FOsdString, ?CO?FOsdTable, ?CO?FOsdDisplay, ?CO?FOsdMenu)
+BANK3(?CO?DemoMain, ?CO?Test_FOSD)
+
+
+CODE( 0X0000-0XFFFF )
+XDATA( 0X0000-0X0FFF,0XC000-0XC0FF )

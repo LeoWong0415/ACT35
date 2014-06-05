@@ -1,0 +1,2868 @@
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN .\Output\i2c.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE i2c.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
+                    -DP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\i2c.lst) OBJECT(.\Output\i2c.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * i2c.c
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      a device driver for the iic-bus interface 
+  10           ******************************************************************************
+  11           */
+  12          #include "Config.h"
+  13          #include "reg.h"
+  14          #include "typedefs.h"
+  15          #include "TW8835.h"
+  16          #include "global.h"
+  17          
+  18          #include "printf.h"
+  19          #include "CPU.h"
+  20          #include "util.h"
+  21          
+  22          #include "I2C.h"
+  23          
+  24          #include "SOsd.h"
+  25          
+  26          #include <intrins.h>
+  27          #if defined(SUPPORT_EXTMCU_ISP)
+  28          #include "spi.h"
+  29          #endif
+  30          
+  31          
+  32          //=============================
+  33          // I2C TIME CHART
+  34          //=============================
+  35          /**
+  36          * I2C TIME CHART
+  37          *
+  38          *
+  39              -+      +----------+---------+...----+   ...-+     +-------+
+  40          SDA  |      |          |         |       |       |     |       |
+  41               +------+----------+---------+...    +---...-+-----+       +--
+  42                                                                                                          
+  43          SCL ---+     +----+      +----+      +----+          +------------+
+  44                 |     |    |      |    |      |    |          |            |
+  45                 +-----+    +------+    +-..---+    +--......--+            +--
+  46               | |     |    |    | |           |  |          | | |
+  47               |1|     |  3 |5   |6|           | 4|          |9|7|   8   |
+  48               |                                  |              |
+  49               |                                  |              |
+  50               +START                              +RESTART      +STOP
+  51             (4 1 5) (6  3   5)                              (9 7 8)
+  52                                                                                                                                                     TW8835 Slave 
+  53                                                                                                                                                     MIN          MAX
+  54          1: Hold Time START Condition                                                                                    74ns    -
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 2   
+
+  55          2: Clock Low Time(5+6)
+  56          3: Clock High Time                                                              i2c_delay_clockhigh             
+  57          4: Setup Time for a Repeated START Condition                                                    370ns   -
+  58          5: Data Hold Time                                                               i2c_delay_datahold              50ns    900ns
+  59          6: Data Setup Time                                                              i2c_delay_datasetup             74ns    -
+  60          7: Set-up time for STOP condition                                                                               370ns   -
+  61          8: Bus Free Time between a STOP and a START Condition                                   740ns    -
+  62          9: prepare time for STOP condition
+  63          A: ack wait time
+  64          */
+  65          
+  66          //-----------------------
+  67          // I2C DELAY
+  68          // Note: It depends on CACHE, MCUSPI clock, & SPIOSD.
+  69          //-----------------------
+  70          
+  71          static void dd(BYTE delay)
+  72          {
+  73   1              BYTE i;
+  74   1              for(i=0; i < delay; i++);
+  75   1      }
+  76          
+  77          #define N_O_P_2         _nop_();_nop_() 
+  78          #define N_O_P_3         _nop_();_nop_();_nop_()
+  79          #define N_O_P_5         _nop_();_nop_();_nop_();_nop_();_nop_()
+  80          #define N_O_P_10        N_O_P_5; N_O_P_5
+  81          #define N_O_P_20        N_O_P_10; N_O_P_10
+  82          #define N_O_P_25        N_O_P_10; N_O_P_10; N_O_P_5
+  83          #define N_O_P_50        dd(2)   //N_O_P_20; N_O_P_20; N_O_P_10
+  84          #define N_O_P_100       dd(5)   //N_O_P_50; N_O_P_50
+  85          #define N_O_P_200       dd(10)  //N_O_P_100; N_O_P_100
+  86          
+  87          
+  88          #if defined(MODEL_TW8835_EXTI2C)
+                      //test:1
+                      #define I2CDelay_1                                      //dd(1)         
+                      #define I2CDelay_2                                      
+                      #define I2CDelay_3              dd(1)                                             //fix
+                      #define I2CDelay_4              dd(1)                   
+                      #define I2CDelay_5              _nop_();_nop_()         /*;dd(1) */
+                      #define I2CDelay_6              _nop_()                                         
+                      #define I2CDelay_7                                  //dd(2)     
+                      #define I2CDelay_8                                      //dd(2) 
+                      #define I2CDelay_9                                      //dd(2)
+                      #define I2CDelay_ACK    //dd(3)
+              #elif defined(MODEL_TW8835_EXTI2C___ORG)
+                      //base clock: 27MHz Cache:OFF
+                      //SCLK:48kHz
+                      //I2C read:
+                      //I2C write:
+                      //TSC Read: interval:20ms, 
+                      //      when touch is not pressed
+                      //              normal:4.5ms checkkeypad:7.5ms
+                      //      when touch is pressed
+                      //              normal:12.2ms checkkeypad:15.1ms
+                      #define I2CDelay_1              dd(1)                   //need 2
+                      #define I2CDelay_2              dd(3)                   //
+                      #define I2CDelay_3              dd(1)                   //
+                      #define I2CDelay_4              dd(1)                   //need 100
+                      #define I2CDelay_5              //dd(1)                 //need 2
+                      #define I2CDelay_6                                              //need 2
+                      #define I2CDelay_7              dd(2)                   //need 100
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 3   
+
+                      #define I2CDelay_8              dd(2)                   //need 200
+                      #define I2CDelay_9              dd(2)
+                      #define I2CDelay_ACK    dd(5)
+              #else
+ 121                  //<==NORMAL
+ 122                  #define I2CDelay_1              dd(1)                   //need 2
+ 123                  #define I2CDelay_2              dd(3)                   //
+ 124                  #define I2CDelay_3              dd(1)                   //
+ 125                  #define I2CDelay_4              dd(1)                   //need 100
+ 126                  #define I2CDelay_5              //dd(1)                 //need 2
+ 127                  #define I2CDelay_6                                              //need 2
+ 128                  #define I2CDelay_7              dd(2)                   //need 100
+ 129                  #define I2CDelay_8              dd(2)                   //need 200
+ 130                  #define I2CDelay_9              dd(2)
+ 131                  #define I2CDelay_ACK    dd(5)
+ 132          #endif
+ 133          
+ 134          //-----------------
+ 135          // I2C assembler
+ 136          //-----------------
+ 137          #ifdef I2C_ASSEMBLER
+              DATA BYTE I2CD  _at_ 0x20;
+              
+              #define I2CD0   00h
+              #define I2CD1   01h
+              #define I2CD2   02h
+              #define I2CD3   03h
+              #define I2CD4   04h
+              #define I2CD5   05h
+              #define I2CD6   06h
+              #define I2CD7   07h
+              #endif
+ 149          
+ 150          #if 0
+              bdata unsigned char I2CDBit;
+              sbit I2CDBit0   = I2CD^0;
+              sbit I2CDBit1   = I2CD^1;
+              sbit I2CDBit2   = I2CD^2;
+              sbit I2CDBit3   = I2CD^3;
+              sbit I2CDBit4   = I2CD^4;
+              sbit I2CDBit5   = I2CD^5;
+              sbit I2CDBit6   = I2CD^6;
+              sbit I2CDBit6   = I2CD^7;
+              #endif
+ 161          
+ 162          
+ 163          //=============================================================================
+ 164          // I2C subroutines
+ 165          //=============================================================================
+ 166          
+ 167          static void I2CStart(void)
+ 168          {
+ 169   1              I2C_SDA = 1;    
+ 170   1              I2C_SCL = 1;    
+ 171   1                                              I2CDelay_4;
+ 172   1              I2C_SDA = 0;    I2CDelay_1;
+ 173   1              I2C_SCL = 0;    I2CDelay_5;
+ 174   1      }
+ 175          static void I2CSetSclWait(void)
+ 176          {
+ 177   1              I2C_SCL=1;      
+ 178   1              //NOTE:It can hangup the system.
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 4   
+
+ 179   1              while(I2C_SCL==0);      
+ 180   1      }
+ 181          
+ 182          static void I2CStop(void)
+ 183          {
+ 184   1              I2C_SDA = 0;            I2CDelay_9;
+ 185   1              I2CSetSclWait();        I2CDelay_7;
+ 186   1              I2C_SDA = 1;            I2CDelay_8;     
+ 187   1      }
+ 188          static BYTE I2CWriteData(BYTE value)
+ 189          {
+ 190   1              BYTE error;
+ 191   1              BYTE i;
+ 192   1      
+ 193   1              for(i=0;i<8;i++) {
+ 194   2                      if(value & 0x80) I2C_SDA = 1;
+ 195   2                      else             I2C_SDA = 0;
+ 196   2                                                              I2CDelay_6;
+ 197   2                      I2C_SCL = 1;            I2CDelay_3;
+ 198   2                      I2C_SCL = 0;            I2CDelay_5;
+ 199   2      
+ 200   2                      value <<=1;
+ 201   2              }
+ 202   1              I2C_SDA = 1;                    //listen for ACK
+ 203   1                                      
+ 204   1              I2CSetSclWait();                I2CDelay_ACK;
+ 205   1              if(I2C_SDA)     error=1;
+ 206   1              else        error=0;
+ 207   1                                      
+ 208   1              I2C_SCL=0;                              I2CDelay_5;
+ 209   1      
+ 210   1              return error;
+ 211   1      }
+ 212          
+ 213          static BYTE I2CReadData(BYTE fLast)
+ 214          {
+ 215   1              BYTE i;
+ 216   1              BYTE val=0;
+ 217   1      
+ 218   1              for(i=0; i <8; i++) {
+ 219   2                                                              I2CDelay_6;
+ 220   2                      I2CSetSclWait();        I2CDelay_3;
+ 221   2                      val <<= 1;
+ 222   2                      if(I2C_SDA)
+ 223   2                              val |= 1;
+ 224   2                      I2C_SCL=0;                      I2CDelay_5;
+ 225   2              }
+ 226   1              if(fLast)       I2C_SDA = 1;    //last byte
+ 227   1              else            I2C_SDA = 0;
+ 228   1      
+ 229   1              I2CSetSclWait();                I2CDelay_3;
+ 230   1              I2C_SCL=0;
+ 231   1              I2C_SDA=1;                              I2CDelay_5;
+ 232   1              return val;
+ 233   1      }
+ 234          
+ 235          
+ 236          //=============================================================================
+ 237          // I2C SLOW subroutines
+ 238          //=============================================================================
+ 239          
+ 240          //monitor can change these i2c_delay global variables.
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 5   
+
+ 241          BYTE i2c_delay_start = 160;
+ 242          BYTE i2c_delay_restart = 2;
+ 243          BYTE i2c_delay_datasetup = 0x40;
+ 244          BYTE i2c_delay_clockhigh = 0x50;
+ 245          BYTE i2c_delay_datahold = 0x60;
+ 246          
+ 247          static void dd_start(void)
+ 248          {
+ 249   1              BYTE i;
+ 250   1              for(i=0; i < i2c_delay_start; i++);
+ 251   1      }
+ 252          
+ 253          static void dd_restart(void)
+ 254          {
+ 255   1              BYTE i;
+ 256   1              for(i=0; i < i2c_delay_restart; i++);
+ 257   1      }
+ 258          
+ 259          static void dd_datasetup(void)
+ 260          {
+ 261   1              BYTE i;
+ 262   1              for(i=0; i < i2c_delay_datasetup; i++);
+ 263   1      }
+ 264          static void dd_clockhigh(void)
+ 265          {
+ 266   1              BYTE i;
+ 267   1              for(i=0; i < i2c_delay_clockhigh; i++);
+ 268   1      }
+ 269          static void dd_datahold(void)
+ 270          {
+ 271   1              BYTE i;
+ 272   1              for(i=0; i < i2c_delay_datahold; i++);
+ 273   1      }
+ 274          static void dd_clock_ack(void)
+ 275          {
+ 276   1              BYTE i;
+ 277   1              for(i=0; i < 0x28; i++);
+ 278   1      }
+ 279          
+ 280          //-------------------
+ 281          // slow routine
+ 282          // For I2CID_SX1504 and to test the SW Slave I2C
+ 283          //-------------------
+ 284          static void I2CStartSlow(void)
+ 285          {
+ 286   1              I2C_SDA = 1;    
+ 287   1              I2C_SCL = 1;    
+ 288   1                                              dd_restart();   //delay_4       
+ 289   1              I2C_SDA = 0;    dd_start();             //delay_1
+ 290   1              I2C_SCL = 0;    dd_datahold();  //delay_5
+ 291   1      }
+ 292          static void I2CStopSlow(void)
+ 293          {
+ 294   1              I2C_SDA = 0;            dd_datasetup();
+ 295   1              I2CSetSclWait();        dd_clockhigh(); 
+ 296   1              I2C_SDA = 1;                    
+ 297   1      }
+ 298          static BYTE I2CWriteDataSlow(BYTE value)
+ 299          {
+ 300   1              BYTE error;
+ 301   1              BYTE i;
+ 302   1      
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 6   
+
+ 303   1              for(i=0;i<8;i++) {
+ 304   2                      if(value & 0x80) I2C_SDA = 1;
+ 305   2                      else             I2C_SDA = 0;
+ 306   2                                                              dd_datasetup();
+ 307   2                      I2CSetSclWait();        dd_clockhigh(); 
+ 308   2                      I2C_SCL = 0;            dd_datahold();  
+ 309   2                      value <<=1;
+ 310   2              }
+ 311   1              I2C_SDA = 1;                    //listen for ACK
+ 312   1                                      
+ 313   1              I2CSetSclWait();                dd_clock_ack();
+ 314   1              if(I2C_SDA)     error=1;
+ 315   1              else        error=0;
+ 316   1                                      
+ 317   1              I2C_SCL=0;                              dd_datahold();
+ 318   1      
+ 319   1              return error;
+ 320   1      }
+ 321          static BYTE I2CReadDataSlow(BYTE fLast)
+ 322          {
+ 323   1              BYTE i;
+ 324   1              BYTE val=0;
+ 325   1                                                              //dd_datahold(); //NOTE.give time to slave...
+ 326   1              for(i=0; i <8; i++) {
+ 327   2                                                              
+ 328   2                      I2CSetSclWait();        
+ 329   2                      val <<= 1;
+ 330   2                      if(I2C_SDA)
+ 331   2                              val |= 1;
+ 332   2                      I2C_SCL=0;                      dd_datahold();
+ 333   2              }
+ 334   1              if(fLast)       I2C_SDA = 1;    //last byte
+ 335   1              else            I2C_SDA = 0;
+ 336   1                                                              dd_datasetup();
+ 337   1              I2CSetSclWait();                dd_clock_ack();
+ 338   1              I2C_SCL=0;
+ 339   1              I2C_SDA=1;                              dd_datahold();
+ 340   1              return val;
+ 341   1      }
+ 342          
+ 343          //------------------
+ 344          // 2ND I2C
+ 345          //-----------------
+ 346          #ifdef SUPPORT_I2C2
+              static void I2C2Start(void)
+              {
+                      I2C2_SDA = 1;
+                      I2C2_SCL = 1;
+                                                      dd(1);          //can skip
+                      I2C2_SDA = 0;   dd(1);          //NOTE1
+                      I2C2_SCL = 0;   dd(30);         //NOTE2
+              }
+              static void I2C2SetSclWait(void)
+              {
+                      I2C2_SCL=1;     
+                      while(I2C2_SCL==0);
+              }
+              static void I2C2Stop(void)
+              {
+                      I2C2_SDA = 0;           dd(30);
+                      I2C2SetSclWait();       dd(30);
+                      I2C2_SDA = 1;
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 7   
+
+              }
+              static BYTE I2C2WriteData(BYTE value)
+              {
+                      BYTE error = 0;
+                      BYTE i;
+              
+                      for(i=0;i<8;i++) {
+                              if(value & 0x80) I2C2_SDA = 1;
+                              else             I2C2_SDA = 0;
+              
+                              I2C2SetSclWait();
+                              dd(30);                  //too fast
+                              I2C2_SCL = 0;
+                              dd(30);                  //too fast
+                              value <<=1;
+                      }
+                      I2C2_SDA = 1;   //listen for ACK
+                      I2C2SetSclWait();
+                      dd(30);                  //too fast
+                      if(I2C2_SDA)
+                              error=1;
+                      I2C2_SCL=0;
+                      dd(30);                  //too fast
+              
+                      return error;
+              }
+              static BYTE I2C2ReadData(BYTE fLast)
+              {
+                      BYTE i;
+                      BYTE val=0;
+              
+                      for(i=0; i <8; i++) {
+                              I2C2SetSclWait();
+                              dd(30);                  //too fast
+                              val <<= 1;
+                              if(I2C2_SDA)
+                                      val |= 1;
+                              I2C2_SCL=0;
+                              dd(30);                  //too fast
+                      }
+                      if(fLast)       I2C2_SDA = 1;   //last byte
+                      else            I2C2_SDA = 0;
+              
+                      I2C2SetSclWait();
+                      dd(30);                  //too fast
+                      I2C2_SCL=0;
+                      I2C2_SDA=1;
+                      dd(30);                  //too fast
+                      return val;
+              }
+              #endif
+ 416          
+ 417          //=============================================================================
+ 418          // I2C global Functions
+ 419          //
+ 420          //BYTE CheckI2C(BYTE i2cid)
+ 421          //BYTE WriteI2CByte(BYTE i2cid, BYTE index, BYTE val)
+ 422          //void WriteI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+ 423          //BYTE ReadI2CByte(BYTE i2cid, BYTE index)
+ 424          //void ReadI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+ 425          //
+ 426          //void WriteSlowI2CByte(BYTE i2cid, BYTE index, BYTE val)
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 8   
+
+ 427          //BYTE ReadSlowI2CByte(BYTE i2cid, BYTE index)
+ 428          //                                                                                
+ 429          //=============================================================================
+ 430          /**
+ 431          * check I2C device
+ 432          *
+ 433          * I2C commands use a infinity loop. 
+ 434          * Use CheckI2C() first before you use other I2C commands.
+ 435          *
+ 436          * @return
+ 437          *       0: success
+ 438          *       1: NAK
+ 439          *       2: I2C dead
+ 440          */
+ 441          BYTE CheckI2C(BYTE i2cid)
+ 442          {
+ 443   1              BYTE error;
+ 444   1              BYTE i;
+ 445   1              BYTE value;
+ 446   1      
+ 447   1              value = i2cid;
+ 448   1      SFR_EA=0;
+ 449   1              I2CStart();
+ 450   1      
+ 451   1              for(i=0;i<8;i++) {
+ 452   2                      if(value & 0x80) I2C_SDA = 1;
+ 453   2                      else             I2C_SDA = 0;
+ 454   2                                                              I2CDelay_6;
+ 455   2                      I2C_SCL = 1;            I2CDelay_3;
+ 456   2                      I2C_SCL = 0;            I2CDelay_5;
+ 457   2      
+ 458   2                      value <<=1;
+ 459   2              }
+ 460   1              I2C_SDA = 1;                    //listen for ACK
+ 461   1              /* NOTE: I am not using I2CSetSclWait(). */                        
+ 462   1              I2C_SCL=1;                              I2CDelay_ACK;
+ 463   1              dd(100);
+ 464   1              if(I2C_SCL==0)  error = 2;       //I2C dead
+ 465   1              else {
+ 466   2                      if(I2C_SDA)     error=1;        //NAK
+ 467   2                      else        error=0;    //ACK
+ 468   2              }                        
+ 469   1              I2C_SCL=0;                              I2CDelay_5;
+ 470   1      
+ 471   1              //stop routine
+ 472   1              I2C_SDA = 0;            I2CDelay_9;
+ 473   1              /* NOTE: I am not using I2CSetSclWait(). */                        
+ 474   1              I2C_SCL=1;                      I2CDelay_7;
+ 475   1              I2C_SDA = 1;            I2CDelay_8;     
+ 476   1      
+ 477   1      SFR_EA=1;
+ 478   1              return error;
+ 479   1      }
+ 480          
+ 481          /**
+ 482          * write one byte data to I2C slave device
+ 483          *
+ 484          * @param i2cid - 8bit.
+ 485          * @param index 
+ 486          * @param data
+ 487          */
+ 488          BYTE WriteI2CByte(BYTE i2cid, BYTE index, BYTE val)
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 9   
+
+ 489          {
+ 490   1              BYTE ret;
+ 491   1      
+ 492   1      SFR_EA=0;
+ 493   1              I2CStart();
+ 494   1              ret = I2CWriteData(i2cid);              ret <<=1;
+ 495   1              ret |= I2CWriteData(index);             ret <<= 1;
+ 496   1              ret |= I2CWriteData(val);
+ 497   1              I2CStop();
+ 498   1      SFR_EA=1;
+ 499   1      
+ 500   1      #if defined(DEBUG_I2C)
+                      if(ret)
+                              Printf("\nWriteI2CByte[%bx:%bx,%bx] FAIL:%bx",i2cid, index,val, ret);
+              #endif
+ 504   1              return ret;
+ 505   1      }
+ 506          
+ 507          /**
+ 508          * write data to I2C slave device
+ 509          *
+ 510          * @param i2cid - 8bit
+ 511          * @param index 
+ 512          * @param *val. NOTE: Do not use a CodeSegment
+ 513          * @param count
+ 514          */
+ 515          void WriteI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+ 516          {
+ 517   1              BYTE i;
+ 518   1              BYTE ret;
+ 519   1      
+ 520   1      SFR_EA=0;
+ 521   1              I2CStart();
+ 522   1              ret = I2CWriteData(i2cid);              ret <<=1;
+ 523   1              ret |= I2CWriteData(index);             ret <<=1;
+ 524   1              for(i=0;i<cnt;i++) { 
+ 525   2                      ret |= I2CWriteData(val[i]);
+ 526   2              }
+ 527   1              I2CStop();
+ 528   1      SFR_EA=1;
+ 529   1      #if defined(DEBUG_I2C)
+                      if(ret)
+                              Printf("\nWriteBlock2C[%bx:%bx,%bx] FAIL:%bx",i2cid, index,val, ret);
+              #endif
+ 533   1      }
+ 534          //-------------------------------------
+ 535          /**
+ 536          * slow WriteI2CByte
+ 537          * @see WriteI2CByte
+ 538          */
+ 539          BYTE WriteSlowI2CByte(BYTE i2cid, BYTE index, BYTE val)
+ 540          {
+ 541   1              BYTE ret;
+ 542   1      //SFR_EA=0;
+ 543   1              I2CStartSlow();
+ 544   1              ret=I2CWriteDataSlow(i2cid);    ret<<=1;
+ 545   1              ret+=I2CWriteDataSlow(index);   ret<<=1;
+ 546   1              ret+=I2CWriteDataSlow(val);
+ 547   1              I2CStopSlow();
+ 548   1      //SFR_EA=1;
+ 549   1      #if defined(DEBUG_I2C)
+                      if(ret)
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 10  
+
+                              Printf("\nWriteSlowI2CByte[%bx:%bx,%bx] FAIL:%bx",i2cid, index,val, ret);       
+              #endif
+ 553   1              return ret;
+ 554   1      }
+ 555          
+ 556          /**
+ 557          * write data to I2C slave device
+ 558          *
+ 559          * @param i2cid - 8bit
+ 560          * @param index 
+ 561          * @param *val. NOTE: Do not use a CodeSegment
+ 562          * @param count
+ 563          */
+ 564          //void WriteSlowI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+ 565          void WriteSlowI2C(BYTE i2cid, BYTE index, BYTE *val, WORD cnt)
+ 566          {
+ 567   1              WORD i;
+ 568   1              BYTE ret;
+ 569   1      
+ 570   1      SFR_EA=0;
+ 571   1              I2CStartSlow();
+ 572   1              ret = I2CWriteDataSlow(i2cid);          ret <<=1;
+ 573   1              ret |= I2CWriteDataSlow(index);         ret <<=1;
+ 574   1              for(i=0;i<cnt;i++) { 
+ 575   2                      ret |= I2CWriteDataSlow(val[i]);
+ 576   2              }
+ 577   1              I2CStopSlow();
+ 578   1      SFR_EA=1;
+ 579   1      #if defined(DEBUG_I2C)
+                      if(ret)
+                              Printf("\nWriteSlowI2C[%bx:%bx,%bx] FAIL:%bx",i2cid, index,val, ret);
+              #endif
+ 583   1      }
+ 584          
+ 585          /**
+ 586          * read one byte data from I2C slave device
+ 587          *
+ 588          * @param i2cid - 8bit
+ 589          * @param index 
+ 590          * @return data
+ 591          */
+ 592          BYTE ReadI2CByte(BYTE i2cid, BYTE index)
+ 593          {
+ 594   1              BYTE value;
+ 595   1              BYTE ret;
+ 596   1      
+ 597   1      SFR_EA=0;
+ 598   1              I2CStart();               
+ 599   1              ret= I2CWriteData(i2cid);               ret<<=1;
+ 600   1              ret+=I2CWriteData(index);               ret<<=1;
+ 601   1              I2CStart();
+ 602   1              ret+=I2CWriteData(i2cid | 0x01);
+ 603   1              value=I2CReadData(1);
+ 604   1              I2CStop();
+ 605   1      SFR_EA=1;
+ 606   1      
+ 607   1      #if defined(DEBUG_I2C)
+                      if(ret)
+                              Printf("\nReadI2CByte[%bx:%bx] FAIL:%bx",i2cid,index, ret);
+              #endif
+ 611   1              return value;
+ 612   1      }
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 11  
+
+ 613          
+ 614          /**
+ 615          * read data from I2C slave device
+ 616          *
+ 617          * @param i2cid - 8bit
+ 618          * @param index 
+ 619          * @param *val - read back buffer
+ 620          * @param count
+ 621          */
+ 622          void ReadI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+ 623          {
+ 624   1              BYTE i;
+ 625   1              BYTE ret;
+ 626   1      SFR_EA=0;       
+ 627   1              I2CStart();
+ 628   1              ret  = I2CWriteData(i2cid);             ret <<=1;
+ 629   1              ret |= I2CWriteData(index);             ret <<=1;
+ 630   1              I2CStart();
+ 631   1              ret |= I2CWriteData(i2cid | 0x01);
+ 632   1              cnt--;
+ 633   1              for(i=0; i<cnt; i++){
+ 634   2                      val[i]=I2CReadData(0);
+ 635   2              }
+ 636   1              val[i]=I2CReadData(1);
+ 637   1      
+ 638   1              I2CStop();
+ 639   1      SFR_EA=1;
+ 640   1      #if defined(DEBUG_I2C)
+                      if(ret)
+                              Printf("\nReadI2C[%bx:%bx] FAIL:%bx",i2cid,index, ret);
+              #endif
+ 644   1      }
+ 645          
+ 646          
+ 647          
+ 648          /**
+ 649          * slow ReadI2CByte
+ 650          * @see ReadI2CByte
+ 651          */
+ 652          BYTE ReadSlowI2CByte(BYTE i2cid, BYTE index)
+ 653          {
+ 654   1              BYTE val;
+ 655   1              BYTE ret;
+ 656   1      //SFR_EA=0;
+ 657   1              I2CStartSlow();           
+ 658   1              ret = I2CWriteDataSlow(i2cid);          ret<<=1;
+ 659   1              ret += I2CWriteDataSlow(index);         ret<<=1;
+ 660   1      #ifdef SW_I2C_SLAVE
+                      dd(200);
+              #endif
+ 663   1              I2CStartSlow();
+ 664   1      
+ 665   1              ret += I2CWriteDataSlow(i2cid | 0x01);
+ 666   1              val=I2CReadDataSlow(1);
+ 667   1              I2CStopSlow();
+ 668   1      //SFR_EA=1;
+ 669   1      #if defined(DEBUG_I2C)
+                      if(ret)
+                              Printf("\nReadSlowI2CByte[%bx:%bx] FAIL:%bx",i2cid,index,ret);  
+              #endif
+ 673   1              return val;
+ 674   1      }
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 12  
+
+ 675          
+ 676          /**
+ 677          * read data from I2C slave device
+ 678          *
+ 679          * @param i2cid - 8bit
+ 680          * @param index 
+ 681          * @param *val - read back buffer
+ 682          * @param count
+ 683          */
+ 684          void ReadSlowI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+ 685          {
+ 686   1              BYTE i;
+ 687   1              BYTE ret;
+ 688   1      SFR_EA=0;       
+ 689   1              I2CStartSlow();
+ 690   1              ret  = I2CWriteDataSlow(i2cid);         ret <<=1;
+ 691   1              ret |= I2CWriteDataSlow(index);         ret <<=1;
+ 692   1              I2CStart();
+ 693   1              ret |= I2CWriteDataSlow(i2cid | 0x01);
+ 694   1              cnt--;
+ 695   1              for(i=0; i<cnt; i++){
+ 696   2                      val[i]=I2CReadDataSlow(0);
+ 697   2              }
+ 698   1              val[i]=I2CReadDataSlow(1);
+ 699   1      
+ 700   1              I2CStopSlow();
+ 701   1      SFR_EA=1;
+ 702   1      #if defined(DEBUG_I2C)
+                      if(ret)
+                              Printf("\nReadSlowI2C[%bx:%bx] FAIL:%bx",i2cid,index, ret);
+              #endif
+ 706   1      }
+ 707          
+ 708          #ifdef SUPPORT_I2C2
+              /**
+              * second I2C ReadI2CByte
+              * @see ReadI2CByte
+              */
+              BYTE ReadI2C2Byte(BYTE addr, BYTE index)
+              {
+                      BYTE val;
+              //SFR_EA=0;
+                      I2C2Start();
+                      I2C2WriteData(addr);
+                      I2C2WriteData(index);
+                      I2C2Start();
+                      I2C2WriteData(addr | 0x01);
+                      val=I2C2ReadData(1);
+                      I2C2Stop();
+              //SFR_EA=1;
+                      return val;
+              }
+              /**
+              * second I2C WriteI2CByte
+              * @see WriteI2CByte
+              */
+              void WriteI2C2Byte(BYTE addr, BYTE index, BYTE val)
+              {
+              //SFR_EA=0;
+                      I2C2Start();
+                      I2C2WriteData(addr);
+                      I2C2WriteData(index);
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 13  
+
+                      I2C2WriteData(val);
+                      I2C2Stop();
+              //SFR_EA=1;
+              }
+              #endif
+ 742          
+ 743          
+ 744          //=============================================================================
+ 745          //                                                                           
+ 746          //=============================================================================
+ 747          /**
+ 748          * initialize registers with text array
+ 749          *
+ 750          *       format
+ 751          *               0xII, 0x00      //start. If II is not 00, use WriteI2CByte.  
+ 752          *               0xff, 0xXX      //assign page
+ 753          *               0xRR, 0xDD      //register & data
+ 754          *               ...
+ 755          *               0xff, 0xXX      //assign page
+ 756          *               0xRR, 0xDD      //register & data
+ 757          *               ...
+ 758          *               0xff, 0xff      //end
+ 759          */
+ 760          void I2CDeviceInitialize(BYTE *RegSet, BYTE delay)
+ 761          {
+ 762   1              int     cnt=0;
+ 763   1              BYTE addr, index, val;
+ 764   1      #ifndef SUPPORT_8BIT_CHIP_ACCESS
+ 765   1              WORD w_page=0;
+ 766   1      #endif
+ 767   1      
+ 768   1              addr = *RegSet;
+ 769   1      #ifdef DEBUG_TW88
+                      dPrintf("\nI2C address : %02bx", addr);
+              #endif
+ 772   1              cnt = *(RegSet+1);      //ignore cnt
+ 773   1              RegSet+=2;
+ 774   1      
+ 775   1              while (( RegSet[0] != 0xFF ) || ( RegSet[1]!= 0xFF )) {                 // 0xff, 0xff is end of data
+ 776   2                      index = *RegSet;
+ 777   2                      val = *(RegSet+1);
+ 778   2      
+ 779   2                      if ( addr == 0 ) {
+ 780   3      #ifdef SUPPORT_8BIT_CHIP_ACCESS
+                                      WriteTW88(index, val);
+              #else
+ 783   3                              if(index==0xFF) {
+ 784   4                                      w_page=val << 8;
+ 785   4                              }
+ 786   3                              else {
+ 787   4                                      WriteTW88(w_page+index, val);
+ 788   4                              }
+ 789   3      #endif
+ 790   3                      }
+ 791   2                      else
+ 792   2                              WriteI2CByte(addr, index, val);
+ 793   2      
+ 794   2                      if(delay)
+ 795   2                              delay1ms(delay);
+ 796   2      #ifdef DEBUG_TW88
+              #ifdef SUPPORT_8BIT_CHIP_ACCESS
+                              dPrintf("\n    addr=%02x  index=%02x   val=%02x", (WORD)addr, (WORD)index, (WORD)val );
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 14  
+
+              #else
+                              dPrintf("\n    addr=%02x  index=%03x   val=%02x", (WORD)addr, w_page | index, (WORD)val );
+              #endif
+              #endif
+ 803   2                      RegSet+=2;
+ 804   2              }                                                                                                                  
+ 805   1      }
+ 806          
+ 807          #ifdef MODEL_TW8835_MASTER
+              /**
+              * I2C write command from the external MCU to TW8835 internal MCU. 
+              *
+              * use an extra GPIO to hold TW8835 internal MCU during Write/Read I2C.
+              * to slove a chip access arbitration issue between I2C & Internal MCU on TW8835.
+              */
+              BYTE WriteI2CByteToTW88(BYTE index, BYTE value)
+              {
+                      BYTE ret;
+                      PORT_I2CCMD_GPIO_MASTER=0;  //Start
+                      //delay1ms(1); 
+                      ret=WriteI2CByte(TW88I2CAddress, index, value); 
+                      PORT_I2CCMD_GPIO_MASTER=1;       //Stop
+              
+                      return ret;
+              }
+              /**
+              * I2C read command from the external MCU to TW8835 internal MCU. 
+              *
+              * use an extra GPIO to hold TW8835 internal MCU during Write/Read I2C.
+              * to slove a chip access arbitration issue between I2C & Internal MCU on TW8835.
+              */
+              BYTE ReadI2CByteFromTW88(BYTE index)
+              {
+                      BYTE ret;
+                      PORT_I2CCMD_GPIO_MASTER=0;  //Start
+                      //delay1ms(1); 
+                      ret=ReadI2CByte(TW88I2CAddress,index);
+                      PORT_I2CCMD_GPIO_MASTER=1;       //Stop
+                      return ret;
+              }
+              #if 0
+              /**
+              * write block function
+              * 
+              * @see WriteI2C
+              * @see WriteI2CByteToTW88
+              */
+              void WriteI2CtoTW88(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+              {
+                      PORT_I2CCMD_GPIO_MASTER=0;  //Start
+                      WriteI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+                      PORT_I2CCMD_GPIO_MASTER=1;       //Stop
+              }
+              /**
+              * read block function
+              * 
+              * @see ReadI2CByteFromTW88
+              * @see ReadI2C
+              */
+              void ReadI2CfromTW88(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+              {
+                      PORT_I2CCMD_GPIO_MASTER=0;  //Start
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 15  
+
+                      ReadI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
+                      PORT_I2CCMD_GPIO_MASTER=1;       //Stop
+              }
+              #endif
+              
+              #endif
+ 867          
+ 868          
+ 869          //===================================================
+ 870          // I2CISP
+ 871          // download FW & image thru I2C to SPIFlash
+ 872          //===================================================
+ 873          #if defined(MODEL_TW8835_MASTER) && defined(SUPPORT_EXTMCU_ISP)
+              
+              //same as SpiFlashDmaWait
+              BYTE WaitSpiDmaDone(BYTE wait, BYTE delay)
+              {
+                      BYTE i;
+                      volatile BYTE vdata;
+                      //assume page4
+                      for(i=0; i < wait; i++) {
+                              vdata = ReadI2CByte(TW88I2CAddress,REG4C4);
+                              if((vdata & 0x01)==0)   //check self clear bit
+                                      break;
+                              if(delay)
+                                      delay1ms(delay);
+                      }
+                      if(i==wait)
+                              return ERR_FAIL;
+                      //Printf("\n1:wait:%bd,%bx",i,vdata);
+                      return ERR_SUCCESS;
+              }
+              
+              
+              
+              #define I2CSPI_SECTOR_SIZE              0x1000          //4K or 32K
+              #define I2CSPI_BLOCK_SIZE               0x8000          //32K or 64K
+              #define I2CISP_PROGRESSBAR
+              /**
+              * ExtI2C ISP program
+              *
+              *       download FW and Image from External MCU to the SLIFlash on the slave system.
+              *       Goto the slave to STOP mode first. PORT_EXTMCU_ISP = 0;
+              *       If the slave is a STOP mode, we can use ReadI2CByte/WriteI2CByte withoud GPIO.
+              * @param start
+              * @param ptr: if NULL, it will download a test pattern
+              * @param len
+              */
+              BYTE I2cSpiProg(DWORD start, BYTE *ptr, DWORD len)
+              {
+                      BYTE page;
+                      DWORD addr;
+                      DWORD spiaddr;
+                      BYTE cnt;
+                      BYTE i,j;
+                      WORD w_checksum,r_checksum;
+                      BYTE w_data;
+                      DWORD BootTime;
+                      DWORD progress;
+              #ifdef I2CISP_PROGRESSBAR
+                      DWORD horizontal;
+              #endif
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 16  
+
+                      BYTE vlen_high;
+                      BYTE ret;
+              #ifdef MODEL_TW8836
+                      WORD SPI_BUFF_addr;
+                      WORD SPI_BUFF_len;
+              #endif
+              
+                      Printf("\nI2cSpiProg(%lx,%s,%lx)", start,ptr==NULL ? "(NULL)":"DATA", len);
+                      if(start & 0x00000F)
+                              Printf("\nAddr need 8byte align");
+                      if(len & 0x00000F)
+                              Printf("\nLen need 8byte align");
+              
+              
+                      BootTime = SystemClock;
+                      page = ReadI2CByte(TW88I2CAddress,0xFF);        //save page     
+              
+                      WriteI2CByte(TW88I2CAddress,0xFF,4);            //select page 4
+              
+              #ifdef I2CISP_PROGRESSBAR
+                      //disable all SPIOSD windows
+                      WriteI2CByte(TW88I2CAddress,REG420,0);
+                      for(i=1; i <= 8; i++)
+                              WriteI2CByte(TW88I2CAddress,REG430+i*0x10, 0);
+                      WriteI2CByte(TW88I2CAddress,REG406,0);
+              
+                      //turn on SPIOSD Enable.
+                      WriteI2CByte(TW88I2CAddress,REG400, ReadI2CByte(TW88I2CAddress,REG400) |  0x04);        
+              
+                      //------------------------
+                      // download 4 palettes color. B,G,R, and White.
+                      // to download, it needs a PCLK.
+              
+                      //need PCLK     &.
+                      WriteI2CByte(TW88I2CAddress,REG4E1, 0);         //27MHz first
+                      WriteI2CByte(TW88I2CAddress,REG4E0, 0);         //PCLK
+                      WriteI2CByte(TW88I2CAddress,REG4E1, 0x22);      //CLKPLL %2
+              
+                      //download B,G,R,White palette.
+                      WriteI2CByte(TW88I2CAddress,REG410, 0xA0 );     //assign byte ptr       
+                      WriteI2CByte(TW88I2CAddress,REG411, 0);         //address
+                      WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //B             
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //G
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //R
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //A
+              
+                      WriteI2CByte(TW88I2CAddress,REG410, 0xA0 );     //assign byte ptr       
+                      WriteI2CByte(TW88I2CAddress,REG411, 0x01);      //address
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //B             
+                      WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //G
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //R
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //A
+              
+                      WriteI2CByte(TW88I2CAddress,REG410, 0xA0 );     //assign byte ptr       
+                      WriteI2CByte(TW88I2CAddress,REG411, 0x02);      //address
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //B             
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //G
+                      WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //R
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //A
+              
+                      WriteI2CByte(TW88I2CAddress,REG410, 0xA0 );     //assign byte ptr       
+                      WriteI2CByte(TW88I2CAddress,REG411, 0x03);      //address
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 17  
+
+                      WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //B             
+                      WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //G
+                      WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //R
+                      WriteI2CByte(TW88I2CAddress,REG412, 0x00);      //A
+              #endif
+              
+                      //need PLL108M
+                      WriteI2CByte(TW88I2CAddress,REG4E1, 0);         //27MHz first
+                      WriteI2CByte(TW88I2CAddress,REG4E0, 0x01);      //PLL108M
+                      WriteI2CByte(TW88I2CAddress,REG4E1, 0x21);      //CLKPLL %1.5, 72MHz
+                      //Printf("\nREG4E0:%bx, REG4E1:%bx",ReadI2CByte(TW88I2CAddress, REG4E0),ReadI2CByte(TW88I2CAddress,REG4E1
+             -));
+              
+              #ifdef I2CISP_PROGRESSBAR
+              delay1ms(1000);
+              
+                      //WIN5 XY:50x400 WH:700x40. FillColor:3
+                      SPI_Buffer[0]  = 0x85;
+                      SPI_Buffer[1]  = 0x10;
+                      SPI_Buffer[2]  = 0x32;
+                      SPI_Buffer[3]  = 0x90;
+                      SPI_Buffer[4]  = 0x02;
+                      SPI_Buffer[5]  = 0xBC;
+                      SPI_Buffer[6]  = 0x28;
+                      SPI_Buffer[7]  = 0x00;
+                      SPI_Buffer[8]  = 0x00;
+                      SPI_Buffer[9]  = 0x00;
+                      SPI_Buffer[10] = 0x02;
+                      SPI_Buffer[11] = 0xBC;
+                      SPI_Buffer[12] = 0x00;
+                      SPI_Buffer[13] = 0x00;
+                      SPI_Buffer[14] = 0x03;
+                      WriteI2C(TW88I2CAddress,REG480,SPI_Buffer,15);
+                      //WIN6~8 XY:100x410 WH:600x20. FillColor:0 to 2.
+                      SPI_Buffer[0]  = 0x85;
+                      SPI_Buffer[1]  = 0x10;
+                      SPI_Buffer[2]  = 0x64;
+                      SPI_Buffer[3]  = 0x9A;
+                      SPI_Buffer[4]  = 0x00;  //max 600(0x258). start from 0
+                      SPI_Buffer[5]  = 0x00;
+                      SPI_Buffer[6]  = 0x14;
+                      SPI_Buffer[7]  = 0x00;
+                      SPI_Buffer[8]  = 0x00;
+                      SPI_Buffer[9]  = 0x00;
+                      SPI_Buffer[10] = 0x02;
+                      SPI_Buffer[11] = 0x58;
+                      SPI_Buffer[12] = 0x00;
+                      SPI_Buffer[13] = 0x00;
+                      SPI_Buffer[14] = 0x01;  //Green
+                      WriteI2C(TW88I2CAddress,REG490,SPI_Buffer,15);  //win6
+                      SPI_Buffer[14] = 0x02;  //Red
+                      WriteI2C(TW88I2CAddress,REG4A0,SPI_Buffer,15);  //win7
+                      SPI_Buffer[14] = 0x00;  //Blue
+                      WriteI2C(TW88I2CAddress,REG4B0,SPI_Buffer,15);  //win8
+              #endif
+              
+                      //-----------------------
+                      // sector/block erase
+                      Printf("\nSE");
+              
+              //#if 0 //test
+              //      WriteI2CByte(TW88I2CAddress,REG4C1, 0x01 );                                     // start at vertical blank
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 18  
+
+              //#endif
+                                                                                                                                      // DMA buff use REG4D0~REG4D7
+                      SPI_Buffer[0] = 0x04;                                                                   //REG4C6        DMA buff page(or addr high)
+                      SPI_Buffer[1] = 0xD0;                                                                   //REG4C7        DMA buff index(or addr low)
+                      SPI_Buffer[2] = 0x00;                                                                   //REG4C8        DMA len middle.
+                      SPI_Buffer[3] = 0x00;                                                                   //REG4C9        DMA Len lo.
+                      WriteI2C(TW88I2CAddress,REG4C6,SPI_Buffer,4);  
+                      WriteI2CByte(TW88I2CAddress,REG4DA, 0x00 );                                     //REG4DA        DMA len high.
+              
+                      progress = 0;
+                      vlen_high = ReadI2CByte(TW88I2CAddress, REG494) & 0xF0; // keep high Vertical lenght [11:8].
+                      for(addr=start; addr < (start+len); addr+=I2CSPI_SECTOR_SIZE) {
+              #ifdef I2CISP_PROGRESSBAR
+                              progress += I2CSPI_SECTOR_SIZE;
+                              horizontal = progress * 600 / len;
+                              WriteI2CByte(TW88I2CAddress, REG494, vlen_high | ((horizontal>> 8) & 0x0F));
+                              WriteI2CByte(TW88I2CAddress, REG495, horizontal);
+              #endif
+                              Printf("\rSE:%06lx",addr);
+              
+                              //WREN
+                                                                                                                                      // assume REG4DA:REG4C8:REG4C9 as 0.
+                              WriteI2CByte(TW88I2CAddress,REG4CA, SPICMD_WREN );              //REG4CA        cmd WREN
+                              SPI_Buffer[0] = (DMA_DEST_CHIPREG << 6) | 1;            //REG4C3        CHIPREG, cmd len 1(see WREN)
+                              SPI_Buffer[1] = 0x03;                                                           //REG4C4        DMA Write Start.
+                              WriteI2C(TW88I2CAddress,REG4C3,SPI_Buffer,2); 
+                              ret=WaitSpiDmaDone(200,2);
+                              if(ret)
+                                      return 1;
+              
+                              //sector erase
+                              spiaddr = addr;
+                                                                                                                                      // assume REG4DA:REG4C8:REG4C9 as 0.
+                              SPI_Buffer[0] = SPICMD_SE;                                                      //REG4CA        cmd SE
+                              SPI_Buffer[1] = spiaddr>>16;                                            //REG4CB        SPI address
+                              SPI_Buffer[2] = spiaddr>>8;                                                     //REG4CC
+                              SPI_Buffer[3] = spiaddr;                                                        //REG4CD
+                              WriteI2C(TW88I2CAddress,REG4CA,SPI_Buffer,4);     
+                              SPI_Buffer[0] = (DMA_DEST_CHIPREG << 6) | 4;            //REG4C3        CHIPREG, cmd len 4(see SE)
+                              SPI_Buffer[1] = 0x07;                                                           //REG4C4        DMA Write Start, Busy check
+                              WriteI2C(TW88I2CAddress,REG4C3,SPI_Buffer,2);  
+                              ret=WaitSpiDmaDone(200,2);
+                              if(ret)
+                                      return 2;
+                      }
+                      Printf("\rSE:%06lx",addr-1);
+                      Printf(" - Done ");
+                      BootTime = SystemClock - BootTime;
+                      Printf(" Use:%ld.%ldsec", BootTime/100, BootTime%100 );
+              #ifdef I2CISP_PROGRESSBAR
+              delay1ms(1000);
+              #endif
+              
+              
+                      BootTime = SystemClock;
+                      //-----------------------
+                      // page program
+                      Printf("\nPP");
+                      w_checksum = 0;
+                      if(ptr==NULL)   w_data = 0;
+                      else                    w_data = *ptr++;
+                      progress = 0;
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 19  
+
+              
+              #ifdef MODEL_TW8836
+                      //==========================================================================
+                      //TW8836 will use XMEM DMA
+                      //SPI_Buffer[SPI_BUFFER_SIZE]  //128byte
+              
+                      //REG4DB[3:0]REG4DC[7:0]        I2C to XMEM DMA address
+                      WriteI2CByte(TW88I2CAddress, REG4DB, );
+                      WriteI2CByte(TW88I2CAddress, REG4DC, );
+              
+              
+                      for(addr=start; addr < (start+len); addr+=SPI_BUFFER_SIZE) {
+                              //WREN
+                              SPI_Cmd_Buffer[0] = 0x00;                                                               //REC4C9        DMA len low. Assume REG4DA,REG4C8 as 0
+                              SPI_Cmd_Buffer[1] = SPICMD_WREN;                                                //REG4CA        cmd WREN
+                              WriteI2C(TW88I2CAddress,REG4C9,SPI_Cmd_Buffer,2);  
+                              SPI_Cmd_Buffer[0] = (DMA_DEST_CHIPREG << 6) | 1;                //REG4C3        CHIPREG, cmd len 1(see WREN)
+                              SPI_Cmd_Buffer[1] = 0x03;                                                               //REG4C4        DMA Write Start.
+                              WriteI2C(TW88I2CAddress,REG4C3,SPI_Cmd_Buffer,2);  
+                              ret=WaitSpiDmaDone(200,2);
+                              if(ret)
+                                      return 5;
+              
+                              //PP
+                              if((addr+8) > (start+len))      cnt = start+len-addr;
+                              else                                            cnt = 8;
+              
+                              SPI_Cmd_Buffer[0] = cnt;                                                                //REG4C9        DMA len low. Assume REG4DA,REG4C8 as 0
+                              SPI_Cmd_Buffer[1] = SPICMD_PP;                                                  //REG4CA        cmd PP
+                              SPI_Cmd_Buffer[2] = spiaddr>>16;                                                //REG4CB        SPI address
+                              SPI_Cmd_Buffer[3] = spiaddr>>8;                                                 //REG4CC
+                              SPI_Cmd_Buffer[4] = spiaddr;                                                    //REG4CD
+                              SPI_Cmd_Buffer[5] = 0;                                                                  //REG4CE        dummy. If use WriteI2CByte(), we don't need to update REG4CE,REG
+             -4CF
+                              SPI_Cmd_Buffer[6] = 0x1F;                                                               //REG4CF        keep default value
+                              for(i=0; i < cnt; i++) {
+                                      SPI_Cmd_Buffer[7+i] = w_data;                                           //REG4D0~REG4D7 
+                                      w_checksum += w_data;
+                                      if(ptr==NULL) w_data++;
+                                      else              w_data = *ptr++;
+                              }
+                              WriteI2C(TW88I2CAddress,REG4C9,SPI_Cmd_Buffer,cnt+7);  
+                              
+                                              
+                              SPI_Cmd_Buffer[0] = (DMA_DEST_CHIPREG << 6) | 4;                //REG4C3        CHIPREG, cmd len 4(see PP)
+                              SPI_Cmd_Buffer[1] = 0x07;                                                               //REG4C4        DMA Write Start, Busy check
+                              WriteI2C(TW88I2CAddress,REG4C3,SPI_Cmd_Buffer,2);  
+              
+                              ret=WaitSpiDmaDone(200,2);
+                              if(ret)
+                                      return 6;
+              
+                              Printf("\rPP:%06lx",addr);
+                      }
+                      //==========================================================================
+              #else //..MODEL_TW8836
+                      vlen_high = ReadI2CByte(TW88I2CAddress, REG4A4) & 0xF0; // keep high Vertical lenght [11:8].
+                      for(addr=start; addr < (start+len); addr+=8) {
+              #ifdef I2CISP_PROGRESSBAR
+                              progress += 8;
+                              horizontal = progress * 600 / len;
+                              WriteI2CByte(TW88I2CAddress, REG4A4, vlen_high | ((horizontal>> 8) & 0x0F));
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 20  
+
+                              WriteI2CByte(TW88I2CAddress, REG4A5, horizontal);
+              #endif
+                              spiaddr = addr;
+                                              
+                              //WREN
+                              SPI_Buffer[0] = 0x00;                                                           //REC4C9        DMA len low. Assume REG4DA,REG4C8 as 0
+                              SPI_Buffer[1] = SPICMD_WREN;                                            //REG4CA        cmd WREN
+                              WriteI2C(TW88I2CAddress,REG4C9,SPI_Buffer,2);  
+                              SPI_Buffer[0] = (DMA_DEST_CHIPREG << 6) | 1;            //REG4C3        CHIPREG, cmd len 1(see WREN)
+                              SPI_Buffer[1] = 0x03;                                                           //REG4C4        DMA Write Start.
+                              WriteI2C(TW88I2CAddress,REG4C3,SPI_Buffer,2);  
+                              ret=WaitSpiDmaDone(200,2);
+                              if(ret)
+                                      return 5;
+              
+                              //PP
+                              if((addr+8) > (start+len))      cnt = start+len-addr;
+                              else                                            cnt = 8;
+              
+                              SPI_Buffer[0] = cnt;                                                            //REG4C9        DMA len low. Assume REG4DA,REG4C8 as 0
+                              SPI_Buffer[1] = SPICMD_PP;                                                      //REG4CA        cmd PP
+                              SPI_Buffer[2] = spiaddr>>16;                                            //REG4CB        SPI address
+                              SPI_Buffer[3] = spiaddr>>8;                                                     //REG4CC
+                              SPI_Buffer[4] = spiaddr;                                                        //REG4CD
+                              SPI_Buffer[5] = 0;                                                                      //REG4CE        dummy. If use WriteI2CByte(), we don't need to update REG4CE,REG4CF
+                              SPI_Buffer[6] = 0x1F;                                                           //REG4CF        keep default value
+                              for(i=0; i < cnt; i++) {
+                                      SPI_Buffer[7+i] = w_data;                                               //REG4D0~REG4D7 
+                                      w_checksum += w_data;
+                                      if(ptr==NULL) w_data++;
+                                      else              w_data = *ptr++;
+                              }
+                              WriteI2C(TW88I2CAddress,REG4C9,SPI_Buffer,cnt+7);  
+              
+                              SPI_Buffer[0] = (DMA_DEST_CHIPREG << 6) | 4;            //REG4C3        CHIPREG, cmd len 4(see PP)
+                              SPI_Buffer[1] = 0x07;                                                           //REG4C4        DMA Write Start, Busy check
+                              WriteI2C(TW88I2CAddress,REG4C3,SPI_Buffer,2);  
+              
+                              ret=WaitSpiDmaDone(200,2);
+                              if(ret)
+                                      return 6;
+              
+                              Printf("\rPP:%06lx",addr);
+                      }
+              #endif //MODEL_TW8836
+                      Printf("\rPP:%06lx",addr-1);
+                      Printf(" - Done ");
+                      BootTime = SystemClock - BootTime;
+                      Printf(" Use:%ld.%ldsec", BootTime/100, BootTime%100 );
+              #ifdef I2CISP_PROGRESSBAR
+              delay1ms(1000);
+              #endif
+              
+                      //------------------------
+                      // check checksum.
+                      //------------------------
+              
+                      Printf("\nChecksum ");
+                      //----------------------
+                      //save SPI Read Mode and set it as FAST MODE. Reuse w_data.
+                      //FYI. QuadRead can not use DMA_DEST_CHIPREG.
+                      w_data = ReadI2CByte(TW88I2CAddress,REG4C0) & 0x07;
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 21  
+
+                      if(w_data != 1) {
+                              WriteI2CByte(TW88I2CAddress,REG4C0, 1);
+                      }
+              
+                      spiaddr = 0x00FFFFFF;
+                      r_checksum = 0;
+                      j=0;
+                      progress =0;
+                      vlen_high = ReadI2CByte(TW88I2CAddress, REG494) & 0xF0; // keep high Vertical lenght [11:8].
+                      for(addr=start; addr < (start+len); addr+=8) {
+              #ifdef I2CISP_PROGRESSBAR
+                              progress += 8;
+                              horizontal = progress * 600 / len;
+                              WriteI2CByte(TW88I2CAddress, REG4B4, vlen_high | ((horizontal>> 8) & 0x0F));
+                              WriteI2CByte(TW88I2CAddress, REG4B5, horizontal);
+              #endif
+                              if(j <= 0x40) {
+                                      if(j%2==0) Printf("\nSPI %06lx:",addr);
+                                      else       Puts(" -");
+                              }
+                              else 
+                                      Printf("\rSPI %06lx:",addr);
+              
+                              SPI_Buffer[0] = 8;                                                                      //REG4C9        DMA len low. assume REG4DA,REG4C8 as 0
+                              SPI_Buffer[1] = SPICMD_FASTREAD;                                        //REG4CA        cmd FASTREAD
+                              SPI_Buffer[2] = addr>>16;                                                       //REG4CB        SPI address
+                              SPI_Buffer[3] = addr>>8;                                                        //REG4CC
+                              SPI_Buffer[4] = addr;                                                           //REG4CD
+                              WriteI2C(TW88I2CAddress,REG4C9,SPI_Buffer,5);  
+              
+                              spiaddr = addr;
+              
+                              SPI_Buffer[0] = (DMA_DEST_CHIPREG << 6) | 5;            //REG4C3        cmd len 5
+                              SPI_Buffer[1] = 0x05;                                                           //REG4C4        DMA Read Start, Busy Check
+                              WriteI2C(TW88I2CAddress,REG4C3,SPI_Buffer,2);  
+              
+              
+                              ret=WaitSpiDmaDone(200,2);
+                              if(ret)
+                                      return 7;
+              
+                              if((addr+8) > (start+len))      cnt = start+len-addr;
+                              else                                            cnt = 8;
+                              ReadI2C(TW88I2CAddress,REG4D0,SPI_Buffer,cnt);
+                              for(i=0; i < cnt; i++) {
+                                      if(j < 0x40)
+                                              Printf(" %02bx", SPI_Buffer[i]);
+              
+                                      //check BUG. 
+                                      if(ptr==NULL) {
+                                              if(SPI_Buffer[i] != (BYTE)(addr + i)) {
+                                                      Printf("\nBUG? addr:%lx data:%bx",addr+i,SPI_Buffer[i]);
+                                                      SPI_Buffer[i] = ReadI2CByte(TW88I2CAddress,REG4D0+i);
+                                                      Printf("=>%bx\n",SPI_Buffer[i]);
+                                              }
+                                      }
+                                      r_checksum += SPI_Buffer[i];
+              
+                              }
+                              if(j < 0x41)
+                                      j++;
+                      }
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 22  
+
+                      Printf("\rSPI %06lx:",addr-1);
+              
+                      //----------------------
+                      //restore SPI ReadMode.
+                      if(w_data != 1) {
+                              WriteI2CByte(TW88I2CAddress,REG4C0, w_data);
+                      }
+              
+                      
+                      WriteI2CByte(TW88I2CAddress,0xFF,page);         //restore page
+              
+                      if(r_checksum == w_checksum) { 
+                              Printf(" success");
+                              //return 0;
+                      }
+                      else {
+                              Printf(" fail w:%x r:%x",w_checksum, r_checksum);
+                              Printf("\nstart:%lx len:%lx last_addr:%lx, last_cnt:%bx",start, len, addr, cnt);
+                              //return 8;
+                      }
+              
+                      if(r_checksum != w_checksum)
+                              return 8;
+              
+                      return ERR_SUCCESS;
+              }
+              #endif
+1320          
+1321          #ifdef SUPPORT_HDMI_SiIRX
+              void ModifyI2CByte(BYTE slaveID, BYTE offset, BYTE mask, BYTE value)
+              {
+                  BYTE aByte;
+              
+                  aByte = ReadI2CByte(slaveID, offset);
+              
+                  aByte &= (~mask);        //first clear all bits in mask
+                  aByte |= (mask & value); //then set bits from value
+              
+                  WriteI2CByte(slaveID, offset, aByte);
+              }
+              
+              void ToggleI2CBit(BYTE slaveID, BYTE offset, BYTE mask)
+              {
+                  BYTE aByte;
+              
+                  aByte = ReadI2CByte(slaveID, offset);
+              
+                  aByte |=  mask;  //first set the bits in mask
+                  WriteI2CByte(slaveID, offset, aByte);    //write register with bits set
+              
+                  aByte &= ~mask;  //then clear the bits in mask
+                  WriteI2CByte(slaveID, offset, aByte);  //write register with bits clear
+              }
+              #endif
+1347          
+1348          
+1349          
+1350          
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 23  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com006B (BEGIN)
+0000         L?0108:
+0000 120000      R     LCALL   _I2CReadData
+0003 900000      R     MOV     DPTR,#val
+0006         L?0109:
+0006 E0                MOVX    A,@DPTR
+0007 FB                MOV     R3,A
+0008 A3                INC     DPTR
+0009 E0                MOVX    A,@DPTR
+000A FA                MOV     R2,A
+000B A3                INC     DPTR
+000C E0                MOVX    A,@DPTR
+000D F9                MOV     R1,A
+000E 22                RET     
+000F         L?0110:
+000F EF                MOV     A,R7
+0010 F0                MOVX    @DPTR,A
+0011 A3                INC     DPTR
+0012         L?0111:
+0012 ED                MOV     A,R5
+0013 F0                MOVX    @DPTR,A
+0014 A3                INC     DPTR
+0015         L?0112:
+0015 EB                MOV     A,R3
+0016 F0                MOVX    @DPTR,A
+0017 A3                INC     DPTR
+0018 EA                MOV     A,R2
+0019 F0                MOVX    @DPTR,A
+001A A3                INC     DPTR
+001B E9                MOV     A,R1
+001C F0                MOVX    @DPTR,A
+001D 22                RET     
+001E         L?0113:
+001E 900000      R     MOV     DPTR,#i
+0021         L?0114:
+0021 E0                MOVX    A,@DPTR
+0022 F582              MOV     DPL,A
+0024 758300            MOV     DPH,#00H
+0027 EF                MOV     A,R7
+0028 020000      E     LJMP    ?C?CSTOPTR
+002B         L?0115:
+002B 25E0              ADD     A,ACC
+002D A3                INC     DPTR
+002E         L?0116:
+002E F9                MOV     R1,A
+002F         L?0117:
+002F E0                MOVX    A,@DPTR
+0030         L?0118:
+0030 FF                MOV     R7,A
+0031 120000      R     LCALL   _I2CWriteData
+0034 E9                MOV     A,R1
+0035 4F                ORL     A,R7
+0036 22                RET     
+0037         L?0119:
+0037 D290              SETB    P1_0
+0039 7F01              MOV     R7,#01H
+003B 120000      R     LCALL   _dd
+003E C290              CLR     P1_0
+0040         L?0120:
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 24  
+
+0040 EC                MOV     A,R4
+0041 25E0              ADD     A,ACC
+0043 FC                MOV     R4,A
+0044 0B                INC     R3
+0045 EB                MOV     A,R3
+0046 22                RET     
+0047         L?0121:
+0047 AA07              MOV     R2,AR7
+0049 EA                MOV     A,R2
+004A 25E0              ADD     A,ACC
+004C FA                MOV     R2,A
+004D E0                MOVX    A,@DPTR
+004E         L?0122:
+004E FF                MOV     R7,A
+004F 120000      R     LCALL   _I2CWriteDataSlow
+0052 EF                MOV     A,R7
+0053 2A                ADD     A,R2
+0054 22                RET     
+0055         L?0124:
+0055 E0                MOVX    A,@DPTR
+0056         L?0125:
+0056 FF                MOV     R7,A
+0057 120000      R     LCALL   _I2CWriteDataSlow
+005A E9                MOV     A,R1
+005B 4F                ORL     A,R7
+005C 22                RET     
+005D         L?0126:
+005D F0                MOVX    @DPTR,A
+005E         L?0127:
+005E 900001            MOV     DPTR,#01H
+0061 020000      E     LJMP    ?C?CLDOPTR
+             ; FUNCTION Com006B (END)
+
+             ; FUNCTION _dd (BEGIN)
+                                           ; SOURCE LINE # 71
+;---- Variable 'delay' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 72
+                                           ; SOURCE LINE # 74
+;---- Variable 'i' assigned to Register 'R6' ----
+0000 E4                CLR     A
+0001 FE                MOV     R6,A
+0002         ?C0001:
+0002 EE                MOV     A,R6
+0003 C3                CLR     C
+0004 9F                SUBB    A,R7
+0005 5003              JNC     ?C0004
+0007 0E                INC     R6
+0008 80F8              SJMP    ?C0001
+                                           ; SOURCE LINE # 75
+000A         ?C0004:
+000A 22                RET     
+             ; FUNCTION _dd (END)
+
+             ; FUNCTION I2CStart (BEGIN)
+                                           ; SOURCE LINE # 167
+                                           ; SOURCE LINE # 168
+                                           ; SOURCE LINE # 169
+0000 D291              SETB    P1_1
+                                           ; SOURCE LINE # 170
+0002 D290              SETB    P1_0
+                                           ; SOURCE LINE # 171
+0004 7F01              MOV     R7,#01H
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 25  
+
+0006 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 172
+0009 C291              CLR     P1_1
+000B 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 173
+000E C290              CLR     P1_0
+                                           ; SOURCE LINE # 174
+0010 22                RET     
+             ; FUNCTION I2CStart (END)
+
+             ; FUNCTION L?0128 (BEGIN)
+0000 120000      R     LCALL   dd_datasetup
+             ; FUNCTION I2CSetSclWait (BEGIN)
+                                           ; SOURCE LINE # 175
+                                           ; SOURCE LINE # 176
+                                           ; SOURCE LINE # 177
+0003 D290              SETB    P1_0
+0005         ?C0006:
+                                           ; SOURCE LINE # 179
+0005 3090FD            JNB     P1_0,?C0006
+0008         ?C0007:
+                                           ; SOURCE LINE # 180
+0008         ?C0008:
+0008 22                RET     
+             ; FUNCTION I2CSetSclWait (END)
+
+             ; FUNCTION I2CStop (BEGIN)
+                                           ; SOURCE LINE # 182
+                                           ; SOURCE LINE # 183
+                                           ; SOURCE LINE # 184
+0000 C291              CLR     P1_1
+0002 7F02              MOV     R7,#02H
+0004 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 185
+0007 120000      R     LCALL   I2CSetSclWait
+000A 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 186
+000D D291              SETB    P1_1
+000F 020000      R     LJMP    _dd
+             ; FUNCTION I2CStop (END)
+
+             ; FUNCTION L?0123 (BEGIN)
+0000 AC07              MOV     R4,AR7
+0002 C2AF              CLR     SFR_EA
+0004 120000      R     LCALL   I2CStart
+0007 AF04              MOV     R7,AR4
+             ; FUNCTION _I2CWriteData (BEGIN)
+                                           ; SOURCE LINE # 188
+;---- Variable 'error' assigned to Register 'R5' ----
+;---- Variable 'value' assigned to Register 'R4' ----
+0009 AC07              MOV     R4,AR7
+                                           ; SOURCE LINE # 189
+                                           ; SOURCE LINE # 193
+;---- Variable 'i' assigned to Register 'R3' ----
+000B E4                CLR     A
+000C FB                MOV     R3,A
+000D         ?C0010:
+                                           ; SOURCE LINE # 194
+000D EC                MOV     A,R4
+000E 30E704            JNB     ACC.7,?C0013
+0011 D291              SETB    P1_1
+0013 8002              SJMP    ?C0014
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 26  
+
+0015         ?C0013:
+                                           ; SOURCE LINE # 195
+0015 C291              CLR     P1_1
+0017         ?C0014:
+                                           ; SOURCE LINE # 197
+                                           ; SOURCE LINE # 198
+                                           ; SOURCE LINE # 200
+                                           ; SOURCE LINE # 201
+0017 120000      R     LCALL   L?0119
+001A B408F0            CJNE    A,#08H,?C0010
+001D         ?C0011:
+                                           ; SOURCE LINE # 202
+001D D291              SETB    P1_1
+                                           ; SOURCE LINE # 204
+001F 120000      R     LCALL   I2CSetSclWait
+0022 7F05              MOV     R7,#05H
+0024 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 205
+0027 309104            JNB     P1_1,?C0015
+002A 7D01              MOV     R5,#01H
+002C 8002              SJMP    ?C0016
+002E         ?C0015:
+                                           ; SOURCE LINE # 206
+002E E4                CLR     A
+002F FD                MOV     R5,A
+0030         ?C0016:
+                                           ; SOURCE LINE # 208
+0030 C290              CLR     P1_0
+                                           ; SOURCE LINE # 210
+0032 AF05              MOV     R7,AR5
+                                           ; SOURCE LINE # 211
+0034         ?C0017:
+0034 22                RET     
+             ; FUNCTION _I2CWriteData (END)
+
+             ; FUNCTION _I2CReadData (BEGIN)
+                                           ; SOURCE LINE # 213
+;---- Variable 'fLast' assigned to Register 'R5' ----
+0000 AD07              MOV     R5,AR7
+                                           ; SOURCE LINE # 214
+                                           ; SOURCE LINE # 216
+;---- Variable 'val' assigned to Register 'R4' ----
+0002 E4                CLR     A
+0003 FC                MOV     R4,A
+                                           ; SOURCE LINE # 218
+;---- Variable 'i' assigned to Register 'R3' ----
+0004 FB                MOV     R3,A
+0005         ?C0018:
+                                           ; SOURCE LINE # 220
+0005 120000      R     LCALL   I2CSetSclWait
+0008 7F01              MOV     R7,#01H
+000A 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 221
+000D EC                MOV     A,R4
+000E 25E0              ADD     A,ACC
+0010 FC                MOV     R4,A
+                                           ; SOURCE LINE # 222
+0011 309103            JNB     P1_1,?C0021
+                                           ; SOURCE LINE # 223
+0014 4401              ORL     A,#01H
+0016 FC                MOV     R4,A
+0017         ?C0021:
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 27  
+
+                                           ; SOURCE LINE # 224
+0017 C290              CLR     P1_0
+                                           ; SOURCE LINE # 225
+0019 0B                INC     R3
+001A EB                MOV     A,R3
+001B B408E7            CJNE    A,#08H,?C0018
+001E         ?C0019:
+                                           ; SOURCE LINE # 226
+001E ED                MOV     A,R5
+001F 6004              JZ      ?C0022
+0021 D291              SETB    P1_1
+0023 8002              SJMP    ?C0023
+0025         ?C0022:
+                                           ; SOURCE LINE # 227
+0025 C291              CLR     P1_1
+0027         ?C0023:
+                                           ; SOURCE LINE # 229
+0027 120000      R     LCALL   I2CSetSclWait
+002A 7F01              MOV     R7,#01H
+002C 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 230
+002F C290              CLR     P1_0
+                                           ; SOURCE LINE # 231
+0031 D291              SETB    P1_1
+                                           ; SOURCE LINE # 232
+0033 AF04              MOV     R7,AR4
+                                           ; SOURCE LINE # 233
+0035         ?C0024:
+0035 22                RET     
+             ; FUNCTION _I2CReadData (END)
+
+             ; FUNCTION dd_start (BEGIN)
+                                           ; SOURCE LINE # 247
+                                           ; SOURCE LINE # 248
+                                           ; SOURCE LINE # 250
+;---- Variable 'i' assigned to Register 'R7' ----
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002         ?C0025:
+0002 900000      R     MOV     DPTR,#i2c_delay_start
+0005 E0                MOVX    A,@DPTR
+0006 FE                MOV     R6,A
+0007 EF                MOV     A,R7
+0008 C3                CLR     C
+0009 9E                SUBB    A,R6
+000A 5003              JNC     ?C0028
+000C 0F                INC     R7
+000D 80F3              SJMP    ?C0025
+                                           ; SOURCE LINE # 251
+000F         ?C0028:
+000F 22                RET     
+             ; FUNCTION dd_start (END)
+
+             ; FUNCTION dd_restart (BEGIN)
+                                           ; SOURCE LINE # 253
+                                           ; SOURCE LINE # 254
+                                           ; SOURCE LINE # 256
+;---- Variable 'i' assigned to Register 'R7' ----
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002         ?C0029:
+0002 900000      R     MOV     DPTR,#i2c_delay_restart
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 28  
+
+0005 E0                MOVX    A,@DPTR
+0006 FE                MOV     R6,A
+0007 EF                MOV     A,R7
+0008 C3                CLR     C
+0009 9E                SUBB    A,R6
+000A 5003              JNC     ?C0032
+000C 0F                INC     R7
+000D 80F3              SJMP    ?C0029
+                                           ; SOURCE LINE # 257
+000F         ?C0032:
+000F 22                RET     
+             ; FUNCTION dd_restart (END)
+
+             ; FUNCTION dd_datasetup (BEGIN)
+                                           ; SOURCE LINE # 259
+                                           ; SOURCE LINE # 260
+                                           ; SOURCE LINE # 262
+;---- Variable 'i' assigned to Register 'R7' ----
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002         ?C0033:
+0002 900000      R     MOV     DPTR,#i2c_delay_datasetup
+0005 E0                MOVX    A,@DPTR
+0006 FE                MOV     R6,A
+0007 EF                MOV     A,R7
+0008 C3                CLR     C
+0009 9E                SUBB    A,R6
+000A 5003              JNC     ?C0036
+000C 0F                INC     R7
+000D 80F3              SJMP    ?C0033
+                                           ; SOURCE LINE # 263
+000F         ?C0036:
+000F 22                RET     
+             ; FUNCTION dd_datasetup (END)
+
+             ; FUNCTION dd_clockhigh (BEGIN)
+                                           ; SOURCE LINE # 264
+                                           ; SOURCE LINE # 265
+                                           ; SOURCE LINE # 267
+;---- Variable 'i' assigned to Register 'R7' ----
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002         ?C0037:
+0002 900000      R     MOV     DPTR,#i2c_delay_clockhigh
+0005 E0                MOVX    A,@DPTR
+0006 FE                MOV     R6,A
+0007 EF                MOV     A,R7
+0008 C3                CLR     C
+0009 9E                SUBB    A,R6
+000A 5003              JNC     ?C0040
+000C 0F                INC     R7
+000D 80F3              SJMP    ?C0037
+                                           ; SOURCE LINE # 268
+000F         ?C0040:
+000F 22                RET     
+             ; FUNCTION dd_clockhigh (END)
+
+             ; FUNCTION dd_datahold (BEGIN)
+                                           ; SOURCE LINE # 269
+                                           ; SOURCE LINE # 270
+                                           ; SOURCE LINE # 272
+;---- Variable 'i' assigned to Register 'R7' ----
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 29  
+
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002         ?C0041:
+0002 900000      R     MOV     DPTR,#i2c_delay_datahold
+0005 E0                MOVX    A,@DPTR
+0006 FE                MOV     R6,A
+0007 EF                MOV     A,R7
+0008 C3                CLR     C
+0009 9E                SUBB    A,R6
+000A 5003              JNC     ?C0044
+000C 0F                INC     R7
+000D 80F3              SJMP    ?C0041
+                                           ; SOURCE LINE # 273
+000F         ?C0044:
+000F 22                RET     
+             ; FUNCTION dd_datahold (END)
+
+             ; FUNCTION dd_clock_ack (BEGIN)
+                                           ; SOURCE LINE # 274
+                                           ; SOURCE LINE # 275
+                                           ; SOURCE LINE # 277
+;---- Variable 'i' assigned to Register 'R7' ----
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002         ?C0045:
+0002 0F                INC     R7
+0003 EF                MOV     A,R7
+0004 B428FB            CJNE    A,#028H,?C0045
+                                           ; SOURCE LINE # 278
+0007         ?C0048:
+0007 22                RET     
+             ; FUNCTION dd_clock_ack (END)
+
+             ; FUNCTION I2CStartSlow (BEGIN)
+                                           ; SOURCE LINE # 284
+                                           ; SOURCE LINE # 285
+                                           ; SOURCE LINE # 286
+0000 D291              SETB    P1_1
+                                           ; SOURCE LINE # 287
+0002 D290              SETB    P1_0
+                                           ; SOURCE LINE # 288
+0004 120000      R     LCALL   dd_restart
+                                           ; SOURCE LINE # 289
+0007 C291              CLR     P1_1
+0009 120000      R     LCALL   dd_start
+                                           ; SOURCE LINE # 290
+000C C290              CLR     P1_0
+000E 020000      R     LJMP    dd_datahold
+             ; FUNCTION I2CStartSlow (END)
+
+             ; FUNCTION I2CStopSlow (BEGIN)
+                                           ; SOURCE LINE # 292
+                                           ; SOURCE LINE # 293
+                                           ; SOURCE LINE # 294
+0000 C291              CLR     P1_1
+                                           ; SOURCE LINE # 295
+0002 120000      R     LCALL   L?0128
+0005 120000      R     LCALL   dd_clockhigh
+                                           ; SOURCE LINE # 296
+0008 D291              SETB    P1_1
+                                           ; SOURCE LINE # 297
+000A 22                RET     
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 30  
+
+             ; FUNCTION I2CStopSlow (END)
+
+             ; FUNCTION _I2CWriteDataSlow (BEGIN)
+                                           ; SOURCE LINE # 298
+;---- Variable 'error' assigned to Register 'R5' ----
+;---- Variable 'value' assigned to Register 'R4' ----
+0000 AC07              MOV     R4,AR7
+                                           ; SOURCE LINE # 299
+                                           ; SOURCE LINE # 303
+;---- Variable 'i' assigned to Register 'R3' ----
+0002 E4                CLR     A
+0003 FB                MOV     R3,A
+0004         ?C0051:
+                                           ; SOURCE LINE # 304
+0004 EC                MOV     A,R4
+0005 30E704            JNB     ACC.7,?C0054
+0008 D291              SETB    P1_1
+000A 8002              SJMP    ?C0055
+000C         ?C0054:
+                                           ; SOURCE LINE # 305
+000C C291              CLR     P1_1
+000E         ?C0055:
+                                           ; SOURCE LINE # 306
+                                           ; SOURCE LINE # 307
+000E 120000      R     LCALL   L?0128
+0011 120000      R     LCALL   dd_clockhigh
+                                           ; SOURCE LINE # 308
+0014 C290              CLR     P1_0
+0016 120000      R     LCALL   dd_datahold
+                                           ; SOURCE LINE # 309
+                                           ; SOURCE LINE # 310
+0019 120000      R     LCALL   L?0120
+001C B408E5            CJNE    A,#08H,?C0051
+001F         ?C0052:
+                                           ; SOURCE LINE # 311
+001F D291              SETB    P1_1
+                                           ; SOURCE LINE # 313
+0021 120000      R     LCALL   I2CSetSclWait
+0024 120000      R     LCALL   dd_clock_ack
+                                           ; SOURCE LINE # 314
+0027 309104            JNB     P1_1,?C0056
+002A 7D01              MOV     R5,#01H
+002C 8002              SJMP    ?C0057
+002E         ?C0056:
+                                           ; SOURCE LINE # 315
+002E E4                CLR     A
+002F FD                MOV     R5,A
+0030         ?C0057:
+                                           ; SOURCE LINE # 317
+0030 C290              CLR     P1_0
+0032 120000      R     LCALL   dd_datahold
+                                           ; SOURCE LINE # 319
+0035 AF05              MOV     R7,AR5
+                                           ; SOURCE LINE # 320
+0037         ?C0058:
+0037 22                RET     
+             ; FUNCTION _I2CWriteDataSlow (END)
+
+             ; FUNCTION _I2CReadDataSlow (BEGIN)
+                                           ; SOURCE LINE # 321
+;---- Variable 'fLast' assigned to Register 'R5' ----
+0000 AD07              MOV     R5,AR7
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 31  
+
+                                           ; SOURCE LINE # 322
+                                           ; SOURCE LINE # 324
+;---- Variable 'val' assigned to Register 'R4' ----
+0002 E4                CLR     A
+0003 FC                MOV     R4,A
+                                           ; SOURCE LINE # 326
+;---- Variable 'i' assigned to Register 'R3' ----
+0004 FB                MOV     R3,A
+0005         ?C0059:
+                                           ; SOURCE LINE # 328
+0005 120000      R     LCALL   I2CSetSclWait
+                                           ; SOURCE LINE # 329
+0008 EC                MOV     A,R4
+0009 25E0              ADD     A,ACC
+000B FC                MOV     R4,A
+                                           ; SOURCE LINE # 330
+000C 309103            JNB     P1_1,?C0062
+                                           ; SOURCE LINE # 331
+000F 4401              ORL     A,#01H
+0011 FC                MOV     R4,A
+0012         ?C0062:
+                                           ; SOURCE LINE # 332
+0012 C290              CLR     P1_0
+0014 120000      R     LCALL   dd_datahold
+                                           ; SOURCE LINE # 333
+0017 0B                INC     R3
+0018 EB                MOV     A,R3
+0019 B408E9            CJNE    A,#08H,?C0059
+001C         ?C0060:
+                                           ; SOURCE LINE # 334
+001C ED                MOV     A,R5
+001D 6004              JZ      ?C0063
+001F D291              SETB    P1_1
+0021 8002              SJMP    ?C0064
+0023         ?C0063:
+                                           ; SOURCE LINE # 335
+0023 C291              CLR     P1_1
+0025         ?C0064:
+                                           ; SOURCE LINE # 336
+0025 120000      R     LCALL   dd_datasetup
+                                           ; SOURCE LINE # 337
+0028 120000      R     LCALL   I2CSetSclWait
+002B 120000      R     LCALL   dd_clock_ack
+                                           ; SOURCE LINE # 338
+002E C290              CLR     P1_0
+                                           ; SOURCE LINE # 339
+0030 D291              SETB    P1_1
+0032 120000      R     LCALL   dd_datahold
+                                           ; SOURCE LINE # 340
+0035 AF04              MOV     R7,AR4
+                                           ; SOURCE LINE # 341
+0037         ?C0065:
+0037 22                RET     
+             ; FUNCTION _I2CReadDataSlow (END)
+
+             ; FUNCTION _CheckI2C (BEGIN)
+                                           ; SOURCE LINE # 441
+;---- Variable 'error' assigned to Register 'R5' ----
+;---- Variable 'i2cid' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 442
+                                           ; SOURCE LINE # 447
+;---- Variable 'value' assigned to Register 'R4' ----
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 32  
+
+0000 AC07              MOV     R4,AR7
+                                           ; SOURCE LINE # 448
+0002 C2AF              CLR     SFR_EA
+                                           ; SOURCE LINE # 449
+0004 120000      R     LCALL   I2CStart
+                                           ; SOURCE LINE # 451
+;---- Variable 'i' assigned to Register 'R3' ----
+0007 E4                CLR     A
+0008 FB                MOV     R3,A
+0009         ?C0066:
+                                           ; SOURCE LINE # 452
+0009 EC                MOV     A,R4
+000A 30E704            JNB     ACC.7,?C0069
+000D D291              SETB    P1_1
+000F 8002              SJMP    ?C0070
+0011         ?C0069:
+                                           ; SOURCE LINE # 453
+0011 C291              CLR     P1_1
+0013         ?C0070:
+                                           ; SOURCE LINE # 455
+                                           ; SOURCE LINE # 456
+                                           ; SOURCE LINE # 458
+                                           ; SOURCE LINE # 459
+0013 120000      R     LCALL   L?0119
+0016 B408F0            CJNE    A,#08H,?C0066
+0019         ?C0067:
+                                           ; SOURCE LINE # 460
+0019 D291              SETB    P1_1
+                                           ; SOURCE LINE # 462
+001B D290              SETB    P1_0
+001D 7F05              MOV     R7,#05H
+001F 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 463
+0022 7F64              MOV     R7,#064H
+0024 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 464
+0027 209004            JB      P1_0,?C0071
+002A 7D02              MOV     R5,#02H
+002C 8009              SJMP    ?C0072
+002E         ?C0071:
+                                           ; SOURCE LINE # 465
+                                           ; SOURCE LINE # 466
+002E 309104            JNB     P1_1,?C0073
+0031 7D01              MOV     R5,#01H
+0033 8002              SJMP    ?C0072
+0035         ?C0073:
+                                           ; SOURCE LINE # 467
+0035 E4                CLR     A
+0036 FD                MOV     R5,A
+                                           ; SOURCE LINE # 468
+0037         ?C0072:
+                                           ; SOURCE LINE # 469
+0037 C290              CLR     P1_0
+                                           ; SOURCE LINE # 472
+0039 C291              CLR     P1_1
+003B 7F02              MOV     R7,#02H
+003D 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 474
+0040 D290              SETB    P1_0
+0042 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 475
+0045 D291              SETB    P1_1
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 33  
+
+0047 120000      R     LCALL   _dd
+                                           ; SOURCE LINE # 477
+004A D2AF              SETB    SFR_EA
+                                           ; SOURCE LINE # 478
+004C AF05              MOV     R7,AR5
+                                           ; SOURCE LINE # 479
+004E         ?C0075:
+004E 22                RET     
+             ; FUNCTION _CheckI2C (END)
+
+             ; FUNCTION _WriteI2CByte (BEGIN)
+                                           ; SOURCE LINE # 488
+0000 900000      R     MOV     DPTR,#index
+0003 ED                MOV     A,R5
+0004 F0                MOVX    @DPTR,A
+0005 A3                INC     DPTR
+0006 EB                MOV     A,R3
+0007 F0                MOVX    @DPTR,A
+;---- Variable 'i2cid' assigned to Register 'R4' ----
+                                           ; SOURCE LINE # 489
+                                           ; SOURCE LINE # 492
+                                           ; SOURCE LINE # 493
+                                           ; SOURCE LINE # 494
+0008 120000      R     LCALL   L?0123
+;---- Variable 'ret' assigned to Register 'R1' ----
+000B A907              MOV     R1,AR7
+000D E9                MOV     A,R1
+000E 25E0              ADD     A,ACC
+                                           ; SOURCE LINE # 495
+0010 900000      R     MOV     DPTR,#index
+0013 120000      R     LCALL   L?0116
+                                           ; SOURCE LINE # 496
+0016 120000      R     LCALL   L?0115
+0019 F9                MOV     R1,A
+                                           ; SOURCE LINE # 497
+001A 120000      R     LCALL   I2CStop
+                                           ; SOURCE LINE # 498
+001D D2AF              SETB    SFR_EA
+                                           ; SOURCE LINE # 504
+001F AF01              MOV     R7,AR1
+                                           ; SOURCE LINE # 505
+0021         ?C0076:
+0021 22                RET     
+             ; FUNCTION _WriteI2CByte (END)
+
+             ; FUNCTION _WriteI2C (BEGIN)
+                                           ; SOURCE LINE # 515
+0000 900000      R     MOV     DPTR,#index
+0003 120000      R     LCALL   L?0111
+;---- Variable 'i2cid' assigned to Register 'R4' ----
+                                           ; SOURCE LINE # 516
+                                           ; SOURCE LINE # 520
+                                           ; SOURCE LINE # 521
+                                           ; SOURCE LINE # 522
+0006 120000      R     LCALL   L?0123
+0009 900000      R     MOV     DPTR,#ret
+000C EF                MOV     A,R7
+000D F0                MOVX    @DPTR,A
+000E E0                MOVX    A,@DPTR
+000F 25E0              ADD     A,ACC
+0011 F9                MOV     R1,A
+0012 F0                MOVX    @DPTR,A
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 34  
+
+                                           ; SOURCE LINE # 523
+0013 900000      R     MOV     DPTR,#index
+0016 120000      R     LCALL   L?0117
+0019 900000      R     MOV     DPTR,#ret
+001C F0                MOVX    @DPTR,A
+001D E0                MOVX    A,@DPTR
+001E 25E0              ADD     A,ACC
+0020 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 524
+0021 E4                CLR     A
+0022 900000      R     MOV     DPTR,#i
+0025 F0                MOVX    @DPTR,A
+0026         ?C0077:
+0026 900000      R     MOV     DPTR,#cnt
+0029 E0                MOVX    A,@DPTR
+002A FF                MOV     R7,A
+002B A3                INC     DPTR
+002C E0                MOVX    A,@DPTR
+002D FE                MOV     R6,A
+002E C3                CLR     C
+002F 9F                SUBB    A,R7
+0030 5026              JNC     ?C0078
+                                           ; SOURCE LINE # 525
+0032 A3                INC     DPTR
+0033 E0                MOVX    A,@DPTR
+0034 FF                MOV     R7,A
+0035 C007              PUSH    AR7
+0037 900000      R     MOV     DPTR,#val
+003A 120000      R     LCALL   L?0109
+003D 8E82              MOV     DPL,R6
+003F 758300            MOV     DPH,#00H
+0042 120000      E     LCALL   ?C?CLDOPTR
+0045 FF                MOV     R7,A
+0046 120000      R     LCALL   _I2CWriteData
+0049 D0E0              POP     ACC
+004B 4F                ORL     A,R7
+004C 900000      R     MOV     DPTR,#ret
+004F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 526
+0050 900000      R     MOV     DPTR,#i
+0053 E0                MOVX    A,@DPTR
+0054 04                INC     A
+0055 F0                MOVX    @DPTR,A
+0056 80CE              SJMP    ?C0077
+0058         ?C0078:
+                                           ; SOURCE LINE # 527
+0058 120000      R     LCALL   I2CStop
+                                           ; SOURCE LINE # 528
+005B D2AF              SETB    SFR_EA
+                                           ; SOURCE LINE # 533
+005D 22                RET     
+             ; FUNCTION _WriteI2C (END)
+
+             ; FUNCTION _WriteSlowI2CByte (BEGIN)
+                                           ; SOURCE LINE # 539
+0000 900000      R     MOV     DPTR,#index
+0003 ED                MOV     A,R5
+0004 F0                MOVX    @DPTR,A
+;---- Variable 'i2cid' assigned to Register 'R4' ----
+0005 AC07              MOV     R4,AR7
+;---- Variable 'val' assigned to Register 'R1' ----
+0007 A903              MOV     R1,AR3
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 35  
+
+                                           ; SOURCE LINE # 540
+                                           ; SOURCE LINE # 543
+0009 120000      R     LCALL   I2CStartSlow
+                                           ; SOURCE LINE # 544
+000C AF04              MOV     R7,AR4
+000E 120000      R     LCALL   _I2CWriteDataSlow
+;---- Variable 'ret' assigned to Register 'R2' ----
+                                           ; SOURCE LINE # 545
+0011 900000      R     MOV     DPTR,#index
+0014 120000      R     LCALL   L?0121
+0017 25E0              ADD     A,ACC
+0019 FA                MOV     R2,A
+                                           ; SOURCE LINE # 546
+001A AF01              MOV     R7,AR1
+001C 120000      R     LCALL   _I2CWriteDataSlow
+001F EF                MOV     A,R7
+0020 2A                ADD     A,R2
+0021 FA                MOV     R2,A
+                                           ; SOURCE LINE # 547
+0022 120000      R     LCALL   I2CStopSlow
+                                           ; SOURCE LINE # 553
+0025 AF02              MOV     R7,AR2
+                                           ; SOURCE LINE # 554
+0027         ?C0081:
+0027 22                RET     
+             ; FUNCTION _WriteSlowI2CByte (END)
+
+             ; FUNCTION _WriteSlowI2C (BEGIN)
+                                           ; SOURCE LINE # 565
+0000 900000      R     MOV     DPTR,#index
+0003 120000      R     LCALL   L?0111
+;---- Variable 'i2cid' assigned to Register 'R4' ----
+0006 AC07              MOV     R4,AR7
+                                           ; SOURCE LINE # 566
+                                           ; SOURCE LINE # 570
+0008 C2AF              CLR     SFR_EA
+                                           ; SOURCE LINE # 571
+000A 120000      R     LCALL   I2CStartSlow
+                                           ; SOURCE LINE # 572
+000D AF04              MOV     R7,AR4
+000F 120000      R     LCALL   _I2CWriteDataSlow
+0012 900000      R     MOV     DPTR,#ret
+0015 EF                MOV     A,R7
+0016 F0                MOVX    @DPTR,A
+0017 E0                MOVX    A,@DPTR
+0018 25E0              ADD     A,ACC
+001A F9                MOV     R1,A
+001B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 573
+001C 900000      R     MOV     DPTR,#index
+001F 120000      R     LCALL   L?0124
+0022 900000      R     MOV     DPTR,#ret
+0025 F0                MOVX    @DPTR,A
+0026 E0                MOVX    A,@DPTR
+0027 25E0              ADD     A,ACC
+0029 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 574
+002A E4                CLR     A
+002B 900000      R     MOV     DPTR,#i
+002E F0                MOVX    @DPTR,A
+002F A3                INC     DPTR
+0030 F0                MOVX    @DPTR,A
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 36  
+
+0031         ?C0082:
+0031 900000      R     MOV     DPTR,#cnt
+0034 E0                MOVX    A,@DPTR
+0035 FE                MOV     R6,A
+0036 A3                INC     DPTR
+0037 E0                MOVX    A,@DPTR
+0038 FF                MOV     R7,A
+0039 A3                INC     DPTR
+003A E0                MOVX    A,@DPTR
+003B FC                MOV     R4,A
+003C A3                INC     DPTR
+003D E0                MOVX    A,@DPTR
+003E FD                MOV     R5,A
+003F C3                CLR     C
+0040 9F                SUBB    A,R7
+0041 EC                MOV     A,R4
+0042 9E                SUBB    A,R6
+0043 502D              JNC     ?C0083
+                                           ; SOURCE LINE # 575
+0045 A3                INC     DPTR
+0046 E0                MOVX    A,@DPTR
+0047 FE                MOV     R6,A
+0048 C006              PUSH    AR6
+004A 900000      R     MOV     DPTR,#val
+004D 120000      R     LCALL   L?0109
+0050 8D82              MOV     DPL,R5
+0052 8C83              MOV     DPH,R4
+0054 120000      E     LCALL   ?C?CLDOPTR
+0057 FF                MOV     R7,A
+0058 120000      R     LCALL   _I2CWriteDataSlow
+005B D0E0              POP     ACC
+005D 4F                ORL     A,R7
+005E 900000      R     MOV     DPTR,#ret
+0061 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 576
+0062 900000      R     MOV     DPTR,#i+01H
+0065 E0                MOVX    A,@DPTR
+0066 04                INC     A
+0067 F0                MOVX    @DPTR,A
+0068 70C7              JNZ     ?C0082
+006A 900000      R     MOV     DPTR,#i
+006D E0                MOVX    A,@DPTR
+006E 04                INC     A
+006F F0                MOVX    @DPTR,A
+0070         ?C0105:
+0070 80BF              SJMP    ?C0082
+0072         ?C0083:
+                                           ; SOURCE LINE # 577
+0072 120000      R     LCALL   I2CStopSlow
+                                           ; SOURCE LINE # 578
+0075 D2AF              SETB    SFR_EA
+                                           ; SOURCE LINE # 583
+0077 22                RET     
+             ; FUNCTION _WriteSlowI2C (END)
+
+             ; FUNCTION _ReadI2CByte (BEGIN)
+                                           ; SOURCE LINE # 592
+0000 900000      R     MOV     DPTR,#index
+0003 ED                MOV     A,R5
+0004 F0                MOVX    @DPTR,A
+;---- Variable 'i2cid' assigned to Register 'R1' ----
+0005 A907              MOV     R1,AR7
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 37  
+
+                                           ; SOURCE LINE # 593
+                                           ; SOURCE LINE # 597
+0007 C2AF              CLR     SFR_EA
+                                           ; SOURCE LINE # 598
+0009 120000      R     LCALL   I2CStart
+                                           ; SOURCE LINE # 599
+000C AF01              MOV     R7,AR1
+000E 120000      R     LCALL   _I2CWriteData
+;---- Variable 'ret' assigned to Register 'R2' ----
+0011 AA07              MOV     R2,AR7
+0013 EA                MOV     A,R2
+0014 25E0              ADD     A,ACC
+0016 FA                MOV     R2,A
+                                           ; SOURCE LINE # 600
+0017 E0                MOVX    A,@DPTR
+0018 FF                MOV     R7,A
+0019 120000      R     LCALL   _I2CWriteData
+001C EF                MOV     A,R7
+001D 2A                ADD     A,R2
+001E 25E0              ADD     A,ACC
+0020 FA                MOV     R2,A
+                                           ; SOURCE LINE # 601
+0021 120000      R     LCALL   I2CStart
+                                           ; SOURCE LINE # 602
+0024 E9                MOV     A,R1
+0025 4401              ORL     A,#01H
+0027 FF                MOV     R7,A
+0028 120000      R     LCALL   _I2CWriteData
+002B EF                MOV     A,R7
+002C 2A                ADD     A,R2
+002D FA                MOV     R2,A
+                                           ; SOURCE LINE # 603
+002E 7F01              MOV     R7,#01H
+0030 120000      R     LCALL   _I2CReadData
+;---- Variable 'value' assigned to Register 'R5' ----
+0033 AD07              MOV     R5,AR7
+                                           ; SOURCE LINE # 604
+0035 120000      R     LCALL   I2CStop
+                                           ; SOURCE LINE # 605
+0038 D2AF              SETB    SFR_EA
+                                           ; SOURCE LINE # 611
+003A AF05              MOV     R7,AR5
+                                           ; SOURCE LINE # 612
+003C         ?C0086:
+003C 22                RET     
+             ; FUNCTION _ReadI2CByte (END)
+
+             ; FUNCTION _ReadI2C (BEGIN)
+                                           ; SOURCE LINE # 622
+0000 900000      R     MOV     DPTR,#i2cid
+0003 120000      R     LCALL   L?0110
+                                           ; SOURCE LINE # 623
+                                           ; SOURCE LINE # 626
+0006 C2AF              CLR     SFR_EA
+                                           ; SOURCE LINE # 627
+0008 120000      R     LCALL   I2CStart
+                                           ; SOURCE LINE # 628
+000B 900000      R     MOV     DPTR,#i2cid
+000E E0                MOVX    A,@DPTR
+000F FF                MOV     R7,A
+0010 120000      R     LCALL   _I2CWriteData
+;---- Variable 'ret' assigned to Register 'R1' ----
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 38  
+
+0013 A907              MOV     R1,AR7
+0015 E9                MOV     A,R1
+                                           ; SOURCE LINE # 629
+0016 120000      R     LCALL   L?0115
+0019 25E0              ADD     A,ACC
+001B F9                MOV     R1,A
+                                           ; SOURCE LINE # 630
+001C 120000      R     LCALL   I2CStart
+                                           ; SOURCE LINE # 631
+001F 900000      R     MOV     DPTR,#i2cid
+0022 E0                MOVX    A,@DPTR
+0023 4401              ORL     A,#01H
+0025 120000      R     LCALL   L?0118
+0028 F9                MOV     R1,A
+                                           ; SOURCE LINE # 632
+0029 900000      R     MOV     DPTR,#cnt
+002C E0                MOVX    A,@DPTR
+002D 14                DEC     A
+002E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 633
+002F E4                CLR     A
+0030 A3                INC     DPTR
+0031 F0                MOVX    @DPTR,A
+0032         ?C0087:
+0032 900000      R     MOV     DPTR,#cnt
+0035 E0                MOVX    A,@DPTR
+0036 FF                MOV     R7,A
+0037 A3                INC     DPTR
+0038 E0                MOVX    A,@DPTR
+0039 C3                CLR     C
+003A 9F                SUBB    A,R7
+003B 5010              JNC     ?C0088
+                                           ; SOURCE LINE # 634
+003D E4                CLR     A
+003E FF                MOV     R7,A
+003F 120000      R     LCALL   L?0108
+0042 120000      R     LCALL   L?0113
+                                           ; SOURCE LINE # 635
+0045 900000      R     MOV     DPTR,#i
+0048 E0                MOVX    A,@DPTR
+0049 04                INC     A
+004A F0                MOVX    @DPTR,A
+004B 80E5              SJMP    ?C0087
+004D         ?C0088:
+                                           ; SOURCE LINE # 636
+004D 7F01              MOV     R7,#01H
+004F 120000      R     LCALL   L?0108
+0052 120000      R     LCALL   L?0113
+                                           ; SOURCE LINE # 638
+0055 120000      R     LCALL   I2CStop
+                                           ; SOURCE LINE # 639
+0058 D2AF              SETB    SFR_EA
+                                           ; SOURCE LINE # 644
+005A 22                RET     
+             ; FUNCTION _ReadI2C (END)
+
+             ; FUNCTION _ReadSlowI2CByte (BEGIN)
+                                           ; SOURCE LINE # 652
+0000 900000      R     MOV     DPTR,#index
+0003 ED                MOV     A,R5
+0004 F0                MOVX    @DPTR,A
+;---- Variable 'i2cid' assigned to Register 'R1' ----
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 39  
+
+0005 A907              MOV     R1,AR7
+                                           ; SOURCE LINE # 653
+                                           ; SOURCE LINE # 657
+0007 120000      R     LCALL   I2CStartSlow
+                                           ; SOURCE LINE # 658
+000A AF01              MOV     R7,AR1
+000C 120000      R     LCALL   _I2CWriteDataSlow
+;---- Variable 'ret' assigned to Register 'R2' ----
+                                           ; SOURCE LINE # 659
+000F 900000      R     MOV     DPTR,#index
+0012 120000      R     LCALL   L?0121
+0015 25E0              ADD     A,ACC
+0017 FA                MOV     R2,A
+                                           ; SOURCE LINE # 663
+0018 120000      R     LCALL   I2CStartSlow
+                                           ; SOURCE LINE # 665
+001B E9                MOV     A,R1
+001C 4401              ORL     A,#01H
+001E 120000      R     LCALL   L?0122
+0021 FA                MOV     R2,A
+                                           ; SOURCE LINE # 666
+0022 7F01              MOV     R7,#01H
+0024 120000      R     LCALL   _I2CReadDataSlow
+;---- Variable 'val' assigned to Register 'R5' ----
+0027 AD07              MOV     R5,AR7
+                                           ; SOURCE LINE # 667
+0029 120000      R     LCALL   I2CStopSlow
+                                           ; SOURCE LINE # 673
+002C AF05              MOV     R7,AR5
+                                           ; SOURCE LINE # 674
+002E         ?C0091:
+002E 22                RET     
+             ; FUNCTION _ReadSlowI2CByte (END)
+
+             ; FUNCTION _ReadSlowI2C (BEGIN)
+                                           ; SOURCE LINE # 684
+0000 900000      R     MOV     DPTR,#i2cid
+0003 120000      R     LCALL   L?0110
+                                           ; SOURCE LINE # 685
+                                           ; SOURCE LINE # 688
+0006 C2AF              CLR     SFR_EA
+                                           ; SOURCE LINE # 689
+0008 120000      R     LCALL   I2CStartSlow
+                                           ; SOURCE LINE # 690
+000B 900000      R     MOV     DPTR,#i2cid
+000E E0                MOVX    A,@DPTR
+000F FF                MOV     R7,A
+0010 120000      R     LCALL   _I2CWriteDataSlow
+;---- Variable 'ret' assigned to Register 'R1' ----
+0013 A907              MOV     R1,AR7
+0015 E9                MOV     A,R1
+0016 25E0              ADD     A,ACC
+0018 F9                MOV     R1,A
+                                           ; SOURCE LINE # 691
+0019 900000      R     MOV     DPTR,#index
+001C 120000      R     LCALL   L?0124
+001F 25E0              ADD     A,ACC
+0021 F9                MOV     R1,A
+                                           ; SOURCE LINE # 692
+0022 120000      R     LCALL   I2CStart
+                                           ; SOURCE LINE # 693
+0025 900000      R     MOV     DPTR,#i2cid
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 40  
+
+0028 E0                MOVX    A,@DPTR
+0029 4401              ORL     A,#01H
+002B 120000      R     LCALL   L?0125
+002E F9                MOV     R1,A
+                                           ; SOURCE LINE # 694
+002F 900000      R     MOV     DPTR,#cnt
+0032 E0                MOVX    A,@DPTR
+0033 14                DEC     A
+0034 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 695
+0035 E4                CLR     A
+0036 A3                INC     DPTR
+0037 F0                MOVX    @DPTR,A
+0038         ?C0092:
+0038 900000      R     MOV     DPTR,#cnt
+003B E0                MOVX    A,@DPTR
+003C FF                MOV     R7,A
+003D A3                INC     DPTR
+003E E0                MOVX    A,@DPTR
+003F C3                CLR     C
+0040 9F                SUBB    A,R7
+0041 5019              JNC     ?C0093
+                                           ; SOURCE LINE # 696
+0043 E4                CLR     A
+0044 FF                MOV     R7,A
+0045 120000      R     LCALL   _I2CReadDataSlow
+0048 900000      R     MOV     DPTR,#val
+004B 120000      R     LCALL   L?0109
+004E 900000      R     MOV     DPTR,#i
+0051 120000      R     LCALL   L?0114
+                                           ; SOURCE LINE # 697
+0054 900000      R     MOV     DPTR,#i
+0057 E0                MOVX    A,@DPTR
+0058 04                INC     A
+0059 F0                MOVX    @DPTR,A
+005A 80DC              SJMP    ?C0092
+005C         ?C0093:
+                                           ; SOURCE LINE # 698
+005C 7F01              MOV     R7,#01H
+005E 120000      R     LCALL   _I2CReadDataSlow
+0061 900000      R     MOV     DPTR,#val
+0064 120000      R     LCALL   L?0109
+0067 900000      R     MOV     DPTR,#i
+006A 120000      R     LCALL   L?0114
+                                           ; SOURCE LINE # 700
+006D 120000      R     LCALL   I2CStopSlow
+                                           ; SOURCE LINE # 701
+0070 D2AF              SETB    SFR_EA
+                                           ; SOURCE LINE # 706
+0072 22                RET     
+             ; FUNCTION _ReadSlowI2C (END)
+
+             ; FUNCTION _I2CDeviceInitialize (BEGIN)
+                                           ; SOURCE LINE # 760
+0000 900000      R     MOV     DPTR,#delay
+0003 ED                MOV     A,R5
+0004 F0                MOVX    @DPTR,A
+0005 900000      R     MOV     DPTR,#RegSet
+0008 120000      R     LCALL   L?0112
+                                           ; SOURCE LINE # 761
+                                           ; SOURCE LINE # 762
+;---- Variable 'cnt' assigned to Register 'R6/R7' ----
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 41  
+
+000B E4                CLR     A
+                                           ; SOURCE LINE # 765
+000C 900000      R     MOV     DPTR,#w_page
+000F F0                MOVX    @DPTR,A
+0010 A3                INC     DPTR
+0011 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 768
+0012 120000      E     LCALL   ?C?CLDPTR
+0015 900000      R     MOV     DPTR,#addr
+                                           ; SOURCE LINE # 772
+0018 120000      R     LCALL   L?0126
+                                           ; SOURCE LINE # 773
+001B 806D              SJMP    ?C0106
+001D         ?C0096:
+                                           ; SOURCE LINE # 775
+001D 900000      R     MOV     DPTR,#RegSet
+0020 120000      R     LCALL   L?0109
+0023 120000      E     LCALL   ?C?CLDPTR
+0026 FF                MOV     R7,A
+0027 B4FF06            CJNE    A,#0FFH,?C0098
+002A 120000      R     LCALL   L?0127
+002D F4                CPL     A
+002E 6067              JZ      ?C0104
+0030         ?C0098:
+                                           ; SOURCE LINE # 776
+0030 900000      R     MOV     DPTR,#RegSet
+0033 120000      R     LCALL   L?0109
+0036 900000      R     MOV     DPTR,#index
+0039 EF                MOV     A,R7
+                                           ; SOURCE LINE # 777
+003A 120000      R     LCALL   L?0126
+;---- Variable 'val' assigned to Register 'R1' ----
+003D F9                MOV     R1,A
+                                           ; SOURCE LINE # 779
+003E 900000      R     MOV     DPTR,#addr
+0041 E0                MOVX    A,@DPTR
+0042 702B              JNZ     ?C0099
+                                           ; SOURCE LINE # 783
+0044 A3                INC     DPTR
+0045 E0                MOVX    A,@DPTR
+0046 FD                MOV     R5,A
+0047 B4FF08            CJNE    A,#0FFH,?C0100
+                                           ; SOURCE LINE # 784
+004A E9                MOV     A,R1
+004B A3                INC     DPTR
+004C F0                MOVX    @DPTR,A
+004D A3                INC     DPTR
+004E E4                CLR     A
+004F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 785
+0050 802C              SJMP    ?C0102
+0052         ?C0100:
+                                           ; SOURCE LINE # 786
+                                           ; SOURCE LINE # 787
+0052 ED                MOV     A,R5
+0053 FF                MOV     R7,A
+0054 900000      R     MOV     DPTR,#w_page+01H
+0057 E0                MOVX    A,@DPTR
+0058 2F                ADD     A,R7
+0059 FF                MOV     R7,A
+005A 900000      R     MOV     DPTR,#w_page
+005D E0                MOVX    A,@DPTR
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 42  
+
+005E 3400              ADDC    A,#00H
+0060 FE                MOV     R6,A
+0061 E500        E     MOV     A,regTW88+01H
+0063 2F                ADD     A,R7
+0064 F582              MOV     DPL,A
+0066 E500        E     MOV     A,regTW88
+0068 3E                ADDC    A,R6
+0069 F583              MOV     DPH,A
+006B E9                MOV     A,R1
+006C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 788
+                                           ; SOURCE LINE # 790
+006D 800F              SJMP    ?C0102
+006F         ?C0099:
+                                           ; SOURCE LINE # 792
+006F 900000      R     MOV     DPTR,#addr
+0072 E0                MOVX    A,@DPTR
+0073 FF                MOV     R7,A
+0074 A3                INC     DPTR
+0075 E0                MOVX    A,@DPTR
+0076 FD                MOV     R5,A
+0077 AE01              MOV     R6,AR1
+0079 AB06              MOV     R3,AR6
+007B 120000      R     LCALL   _WriteI2CByte
+007E         ?C0102:
+                                           ; SOURCE LINE # 794
+007E 900000      R     MOV     DPTR,#delay
+0081 E0                MOVX    A,@DPTR
+0082 FF                MOV     R7,A
+0083 6005              JZ      ?C0103
+                                           ; SOURCE LINE # 795
+0085 7E00              MOV     R6,#00H
+0087 120000      E     LCALL   _delay1ms
+008A         ?C0103:
+                                           ; SOURCE LINE # 803
+008A         ?C0106:
+008A 900000      R     MOV     DPTR,#RegSet+01H
+008D E4                CLR     A
+008E 75F002            MOV     B,#02H
+0091 120000      E     LCALL   ?C?IILDX
+                                           ; SOURCE LINE # 804
+0094 020000      R     LJMP    ?C0096
+                                           ; SOURCE LINE # 805
+0097         ?C0104:
+0097 22                RET     
+             ; FUNCTION _I2CDeviceInitialize (END)
+
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 43  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+i2c_delay_start. . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0000H  1
+i2c_delay_clockhigh. . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0001H  1
+_WriteSlowI2CByte. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  val. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+  ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0002H  1
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+I2CStopSlow. . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+P1_0 . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0090H  1
+P1_1 . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0091H  1
+i2c_delay_datahold . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0002H  1
+_CheckI2C. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  error. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0003H  1
+  value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+i2c_delay_datasetup. . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0003H  1
+_delay1ms. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+I2CSetSclWait. . . . . . . . . . . . .  STATIC   CODE   PROC     0003H  -----
+_I2CDeviceInitialize . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  RegSet . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0000H  3
+  delay. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0003H  1
+  cnt. . . . . . . . . . . . . . . . .  * REG *  DATA   INT      0006H  2
+  addr . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0004H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
+  val. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+  w_page . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0006H  2
+dd_restart . . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 44  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+_I2CReadData . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  fLast. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0003H  1
+  val. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+_ReadI2C . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  val. . . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0002H  3
+  cnt. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0006H  1
+  ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+_dd. . . . . . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  delay. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0006H  1
+dd_clock_ack . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+_I2CWriteData. . . . . . . . . . . . .  STATIC   CODE   PROC     0009H  -----
+  value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+  error. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0003H  1
+_WriteI2C. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0004H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  val. . . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0002H  3
+  cnt. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0006H  1
+  ret. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0007H  1
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+I2CStart . . . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+SFR_EA . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00AFH  1
+_ReadI2CByte . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0002H  1
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 45  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+dd_start . . . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+dd_clockhigh . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+i2c_delay_restart. . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0004H  1
+regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
+_I2CReadDataSlow . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  fLast. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0003H  1
+  val. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+_WriteI2CByte. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  val. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+_ReadSlowI2C . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  val. . . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0002H  3
+  cnt. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0006H  1
+  ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+I2CStop. . . . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+dd_datahold. . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+_I2CWriteDataSlow. . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+  error. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0003H  1
+_WriteSlowI2C. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  AUTO     DATA   U_CHAR   0004H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  val. . . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0002H  3
+  cnt. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0005H  2
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0007H  2
+  ret. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0009H  1
+I2CStartSlow . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+dd_datasetup . . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+_ReadSlowI2CByte . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i2cid. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+  index. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  val. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0002H  1
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1323    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      5      45
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 46  
+
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

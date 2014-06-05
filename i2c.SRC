@@ -1,0 +1,965 @@
+; .\i2c.SRC generated from: i2c.c
+; COMPILER INVOKED BY:
+;        C:\Keil\C51\BIN\C51.EXE i2c.c LARGE OPTIMIZE(9,SPEED) BROWSE MODDP2 DEFINE(EVB_20,nullFn=//) DEBUG OBJECTEXTEND SRC(.\i2c.SRC)
+
+$NOMOD51
+
+NAME	I2C
+
+TB18	BIT	0C0H.3
+P0	DATA	080H
+P1	DATA	090H
+SM10	BIT	0C0H.7
+P2	DATA	0A0H
+SM11	BIT	0C0H.6
+P3	DATA	0B0H
+AC	BIT	0D0H.6
+T0	BIT	0B0H.4
+SM12	BIT	0C0H.5
+T1	BIT	0B0H.5
+EA	BIT	0A8H.7
+T2	BIT	090H.0
+E2IE	DATA	0FBH
+E2IF	DATA	0FAH
+E2IM	DATA	0FDH
+IE	DATA	0A8H
+P0_0	BIT	080H.0
+P1_0	BIT	090H.0
+P0_1	BIT	080H.1
+E2IP	DATA	0FCH
+P2_0	BIT	0A0H.0
+P1_1	BIT	090H.1
+P0_2	BIT	080H.2
+SPICONTROL	DATA	09BH
+P3_0	BIT	0B0H.0
+P2_1	BIT	0A0H.1
+P1_2	BIT	090H.2
+P0_3	BIT	080H.3
+P3_1	BIT	0B0H.1
+P2_2	BIT	0A0H.2
+P1_3	BIT	090H.3
+P0_4	BIT	080H.4
+P3_2	BIT	0B0H.2
+P2_3	BIT	0A0H.3
+P1_4	BIT	090H.4
+P0_5	BIT	080H.5
+E2IT	DATA	0FEH
+TA	DATA	0EBH
+RD	BIT	0B0H.7
+P3_3	BIT	0B0H.3
+P2_4	BIT	0A0H.4
+P1_5	BIT	090H.5
+P0_6	BIT	080H.6
+T2IF	DATA	0C9H
+P3_4	BIT	0B0H.4
+P2_5	BIT	0A0H.5
+REN1	BIT	0C0H.4
+P1_6	BIT	090H.6
+P0_7	BIT	080H.7
+P3_5	BIT	0B0H.5
+ES	BIT	0A8H.4
+P2_6	BIT	0A0H.6
+P1_7	BIT	090H.7
+P3_6	BIT	0B0H.6
+P2_7	BIT	0A0H.7
+IP	DATA	0B8H
+P3_7	BIT	0B0H.7
+RI	BIT	098H.0
+CY	BIT	0D0H.7
+INT0	BIT	0B0H.2
+INT1	BIT	0B0H.3
+TI	BIT	098H.1
+DPX1	DATA	095H
+CRCH	DATA	0CBH
+PS	BIT	0B8H.4
+SP	DATA	081H
+T2EX	BIT	090H.1
+OV	BIT	0D0H.2
+CRCL	DATA	0CAH
+T0HIGH	DATA	09CH
+T1HIGH	DATA	09EH
+T2HIGH	DATA	095H
+WR	BIT	0B0H.6
+EWDI	BIT	0E8H.5
+WDIF	BIT	0D8H.3
+EXIF	DATA	091H
+SBUF	DATA	099H
+PCON	DATA	087H
+SCON	DATA	098H
+PWDI	BIT	0F8H.5
+TMOD	DATA	089H
+TCON	DATA	088H
+CHPCON	DATA	0BFH
+IE0	BIT	088H.1
+IE1	BIT	088H.3
+B	DATA	0F0H
+CHPENR	DATA	0F6H
+SFR_E2	DATA	0E2H
+WTRF	BIT	0D8H.2
+ACC	DATA	0E0H
+TWBASE	DATA	09AH
+ET0	BIT	0A8H.1
+ES1	BIT	0A8H.6
+CACHE_EN	DATA	09BH
+ET1	BIT	0A8H.3
+TF0	BIT	088H.5
+ET2	BIT	0A8H.5
+TF1	BIT	088H.7
+RI1	BIT	0C0H.0
+RB8	BIT	098H.2
+TH0	DATA	08CH
+EX0	BIT	0A8H.0
+IT0	BIT	088H.0
+TH1	DATA	08DH
+EX1	BIT	0A8H.2
+TI1	BIT	0C0H.1
+TB8	BIT	098H.3
+IT1	BIT	088H.2
+TH2	DATA	0CDH
+P	BIT	0D0H.0
+SM0	BIT	098H.7
+TL0	DATA	08AH
+SM1	BIT	098H.6
+TL1	DATA	08BH
+SM2	BIT	098H.5
+TL2	DATA	0CCH
+EIE	DATA	0E8H
+PS1	BIT	0B8H.6
+PT0	BIT	0B8H.1
+RS0	BIT	0D0H.3
+PT1	BIT	0B8H.3
+CACHE	DATA	0E2H
+RS1	BIT	0D0H.4
+PT2	BIT	0B8H.5
+TR0	BIT	088H.4
+TR1	BIT	088H.6
+PX0	BIT	0B8H.0
+PX1	BIT	0B8H.2
+DPH	DATA	083H
+EIP	DATA	0F8H
+DPL	DATA	082H
+SBUF1	DATA	0C1H
+EINT2	BIT	0E8H.0
+EINT3	BIT	0E8H.1
+EINT4	BIT	0E8H.2
+REN	BIT	098H.4
+SCON1	DATA	0C0H
+EINT5	BIT	0E8H.3
+EINT6	BIT	0E8H.4
+T2CON	DATA	0C8H
+DPX	DATA	093H
+PINT2	BIT	0F8H.0
+RXD	BIT	0B0H.0
+PINT3	BIT	0F8H.1
+CKCON	DATA	08EH
+PINT4	BIT	0F8H.2
+EWT	BIT	0D8H.1
+TXD	BIT	0B0H.1
+PINT5	BIT	0F8H.3
+PINT6	BIT	0F8H.4
+F0	BIT	0D0H.5
+SFRAH	DATA	0C5H
+SFRFD	DATA	0C6H
+T0LOW	DATA	09DH
+T1LOW	DATA	09FH
+T2LOW	DATA	096H
+SFRAL	DATA	0C4H
+PSW	DATA	0D0H
+BANKREG	DATA	09AH
+WDCON	DATA	0D8H
+RWT	BIT	0D8H.0
+RB18	BIT	0C0H.2
+SFRCN	DATA	0C7H
+?PR?ddH?I2C          SEGMENT CODE 
+?PR?ddH0?I2C         SEGMENT CODE 
+?PR?I2CStartH?I2C    SEGMENT CODE 
+?PR?I2CStopH?I2C     SEGMENT CODE 
+?PR?_I2CWriteDataH?I2C                   SEGMENT CODE 
+?PR?I2CReadDataH?I2C SEGMENT CODE 
+?PR?_ReadI2C?I2C     SEGMENT CODE 
+?XD?_ReadI2C?I2C     SEGMENT XDATA OVERLAYABLE 
+?PR?_WriteI2C?I2C    SEGMENT CODE 
+?XD?_WriteI2C?I2C    SEGMENT XDATA OVERLAYABLE 
+?PR?_I2CDeviceInitialize?I2C             SEGMENT CODE 
+?XD?_I2CDeviceInitialize?I2C             SEGMENT XDATA OVERLAYABLE 
+?PR?I2C              SEGMENT CODE 
+	EXTRN	CODE (_delay1ms)
+	EXTRN	DATA (regTW88)
+	EXTRN	CODE (?C?CLDPTR)
+	EXTRN	CODE (?C?CLDOPTR)
+	EXTRN	CODE (?C?IILDX)
+	PUBLIC	I2CD
+	PUBLIC	_I2CDeviceInitialize
+	PUBLIC	_WriteI2C
+	PUBLIC	_ReadI2C
+	PUBLIC	I2CReadDataH
+	PUBLIC	_I2CWriteDataH
+	PUBLIC	I2CStopH
+	PUBLIC	I2CStartH
+	PUBLIC	ddH0
+	PUBLIC	ddH
+
+	DSEG  AT  020H
+           I2CD:   DS   1
+
+	RSEG  ?XD?_I2CDeviceInitialize?I2C
+?_I2CDeviceInitialize?BYTE:
+     RegSet?848:   DS   3
+	ORG  3
+      delay?849:   DS   1
+	ORG  4
+       addr?851:   DS   1
+
+	RSEG  ?XD?_ReadI2C?I2C
+?_ReadI2C?BYTE:
+       addr?643:   DS   1
+	ORG  1
+      index?644:   DS   1
+
+	RSEG  ?XD?_WriteI2C?I2C
+?_WriteI2C?BYTE:
+      index?746:   DS   1
+	ORG  1
+        val?747:   DS   1
+; /*
+;  *  i2c.c - a device driver for the iic-bus interface 
+;  *
+;  *  Copyright (C) 2011 Intersil Corporation
+;  *
+;  */
+; //*****************************************************************************
+; //
+; //									I2C.c
+; //
+; //*****************************************************************************
+; //
+; //
+; #include "Config.h"
+; #include "reg.h"
+; #include "typedefs.h"
+; #include "TW8835.h"
+; 
+; #include "I2C.h"
+; #include "printf.h"
+; #include "CPU.h"
+; #include "OSD.h"
+; 
+; DATA BYTE I2CD	_at_ 0x20;
+; 
+; #define I2CD0	00h
+; #define I2CD1	01h
+; #define I2CD2	02h
+; #define I2CD3	03h
+; #define I2CD4	04h
+; #define I2CD5	05h
+; #define I2CD6	06h
+; #define I2CD7	07h
+; 
+; //=============================================================================
+; //                                                                           
+; //=============================================================================
+; 
+
+	RSEG  ?PR?I2C
+Com0017:
+L?0024:
+	USING	0
+	MOVX 	A,@DPTR
+	ADD  	A,regTW88+01H
+	MOV  	DPL,A
+	CLR  	A
+	ADDC 	A,regTW88
+	MOV  	DPH,A
+	RET  	
+L?0025:
+	USING	0
+L?0026:
+	MOV  	DPTR,#01H
+	LJMP 	?C?CLDOPTR
+; END OF Com0017
+
+; void ddH(void)
+
+	RSEG  ?PR?ddH?I2C
+ddH:
+	USING	0
+			; SOURCE LINE # 39
+; {
+			; SOURCE LINE # 40
+; 	BYTE i;
+; 	for ( i=0; i<30; i++ ) ;
+			; SOURCE LINE # 42
+;---- Variable 'i?040' assigned to Register 'R7' ----
+	CLR  	A
+	MOV  	R7,A
+?C0001:
+	INC  	R7
+	MOV  	A,R7
+	CJNE 	A,#01EH,?C0001
+; }
+			; SOURCE LINE # 43
+?C0004:
+	RET  	
+; END OF ddH
+
+; void ddH0(void)
+
+	RSEG  ?PR?ddH0?I2C
+ddH0:
+	USING	0
+			; SOURCE LINE # 44
+; {
+			; SOURCE LINE # 45
+; 	BYTE i;
+; 	for ( i=0; i<30; i++ ) ;
+			; SOURCE LINE # 47
+;---- Variable 'i?141' assigned to Register 'R7' ----
+	CLR  	A
+	MOV  	R7,A
+?C0005:
+	INC  	R7
+	MOV  	A,R7
+	CJNE 	A,#01EH,?C0005
+; }
+			; SOURCE LINE # 48
+?C0008:
+	RET  	
+; END OF ddH0
+
+; 
+; //#define ddH0()
+; 
+; void I2CStartH()
+
+	RSEG  ?PR?I2CStartH?I2C
+I2CStartH:
+	USING	0
+			; SOURCE LINE # 52
+; {
+			; SOURCE LINE # 53
+; 	I2C_SDA = 1;	ddH();
+			; SOURCE LINE # 54
+	SETB 	P1_1
+	LCALL	ddH
+; 	I2C_SCL = 1;	ddH();
+			; SOURCE LINE # 55
+	SETB 	P1_0
+	LCALL	ddH
+; 	I2C_SDA = 0;	ddH();
+			; SOURCE LINE # 56
+	CLR  	P1_1
+	LCALL	ddH
+; 	I2C_SCL = 0;
+			; SOURCE LINE # 57
+	CLR  	P1_0
+; }
+			; SOURCE LINE # 58
+	RET  	
+; END OF I2CStartH
+
+; 
+; void I2CStopH()
+
+	RSEG  ?PR?I2CStopH?I2C
+I2CStopH:
+	USING	0
+			; SOURCE LINE # 60
+; {
+			; SOURCE LINE # 61
+; 	I2C_SDA = 0;	ddH();
+			; SOURCE LINE # 62
+	CLR  	P1_1
+	LCALL	ddH
+; 	I2C_SCL = 1;	ddH();
+			; SOURCE LINE # 63
+	SETB 	P1_0
+	LCALL	ddH
+; 	I2C_SDA = 1;
+			; SOURCE LINE # 64
+	SETB 	P1_1
+; }
+			; SOURCE LINE # 65
+	RET  	
+; END OF I2CStopH
+
+; 
+; void I2CWriteDataH(BYTE value)
+
+	RSEG  ?PR?_I2CWriteDataH?I2C
+_I2CWriteDataH:
+	USING	0
+			; SOURCE LINE # 67
+;---- Variable 'value?442' assigned to Register 'R7' ----
+; {
+			; SOURCE LINE # 68
+; 	I2CD = value;
+			; SOURCE LINE # 69
+	MOV  	I2CD,R7
+; 
+; #pragma asm
+; 
+	  
+; ;	clr EA
+	  ;	clr EA
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD7
+	  mov	c, 07h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD6
+	  mov	c, 06h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD5
+	  mov	c, 05h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD4
+	  mov	c, 04h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD3
+	  mov	c, 03h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD2
+	  mov	c, 02h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD1
+	  mov	c, 01h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; 	clr	I2C_SCL
+	  clr	P1_0
+; 	mov	c, I2CD0
+	  mov	c, 00h
+; 	mov I2C_SDA, c
+	  mov P1_1, c
+; 	lcall ddH0	;;;
+	  lcall ddH0	;;;
+; 	setb I2C_SCL
+	  setb P1_0
+; 	lcall ddH
+	  lcall ddH
+; 
+	  
+; ;	setb EA
+	  ;	setb EA
+; 
+	  
+; #pragma endasm
+; 
+; 	I2C_SCL=0;	ddH();
+			; SOURCE LINE # 135
+	CLR  	P1_0
+	LCALL	ddH
+; 	I2C_SDA = 1;
+			; SOURCE LINE # 136
+	SETB 	P1_1
+; 
+; 	I2C_SCL=1;	ddH();
+			; SOURCE LINE # 138
+	SETB 	P1_0
+	LCALL	ddH
+; 	I2C_SCL=0;
+			; SOURCE LINE # 139
+	CLR  	P1_0
+; }
+			; SOURCE LINE # 140
+	RET  	
+; END OF _I2CWriteDataH
+
+; 
+; void I2CReadDataH()
+
+	RSEG  ?PR?I2CReadDataH?I2C
+I2CReadDataH:
+	USING	0
+			; SOURCE LINE # 142
+; {
+			; SOURCE LINE # 143
+; 	I2C_SDA = 1;
+			; SOURCE LINE # 144
+	SETB 	P1_1
+; 
+; #pragma asm
+; 
+	  
+; ;	clr		EA
+	  ;	clr		EA
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD7, c
+	  mov		07h, c
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD6, c
+	  mov		06h, c
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD5, c
+	  mov		05h, c
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD4, c
+	  mov		04h, c
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD3, c
+	  mov		03h, c
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD2, c
+	  mov		02h, c
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD1, c
+	  mov		01h, c
+; 
+	  
+; 	clr		I2C_SCL
+	  clr		P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	setb	I2C_SCL
+	  setb	P1_0
+; 	lcall	ddH
+	  lcall	ddH
+; 	mov		c, I2C_SDA
+	  mov		c, P1_1
+; 	mov		I2CD0, c
+	  mov		00h, c
+; 
+	  
+; ;	setb	EA
+	  ;	setb	EA
+; 
+	  
+; #pragma endasm
+; 
+; 	I2C_SCL=1;	ddH();
+			; SOURCE LINE # 210
+	SETB 	P1_0
+	LCALL	ddH
+; 	I2C_SCL=0;
+			; SOURCE LINE # 211
+	CLR  	P1_0
+; 
+; 	//return I2CD;
+; }
+			; SOURCE LINE # 214
+	RET  	
+; END OF I2CReadDataH
+
+; //=============================================================================
+; //                                                                           
+; //=============================================================================
+; BYTE ReadI2C(BYTE addr, BYTE index)
+
+	RSEG  ?PR?_ReadI2C?I2C
+_ReadI2C:
+	USING	0
+			; SOURCE LINE # 218
+	MOV  	DPTR,#index?644
+	MOV  	A,R5
+	MOVX 	@DPTR,A
+	MOV  	DPTR,#addr?643
+	MOV  	A,R7
+	MOVX 	@DPTR,A
+; {
+			; SOURCE LINE # 219
+; //	BYTE val;
+; 
+; 	if ( addr == 0 ) return (ReadTW88(index));
+			; SOURCE LINE # 222
+	JNZ  	?C0013
+	INC  	DPTR
+	LCALL	L?0024
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	RET  	
+?C0013:
+; EA=0;
+			; SOURCE LINE # 223
+	CLR  	EA
+; 	I2CStartH();
+			; SOURCE LINE # 224
+	LCALL	I2CStartH
+; 	I2CWriteDataH(addr);
+			; SOURCE LINE # 225
+	MOV  	DPTR,#addr?643
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	LCALL	_I2CWriteDataH
+; 	I2CWriteDataH(index);
+			; SOURCE LINE # 226
+	MOV  	DPTR,#index?644
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	LCALL	_I2CWriteDataH
+; 	I2CStartH();
+			; SOURCE LINE # 227
+	LCALL	I2CStartH
+; 	I2CWriteDataH(addr | 0x01);
+			; SOURCE LINE # 228
+	MOV  	DPTR,#addr?643
+	MOVX 	A,@DPTR
+	ORL  	A,#01H
+	MOV  	R7,A
+	LCALL	_I2CWriteDataH
+; 	I2CReadDataH();
+			; SOURCE LINE # 229
+	LCALL	I2CReadDataH
+; 	I2CStopH();
+			; SOURCE LINE # 230
+	LCALL	I2CStopH
+; EA=1;
+			; SOURCE LINE # 231
+	SETB 	EA
+; 	return I2CD;
+			; SOURCE LINE # 232
+	MOV  	R7,I2CD
+; }
+			; SOURCE LINE # 233
+?C0014:
+	RET  	
+; END OF _ReadI2C
+
+; 
+; 
+; void WriteI2C(BYTE addr, BYTE index, BYTE val)
+
+	RSEG  ?PR?_WriteI2C?I2C
+_WriteI2C:
+	USING	0
+			; SOURCE LINE # 236
+	MOV  	DPTR,#index?746
+	MOV  	A,R5
+	MOVX 	@DPTR,A
+	INC  	DPTR
+	MOV  	A,R3
+	MOVX 	@DPTR,A
+;---- Variable 'addr?745' assigned to Register 'R6' ----
+	MOV  	R6,AR7
+; {
+			; SOURCE LINE # 237
+; 	if ( addr == 0 ) {
+			; SOURCE LINE # 238
+	MOV  	A,R6
+	JNZ  	?C0015
+; 		WriteTW88(index, val);
+			; SOURCE LINE # 239
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	MOV  	DPTR,#index?746
+	LCALL	L?0024
+	MOV  	A,R7
+	MOVX 	@DPTR,A
+	RET  	
+; 		return;
+; 	}
+			; SOURCE LINE # 241
+?C0015:
+; EA=0;
+			; SOURCE LINE # 242
+	CLR  	EA
+; 	I2CStartH();
+			; SOURCE LINE # 243
+	LCALL	I2CStartH
+; 	I2CWriteDataH(addr);
+			; SOURCE LINE # 244
+	MOV  	R7,AR6
+	LCALL	_I2CWriteDataH
+; 	I2CWriteDataH(index);
+			; SOURCE LINE # 245
+	MOV  	DPTR,#index?746
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	LCALL	_I2CWriteDataH
+; 	I2CWriteDataH(val);
+			; SOURCE LINE # 246
+	MOV  	DPTR,#val?747
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	LCALL	_I2CWriteDataH
+; 	I2CStopH();
+			; SOURCE LINE # 247
+	LCALL	I2CStopH
+; EA=1;
+			; SOURCE LINE # 248
+	SETB 	EA
+; }
+			; SOURCE LINE # 249
+?C0016:
+	RET  	
+; END OF _WriteI2C
+
+; 
+; #if 0
+; void WriteI2CArray(BYTE addr, BYTE *RegSet)
+; {
+; 	BYTE index, val;
+; 
+; 	while (( RegSet[0] != 0xFF ) || ( RegSet[1]!= 0xFF )) {			// 0xff, 0xff is end of data
+; 		index = *RegSet;
+; 		val = *(RegSet+1);
+; 		WriteI2C(addr, index, val);
+; 
+; 		RegSet+=2;
+; 	}
+; }
+; #endif
+; //=============================================================================
+; //                                                                           
+; //=============================================================================
+; void I2CDeviceInitialize(BYTE *RegSet, BYTE delay)
+
+	RSEG  ?PR?_I2CDeviceInitialize?I2C
+_I2CDeviceInitialize:
+	USING	0
+			; SOURCE LINE # 268
+	MOV  	DPTR,#delay?849
+	MOV  	A,R5
+	MOVX 	@DPTR,A
+	MOV  	DPTR,#RegSet?848
+	MOV  	A,R3
+	MOVX 	@DPTR,A
+	INC  	DPTR
+	MOV  	A,R2
+	MOVX 	@DPTR,A
+	INC  	DPTR
+	MOV  	A,R1
+	MOVX 	@DPTR,A
+; {
+			; SOURCE LINE # 269
+; 	int	cnt=0;
+			; SOURCE LINE # 270
+;---- Variable 'cnt?850' assigned to Register 'R6/R7' ----
+; 	BYTE addr, index, val;
+; 
+; 	addr = *RegSet;
+			; SOURCE LINE # 273
+	LCALL	?C?CLDPTR
+	MOV  	DPTR,#addr?851
+	MOVX 	@DPTR,A
+; //	#ifdef DEBUG_TW88
+; //	dPrintf("\nI2C address : %02bx", addr);
+; //	#endif
+; 	cnt = *(RegSet+1);
+			; SOURCE LINE # 277
+	LCALL	L?0025
+; 	RegSet+=2;
+			; SOURCE LINE # 278
+	SJMP 	?C0022
+?C0017:
+; 
+; 	while (( RegSet[0] != 0xFF ) || ( RegSet[1]!= 0xFF )) {			// 0xff, 0xff is end of data
+			; SOURCE LINE # 280
+	MOV  	DPTR,#RegSet?848
+	MOVX 	A,@DPTR
+	MOV  	R3,A
+	INC  	DPTR
+	MOVX 	A,@DPTR
+	MOV  	R2,A
+	INC  	DPTR
+	MOVX 	A,@DPTR
+	MOV  	R1,A
+	LCALL	?C?CLDPTR
+	MOV  	R7,A
+	CJNE 	A,#0FFH,?C0019
+	LCALL	L?0025
+	CPL  	A
+	JZ   	?C0021
+?C0019:
+; 		index = *RegSet;
+			; SOURCE LINE # 281
+;---- Variable 'index?852' assigned to Register 'R6' ----
+	MOV  	R6,AR7
+; 		val = *(RegSet+1);
+			; SOURCE LINE # 282
+	LCALL	L?0026
+;---- Variable 'val?853' assigned to Register 'R4' ----
+	MOV  	R4,A
+; 		WriteI2C(addr, index, val);
+			; SOURCE LINE # 283
+	MOV  	DPTR,#addr?851
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	MOV  	R5,AR6
+	MOV  	R3,AR4
+	LCALL	_WriteI2C
+; 
+; 		if(delay)
+			; SOURCE LINE # 285
+	MOV  	DPTR,#delay?849
+	MOVX 	A,@DPTR
+	MOV  	R7,A
+	JZ   	?C0020
+; 			delay1ms(delay);
+			; SOURCE LINE # 286
+	MOV  	R6,#00H
+	LCALL	_delay1ms
+?C0020:
+; 		//#ifdef DEBUG_TW88
+; 		//dPrintf("\n    addr=%02x  index=%02x   val=%02x", (WORD)addr, (WORD)index, (WORD)val );
+; 		//#endif
+; 
+; 		RegSet+=2;
+			; SOURCE LINE # 291
+?C0022:
+	MOV  	DPTR,#RegSet?848+01H
+	CLR  	A
+	MOV  	B,#02H
+	LCALL	?C?IILDX
+; 	}
+			; SOURCE LINE # 292
+	SJMP 	?C0017
+; }
+			; SOURCE LINE # 293
+?C0021:
+	RET  	
+; END OF _I2CDeviceInitialize
+
+	END

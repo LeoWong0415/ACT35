@@ -1,0 +1,54 @@
+=== BANK 0 ===
+  [En]=1
+  [Start]=000000
+  [Type]=0
+  [FileName]=..\Output\TW8835_REV31.H00
+---
+=== BANK 1 ===
+  [En]=1
+  [Start]=00010000
+  [Type]=0
+  [FileName]=..\Output\TW8835_REV31.H01
+---
+=== BANK 2 ===
+  [En]=1
+  [Start]=00020000
+  [Type]=0
+  [FileName]=..\Output\TW8835_REV31.H02
+---
+=== BANK 3 ===
+  [En]=1
+  [Start]=00030000
+  [Type]=0
+  [FileName]=..\Output\TW8835_REV31.H03
+---
+=== BANK 4 ===
+  [En]=1
+  [Start]=400000
+  [Type]=1
+  [FileName]=400000-DEF8835.bin
+---
+=== BANK 5 ===
+  [En]=1
+  [Start]=403000
+  [Type]=1
+  [FileName]=403000-consolas22_16x26_TW8830.bin
+---
+=== BANK 6 ===
+  [En]=1
+  [Start]=406000
+  [Type]=1
+  [FileName]=406000-GrayNum16x26.bin
+---
+=== BANK 7 ===
+  [En]=1
+  [Start]=409000
+  [Type]=1
+  [FileName]=409000-DefKor.bin
+---
+=== BANK 8 ===
+  [En]=1
+  [Start]=410000
+  [Type]=1
+  [FileName]=410000-menu111019.bin
+---

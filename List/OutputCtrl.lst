@@ -1,0 +1,578 @@
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE OUTPUTCTRL
+OBJECT MODULE PLACED IN .\Output\OutputCtrl.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE OutputCtrl.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BRO
+                    -WSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\OutputCtrl.lst) OBJECT(.\Output\
+                    -OutputCtrl.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * OutputCtrl.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      video output module 
+  10          */
+  11          
+  12          #include "Config.h"
+  13          #include "reg.h"
+  14          #include "typedefs.h"
+  15          #include "TW8835.h"
+  16          
+  17          #include "Global.h"
+  18          #include "CPU.h"
+  19          #include "Printf.h"
+  20          #include "util.h"
+  21          #include "Monitor.h"
+  22          
+  23          #include "I2C.h"
+  24          //#include "main.h"
+  25          #include "OutputCtrl.h"
+  26          #include "SOsd.h"
+  27          #include "FOsd.h"
+  28          
+  29          
+  30          
+  31          //LEDC
+  32          //R0E0
+  33           //==============================================================================
+  34          // void LedBackLight( BYTE on )
+  35          //==============================================================================
+  36          /**
+  37          * control LEDC digital block
+  38          */
+  39          void LedBackLight( BYTE on )
+  40          {
+  41   1              WaitVBlank(1);
+  42   1              WriteTW88Page(PAGE0_LEDC);
+  43   1              if ( on ) {
+  44   2                      WriteTW88(REG0E0, ReadTW88(REG0E0 ) | 1 );
+  45   2              }
+  46   1              else {
+  47   2                      WriteTW88(REG0E0, ReadTW88(REG0E0 ) & ~0x01 );
+  48   2              }
+  49   1      }
+  50          
+  51          
+  52          //=============================================================================
+  53          //      void    BlackScrren( BYTE on )
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 2   
+
+  54          //=============================================================================
+  55          #ifdef UNCALLED_SEGMENT_CODE
+              void    BlackScreen( BYTE on )
+              {...}
+              #endif
+  59          
+  60          
+  61          //-----------------------------------------------------------------------------
+  62          /**
+  63          * LEDOn step
+  64          */
+  65          BYTE LEDCOn(BYTE step)
+  66          {
+  67   1              BYTE i;
+  68   1      
+  69   1              WriteTW88Page(PAGE0_LEDC);
+  70   1      
+  71   1              switch(step)
+  72   1              {
+  73   2              case 0:
+  74   2                      WriteTW88(REG0E0, 0x72);        //default. & disable OverVoltage
+  75   2                      WriteTW88(REG0E5, 0x80);        //LEDC digital output enable.
+  76   2                      WriteTW88(REG0E0, 0x12);        //Off OverCurrent. Disable Protection
+  77   2                      WriteTW88(REG0E0, 0x13);        //LEDC digital block enable
+  78   2                      break;
+  79   2              case 1:
+  80   2                      WriteTW88(REG0E0, 0x11);        //Analog block powerup
+  81   2                      break;
+  82   2              case 2:
+  83   2                      WriteTW88(REG0E0, 0x71);        //enable OverCurrent, enable Protection control
+  84   2                      break;
+  85   2              //default:
+  86   2              //      ePuts("\nBUG");
+  87   2              //      return;
+  88   2              }
+  89   1              for(i=0; i < 10; i++) {
+  90   2                      if((ReadTW88(REG0E2) & 0x30)==0x30) {   //wait normal
+  91   3                              //dPrintf("\nLEDC(%bd):%bd",step,i);
+  92   3                              return ERR_SUCCESS;     //break;
+  93   3                      }
+  94   2                      delay1ms(2);
+  95   2              }
+  96   1              dPrintf("\nLEDC(%bd) FAIL",step);
+  97   1              return ERR_FAIL;
+  98   1      }
+  99          
+ 100          #if defined(EVB_10)
+              //-----------------------------------------------------------------------------
+              void LEDCGpioOn(void)
+              {
+              #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
+              #else
+                      WriteTW88Page(PAGE0_GPIO);
+                      WriteTW88(REG084, 0x0C);        //enable
+                      WriteTW88(REG08C, 0x0C);        //output enable
+                      delay1ms(2);
+              #endif
+              }
+              #endif
+ 113          
+ 114          //-----------------------------------------------------------------------------
+ 115          /**
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 3   
+
+ 116          * power up LED
+ 117          */
+ 118          void LedPowerUp(void)
+ 119          {
+ 120   1      #ifdef EVB_10
+                      //EVB_20 does not need LEDCGpioOn(). But I am not sure on EVB_10.
+                      LEDCGpioOn();
+              #endif
+ 124   1      
+ 125   1              LEDCOn(0);
+ 126   1              LEDCOn(1);
+ 127   1              LEDCOn(2);
+ 128   1      
+ 129   1              //WaitVBlank(1);
+ 130   1      }
+ 131          
+ 132          //-----------------------------------------------------------------------------
+ 133          /**
+ 134          * enable BT656 output
+ 135          */
+ 136          void BT656OutputEnable(BYTE fOn, BYTE clear_port)
+ 137          {
+ 138   1              DECLARE_LOCAL_page
+ 139   1      
+ 140   1              ReadTW88Page(page);
+ 141   1              WriteTW88Page(PAGE0_INPUT);
+ 142   1              if(fOn) {
+ 143   2                      WriteTW88(REG007, ReadTW88(REG007) | 0x08);      
+ 144   2              }
+ 145   1              else {
+ 146   2                      WriteTW88(REG007, ReadTW88(REG007) & ~0x08);    //DataInitNTSC clear it. 
+ 147   2                      //clear port
+ 148   2                      if(clear_port) {
+ 149   3                              if(P1_6 == 0)
+ 150   3                                      P1_6 = 1;
+ 151   3                      }
+ 152   2              }
+ 153   1              WriteTW88Page(page);
+ 154   1      }
+ 155          
+ 156          
+ 157          //-----------------------------------------------------------------------------
+ 158          /**
+ 159          * enable Output pin
+ 160          *
+ 161          * DataOut need EnableOutputPin(ON,ON)
+ 162          * target R008 = 0x89
+ 163          */
+ 164          void OutputEnablePin(BYTE fFPDataPin, BYTE fOutputPin)
+ 165          {
+ 166   1              BYTE value;
+ 167   1      
+ 168   1              WriteTW88Page(PAGE0_GENERAL);
+ 169   1              WriteTW88(REG008, 0x80 | (ReadTW88(REG008) & 0x0F));    //Output enable......BUGBUG
+ 170   1              value = ReadTW88(REG008) & ~0x30;
+ 171   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
+                      if(fFPDataPin==0)
+                              Puts("\nskip fFPDataPin=0");
+              #else
+ 175   1              if(fFPDataPin==0)               value |= 0x20;
+ 176   1      #endif
+ 177   1              if(fOutputPin==0)               value |= 0x10;
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 4   
+
+ 178   1              WriteTW88(REG008,  value);
+ 179   1      }
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 5   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com0016 (BEGIN)
+0000         L?0023:
+0000 F0                MOVX    @DPTR,A
+0001         L?0024:
+0001 E500        E     MOV     A,regTW88+01H
+0003 24E0              ADD     A,#0E0H
+0005         L?0025:
+0005 F582              MOV     DPL,A
+0007 E4                CLR     A
+0008 3500        E     ADDC    A,regTW88
+000A F583              MOV     DPH,A
+000C 22                RET     
+             ; FUNCTION Com0016 (END)
+
+             ; FUNCTION _LedBackLight (BEGIN)
+                                           ; SOURCE LINE # 39
+0000 900000      R     MOV     DPTR,#on
+0003 EF                MOV     A,R7
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 40
+                                           ; SOURCE LINE # 41
+0005 7F01              MOV     R7,#01H
+0007 120000      E     LCALL   _WaitVBlank
+                                           ; SOURCE LINE # 43
+000A 900000      R     MOV     DPTR,#on
+000D E0                MOVX    A,@DPTR
+000E 6008              JZ      ?C0001
+                                           ; SOURCE LINE # 44
+0010 120000      R     LCALL   L?0024
+0013 E0                MOVX    A,@DPTR
+0014 4401              ORL     A,#01H
+0016 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 45
+0017 22                RET     
+0018         ?C0001:
+                                           ; SOURCE LINE # 46
+                                           ; SOURCE LINE # 47
+0018 120000      R     LCALL   L?0024
+001B E0                MOVX    A,@DPTR
+001C 54FE              ANL     A,#0FEH
+001E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 48
+                                           ; SOURCE LINE # 49
+001F         ?C0003:
+001F 22                RET     
+             ; FUNCTION _LedBackLight (END)
+
+             ; FUNCTION _LEDCOn (BEGIN)
+                                           ; SOURCE LINE # 65
+;---- Variable 'step' assigned to Register 'R5' ----
+0000 AD07              MOV     R5,AR7
+                                           ; SOURCE LINE # 66
+                                           ; SOURCE LINE # 71
+0002 ED                MOV     A,R5
+0003 14                DEC     A
+0004 6023              JZ      ?C0006
+0006 14                DEC     A
+0007 6028              JZ      ?C0007
+0009 2402              ADD     A,#02H
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 6   
+
+000B 702A              JNZ     ?C0004
+                                           ; SOURCE LINE # 72
+                                           ; SOURCE LINE # 73
+000D         ?C0005:
+                                           ; SOURCE LINE # 74
+000D 120000      R     LCALL   L?0024
+0010 7472              MOV     A,#072H
+0012 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 75
+0013 E500        E     MOV     A,regTW88+01H
+0015 24E5              ADD     A,#0E5H
+0017 120000      R     LCALL   L?0025
+001A 7480              MOV     A,#080H
+                                           ; SOURCE LINE # 76
+001C 120000      R     LCALL   L?0023
+001F 7412              MOV     A,#012H
+                                           ; SOURCE LINE # 77
+0021 120000      R     LCALL   L?0023
+0024 7413              MOV     A,#013H
+0026 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 78
+0027 800E              SJMP    ?C0004
+                                           ; SOURCE LINE # 79
+0029         ?C0006:
+                                           ; SOURCE LINE # 80
+0029 120000      R     LCALL   L?0024
+002C 7411              MOV     A,#011H
+002E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 81
+002F 8006              SJMP    ?C0004
+                                           ; SOURCE LINE # 82
+0031         ?C0007:
+                                           ; SOURCE LINE # 83
+0031 120000      R     LCALL   L?0024
+0034 7471              MOV     A,#071H
+0036 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 84
+                                           ; SOURCE LINE # 88
+0037         ?C0004:
+                                           ; SOURCE LINE # 89
+;---- Variable 'i' assigned to Register 'R4' ----
+0037 E4                CLR     A
+0038 FC                MOV     R4,A
+0039         ?C0008:
+                                           ; SOURCE LINE # 90
+0039 E500        E     MOV     A,regTW88+01H
+003B 24E2              ADD     A,#0E2H
+003D 120000      R     LCALL   L?0025
+0040 E0                MOVX    A,@DPTR
+0041 5430              ANL     A,#030H
+0043 FF                MOV     R7,A
+0044 BF3003            CJNE    R7,#030H,?C0011
+                                           ; SOURCE LINE # 92
+0047 7F00              MOV     R7,#00H
+0049 22                RET     
+                                           ; SOURCE LINE # 93
+004A         ?C0011:
+                                           ; SOURCE LINE # 94
+004A 7F02              MOV     R7,#02H
+004C 7E00              MOV     R6,#00H
+004E 120000      E     LCALL   _delay1ms
+                                           ; SOURCE LINE # 95
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 7   
+
+0051 0C                INC     R4
+0052 EC                MOV     A,R4
+0053 B40AE3            CJNE    A,#0AH,?C0008
+0056         ?C0009:
+                                           ; SOURCE LINE # 96
+0056 7BFF              MOV     R3,#0FFH
+0058 7A00        R     MOV     R2,#HIGH ?SC_0
+005A 7900        R     MOV     R1,#LOW ?SC_0
+005C 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+005F ED                MOV     A,R5
+0060 F0                MOVX    @DPTR,A
+0061 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 97
+0064 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 98
+0066         ?C0012:
+0066 22                RET     
+             ; FUNCTION _LEDCOn (END)
+
+             ; FUNCTION LedPowerUp (BEGIN)
+                                           ; SOURCE LINE # 118
+                                           ; SOURCE LINE # 119
+                                           ; SOURCE LINE # 125
+0000 E4                CLR     A
+0001 FF                MOV     R7,A
+0002 120000      R     LCALL   _LEDCOn
+                                           ; SOURCE LINE # 126
+0005 7F01              MOV     R7,#01H
+0007 120000      R     LCALL   _LEDCOn
+                                           ; SOURCE LINE # 127
+000A 7F02              MOV     R7,#02H
+000C 020000      R     LJMP    _LEDCOn
+             ; FUNCTION LedPowerUp (END)
+
+             ; FUNCTION _BT656OutputEnable (BEGIN)
+                                           ; SOURCE LINE # 136
+;---- Variable 'clear_port' assigned to Register 'R5' ----
+;---- Variable 'fOn' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 137
+                                           ; SOURCE LINE # 142
+0000 EF                MOV     A,R7
+0001 600C              JZ      ?C0014
+                                           ; SOURCE LINE # 143
+0003 E500        E     MOV     A,regTW88+01H
+0005 2407              ADD     A,#07H
+0007 120000      R     LCALL   L?0025
+000A E0                MOVX    A,@DPTR
+000B 4408              ORL     A,#08H
+000D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 144
+000E 22                RET     
+000F         ?C0014:
+                                           ; SOURCE LINE # 145
+                                           ; SOURCE LINE # 146
+000F E500        E     MOV     A,regTW88+01H
+0011 2407              ADD     A,#07H
+0013 120000      R     LCALL   L?0025
+0016 E0                MOVX    A,@DPTR
+0017 54F7              ANL     A,#0F7H
+0019 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 148
+001A ED                MOV     A,R5
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 8   
+
+001B 6005              JZ      ?C0018
+                                           ; SOURCE LINE # 149
+001D 209602            JB      P1_6,?C0018
+                                           ; SOURCE LINE # 150
+0020 D296              SETB    P1_6
+                                           ; SOURCE LINE # 151
+                                           ; SOURCE LINE # 152
+                                           ; SOURCE LINE # 154
+0022         ?C0018:
+0022 22                RET     
+             ; FUNCTION _BT656OutputEnable (END)
+
+             ; FUNCTION _OutputEnablePin (BEGIN)
+                                           ; SOURCE LINE # 164
+;---- Variable 'fOutputPin' assigned to Register 'R5' ----
+;---- Variable 'fFPDataPin' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 165
+                                           ; SOURCE LINE # 169
+0000 E500        E     MOV     A,regTW88+01H
+0002 2408              ADD     A,#08H
+0004 120000      R     LCALL   L?0025
+0007 E0                MOVX    A,@DPTR
+0008 540F              ANL     A,#0FH
+000A 4480              ORL     A,#080H
+000C FE                MOV     R6,A
+000D E500        E     MOV     A,regTW88+01H
+000F 2408              ADD     A,#08H
+0011 120000      R     LCALL   L?0025
+0014 EE                MOV     A,R6
+0015 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 170
+0016 E500        E     MOV     A,regTW88+01H
+0018 2408              ADD     A,#08H
+001A 120000      R     LCALL   L?0025
+001D E0                MOVX    A,@DPTR
+001E 54CF              ANL     A,#0CFH
+0020 FE                MOV     R6,A
+;---- Variable 'value' assigned to Register 'R6' ----
+                                           ; SOURCE LINE # 175
+0021 EF                MOV     A,R7
+0022 7004              JNZ     ?C0019
+0024 EE                MOV     A,R6
+0025 4420              ORL     A,#020H
+0027 FE                MOV     R6,A
+0028         ?C0019:
+                                           ; SOURCE LINE # 177
+0028 ED                MOV     A,R5
+0029 7004              JNZ     ?C0020
+002B EE                MOV     A,R6
+002C 4410              ORL     A,#010H
+002E FE                MOV     R6,A
+002F         ?C0020:
+                                           ; SOURCE LINE # 178
+002F E500        E     MOV     A,regTW88+01H
+0031 2408              ADD     A,#08H
+0033 120000      R     LCALL   L?0025
+0036 EE                MOV     A,R6
+0037 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 179
+0038 22                RET     
+             ; FUNCTION _OutputEnablePin (END)
+
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 9   
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+_LedBackLight. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  on . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+_OutputEnablePin . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  fFPDataPin . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  fOutputPin . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0006H  1
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+P1_6 . . . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      0096H  1
+_BT656OutputEnable . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  fOn. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  clear_port . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+_delay1ms. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 10  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+_LEDCOn. . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  step . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0004H  1
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+_WaitVBlank. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+_dPrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+LedPowerUp . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    255    ----
+   CONSTANT SIZE    =     16    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

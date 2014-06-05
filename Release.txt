@@ -1,0 +1,38 @@
+Revision who&date	description
+0.0	bkang110216	init.
+...
+0.07	bkang111012
+0.08	bkang120101
+		support 2nd I2C master
+		support SW I2C Slave.
+		reduce RCD bootup time
+		change DCDC_Startup
+		support NoSignalLogo
+	bkang120124
+		add PICO_GENERIC
+	bkang120125
+		selectable input.
+		update revision
+	bkang120208
+		add 16bit register access mode.
+		add I2C Interrupt protocol
+	bkang120210
+		adjust Font location in SpiFlash.
+		add a SpiOsd Test command
+	bkang120215
+		bugfix@InputModeNext
+	bkang120312
+		link FontOsd MEnu.
+0.09
+	bkang120328
+		Solve PCLK/PLL108 clock toggle issue on External MCU
+		support Touch on External MCU	
+
+ 	bkang12xxxx
+		Add Host mode (ExtI2C)
+		Add Tsc on the Host Mode
+		Add Master / Slave mode
+
+1.00
+	bkang1205xx
+		Add doxy

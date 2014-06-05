@@ -1,0 +1,111 @@
+;------------------------------------
+; '-' Use Default
+; '+' Change Initial
+; '*' Change by mode
+;------------------------------------
+c 8a
+w FF 01
+
+;w 02 2a ;+ Mux sel.
+w 05 20 ;* AFE Mode, AAF on/off
+;w 06 00 ;+ Enable ADC
+
+;----- LLPLL
+;w c0 10 ;+ Input config.
+w C2 E2 ;* VCO, Charge Pump
+w C3 08 ;* Divider H
+w C4 97 ;* Divider L
+w C5 00 ;* Phase
+;w c6 20 ;+ Loop Filter 0, Change to 7 later...
+;w c7 04 ;- VCO Norminal freq.
+;w c8 00 ;- VCO Norminal freq.
+;w c9 00 ;+ Pre Coast
+;w ca 00 ;+ Post Coast
+;w cb ce ;+ Power, SOG Threshold
+;w cc 02 ;+ Sync Output sel.
+;w cd 54 ;. Charge Pump Fine Control
+;----- ADC Gain
+w D0 07 ;*
+w D1 10 ;*
+w D2 10 ;*
+w D3 10 ;*
+;----- Clamp
+;w d4 00 ;+ Mode
+;w d5 00 ;+ Start
+;w d6 10 ;+ Stop
+w D7 18 ;* Master Location
+;w d8 00 ;- Debug off
+;w d9 01 ;+ G Level
+;w da 80 ;+ B Level
+;w db 80 ;+ R Level
+;----- LLPLL Misc.
+;w dc 10 ;+ HS width
+;w e0 00 ;- Test
+;w e1 05 ;+ GPLL Pd.
+;----- AFE
+w E2 59 ;* Bais, VREF
+w E3 17 ;* Bias
+w E4 34 ;* Bias
+w E5 33 ;* Bias
+w E6 20 ;* Bias
+w E7 2A ;* AAF  
+
+;DELAY=100
+;w c6 27 ;@@@ Loop Filter 7... 
+
+;====================================
+w FF 00
+
+;----- Input Control
+w 40 11 ;* Input Sel., Clock Pol., H Crop
+;w 41 1c ;+ H/V/F Pol., YUV
+w 42 27 ;* Crop
+w 43 18 ;* Crop
+w 44 1C ;* Crop
+w 45 E9 ;* Crop
+w 46 80 ;* Crop
+;----- Clock, SSPLL
+;w f6 00 ;+ PCLK, SPICLK Divider
+;w f7 16 ;- Test
+w F8 02 ;@@@ Freq=108M
+w F9 00 ;@@@
+w FA 00 ;@@@
+w FD 33 ;@@@ VCO, Charge Pump
+
+w FF 02
+
+;----- Scaler
+;w 01 00 ;- Mode
+;w 02 20 ;- Field offset
+w 03 00 ;@@@ Scaling
+w 04 20 ;@@@ Scaling
+w 05 C3 ;@@@ Scaling
+w 06 22 ;@@@ Scaling
+;w 07 80 ;- Panorama
+;w 08 10 ;- Panorama
+w 09 70 ;@@@ Scaling
+w 0A 19 ;@@@ Scaling
+;w 0b 09 ;+ Buffer Output Delay
+;w 0c 20 ;+ Buffer Output Len.
+w 0D 92 ;* H/V/CLK Pol., PCLKO Divider
+;w 0e 30 ;+ Buffer Output Delay
+;w 0f 00 ;+ H Blank Adj.
+w 10 28 ;* H-DE start
+;w 11 20 ;+ H-DE len L
+;w 12 03 ;+ H-DE len H
+;w 13 00 ;+ HS start
+;w 14 10 ;+ HS len
+w 15 1A ;@@@ V-DE start
+;w 16 e0 ;+ V-DE len L
+;w 17 01 ;+ V-DE len H
+;w 18 00 ;+ VS len
+
+;----- Free-run & Mute
+w 19 D2 ;@@@ Fixed V-total L
+w 1C 30 ;@@@ Free run, H len-L
+w 1D BA ;@@@ H len
+;w 1e 1a ;+ Auto Mute
+
+;----- Misc.
+;w 1a 00 ;- Mask Top
+;w 1b 00 ;- Mask Bottom

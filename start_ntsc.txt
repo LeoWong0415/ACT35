@@ -1,0 +1,84 @@
+		
+InitCPU CACHE_EN
+InitCore
+SPI JEDEC ID: 1C 30 18
+********************************************************
+ TW8835 Evaluation Board 3.0 - 18:26:04 (Dec 13 2011)
+********************************************************
+MCU_I2C[8A]>
+===> Debugging is ON (03)
+InitSystem(0)
+P00-0--1--2--3--4--5--6--7--8--9--A--B--C--D--E--F-
+000:74 00 0A FE 01 00 00 00 30 00 00 00 00 00 00 00 
+010:00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+020:00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+030:00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+040:00 00 02 20 F0 20 D0 00 00 00 01 00 00 00 00 00 
+050:00 00 00 03 00 00 00 00 BF BF BF BF 00 00 00 00 
+060:00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+070:00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+080:00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+090:00 00 00 00 00 00 00 00 50 00 00 00 3C 80 FF 00 
+0A0:00 00 00 C0 C0 00 00 00 00 00 00 00 00 00 00 11 
+0B0:87 00 00 00 00 BF BF BF BF BF BF BF BF BF BF BF 
+0C0:00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+0D0:00 00 00 00 00 00 00 00 80 00 80 55 00 80 00 80 
+0E0:F2 77 04 40 84 00 20 00 F2 0A 04 40 20 80 20 00 
+0F0:C8 02 00 00 00 00 00 16 01 20 00 40 B0 11 00 00 
+SspllSetFreqAndPll(108000000)
+SspllSetFreqReg(00020000)
+POST:00 VCO:03 CURR:04
+PclkoSetDiv(01,02) value:0x90|0x02
+CLOCK SSPLL:00020000 POST:00 FREQ:108000000
+      PCLK:108000000 PCLKO:36000000
+      CLKPLL:72000000
+      MCU:27000000 SPI:27000000
+SystemTime:0.23 SSPLL_PowerUp
+Start with Saved Input: CVBS
+VideoInput:CVBS
+I2CDownload DataInitNTSC
+SspllSetFreqAndPll(108000000)
+SspllSetFreqReg(00020000)
+POST:00 VCO:03 CURR:04
+PclkoSetDiv(01,02) value:0x90|0x02
+InputSetSource r040:10 r041:0C
+VAdcSetDefaultFor()
+FontOsdDE:00
+FOsdMsg Info WIN:0 sx:0 sy:0
+SystemTime:0.30 DCDC_StartUp START
+DCDC(0):0
+DCDC(1):0
+SystemTime:0.42 DataOut
+DCDC(2):0
+SystemTime:0.44 DCDC_StartUp END
+InitLog1
+SpiOsdDe:0011
+MenuReadRleHeader:410000:49 54 66 69 20 03 E0 01 A1 48 00 00 01 3F 60 01 
+SpiOsdLoadLUTS LutLoc:0x0000 size:256 0x410010
+LEDC(0):0
+LEDC(1):0
+LEDC(2):0
+SystemTime:0.49 After LedPowerUp
+CheckAndSetDecoderScaler start.
+DecoderCheckVDLOSS(100) start
+DecoderCheckVDLOSS->fail
+CheckAndSetDecoderScaler VDLOSS
+FontOsdDE:00
+SystemTime:1.89 After InitVideoInput
+InitLog2
+Aspect 2 full
+OsdSetTime:0
+InitTouch
+SetTouchStatus(00)
+SetLastTouchStatus(0)
+InitSystem-END
+CLOCK SSPLL:00020000 POST:00 FREQ:108000000
+      PCLK:108000000 PCLKO:36000000
+      CLKPLL:72000000
+      MCU:27000000 SPI:27000000
+SystemTime:5.16 start loop
+MCU_I2C[8A]>
+Task NoSignal TASK_CMD_WAIT_VIDEO
+Task NoSignal TASK_CMD_WAIT_VIDEO
+Task NoSignal TASK_CMD_WAIT_VIDEO
+Task NoSignal TASK_CMD_WAIT_VIDEO

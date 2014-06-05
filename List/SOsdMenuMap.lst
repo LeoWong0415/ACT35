@@ -1,0 +1,1840 @@
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SOSDMENUMAP
+OBJECT MODULE PLACED IN .\Output\SOsdMenuMap.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE SOsdMenuMap.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
+                    -OWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\SOsdMenuMap.lst) OBJECT(.\Outpu
+                    -t\SOsdMenuMap.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * SOsdMenuMap.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      SpiOsd Menu Map
+  10          */
+  11          //*****************************************************************************
+  12          //
+  13          //                                                                      TW8835 MENU-B.c
+  14          //
+  15          //*****************************************************************************
+  16          // TW8835 have 2KB XDATA, we have to move the static table datas to CODE segment.
+  17          // code segment size: 0x10000 64KB * 4Banks.
+  18          // xdata segment size: 0x1000 4KB.
+  19          //
+  20          //SOSD_WIN1 use LutOffset 0x000. SOsdHwBuffWrite2Hw() need it.     
+  21          
+  22          //parent
+  23          //parent_to_me_item_number.
+  24          
+  25          //curr_menu
+  26          //curr_focused_item_number
+  27          
+  28          #include "config.h"
+  29          #include "reg.h"
+  30          #include "typedefs.h"
+  31          #include "TW8835.h"
+  32          
+  33          #include "Global.h"
+  34          #include "CPU.h"
+  35          #include "printf.h"
+  36          #include "util.h"
+  37          
+  38          #include "I2C.h"
+  39          #ifdef USE_SFLASH_EEPROM
+  40          #include "spi.h"
+  41          #endif
+  42          
+  43          #include "SOsd.h"
+  44          #include "FOsd.h"
+  45          #include "InputCtrl.h"
+  46          #include "SpiFlashMap.h"
+  47          #include "SOsdMenu.h"
+  48          #include "eeprom.h"
+  49          #include "ImageCtrl.h"
+  50          #include "Settings.h"
+  51          #include "Demo.h"
+  52          
+  53          #ifdef SUPPORT_SPIOSD                                                                                                                                                     
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 2   
+
+  54          //==========================
+  55          // LEVEL 0 PAGE
+  56          //==========================
+  57          
+  58          
+  59          //-------------------------------------
+  60          // main MENU
+  61          //-------------------------------------
+  62          //
+  63          //              Video   Audio   System
+  64          //
+  65          //
+  66          //              GPS             Phone   Information
+  67          //
+  68          //
+  69          //                                              demo exit
+  70          //-------------------------------------
+  71          //description
+  72          //background: use 8bit RLE. 128 Color. Use SOSD_WIN1
+  73          //            color 1: transparent color. normally color 0 is a black.
+  74          //focused(pressed): use SOSD_WIN8
+  75          //                              
+  76          
+  77          code struct menu_sitem_info_s menu_main_page_items[]= {                                                                                                     //  ^ < V > 
+  78          { TYPE_BG, proc_main_bg,        0,0,      ALIGN_TOPLEFT,        &img_main_bg,NULL,                                      0,SOSD_WIN1,0x000,  0,0,0,0 },
+             -        //0
+  79          
+  80          { 0, proc_demo_icon,            697, 424, ALIGN_CENTER,         &img_navi_demo,&img_navi_demo1,                 0,SOSD_WIN8,0x100,  6
+             -,2,3,2 },        //1     
+  81          { 0, proc_exit_icon,            750, 424, ALIGN_CENTER,         &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100, 
+             - 6,1,3,1 },        //2     
+  82          
+  83          { 0, proc_main_input,           149, 89,  ALIGN_CENTER,         &img_main_input,&img_main_input1,               0,SOSD_WIN8,0x100,  
+             -6,5,6,4 },        //3     
+  84          { 0, proc_main_audio,           350, 84,  ALIGN_CENTER,         &img_main_audio,&img_main_audio1,               0,SOSD_WIN8,0x100,  
+             -7,3,7,5 },        //4
+  85          { 0, proc_main_system,          544, 84,  ALIGN_CENTER,         &img_main_system,&img_main_system1,     0,SOSD_WIN8,0x100,  
+             -8,4,8,3 },        //5
+  86          { 0, proc_main_gps,             147, 242, ALIGN_CENTER,         &img_main_gps,&img_main_gps1,                   0,SOSD_WIN8,0x100,  3,8,
+             -2,7 },        //6   
+  87          { 0, proc_main_phone,           351, 243, ALIGN_CENTER,         &img_main_phone,&img_main_phone1,               0,SOSD_WIN8,0x100,  
+             -4,6,2,8 },        //7
+  88          { 0, proc_main_info,            551, 246, ALIGN_CENTER,         &img_main_carinfo,&img_main_carinfo1,   0,SOSD_WIN8,0x100
+             -,  5,7,2,6 }        //8
+  89          
+  90          };
+  91          struct menu_page_info_s menu_main_page = {      MENU_TYPE_NORMAL, 3,3, 3,6,     menu_main_page_items, NULL };                   
+  92          
+  93          
+  94          //==========================
+  95          // LEVEL 1 PAGE
+  96          //==========================
+  97          
+  98          //----------------------
+  99          // Source Select MENU
+ 100          //main->input(video)
+ 101          //----------------------
+ 102          //      cvbs svideo Ypbpr rgb dvi hdmi
+ 103          //
+ 104          //
+ 105          //
+ 106          //
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 3   
+
+ 107          //                                      return setting exit
+ 108          //------------------------------------------
+ 109          //description
+ 110          //background: use 8bit RLE. 128 Color. Use SOSD_WIN0
+ 111          //            color 1: transparent color. normally color 0 is a black.
+ 112          #ifdef SUPPORT_DVI
+              code struct menu_sitem_info_s menu_input_page_items[]= {                                                                                                        //  ^ < V >
+              { TYPE_BG, proc_input_bg,       0,414,  ALIGN_TOPLEFT,  &img_input_bg_bottom,NULL,                              0,SOSD_WIN1,0x000,  0,0,0,0 
+             - },        //bg_bottom:fixed
+              { TYPE_MBG, NULL,                       0,0,    ALIGN_TOPLEFT,  &img_input_bg_top,NULL,                                 0,SOSD_WIN2,0x000,  0,0,0,0  }, //bg_t
+             -op:move down
+              
+              { 0, proc_return_icon,          651,430,ALIGN_CENTER,   &img_input_return,&img_input_return1,   0,SOSD_WIN8,0x100,  ME
+             -NU_SRC_CVBS,MENU_SRC_EXIT,MENU_SRC_HDMI,MENU_SRC_SETTING },   //14 - 128
+              { 0, proc_input_setting,        695,422,ALIGN_CENTER,   &img_navi_setup,&img_navi_setup1,               0,SOSD_WIN8,0x100,  MENU
+             -_SRC_CVBS,MENU_SRC_RETURN, MENU_SRC_HDMI,MENU_SRC_EXIT },//15 - 128
+              { 0, proc_exit_icon,            750,423,ALIGN_CENTER,   &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  MENU_SR
+             -C_CVBS,MENU_SRC_SETTING, MENU_SRC_HDMI,MENU_SRC_RETURN  },//16 - 128
+              
+              { 0, proc_input_cvbs,           104,0,  ALIGN_CENTER,   &img_input_cvbs,&img_input_cvbs1,               0,SOSD_WIN8,0x100,  MENU_SR
+             -C_EXIT,MENU_SRC_BT656,MENU_SRC_RETURN,MENU_SRC_SVIDEO },      //2
+              { 0, proc_input_svideo,         184,2,  ALIGN_CENTER,   &img_input_svideo,&img_input_svideo1,   0,SOSD_WIN8,0x100,  ME
+             -NU_SRC_EXIT,MENU_SRC_CVBS,MENU_SRC_RETURN,MENU_SRC_YPBPR },   //4
+              { 0, proc_input_ypbpr,          276,0,  ALIGN_CENTER,   &img_input_ypbpr,&img_input_ypbpr1,             0,SOSD_WIN8,0x100,  MENU
+             -_SRC_EXIT,MENU_SRC_SVIDEO,MENU_SRC_RETURN,MENU_SRC_PC },      //6
+              { 0, proc_input_pc,                     365,1,  ALIGN_CENTER,   &img_input_pc,&img_input_pc1,                   0,SOSD_WIN8,0x100,  MENU_SRC_EX
+             -IT,MENU_SRC_YPBPR,MENU_SRC_RETURN,MENU_SRC_DVI },     //8
+              { 0, proc_input_dvi,            455,1,  ALIGN_CENTER,   &img_input_dvi,&img_input_dvi1,                 0,SOSD_WIN8,0x100,  MENU_SRC_
+             -EXIT,MENU_SRC_PC,MENU_SRC_RETURN,MENU_SRC_HDMI },     //10
+              { 0, proc_input_hdmi,           539,1,  ALIGN_CENTER,   &img_input_hdmi,&img_input_hdmi1,               0,SOSD_WIN8,0x100,  MENU_SR
+             -C_EXIT,MENU_SRC_DVI,MENU_SRC_RETURN,MENU_SRC_BT656 }, //12 need a disable option
+              { 0, proc_input_bt656,          633,3,  ALIGN_CENTER,   &img_input_ext,&img_input_ext1,                 0,SOSD_WIN8,0x100,  MENU_SR
+             -C_EXIT,MENU_SRC_HDMI,MENU_SRC_RETURN,MENU_SRC_CVBS }, //12 need a disable option
+              
+              //select
+              { 0, NULL,                                      104,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //cvbs - 
+             -max 128
+              { 0, NULL,                                      184,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //svideo 
+             -- max 128
+              { 0, NULL,                                      276,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //ypbpr -
+             - max 128
+              { 0, NULL,                                      365,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //pc - ma
+             -x 128
+              { 0, NULL,                                      455,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //dvi - m
+             -ax 128
+              { 0, NULL,                                      539,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //hdmi - 
+             -max 128
+              { 0, NULL,                                      633,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  } //ext - ma
+             -x 128
+              };
+              struct menu_page_info_s menu_input_page = {     MENU_TYPE_SCRLDN | MENU_TYPE_NOTE, 5,5, 5,7,    menu_input_page_i
+             -tems, NULL };        //auto focus    
+              #else
+ 140          code struct menu_sitem_info_s menu_input_page_items[]= {                                                                                                        //  ^ < V >
+ 141          { TYPE_BG, proc_input_bg,       0,414,  ALIGN_TOPLEFT,  &img_input_bg_bottom,NULL,                              0,SOSD_WIN1,0x000,  0,0,0,0 
+             - },        //bg_bottom:fixed
+ 142          { TYPE_MBG, NULL,                       0,0,    ALIGN_TOPLEFT,  &img_input_nodvi_bg_top,NULL,                   0,SOSD_WIN2,0x000,  0,0,0,0  }, //
+             -bg_top:move down
+ 143          
+ 144          { 0, proc_return_icon,          651,430,ALIGN_CENTER,   &img_input_return,&img_input_return1,   0,SOSD_WIN8,0x100,  ME
+             -NU_SRC_CVBS,MENU_SRC_EXIT,MENU_SRC_HDMI,MENU_SRC_SETTING },
+ 145          { 0, proc_input_setting,        695,422,ALIGN_CENTER,   &img_navi_setup,&img_navi_setup1,               0,SOSD_WIN8,0x100,  MENU
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 4   
+
+             -_SRC_CVBS,MENU_SRC_RETURN, MENU_SRC_HDMI,MENU_SRC_EXIT },
+ 146          { 0, proc_exit_icon,            750,423,ALIGN_CENTER,   &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  MENU_SR
+             -C_CVBS,MENU_SRC_SETTING, MENU_SRC_HDMI,MENU_SRC_RETURN  },
+ 147          
+ 148          { 0, proc_input_cvbs,           149,0,  ALIGN_CENTER,   &img_input_cvbs,&img_input_cvbs1,               0,SOSD_WIN8,0x100,  MENU_SR
+             -C_EXIT,MENU_SRC_BT656,MENU_SRC_RETURN,MENU_SRC_SVIDEO },      //2
+ 149          { 0, proc_input_svideo,         229,2,  ALIGN_CENTER,   &img_input_svideo,&img_input_svideo1,   0,SOSD_WIN8,0x100,  ME
+             -NU_SRC_EXIT,MENU_SRC_CVBS,MENU_SRC_RETURN,MENU_SRC_YPBPR },   //4
+ 150          { 0, proc_input_ypbpr,          321,0,  ALIGN_CENTER,   &img_input_ypbpr,&img_input_ypbpr1,             0,SOSD_WIN8,0x100,  MENU
+             -_SRC_EXIT,MENU_SRC_SVIDEO,MENU_SRC_RETURN,MENU_SRC_PC },      //6
+ 151          { 0, proc_input_pc,                     410,1,  ALIGN_CENTER,   &img_input_pc,&img_input_pc1,                   0,SOSD_WIN8,0x100,  MENU_SRC_EX
+             -IT,MENU_SRC_YPBPR,MENU_SRC_RETURN,MENU_SRC_HDMI },    //8
+ 152          { 0, proc_input_hdmi,           493,1,  ALIGN_CENTER,   &img_input_hdmi,&img_input_hdmi1,               0,SOSD_WIN8,0x100,  MENU_SR
+             -C_EXIT,MENU_SRC_PC,MENU_SRC_RETURN,MENU_SRC_BT656 }, //12 need a disable option
+ 153          { 0, proc_input_bt656,          587,3,  ALIGN_CENTER,   &img_input_ext,&img_input_ext1,                 0,SOSD_WIN8,0x100,  MENU_SR
+             -C_EXIT,MENU_SRC_HDMI,MENU_SRC_RETURN,MENU_SRC_CVBS }, //12 need a disable option
+ 154          
+ 155          //select
+ 156          { 0, NULL,                                      149,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //cvbs - 
+             -max 128
+ 157          { 0, NULL,                                      229,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //svideo 
+             -- max 128
+ 158          { 0, NULL,                                      321,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //ypbpr -
+             - max 128
+ 159          { 0, NULL,                                      410,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //pc - ma
+             -x 128
+ 160          { 0, NULL,                                      493,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  }, //hdmi - 
+             -max 128
+ 161          { 0, NULL,                                      587,54, ALIGN_CENTER,   &img_input_select,NULL,                                 0,SOSD_WIN3,0x000,  0,0,0,0  } //ext - ma
+             -x 128
+ 162          };
+ 163          struct menu_page_info_s menu_input_page = {     MENU_TYPE_SCRLDN | MENU_TYPE_NOTE, 5,5, 5,6,    menu_input_page_i
+             -tems, NULL };        //auto focus    
+ 164          #endif
+ 165          
+ 166          
+ 167          //----------------------
+ 168          //menu_audio_page
+ 169          //main->audio
+ 170          //------------------------------------------
+ 171          //description
+ 172          code struct menu_sitem_info_s menu_audio_page_items[] = {
+ 173          { TYPE_BG,proc_audio_bg,        0,0,    ALIGN_TOPLEFT,  &img_audio_bg,NULL,                                             0,SOSD_WIN1,0x000,  0,0,0,0},
+ 174          { 0,proc_return_icon,           697,423,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x100,  2,2
+             -,2,2},
+ 175          { 0,proc_exit_icon,                     750,423,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  1,1,1,
+             -1}
+ 176          };        
+ 177          struct menu_page_info_s menu_audio_page = { MENU_TYPE_NORMAL,1,1, 3,0,  menu_audio_page_items, NULL };          
+ 178          
+ 179          
+ 180          //----------------------
+ 181          // system setup MENU
+ 182          //main->system
+ 183          //----------------------
+ 184          //------------------------------------------
+ 185          //description
+ 186          code struct menu_sitem_info_s menu_system_page_items[] = {                                                                                                              //  ^ < V >
+ 187          { TYPE_BG,      proc_system_bg, 0,417,  ALIGN_TOPLEFT,  &img_system_bg_bottom,NULL,                                     0,SOSD_WIN1,0x000,  0,0,0
+             -,0},
+ 188          { TYPE_MBG, NULL,                       0,0,    ALIGN_TOPLEFT,  &img_system_bg_top,NULL,                                        0,SOSD_WIN2,0x000,  0,0,0,0},
+ 189          
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 5   
+
+ 190          { 0, proc_return_icon,          697,426,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,                     0,SOSD_WIN8,0x100,  4
+             -,3,8,3},        //2
+ 191          { 0, proc_exit_icon,            750,426,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,                       0,SOSD_WIN8,0x100,  4,2,8
+             -,2},        //3
+ 192          
+ 193          { 0, proc_system_touch,         173,4,  ALIGN_TOPLEFT,  &img_system_touch,&img_system_touch1,           0,SOSD_WIN8,0x100, 
+             - 2,8,2,5},        //4      need a disabled option
+ 194          { 0, proc_system_display,       272,2,  ALIGN_TOPLEFT,  &img_system_display,&img_system_display1,       0,SOSD_WIN8,0x10
+             -0,  2,4,2,6},        //5
+ 195          { 0, proc_system_btooth,        371,3,  ALIGN_TOPLEFT,  &img_system_btooth,&img_system_btooth1,         0,SOSD_WIN8,0x100
+             -,  2,5,2,7},        //6
+ 196          { 0, proc_system_restore,       473,5,  ALIGN_TOPLEFT,  &img_system_restore,&img_system_restore1,       0,SOSD_WIN8,0x10
+             -0,  2,6,2,8},        //7
+ 197          { 0, proc_system_info,          573,3,  ALIGN_TOPLEFT,  &img_system_sys_info,&img_system_sys_info1,     0,SOSD_WIN8,0x10
+             -0,  2,7,2,4}        //8
+ 198          };
+ 199          struct menu_page_info_s menu_system_page = { MENU_TYPE_SCRLDN, 4,4, 4,5,        menu_system_page_items, NULL };         
+ 200          
+ 201          
+ 202          //------------------------------------------
+ 203          //menu_gps_page
+ 204          //main->gps
+ 205          //------------------------------------------
+ 206          //description
+ 207          code struct menu_sitem_info_s menu_gps_page_items[] = {
+ 208          { TYPE_BG,proc_gps_bg,          0,0,    ALIGN_TOPLEFT,  &img_gps_bg,NULL,                                               0,SOSD_WIN1,0x000,  0,0,0,0},
+ 209          { 0,proc_return_icon,           696,423,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x0C0,  2,2
+             -,2,2},
+ 210          { 0,proc_exit_icon,                     749,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x0C0,  1,1,1,
+             -1}
+ 211          };        
+ 212          struct menu_page_info_s menu_gps_page = { MENU_TYPE_NORMAL, 1,1, 3,0,   menu_gps_page_items, NULL };            
+ 213          
+ 214          
+ 215          //------------------------------------------
+ 216          //menu_phone_page
+ 217          //main->phone
+ 218          //------------------------------------------
+ 219          //description
+ 220          code struct menu_sitem_info_s menu_phone_page_items[] = {
+ 221          { TYPE_BG,proc_phone_bg,        0,0,    ALIGN_TOPLEFT,  &img_phone_bg,NULL,                                             0,SOSD_WIN1,0x000,  0,0,0,0},
+ 222          
+ 223          { 0,proc_phone_return,          698,423, ALIGN_TOPLEFT, &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x0C0,  3
+             -,25,2,2},        //1
+ 224          { 0,proc_exit_icon,                     749,423,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x0C0,  3,1,1,
+             -21},        //2
+ 225          
+ 226          { 0,proc_phone_1,                        70, 90,ALIGN_TOPLEFT,  &img_phone_10,&img_phone_11,                    0,SOSD_WIN8,0x0C0,  1,5,6,4},   //
+             -3
+ 227          { 0,proc_phone_2,                       150, 90,ALIGN_TOPLEFT,  &img_phone_20,&img_phone_21,                    0,SOSD_WIN8,0x0C0,  1,3,7,5},   //
+             -4
+ 228          { 0,proc_phone_3,                       230, 90,ALIGN_TOPLEFT,  &img_phone_30,&img_phone_31,                    0,SOSD_WIN8,0x0C0,  1,4,8,3},   //
+             -5
+ 229          
+ 230          { 0,proc_phone_4,                        70,145,ALIGN_TOPLEFT,  &img_phone_40,&img_phone_41,                    0,SOSD_WIN8,0x0C0,  3,8,9,7},   //
+             -6
+ 231          { 0,proc_phone_5,                       150,145,ALIGN_TOPLEFT,  &img_phone_50,&img_phone_51,                    0,SOSD_WIN8,0x0C0,  4,6,10,8},  /
+             -/7
+ 232          { 0,proc_phone_6,                       230,145,ALIGN_TOPLEFT,  &img_phone_60,&img_phone_61,                    0,SOSD_WIN8,0x0C0,  5,7,11,6},  /
+             -/8
+ 233          
+ 234          { 0,proc_phone_7,                        70,200,ALIGN_TOPLEFT,  &img_phone_70,&img_phone_71,                    0,SOSD_WIN8,0x0C0,  6,11,12,10},
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 6   
+
+             -//9
+ 235          { 0,proc_phone_8,                       150,200,ALIGN_TOPLEFT,  &img_phone_80,&img_phone_81,                    0,SOSD_WIN8,0x0C0,  7,9,13,11}, 
+             -//10
+ 236          { 0,proc_phone_9,                       230,200,ALIGN_TOPLEFT,  &img_phone_90,&img_phone_91,                    0,SOSD_WIN8,0x0C0,  8,10,14,19},
+             -//11
+ 237          
+ 238          { 0,proc_phone_star,             70,255,ALIGN_TOPLEFT,  &img_phone_star0,&img_phone_star1,              0,SOSD_WIN8,0x0C0,  9,14,
+             -15,13},//12
+ 239          { 0,proc_phone_0,                       149,255,ALIGN_TOPLEFT,  &img_phone_00,&img_phone_01,                    0,SOSD_WIN8,0x0C0,  10,12,15,14}
+             -,//13
+ 240          { 0,proc_phone_sharp,           230,255,ALIGN_TOPLEFT,  &img_phone_sharp0,&img_phone_sharp1,    0,SOSD_WIN8,0x0C0,  11,
+             -13,15,12},//14
+ 241          
+ 242          { 0,proc_phone_dial,             70,315,ALIGN_TOPLEFT,  &img_phone_dial0,&img_phone_dial1,              0,SOSD_WIN8,0x0C0,  13,20
+             -,21,16},//15
+ 243          
+ 244          { 0,proc_phone_up,                      351,315,ALIGN_TOPLEFT,  &img_phone_up0,&img_phone_up1,                  0,SOSD_WIN8,0x0C0,  1,15,1,17
+             -},        //16
+ 245          { 0,proc_phone_down,            431,315,ALIGN_TOPLEFT,  &img_phone_down0,&img_phone_down1,              0,SOSD_WIN8,0x0C0,  1,16,
+             -1,18},        //17
+ 246          { 0,proc_phone_check,           511,315,ALIGN_TOPLEFT,  &img_phone_check0,&img_phone_check1,    0,SOSD_WIN8,0x0C0,  1,1
+             -7,1,19},        //18
+ 247          { 0,proc_phone_left,            591,315,ALIGN_TOPLEFT,  &img_phone_left0,&img_phone_left1,              0,SOSD_WIN8,0x0C0,  1,18,
+             -1,20},        //19
+ 248          { 0,proc_phone_right,           671,315,ALIGN_TOPLEFT,  &img_phone_right0,&img_phone_right1,    0,SOSD_WIN8,0x0C0,  1,1
+             -9,1,15},        //20
+ 249          
+ 250          { 0,proc_phone_help,             15,422,ALIGN_TOPLEFT,  &img_phone_help0,&img_phone_help1,              0,SOSD_WIN8,0x0C0,  15,2,
+             -3,22},        //21
+ 251          { 0,proc_phone_dir,                     123,422,ALIGN_TOPLEFT,  &img_phone_dir0,&img_phone_dir1,                0,SOSD_WIN8,0x0C0,  15,21,3
+             -,23},//22
+ 252          { 0,proc_phone_set,                     263,422,ALIGN_TOPLEFT,  &img_phone_set0,&img_phone_set1,                0,SOSD_WIN8,0x0C0,  15,22,3
+             -,24},//23
+ 253          { 0,proc_phone_msg,                     403,422,ALIGN_TOPLEFT,  &img_phone_msg0,&img_phone_msg1,                0,SOSD_WIN8,0x0C0,  15,23,3
+             -,25},//24
+ 254          { 0,proc_phone_menu,            543,422,ALIGN_TOPLEFT,  &img_phone_menu0,&img_phone_menu1,              0,SOSD_WIN8,0x0C0,  15,24
+             -,3,1}        //25
+ 255          
+ 256          };        
+ 257          code struct menu_fitem_info_s menu_phone_text_items[] = {
+ 258          //      { 0,0,  520-220,324-260,        10,2, 0,0,      0xF0,    16,0x07E0      },
+ 259          //      { 0,0,  396,163,        10,2, 0,0,      0xF0,    16,0x07E0      },
+ 260                  { 0,0,  396,163,        15,2, 0,0,      0x1A,    16,0x07E0      },      //win0,osdram0~29
+ 261                  { 1,40, 396,241,        15,1, 0,0,      0x1A,    16,0x07E0      },      //win1,osdram40~69
+ 262          };
+ 263          struct menu_page_info_s menu_phone_page = { MENU_TYPE_NORMAL, 1,1, 3,23,        menu_phone_page_items, menu_phone
+             -_text_items };                
+ 264          
+ 265          
+ 266          
+ 267          
+ 268          //------------------------------------------
+ 269          //menu_car_info_page
+ 270          //main->car_info
+ 271          //------------------------------------------
+ 272          //description
+ 273          code struct menu_sitem_info_s menu_carinfo_page_items[] = {
+ 274          { TYPE_BG,proc_carinfo_bg,      0,0,    ALIGN_TOPLEFT,  &img_carinfo_bg,NULL,                                   0,SOSD_WIN1,0x000,  0,0,0,0},
+ 275          { 0,proc_return_icon,           697,423,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x0C0,  2,2
+             -,2,2},
+ 276          { 0,proc_exit_icon,                     748,423,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x0C0,  1,1,1,
+             -1}
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 7   
+
+ 277          };        
+ 278          struct menu_page_info_s menu_carinfo_page = { MENU_TYPE_NORMAL, 1,1, 3,0,       menu_carinfo_page_items, NULL };
+             -                
+ 279          
+ 280          //------------------------------------------
+ 281          //menu_demo_page
+ 282          //main->demo
+ 283          //test 4BPP RLE
+ 284          //------------------------------------------
+ 285          //proc_pigeon_demo_start
+ 286          code struct menu_sitem_info_s menu_demo_page_items[] = {                                                                                                   //  ^ < V >
+ 287          { TYPE_BG,proc_demo_bg,         0,0,    ALIGN_TOPLEFT,  &img_demo_bg,NULL,                                                      0,SOSD_WIN1,0x000,  0,0,0,0},
+ 288          
+ 289          { 0,proc_return_icon,           701,425,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return,                      0,SOSD_WIN8,0x100,  6,2
+             -,3,2}, //1
+ 290          { 0,proc_exit_icon,                     752,426,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,                       0,SOSD_WIN8,0x100,  6,1,3
+             -,1}, //2
+ 291          
+ 292          { 0,proc_grid_demo_start,       149,90,ALIGN_TOPLEFT,   &img_demo_grid,&img_demo_grid1,                         0,SOSD_WIN8,0x100,  6,5
+             -,6,4}, //3
+ 293          { 0,proc_rose_demo_start,       344,89,ALIGN_TOPLEFT,   &img_demo_rose,&img_demo_rose1,                         0,SOSD_WIN8,0x100,  7,3
+             -,7,5}, //4
+ 294          { 0,proc_wait_demo_start,       559,90,ALIGN_TOPLEFT,   &img_demo_ani,&img_demo_ani1,                           0,SOSD_WIN8,0x100,  8,4,8
+             -,3}, //5
+ 295          { 0,proc_test1_demo_start,      147,242,ALIGN_TOPLEFT,  &img_demo_palette,&img_demo_palette1,           0,SOSD_WIN8,0x100
+             -,  3,8,2,7}, //6
+ 296          { 0,proc_test1_demo_start,      351,243,ALIGN_TOPLEFT,  &img_demo_demoA,&img_demo_demoA1,                       0,SOSD_WIN8,0x100,  
+             -4,6,2,8}, //7
+ 297          { 0,proc_test1_demo_start,      551,246,ALIGN_TOPLEFT,  &img_demo_demoB,&img_demo_demoB1,                       0,SOSD_WIN8,0x100,  
+             -5,7,2,6}  //8
+ 298          };        
+ 299          struct menu_page_info_s menu_demo_page = { MENU_TYPE_NORMAL, 3,3, 3,6,  menu_demo_page_items, NULL };           
+ 300          
+ 301          
+ 302          //------------------------
+ 303          // level 2 page
+ 304          //------------------------
+ 305          
+ 306          
+ 307          
+ 308          //----------------------
+ 309          //touch calibration page
+ 310          //main->setting->touch
+ 311          //----------------------
+ 312          code struct menu_sitem_info_s menu_touch_page_items[]= {                                                                                                 //  ^ < V >
+ 313          { TYPE_BG, proc_touch_bg,       0,0,    ALIGN_TOPLEFT,          &img_touch_bg,NULL,                                             0,SOSD_WIN1,0x000,  0,0,0,0},
+ 314          { TYPE_BG, proc_touch_bg_end,0,0,       ALIGN_TOPLEFT,          &img_touch_bg_end,NULL,                                 0,SOSD_WIN1,0x000,  0,0,0,0}
+             -,
+ 315          
+ 316          { 0, proc_touch_ok,                     312,329,ALIGN_TOPLEFT,          &img_dialog_ok,&img_dialog_ok1,                 0,SOSD_WIN8,0x100,  3,3,3,
+             -3},//2
+ 317          { 0, proc_touch_cancel,         386,329,ALIGN_TOPLEFT,          &img_dialog_cancel,&img_dialog_cancel1, 0,SOSD_WIN8,0x100
+             -,  2,2,2,2},//3
+ 318          
+ 319          { 0, proc_touch_button1,        80-10,48-9,     ALIGN_TOPLEFT,  &img_touch_button,&img_touch_button1,   0,SOSD_WIN8,0x08
+             -0,  5,5,5,5},//4
+ 320          { 0, proc_touch_button2,        720-10,48-9,ALIGN_TOPLEFT,      &img_touch_button,&img_touch_button1,   0,SOSD_WIN8,0x08
+             -0,  6,6,6,6},//5
+ 321          { 0, proc_touch_button3,        720-10,432-9,ALIGN_TOPLEFT,     &img_touch_button,&img_touch_button1,   0,SOSD_WIN8,0x0
+             -80,  7,7,7,7},//6
+ 322          { 0, proc_touch_button4,        80-10,432-9,ALIGN_TOPLEFT,      &img_touch_button,&img_touch_button1,   0,SOSD_WIN8,0x08
+             -0,  8,8,8,8},//7
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 8   
+
+ 323          { 0, proc_touch_button5,        400-10,240-9,ALIGN_TOPLEFT,     &img_touch_button,&img_touch_button1,   0,SOSD_WIN8,0x0
+             -80,  2,2,2,2} //8
+ 324          };
+ 325          struct menu_page_info_s menu_touch_page = { MENU_TYPE_NORMAL, 4,4, 4,5, menu_touch_page_items, NULL };          
+ 326          
+ 327          
+ 328          
+ 329          //==========================
+ 330          // LIST MENU
+ 331          //==========================
+ 332          
+ 333          //----------------------
+ 334          // internal decoder image Select MENU
+ 335          //manu->input->setting with CVBS or SVideo
+ 336          //----------------------
+ 337          //                                      return setting exit
+ 338          // Brightness
+ 339          // Contrast
+ 340          // Hue
+ 341          // Saturation
+ 342          // Sharpness
+ 343          //
+ 344          //------------------------------------------
+ 345          //description
+ 346          //use global input
+ 347          //background: use 8bit RLE. 128 Color. Use SOSD_WIN0
+ 348          //            color 1: transparent color. normally color 0 is a black.
+ 349          code struct menu_sitem_info_s menu_yuv_list_page_items[]= {                                                                                       //  ^ < V >
+ 350          { TYPE_BG, proc_yuv_list_bg,    620,420,ALIGN_TOPLEFT,  &img_navi_menu,NULL,                                    0,SOSD_WIN2,0x180,  0,0,0,0},
+             -//0
+ 351          { TYPE_MBG, NULL,                               0,0,    ALIGN_TOPLEFT,  &img_yuv_menu_bg,NULL,                                  0,SOSD_WIN1,0x000,  0,0,0,0},//1
+ 352          
+ 353          { 0, proc_menu_list_return,             623,424,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x100
+             -,  5,4,9,3},//2
+ 354          { 0, proc_home_icon,                    682,424,ALIGN_TOPLEFT,  &img_navi_home,&img_navi_home1,                 0,SOSD_WIN8,0x100,  5,2,9,
+             -4},//3
+ 355          { 0, proc_exit_icon,                    743,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  5,3,9
+             -,2},//4
+ 356          
+ 357          { 0, proc_yuv_list_bright,              0,61,   ALIGN_TOPLEFT,  &img_yuv_bright,&img_yuv_bright1,               0,SOSD_WIN8,0x100,  9,
+             -2,6,2},//5
+ 358          { 0, proc_yuv_list_contrast,    0,133,  ALIGN_TOPLEFT,  &img_yuv_contrast,&img_yuv_contrast1,   0,SOSD_WIN8,0x100
+             -,  5,2,7,2},//6
+ 359          { 0, proc_yuv_list_hue,                 0,205,  ALIGN_TOPLEFT,  &img_yuv_hue,&img_yuv_hue1,                             0,SOSD_WIN8,0x100,  6,2,8,2
+             -},//7
+ 360          { 0, proc_yuv_list_saturate,    0,277,  ALIGN_TOPLEFT,  &img_yuv_saturate,&img_yuv_saturate1,   0,SOSD_WIN8,0x100
+             -,  7,2,9,2},//8
+ 361          { 0, proc_yuv_list_sharp,               0,349,  ALIGN_TOPLEFT,  &img_yuv_sharp,&img_yuv_sharp1,                 0,SOSD_WIN8,0x100,  8,2
+             -,5,2} //9
+ 362          };
+ 363          struct menu_page_info_s menu_yuv_list_page = { MENU_TYPE_LIST, 5,5, 5,5,        menu_yuv_list_page_items, NULL };
+             -                
+ 364          
+ 365          
+ 366          code struct menu_sitem_info_s menu_rgb_list_page_items[]= {                                                                                     //  ^ < V >
+ 367          { TYPE_BG, proc_rgb_list_bg,    620,420,ALIGN_TOPLEFT,  &img_navi_menu,NULL,                                    0,SOSD_WIN2,0x180,  0,0,0,0},
+ 368          { TYPE_MBG, NULL,                               0,0,    ALIGN_TOPLEFT,  &img_rgb_menu_bg,NULL,                                  0,SOSD_WIN1,0x000,  0,0,0,0},
+ 369          
+ 370          { 0, proc_menu_list_return,             623,424,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x100
+             -,  5,4,7,3},//2
+ 371          { 0, proc_home_icon,                    682,424,ALIGN_TOPLEFT,  &img_navi_home,&img_navi_home1,                 0,SOSD_WIN8,0x100,  5,2,7,
+             -4},//3
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 9   
+
+ 372          { 0, proc_exit_icon,                    743,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  5,3,7
+             -,2},//4
+ 373          
+ 374          { 0, proc_rgb_list_bright,              0,61,   ALIGN_TOPLEFT,  &img_rgb_bright,&img_rgb_bright1,               0,SOSD_WIN8,0x100,  7,
+             -2,6,2},//5
+ 375          { 0, proc_rgb_list_contrast,    0,181,  ALIGN_TOPLEFT,  &img_rgb_contrast,&img_rgb_contrast1,   0,SOSD_WIN8,0x100
+             -,  5,2,7,2},//6
+ 376          { 0, proc_rgb_list_color,               0,301,  ALIGN_TOPLEFT,  &img_rgb_color,&img_rgb_color1,                 0,SOSD_WIN8,0x100,  6,2
+             -,5,2} //7
+ 377          };
+ 378          struct menu_page_info_s menu_rgb_list_page = { MENU_TYPE_LIST, 5,5, 5,3,        menu_rgb_list_page_items, NULL };
+             -                
+ 379          
+ 380          //----------------------
+ 381          // ADC image Select MENU
+ 382          //manu->input->setting with RGB or HDMI
+ 383          //----------------------
+ 384          //                                      return setting exit
+ 385          // R Gain
+ 386          // G Gain
+ 387          // B Gain
+ 388          // Phase
+ 389          //
+ 390          //------------------------------------------
+ 391          //description
+ 392          //use global input
+ 393          //background: use 8bit RLE. 128 Color. Use SOSD_WIN0
+ 394          //            color 1: transparent color. normally color 0 is a black.
+ 395          
+ 396          
+ 397          code struct menu_sitem_info_s menu_apc_list_page_items[]= {                                                                                     //  ^ < V >
+ 398          { TYPE_BG, proc_apc_list_bg,    620,420,ALIGN_TOPLEFT,  &img_navi_menu,NULL,                                    0,SOSD_WIN2,0x180,  0,0,0,0},
+             -//0
+ 399          { TYPE_MBG, NULL,                               0,0,    ALIGN_TOPLEFT,  &img_apc_menu_bg,NULL,                                  0,SOSD_WIN1,0x000,  0,0,0,0},//1
+ 400          
+ 401          { 0, proc_menu_list_return,             623,424,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x100
+             -,  5,4,12,3},//2
+ 402          { 0, proc_home_icon,                    682,424,ALIGN_TOPLEFT,  &img_navi_home,&img_navi_home1,                 0,SOSD_WIN8,0x100,  5,2,12
+             -,4},//3
+ 403          { 0, proc_exit_icon,                    743,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  5,3,1
+             -2,2},//4
+ 404          
+ 405          { 0, proc_apc_list_bright,              0,61,   ALIGN_TOPLEFT,  &img_apc_bright,&img_apc_bright1,               0,SOSD_WIN8,0x100,  12
+             -,2,6,2},//5
+ 406          { 0, proc_apc_list_contrast,    0,106,  ALIGN_TOPLEFT,  &img_apc_contrast,&img_apc_contrast1,   0,SOSD_WIN8,0x100
+             -,  5,2,7,2}, //6
+ 407          { 0, proc_apc_list_color,               0,151,  ALIGN_TOPLEFT,  &img_apc_color,&img_apc_color1,                 0,SOSD_WIN8,0x100,  6,2
+             -,8,2}, //7
+ 408          { 0, proc_apc_list_position,    0,196,  ALIGN_TOPLEFT,  &img_apc_position,&img_apc_position1,   0,SOSD_WIN8,0x100
+             -,  7,2,9,2}, //8
+ 409          { 0, proc_apc_list_phase,               0,241,  ALIGN_TOPLEFT,  &img_apc_phase,&img_apc_phase1,                 0,SOSD_WIN8,0x100,  8,2
+             -,10,2}, //9
+ 410          { 0, proc_apc_list_clock,               0,286,  ALIGN_TOPLEFT,  &img_apc_pclock,&img_apc_pclock1,               0,SOSD_WIN8,0x100,  9,
+             -2,11,2},//10
+ 411          { 0, proc_apc_list_autoadj,             0,331,  ALIGN_TOPLEFT,  &img_apc_autoadj,&img_apc_autoadj1,             0,SOSD_WIN8,0x100,
+             -  10,2,12,2},//11
+ 412          { 0, proc_apc_list_autocolor,   0,376,  ALIGN_TOPLEFT,  &img_apc_autocolor,&img_apc_autocolor1, 0,SOSD_WIN8,0x
+             -100,  11,2,5,2} //12
+ 413          };
+ 414          struct menu_page_info_s menu_apc_list_page = { MENU_TYPE_LIST,  5,5, 5,8,       menu_apc_list_page_items, NULL };
+             -                
+ 415          
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 10  
+
+ 416          
+ 417          
+ 418          
+ 419          code struct menu_sitem_info_s menu_hdmi_list_page_items[]= {                                                                                    //  ^ < V >
+ 420          { TYPE_BG, proc_hdmi_list_bg,   620,420,ALIGN_TOPLEFT,  &img_navi_menu,NULL,                                    0,SOSD_WIN2,0x180,  0,0,0,0}
+             -,
+ 421          { TYPE_MBG, NULL,                               0,0,    ALIGN_TOPLEFT,  &img_hdmi_menu_bg,NULL,                                 0,SOSD_WIN1,0x000,  0,0,0,0},
+ 422          
+ 423          { 0, proc_menu_list_return,             623,424,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,             0,SOSD_WIN8,0x100
+             -,  5,4,6,3},//2
+ 424          { 0, proc_home_icon,                    682,424,ALIGN_TOPLEFT,  &img_navi_home,&img_navi_home1,                 0,SOSD_WIN8,0x100,  5,2,6,
+             -4},//3
+ 425          { 0, proc_exit_icon,                    743,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  5,3,6
+             -,2}, //4
+ 426          
+ 427          { 0, proc_hdmi_list_mode,               0,61,   ALIGN_TOPLEFT,  &img_hdmi_mode,&img_hdmi_mode1,                 0,SOSD_WIN8,0x100,  6,2,
+             -6,2},//5
+ 428          { 0, proc_hdmi_list_setting,    0,241,  ALIGN_TOPLEFT,  &img_hdmi_setting,&img_hdmi_setting1,   0,SOSD_WIN8,0x100
+             -,  5,2,5,2} //6
+ 429          
+ 430          };
+ 431          struct menu_page_info_s menu_hdmi_list_page = { MENU_TYPE_LIST, 5,5, 5,2,       menu_hdmi_list_page_items, NULL 
+             -};                
+ 432          
+ 433          #if 0
+              //manu->input->setting with RGB/HDMI->color
+              //code struct menu_sitem_info_s menu_hdmipc_list_page_items[]= {                                                                                 // ^ < V >
+              //      { 2, proc_hdmipc_list_bg,               650,430,ALIGN_TOPLEFT,  &img_navi_menu,                 0,SOSD_WIN2,0x1C0,  0,0,0,0},
+              //      { 3, NULL,                                              0,0,    ALIGN_TOPLEFT,  &img_hdmipc_menu_bg,    0,SOSD_WIN1,0x000,  0,0,0,0},
+              //  
+              //      { 0, proc_menu_list_return,             650,431,ALIGN_TOPLEFT,  &img_navi_return,               0,SOSD_WIN8,0x100,  5,4,7,3},//2
+              //      { 0, proc_home_icon,                    701,429,ALIGN_TOPLEFT,  &img_navi_home,                 0,SOSD_WIN8,0x100,  5,2,7,4},//3
+              //      { 0, proc_exit_icon,                    755,430,ALIGN_TOPLEFT,  &img_navi_close,                0,SOSD_WIN8,0x100,  5,3,7,2}, //4
+              //  
+              //      { 0, proc_hdmipc_list_bright,   16,88,  ALIGN_TOPLEFT,  &img_hdmipc_bright,             0,SOSD_WIN8,0x100,  7,2,6,2},/
+             -/5
+              //      { 0, proc_hdmipc_list_contrast, 27,178, ALIGN_TOPLEFT,  &img_hdmipc_contrast,   0,SOSD_WIN8,0x100,  5,2,7,
+             -2},//6
+              //      { 0, proc_hdmipc_list_phase,    36,268, ALIGN_TOPLEFT,  &img_hdmipc_phase,              0,SOSD_WIN8,0x100,  6,2,5,2} //
+             -7
+              //
+              //};
+              //struct menu_page_info_s menu_hdmipc_list_page = { MENU_TYPE_LIST, 5,5, 5,3,   menu_hdmipc_list_page_items,
+             - NULL };                
+              #endif
+ 450          
+ 451          //----------------------
+ 452          //ImageEnhanced block image on the Back-End
+ 453          //main->setting->display
+ 454          //----------------------
+ 455          //                                      
+ 456          //
+ 457          //
+ 458          //
+ 459          // 
+ 460          //
+ 461          //------------------------------------------
+ 462          //description
+ 463          code struct menu_sitem_info_s menu_display_page_items[]= {                                                                                                                              //  ^ < V >
+ 464          { TYPE_BG, proc_display_bg,             620,420,ALIGN_TOPLEFT,  &img_navi_menu,NULL,                                                    0,SOSD_WIN2,0x180,  0,0,0,0
+             -},
+ 465          { TYPE_MBG, NULL,                               0,0,    ALIGN_TOPLEFT,  &img_display_bg,NULL,                                                   0,SOSD_WIN1,0x000,  0,0,0,0},
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 11  
+
+ 466          
+ 467          { 0, proc_menu_list_return,             623,424,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,                             0,SOSD_WIN8,0x1
+             -00,  5,4,9,3},//2
+ 468          { 0, proc_home_icon,                    682,424,ALIGN_TOPLEFT,  &img_navi_home,&img_navi_home1,                                 0,SOSD_WIN8,0x100,  5,2,
+             -9,4},//3
+ 469          { 0, proc_exit_icon,                    743,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,                               0,SOSD_WIN8,0x100,  5,3
+             -,9,2},//4
+ 470          
+ 471          { 0, proc_display_aspect,               0,61,   ALIGN_TOPLEFT,  &img_display_aspect,&img_display_aspect1,               0,SOSD_WIN8,0x1
+             -00,  8,2,6,2},//5
+ 472          { 0, proc_display_flip,                 0,134,  ALIGN_TOPLEFT,  &img_display_flip,&img_display_flip1,                   0,SOSD_WIN8,0x100,
+             -  5,2,7,2},//6
+ 473          { 0, proc_display_osd,                  0,205,  ALIGN_TOPLEFT,  &img_display_osd,&img_display_osd1,                             0,SOSD_WIN8,0x100,  
+             -6,2,8,2},//7
+ 474          { 0, proc_display_backlight,    0,277,  ALIGN_TOPLEFT,  &img_display_backlight,&img_display_backlight1, 0,SOSD_
+             -WIN8,0x100,  7,2,9,2},//8
+ 475          { 0, proc_display_resolution,   0,349,  ALIGN_TOPLEFT,  &img_display_resolution,&img_display_resolution1,0,SOS
+             -D_WIN8,0x100,  8,2,5,2} //9
+ 476          };
+ 477          struct menu_page_info_s menu_display_page = { MENU_TYPE_LIST, 5,5, 5,5, menu_display_page_items, NULL };                
+ 478          
+ 479          
+ 480          
+ 481          //----------------------
+ 482          // main->system->display->OSD MENU
+ 483          //----------------------
+ 484          //                                      
+ 485          //
+ 486          //
+ 487          //
+ 488          // 
+ 489          //
+ 490          //------------------------------------------
+ 491          //description
+ 492          code struct menu_sitem_info_s menu_osd_page_items[] = {                                                                                                         //  ^ < V >
+ 493          { TYPE_BG,proc_osd_bg,          620,420,ALIGN_TOPLEFT,  &img_navi_menu,NULL,                            0,SOSD_WIN2,0x180,  0,0,0,0},
+ 494          { TYPE_MBG,NULL,                        0,0,    ALIGN_TOPLEFT,  &img_osd_bg,NULL,                                       0,SOSD_WIN1,0x000,  0,0,0,0},
+ 495          
+ 496          { 0,proc_menu_list_return,      623,424,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,     0,SOSD_WIN8,0x100,  
+             -5,4,6,3},//2
+ 497          { 0,proc_home_icon,                     682,424,ALIGN_TOPLEFT,  &img_navi_home,&img_navi_home1,         0,SOSD_WIN8,0x100,  5,2,6,4}
+             -,//3
+ 498          { 0,proc_exit_icon,                     743,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,       0,SOSD_WIN8,0x100,  5,3,6,2
+             -},//4
+ 499                                                                                                                                                                                                                  
+ 500          { 0,proc_osd_time,                      0,61,   ALIGN_TOPLEFT,  &img_osd_timer,NULL,                            0,SOSD_WIN8,0x100,  6,2,6,2},//5
+ 501          { 0,proc_osd_trans,                     0,241,  ALIGN_TOPLEFT,  &img_osd_trans,NULL,                            0,SOSD_WIN8,0x100,  5,2,5,2} //6
+ 502          };
+ 503          struct menu_page_info_s menu_osd_page = { MENU_TYPE_LIST, 5,5, 5,2,     menu_osd_page_items, NULL };            
+ 504          
+ 505          
+ 506          
+ 507          //======================================
+ 508          // DIALOG
+ 509          //======================================
+ 510          //manu->input->setting with DVI
+ 511          code struct menu_sitem_info_s menu_dvi_mode_page_items[]= {                                                                                                             // ^ < V >
+ 512          { TYPE_BG, proc_dvi_mode_bg,220,220,ALIGN_TOPLEFT,      &img_dvi_mode_bg,NULL,                                          0,SOSD_WIN1,0x000,  0,0,0,0
+             -},
+ 513          
+ 514          { 0, proc_dvi_mode_ok,          306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x100,  3,2,
+             -4,2},//1
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 12  
+
+ 515          { 0, proc_dvi_mode_cancel,      381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,         0,SOSD_WIN8,0x1
+             -00,  3,1,4,1},//2
+ 516          
+ 517          { 0, proc_dvi_mode_24bit,       285,328,ALIGN_TOPLEFT,  &img_dvi_mode_24bit,&img_dvi_mode_24bit1,       0,SOSD_WIN8,0x1
+             -00,  1,4,1,4},//3
+ 518          { 0, proc_dvi_mode_16bit,       436,327,ALIGN_TOPLEFT,  &img_dvi_mode_16bit,&img_dvi_mode_16bit1,       0,SOSD_WIN8,0x1
+             -00,  1,3,1,3},//4
+ 519          //select
+ 520          { 0, NULL,                                      296,273,ALIGN_TOPLEFT,  &img_dvi_mode_select24,NULL,                            0,SOSD_WIN2,0x180,  0,0,0,0},//3+2 
+ 521          { 0, NULL,                                      445,274,ALIGN_TOPLEFT,  &img_dvi_mode_select16,NULL,                            0,SOSD_WIN2,0x180,  0,0,0,0} //4+2 
+ 522          };
+ 523          struct menu_page_info_s menu_dvi_mode_page = { MENU_TYPE_DIALOG | MENU_TYPE_NOTE, 3,3, 3,2,     menu_dvi_mode_
+             -page_items, NULL };           
+ 524          
+ 525          
+ 526          //manu->input->setting with HDMI
+ 527          code struct menu_sitem_info_s menu_hdmi_mode_page_items[]= {                                                                                                                            //  ^ < V >
+ 528          { TYPE_BG, proc_hdmi_mode_bg,   220,220,ALIGN_TOPLEFT,  &img_hdmi_mode_bg,NULL,                                         0,SOSD_WIN1,0x000,  0,0,
+             -0,0},
+ 529          
+ 530          { 0, proc_hdmi_mode_ok,                 306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x100,  3,
+             -2,4,2},//1
+ 531          { 0, proc_hdmi_mode_cancel,             381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,         0,SOSD_WIN8,0
+             -x100,  3,1,4,1},//2
+ 532                                                                                                                                                                                                                  
+ 533          { 0, proc_hdmi_mode_pc,                 274,327,ALIGN_TOPLEFT,  &img_hdmi_mode_pc,&img_hdmi_mode_pc1,           0,SOSD_WIN8,0x100,
+             -  1,4,1,4},//3
+ 534          { 0, proc_hdmi_mode_tv,                 424,328,ALIGN_TOPLEFT,  &img_hdmi_mode_tv,&img_hdmi_mode_tv1,           0,SOSD_WIN8,0x100,
+             -  1,3,1,3},//4
+ 535          //select area                                                                                                                                                                                   
+ 536          { 0, proc_hdmi_mode_pc,                 282,271,ALIGN_TOPLEFT,  &img_hdmi_mode_selectPC,NULL,                           0,SOSD_WIN2,0x180,  0,0
+             -,0,0},//3+2 
+ 537          { 0, proc_hdmi_mode_tv,                 436,267,ALIGN_TOPLEFT,  &img_hdmi_mode_selectTV,NULL,                           0,SOSD_WIN2,0x180,  0,0,
+             -0,0} //4+2 
+ 538          };
+ 539          //struct menu_page_info_s menu_hdmi_mode_page = {       MENU_TYPE_DIALOG | MENU_TYPE_NOTE, 3,3, 3,2,    menu_hdmi_m
+             -ode_page_items, NULL };               
+ 540          struct menu_page_info_s menu_hdmi_mode_page = { MENU_TYPE_DIALOG | MENU_TYPE_NOTE, 3,3, 3,2,    menu_hdmi_mod
+             -e_page_items, NULL };         
+ 541          
+ 542          
+ 543          //----------------------
+ 544          // autoadj popup MENU
+ 545          // main->input->adc->display->autoadj MENU
+ 546          //----------------------
+ 547          //                                      
+ 548          //------------------------------------------
+ 549          //description
+ 550          code struct menu_sitem_info_s menu_autoadj_page_items[] = {
+ 551          { TYPE_BG,proc_autoadj_bg,              220,260,ALIGN_TOPLEFT,  &img_autoadj_bg,NULL,                                   0,SOSD_WIN1,0x000,  0,0,0,0},
+ 552          { 0,proc_autoadj_ok,                    306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                 0,SOSD_WIN8,0x080,  2,2,2,
+             -2},
+ 553          { 0,proc_autoadj_cancel,                381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1, 0,SOSD_WIN8,0x080
+             -,  1,1,1,1},
+ 554          //wait image. I need a image & WIN & LUT loc.
+ 555          { 0,proc_wait_menu_start,               376,215,ALIGN_TOPLEFT,  &img_wait,NULL,                                                 0,SOSD_WIN0,0x100,  0,0,0,0}
+ 556          };        
+ 557          struct menu_page_info_s menu_autoadj_page = { MENU_TYPE_DIALOG, 1,1, 3,0,       menu_autoadj_page_items, NULL };
+             -                
+ 558          
+ 559          
+ 560          
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 13  
+
+ 561          code struct menu_sitem_info_s menu_autocolor_page_items[] = {
+ 562          { TYPE_BG,proc_autocolor_bg,    220,260,ALIGN_TOPLEFT,  &img_autocolor_bg,NULL,                                         0,SOSD_WIN1,0x000,  0,0,0
+             -,0},
+ 563          { 0,proc_autocolor_ok,                  306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x080,  2,2
+             -,2,2},
+ 564          { 0,proc_autocolor_cancel,              381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,         0,SOSD_WIN8,0x
+             -080,  1,1,1,1},
+ 565          //wait image. I need a image & WIN & LUT loc.
+ 566          { 0,proc_wait_menu_start,               376,215,ALIGN_TOPLEFT,  &img_wait,NULL,                                                         0,SOSD_WIN0,0x100,  0,0,0,0}
+ 567          };        
+ 568          struct menu_page_info_s menu_autocolor_page = { MENU_TYPE_DIALOG, 1,1, 3,0,     menu_autocolor_page_items, NUL
+             -L };                
+ 569          
+ 570          // aspect
+ 571          //----------------------
+ 572          // aspect popup MENU
+ 573          //main->system->display->aspect
+ 574          //----------------------
+ 575          //------------------------------------------
+ 576          //description
+ 577          code struct menu_sitem_info_s menu_aspect_page_items[] = {                                                                                                 //^ < V >
+ 578          
+ 579          { TYPE_BG,proc_aspect_bg,       220,220,ALIGN_TOPLEFT,  &img_popup_aspect_bg,NULL,              0,SOSD_WIN1,0x000,  0,0,0,0},
+ 580          
+ 581          { 0,proc_aspect_ok,                     306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                                 0,SOSD_WIN8,0x080,  3,2,6
+             -,2},//1
+ 582          { 0,proc_aspect_cancel,         381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,                 0,SOSD_WIN8,0x08
+             -0,  3,1,6,1},//2
+ 583          
+ 584          { 0,proc_aspect_normal,         229,327,ALIGN_TOPLEFT,  &img_popup_aspect_normal,&img_popup_aspect_normal1,     0,SOSD
+             -_WIN8,0x080,  1,6,1,4},//3
+ 585          { 0,proc_aspect_zoom,           318,329,ALIGN_TOPLEFT,  &img_popup_aspect_zoom,&img_popup_aspect_zoom1,         0,SOSD_WIN8
+             -,0x080,  1,3,1,5},//4
+ 586          { 0,proc_aspect_full,           410,328,ALIGN_TOPLEFT,  &img_popup_aspect_full,&img_popup_aspect_full1,         0,SOSD_WIN8
+             -,0x080,  1,4,1,6},//5
+ 587          { 0,proc_aspect_pano,           468,328,ALIGN_TOPLEFT,  &img_popup_aspect_pano,&img_popup_aspect_pano1,         0,SOSD_WIN8
+             -,0x080,  1,5,1,3},//6
+ 588          
+ 589          { 0, proc_aspect_normal,        240,284,ALIGN_TOPLEFT,  &img_popup_aspect_normal_select,NULL,                           0,SOSD_WIN2,0x180
+             -,  0,0,0,0},//3+4 
+ 590          { 0, proc_aspect_zoom,          324,284,ALIGN_TOPLEFT,  &img_popup_aspect_zoom_select,NULL,                                     0,SOSD_WIN2,0x180, 
+             - 0,0,0,0},//4+4 
+ 591          { 0, proc_aspect_full,          408,284,ALIGN_TOPLEFT,  &img_popup_aspect_full_select,NULL,                                     0,SOSD_WIN2,0x180, 
+             - 0,0,0,0},//5+4 
+ 592          { 0, proc_aspect_pano,          491,284,ALIGN_TOPLEFT,  &img_popup_aspect_pano_sel,NULL,                                        0,SOSD_WIN2,0x180,  0,
+             -0,0,0} //6+4 
+ 593          };
+ 594          struct menu_page_info_s menu_aspect_page = { MENU_TYPE_DIALOG | MENU_TYPE_NOTE, 3,3, 3,4,       menu_aspect_page
+             -_items, NULL };               
+ 595          
+ 596          //----------------------
+ 597          // flip popup MENU
+ 598          // main->system->display->flip MENU
+ 599          //----------------------
+ 600          //
+ 601          //------------------------------------------
+ 602          //description
+ 603          code struct menu_sitem_info_s menu_mirror_page_items[] = {
+ 604          { TYPE_BG,proc_flip_bg,         220,260,ALIGN_TOPLEFT,  &img_flip_bg,NULL,                      0,SOSD_WIN1,0x000,  0,0,0,0},
+ 605          { 0,proc_flip_ok,                       306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x080,  2,2,2,2}
+             -,
+ 606          { 0,proc_flip_undo,                     381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,         0,SOSD_WIN8,0x080,  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 14  
+
+             -1,1,1,1}
+ 607          };
+ 608          struct menu_page_info_s menu_mirror_page = { MENU_TYPE_DIALOG, 1,1, 3,0,        menu_mirror_page_items, NULL };         
+ 609          
+ 610          //----------------------
+ 611          // flip popup MENU
+ 612          // main->system->display->resolution MENU
+ 613          //----------------------
+ 614          //
+ 615          //------------------------------------------
+ 616          //description
+ 617          code struct menu_sitem_info_s menu_disp_resolution_page_items[] = {
+ 618          { TYPE_BG,proc_disp_resolution_bg,      220,260,ALIGN_TOPLEFT,  &img_resolution_bg,NULL,                        0,SOSD_WIN1,0x000,  0
+             -,0,0,0},  //BK110811. I need a new image
+ 619          { 0,proc_disp_resolution_ok,            363,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,         0,SOSD_WIN8,0x0C0,  
+             -1,1,1,1}
+ 620          };
+ 621          code struct menu_fitem_info_s menu_disp_resolution_text_items[] = {     //BK110811
+ 622          //      { 0,0,  400-220,300-260,        4,1, 0,0,       0x1F,    16,0x07E0      }, //input_hwidth
+ 623          //      { 1,10, 400-220,350-260,        3,1, 0,0,       0x1F,    16,0x07E0      }, //input_vwidth
+ 624          //      { 2,20, 500-220,300-260,        3,1, 0,0,       0x1F,    16,0x07E0      }, //output hwidth
+ 625          //      { 3,30, 500-220,350-260,        3,1, 0,0,       0x1F,    16,0x07E0      }, //output vwidth
+ 626                  { 0,0,  350-220,310-260,        20,1, 0,0,      0x1F,    16,0x07E0      }, //input_hwidth
+ 627                  { 1,20, 350-220,342-260,        20,1, 0,0,      0x1F,    16,0x07E0      }, //output panel
+ 628          
+ 629          //input freq
+ 630          };
+ 631          struct menu_page_info_s menu_disp_resolution_page = { MENU_TYPE_DIALOG, 1,1, 2,0,       menu_disp_resolution_pag
+             -e_items, menu_disp_resolution_text_items };           
+ 632          
+ 633          //----------------------
+ 634          // restore popup MENU
+ 635          // main->system->restore MENU
+ 636          //----------------------//
+ 637          //------------------------------------------
+ 638          //description
+ 639          code struct menu_sitem_info_s menu_restore_page_items[] = {
+ 640          { TYPE_BG,proc_restore_bg,      220,260,ALIGN_TOPLEFT,  &img_sysrestore_bg,NULL,                0,SOSD_WIN1,0x000,  0,0,0,0},
+ 641          { 0,proc_restore_ok,            306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x080,  2,2,2,
+             -2},
+ 642          { 0,proc_restore_undo,          381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,         0,SOSD_WIN8,0x080,
+             -  1,1,1,1}
+ 643          };
+ 644          struct menu_page_info_s menu_restore_page = { MENU_TYPE_DIALOG, 1,1, 3,0,       menu_restore_page_items, NULL };
+             -                
+ 645          
+ 646          
+ 647          
+ 648          
+ 649          //----------------------
+ 650          // info popup MENU
+ 651          // main->system->sys_info MENU
+ 652          //----------------------
+ 653          //                                      
+ 654          //------------------------------------------
+ 655          //description
+ 656          code struct menu_sitem_info_s menu_sys_info_page_items[] = {
+ 657          { TYPE_BG,proc_info_bg,         220,260,ALIGN_TOPLEFT,  &img_sysinfo_bg,NULL,           0,SOSD_WIN1,0x000,  0,0,0,0},
+ 658          { 0,proc_info_ok,                       363,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x0C0,  1,1,1,1}
+ 659          };
+ 660          code struct menu_fitem_info_s menu_sys_info_text_items[] = {                    //BK110811
+ 661                  { 0,0,  306-220,313-260,        10,1, 0,0,      0x1F,    16,0x07E0      },      //EVB
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 15  
+
+ 662                  { 1,10, 420-220,344-260,        10,1, 0,0,      0x1F,    16,0x07E0      }       //FW REV
+ 663          };
+ 664          struct menu_page_info_s menu_sys_info_page = { MENU_TYPE_DIALOG, 1,1, 2,0,      menu_sys_info_page_items, menu_
+             -sys_info_text_items };                
+ 665          
+ 666          
+ 667          //=====================
+ 668          // SLIDER
+ 669          //=====================
+ 670          
+ 671          //------------------------------------------
+ 672          //description
+ 673          //      item[2].x item[2].y  : start of slide bar
+ 674          //      item[3].x item[3].y  :   end of slide bar
+ 675          code struct menu_sitem_info_s menu_slider_page_items[] = {                                                                                      //  ^ < V >
+ 676          { TYPE_BG, proc_slider_bg,              220,260,ALIGN_TOPLEFT,  &img_slide_bg,NULL,                                             0,SOSD_WIN1,0x000,  0,0,0,0},
+ 677          { TYPE_BG, NULL,                                243,285,ALIGN_TOPLEFT,  &img_slide_bg,NULL,                                             0,SOSD_WIN2,0x040,  0,0,0,0}, //title
+ 678          
+ 679          { 0, proc_slider_ok,                    306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                 0,SOSD_WIN8,0x100,  5,3,5,
+             -3},        //2         
+ 680          { 0, proc_slider_undo,                  381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1, 0,SOSD_WIN8,0x100,
+             -  5,2,5,2},        //3
+ 681          
+ 682          #if 0
+              { TYPE_SLIDE, proc_slider_ctrl, 242-220, 320-260,ALIGN_TOPLEFT, &img_slide_gray,NULL,                   0,SOSD_WIN3,0x080,
+             -  2,0,2,0},        //start x,y. Gray 
+              { TYPE_SLIDE, proc_slider_ctrl, 449-220, 320-260,ALIGN_TOPLEFT, &img_slide_red,NULL,                    0,SOSD_WIN8,0x100, 
+             - 2,0,2,0},        //end x,y.   Red
+              #else
+ 686          { TYPE_SLIDE, proc_slider_ctrl, 242-220, 320-260,ALIGN_TOPMIDDLE,&img_slide_gray,NULL,                  0,SOSD_WIN3,0x080
+             -,  2,0,2,0},        //start x,y. Gray 
+ 687          { TYPE_SLIDE, proc_slider_ctrl, 488-220, 370-260,ALIGN_TOPMIDDLE,&img_slide_red,NULL,                   0,SOSD_WIN8,0x100,
+             -  2,0,2,0},        //end x,y.   Red
+ 688          #endif
+ 689          
+ 690          { 0, proc_slider_left_tsc,              239, 385,ALIGN_TOPLEFT, NULL,&img_slide_left1,                                  0,SOSD_WIN4,0x180,  0,0,0,0
+             -},        //
+ 691          { 0, proc_slider_right_tsc,             496, 386,ALIGN_TOPLEFT, NULL,&img_slide_right1,                                 0,SOSD_WIN4,0x180,  0,0,0
+             -,0}        //
+ 692          
+ 693          
+ 694          };
+ 695          code struct menu_fitem_info_s menu_slider_text_items[] = {
+ 696                  { 0,0,  520-220,324-260,        3,1, 0,0,       0xF0,    16,0x07E0      },
+ 697          };
+ 698          //struct menu_page_info_s menu_slider_page = { MENU_TYPE_SLIDE, 4,4, 4,1,        menu_slider_page_items, menu_sl
+             -ider_text_items }; //note: 1 item
+ 699          struct menu_page_info_s menu_slider_page = { MENU_TYPE_SLIDE, 4,4, 4,1*2+2,      menu_slider_page_items, menu_
+             -slider_text_items }; //note: 1 item
+ 700          
+ 701          //#define SLIDE3_1      3
+ 702          //#define SLIDE3_2      5
+ 703          //#define SLIDE3_3      7
+ 704          //#define SLIDE3_OK     8
+ 705          //#define SLIDE3_CANCEL 9
+ 706          //BKTODO:Add 3 slide bar for RGB contrast & RGB brightness
+ 707          code struct menu_sitem_info_s menu_slider3_page_items[] = {
+ 708          { TYPE_BG, proc_slider3_bg,             220,169,ALIGN_TOPLEFT,                  &img_slide3_bg,NULL,                                    0,SOSD_WIN1,0x000,  0,0,0,0
+             -},        //init
+ 709          { TYPE_BG, NULL,                                243,190,ALIGN_TOPLEFT,                  &img_slide3_bg,NULL,                                    0,SOSD_WIN2,0x040,  0,0,0,0},   //tit
+             -le
+ 710          
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 16  
+
+ 711          { 0, proc_slider_ok,                    306,385,ALIGN_TOPLEFT,                  &img_dialog_ok,&img_dialog_ok1,                 0,SOSD_WIN8,0x100,  9,3,
+             -5,3},        //2 
+ 712          { 0, proc_slider_undo,                  381,385,ALIGN_TOPLEFT,                  &img_dialog_cancel,&img_dialog_cancel1, 0,SOSD_WIN8,0x10
+             -0,  9,2,5,2},        //3
+ 713          
+ 714          #if 0
+              { TYPE_SLIDE, proc_slider_ctrl, 242-220,228-169,ALIGN_TOPLEFT,  &img_slide_gray,NULL,                                   0,SOSD_WIN3,0x080
+             -,  0,0,0,0},        //  start x,y  //slider R
+              { TYPE_SLIDE, proc_slider_ctrl, 449-220,228-169,ALIGN_TOPLEFT,  &img_slide_red,NULL,                                    0,SOSD_WIN8,0x100,
+             -  2,0,7,0},        //5 end x,y
+              { TYPE_SLIDE, proc_slider_ctrl, 242-220,273-169,ALIGN_TOPLEFT,  &img_slide_gray,NULL,                                   0,SOSD_WIN4,0x080
+             -,  0,0,0,0},        // start x,y  //slider G
+              { TYPE_SLIDE, proc_slider_ctrl, 449-220,273-169,ALIGN_TOPLEFT,  &img_slide_red,NULL,                                    0,SOSD_WIN8,0x100,
+             -  5,0,9,0},        //7 end x,y
+              { TYPE_SLIDE, proc_slider_ctrl, 242-220,320-169,ALIGN_TOPLEFT,  &img_slide_gray,NULL,                                   0,SOSD_WIN5,0x080
+             -,  0,0,0,0},        // start x,y   //slider B
+              { TYPE_SLIDE, proc_slider_ctrl, 449-220,320-169,ALIGN_TOPLEFT,  &img_slide_red,NULL,                                    0,SOSD_WIN8,0x100,
+             -  7,0,2,0},        //9 end x,y
+              #else
+ 722          { TYPE_SLIDE, proc_slider_ctrl, 242-220,228-169,ALIGN_TOPMIDDLE,&img_slide_gray,NULL,                                   0,SOSD_WIN3,0x08
+             -0,  0,0,0,0},        //  start x,y  //slider R
+ 723          { TYPE_SLIDE, proc_slider_ctrl, 488-220,268-169,ALIGN_TOPMIDDLE,&img_slide_red,NULL,                                    0,SOSD_WIN8,0x100
+             -,  2,0,7,0},        //5 end x,y
+ 724          { TYPE_SLIDE, proc_slider_ctrl, 242-220,273-169,ALIGN_TOPMIDDLE,&img_slide_gray,NULL,                                   0,SOSD_WIN4,0x08
+             -0,  0,0,0,0},        // start x,y  //slider G
+ 725          { TYPE_SLIDE, proc_slider_ctrl, 488-220,313-169,ALIGN_TOPMIDDLE,&img_slide_red,NULL,                                    0,SOSD_WIN8,0x100
+             -,  5,0,9,0},        //7 end x,y
+ 726          { TYPE_SLIDE, proc_slider_ctrl, 242-220,320-169,ALIGN_TOPMIDDLE,&img_slide_gray,NULL,                                   0,SOSD_WIN5,0x08
+             -0,  0,0,0,0},        // start x,y   //slider B
+ 727          { TYPE_SLIDE, proc_slider_ctrl, 488-220,360-169,ALIGN_TOPMIDDLE,&img_slide_red,NULL,                                    0,SOSD_WIN8,0x100
+             -,  7,0,2,0},        //9 end x,y
+ 728          #endif
+ 729          
+ 730          { 0, proc_slider_left_tsc,              239, 385,ALIGN_TOPLEFT,                 NULL,&img_slide_left1,                                  0,SOSD_WIN6,0x180,  0,0,0
+             -,0},        //
+ 731          { 0, proc_slider_right_tsc,             496, 386,ALIGN_TOPLEFT,                 NULL,&img_slide_right1,                                 0,SOSD_WIN6,0x180,  0,0
+             -,0,0}        //
+ 732          };
+ 733          code struct menu_fitem_info_s menu_slider3_text_items[] = {
+ 734                  //just test
+ 735                  { 0,0,  520-220,235-169,        3,1, 0,0,       0xF0,    0x08,  FOSD_COLOR_VALUE_RED    },      //R, or F81F:Magenta
+ 736                  { 1,3,  520-220,278-169,        3,1, 0,0,       0xF0,    0x18,  FOSD_COLOR_VALUE_LIME   },      //G
+ 737                  { 2,6,  520-220,324-169,        3,1, 0,0,       0xF0,    0x10,  FOSD_COLOR_VALUE_BLUE   },      //B, or 07FF:Cyan 
+ 738          };
+ 739          //BKFYI110216. Palette from 32, does not support the Alpha.
+ 740          //                              If you use under 0x10, it will hurt your original palette value.
+ 741          //struct menu_page_info_s menu_slider3_page = { MENU_TYPE_SLIDE3, 5,5, 5,3,      menu_slider3_page_items, menu
+             -_slider3_text_items }; //note 3 items
+ 742          //struct menu_page_info_s menu_slider3_page = { MENU_TYPE_SLIDE3, 5,5, 5,3+1+2,  menu_slider3_page_items, 
+             -menu_slider3_text_items }; //note 3 items
+ 743          
+ 744          //item_start 4
+ 745          //slide items 3
+ 746          //left/right 2
+ 747          struct menu_page_info_s menu_slider3_page = { MENU_TYPE_SLIDE3, 4,4, 4,3*2+2,    menu_slider3_page_items, me
+             -nu_slider3_text_items }; //note 3 items
+ 748          
+ 749          //=====================
+ 750          // POSITION
+ 751          //=====================
+ 752          
+ 753          
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 17  
+
+ 754          //----------------------
+ 755          // position popup MENU
+ 756          //manu->input->setting with RGB/HDMI->display->position
+ 757          //----------------------
+ 758          //                                      
+ 759          //
+ 760          //
+ 761          //
+ 762          // 
+ 763          //
+ 764          //------------------------------------------
+ 765          //description
+ 766          code struct menu_sitem_info_s menu_position_page_items[] = {
+ 767          { TYPE_BG,proc_position_bg,             220,179,ALIGN_TOPLEFT,  &img_position_bg,NULL,                                  0,SOSD_WIN1,0x000,  0,0,0,0
+             -},
+ 768          
+ 769          { 0,proc_position_ok,                   306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                 0,SOSD_WIN8,0x080,  3,2,3
+             -,2}, //1
+ 770          { 0,proc_position_undo,                 381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1, 0,SOSD_WIN8,0x080
+             -,  3,1,3,1}, //2
+ 771          
+ 772          { 5,proc_position_box,                  312,229,ALIGN_TOPLEFT,  &img_position_box_red,NULL,                             0,SOSD_WIN8,0x080,  0,0,0,0
+             -},  //3        //NOTE:type 2->5
+ 773          { 0,proc_position_box,                  312,229,ALIGN_TOPLEFT,  &img_position_box_gray,NULL,                    0,SOSD_WIN2,0x100,  0,0,0,0
+             -}, //4        //NOTE:type 2->5
+ 774          
+ 775          { 0, proc_position_left_tsc,    266, 262,ALIGN_TOPLEFT, NULL,&img_position_left,                                0,SOSD_WIN4,0x180,  0,0,0
+             -,0},        //
+ 776          { 0, proc_position_right_tsc,   486, 262,ALIGN_TOPLEFT, NULL,&img_position_right,                               0,SOSD_WIN4,0x180,  0,0
+             -,0,0},        //
+ 777          { 0, proc_position_up_tsc,              376, 189,ALIGN_TOPLEFT, NULL,&img_position_up,                                  0,SOSD_WIN4,0x180,  0,0,0,0
+             -},        //
+ 778          { 0, proc_position_down_tsc,    376, 334,ALIGN_TOPLEFT, NULL,&img_position_down,                                0,SOSD_WIN4,0x180,  0,0,0
+             -,0}        //
+ 779          
+ 780          };      
+ 781          code struct menu_fitem_info_s menu_position_text_items[] = {
+ 782          //      { 0,0,  100,50, 3,1, 0,0,       0xF0,   16,0x07E0               },      //FOSD0, OsdRam:0
+ 783          //      { 1,256,100,100,3,1, 0,0,               },      //FOSD1, OsdRam:0x100
+ 784          //      { 0,0,  518-220,198-179,        3,1, 0,0,       0xF0,    0x10,  0x07E0  },      //H
+ 785          //      { 1,3,  518-220,226-179,        3,1, 0,0,       0xF0,    0x18,  0x07E0  },      //V
+ 786                  { 0,0,  518-220,198-179,        3,1, 0,0,       0xA0,    0x10,  0x07E0  },      //H
+ 787                  { 1,3,  518-220,226-179,        3,1, 0,0,       0xA0,    0x18,  0x07E0  },      //V
+ 788          };  
+ 789          struct menu_page_info_s menu_position_page = { MENU_TYPE_DIALOG, 3,3, 3,1*2+4,  menu_position_page_items, m
+             -enu_position_text_items }; //note 1 item              
+ 790          
+ 791                                                                                                           
+ 792          
+ 793          //----------------------
+ 794          // language MENU
+ 795          //----------------------
+ 796          //                                      
+ 797          //------------------------------------------
+ 798          //description
+ 799          //code struct menu_sitem_info_s menu_lang_info[] = {
+ 800          //      { proc_lang_bg,                 300,200,ALIGN_TOPLEFT,  image_lang_bg,  0xC0, SOSD_WIN2, 0,0,0,0},
+ 801          //      { proc_lang_eng,                300,200,ALIGN_TOPLEFT,  image_lang_eng, 0xC0, SOSD_WIN3, 0,0,0,0},
+ 802          //      { proc_lang_kor,                450,350,ALIGN_TOPLEFT,  image_lang_kor, 0xC0, SOSD_WIN4, 0,0,0,0},
+ 803          //      { proc_lang_jpn,                450,350,ALIGN_TOPLEFT,  image_lang_jpn, 0xC0, SOSD_WIN4, 0,0,0,0},
+ 804          //      { proc_lang_chn,                450,350,ALIGN_TOPLEFT,  img_ok, 0xC0, SOSD_WIN4, 0,0,0,0},
+ 805          //      { proc_lang_ok,                 450,350,ALIGN_TOPLEFT,  img_ok, 0xC0, SOSD_WIN4, 0,0,0,0},
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 18  
+
+ 806          //};
+ 807          
+ 808          #endif //..SUPPORT_SPIOSD
+ 809          
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 19  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 20  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+proc_input_pc. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_hdmi_mode_ok. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_carinfo_page. . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0000H  11
+img_display_aspect . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_20 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_11 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_flip_ok . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_hdmi_mode_pc . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_dialog_ok1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_30 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_21 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_bg_end. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_yuv_list_bright . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_info_ok . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_slider3_text_items. . . . . . . .  PUBLIC   CODE   ARRAY    12EBH  45
+img_demo_grid1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_40 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_31 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_system_touch1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_50 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_41 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_system1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+img_popup_aspect_full1 . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_60 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_51 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_70 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_61 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_hdmi_list_bg. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_position_up_tsc . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_autoadj_page. . . . . . . . . . .  PUBLIC   XDATA  STRUCT   000BH  11
+menu_carinfo_page_items. . . . . . . .  PUBLIC   CODE   ARRAY    0623H  69
+img_phone_menu0. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_80 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_71 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_hdmi_menu_bg . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_yuv_saturate1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_menu1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_90 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_81 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_ext. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_navi_return1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_disp_resolution_page. . . . . . .  PUBLIC   XDATA  STRUCT   0016H  11
+img_yuv_sharp. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_91 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_pc . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_cancel. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_sys_info_page . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0021H  11
+img_display_resolution1. . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_down0. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_osd_bg. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_aspect_normal . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_apc_color1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_touch_bg_end . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_down1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_return1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_hdmi1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 21  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_navi_demo1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_star0. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_autoadj_page_items. . . . . . . .  PUBLIC   CODE   ARRAY    0E39H  92
+img_yuv_contrast1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_star1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_input1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_gps_bg. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_disp_resolution_page_items. . . .  PUBLIC   CODE   ARRAY    1033H  46
+img_navi_home1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_hdmi_mode_cancel. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_dvi_mode_bg . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_sys_info_page_items . . . . . . .  PUBLIC   CODE   ARRAY    10C4H  46
+img_popup_aspect_normal_select . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_dir0 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_carinfo . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_hdmi_mode_tv. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_dialog_cancel1 . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_dir1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+img_rgb_color1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_demoA . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_slide3_bg. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_osd_bg . . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_demoB . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_ani1. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_position_page . . . . . . . . . .  PUBLIC   XDATA  STRUCT   002CH  11
+menu_display_page. . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0037H  11
+menu_fitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+img_apc_autocolor. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_rose1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 22  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+img_popup_aspect_zoom1 . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_gps_bg . . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_ypbpr1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_cvbs1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_check . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_apc_list_bg . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_dvi_mode_bg. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_msg0 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_navi_setup1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_hdmi_mode_tv . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_apc_menu_bg. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_msg1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_position_page_items . . . . . . .  PUBLIC   CODE   ARRAY    1318H  207
+menu_display_page_items. . . . . . . .  PUBLIC   CODE   ARRAY    0B70H  230
+img_system_sys_info. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+img_yuv_bright1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_palette . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_set0 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+proc_system_display. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_aspect_page . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0042H  11
+img_position_right . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_set1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_rgb_list_bg . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_yuv_list_page . . . . . . . . . .  PUBLIC   XDATA  STRUCT   004DH  11
+proc_yuv_list_sharp. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_rgb_menu_bg. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_dvi_mode_ok . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_slider_page . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0058H  11
+proc_display_flip. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_autocolor_bg. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 23  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+menu_restore_page. . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0063H  11
+menu_sitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+proc_display_backlight . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_aspect_page_items . . . . . . . .  PUBLIC   CODE   ARRAY    0EF1H  253
+img_apc_autoadj. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+RLE2_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  16
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  op_bmpbits . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  rledata_cnt. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  LUT_format . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  LUT_colors . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000DH  1
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000EH  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+menu_yuv_list_page_items . . . . . . .  PUBLIC   CODE   ARRAY    0806H  230
+proc_input_bt656 . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_system_display . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_gps1. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_test1_demo_start. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_slider_page_items . . . . . . . .  PUBLIC   CODE   ARRAY    1110H  184
+img_dvi_mode_24bit1. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_resolution_bg. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_dvi_mode_16bit1. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_restore_page_items. . . . . . . .  PUBLIC   CODE   ARRAY    107FH  69
+img_hdmi_setting . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_carinfo_bg. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_position_left. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_autocolor_bg . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_display_flip . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_system_bg_top. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 24  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_popup_aspect_normal. . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_apc_contrast . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_yuv_hue. . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_system_restore. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_display_backlight. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_apc_list_autocolor. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_position_undo . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_aspect_pano . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
+  ram. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  zoom . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  ch_space_low . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  color. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  alpha_value. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  alpha_color_index. . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  reserved9. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  reserved10 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  reserved11 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+menu_audio_page. . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   006EH  11
+proc_input_setting . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_dvi_mode_cancel . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_autoadj_bg. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_disp_resolution_bg. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_display_aspect1. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_apc_position . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_rgb_contrast . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_carinfo_bg . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_dial. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_aspect_full . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_autocolor_ok. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_hdmi_mode_pc1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_system_restore . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_audio_page_items. . . . . . . . .  PUBLIC   CODE   ARRAY    0256H  69
+img_phone_up0. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_main_audio. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_sysrestore_bg. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_up1. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_disp_resolution_text_items. . . .  PUBLIC   CODE   ARRAY    1061H  30
+proc_system_btooth . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_phone_page. . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0079H  11
+img_position_down. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_apc_pclock . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+menu_sys_info_text_items . . . . . . .  PUBLIC   CODE   ARRAY    10F2H  30
+proc_phone_right . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_phone_sharp . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_slider_ctrl . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_popup_aspect_full_select . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_autoadj_bg . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_nodvi_bg_top . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 25  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+proc_slider_undo . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_mirror_page . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0084H  11
+img_dvi_mode_select24. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_ext1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_select . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_dvi_mode_select16. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_yuv_sharp1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_pc1. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_return. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_input_svideo. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_apc_list_autoadj. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_restore_undo. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_apc_bright . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_display_osd . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_phone_page_items. . . . . . . . .  PUBLIC   CODE   ARRAY    03AFH  598
+proc_display_bg. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_main_phone. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_position_bg . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_main_audio . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_position_box. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_mirror_page_items . . . . . . . .  PUBLIC   CODE   ARRAY    0FEEH  69
+img_system_btooth. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+proc_hdmi_list_setting . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_touch_page. . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   008FH  11
+proc_autoadj_ok. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_demo_page . . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   009AH  11
+menu_main_page . . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00A5H  11
+img_main_carinfo1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+proc_phone_help. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_apc_list_contrast . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_yuv_list_hue. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_autocolor_cancel. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_position_right_tsc. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_rgb_bright . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 26  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+menu_image_header_t. . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+menu_position_text_items . . . . . . .  PUBLIC   CODE   ARRAY    13E7H  30
+proc_disp_resolution_ok. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_system_page . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00B0H  11
+img_demo_demoA1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_svideo . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_left. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_display_osd. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_demoB1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_aspect_zoom . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_phone_0 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_hdmi_mode_page. . . . . . . . . .  PUBLIC   XDATA  STRUCT   00BBH  11
+menu_touch_page_items. . . . . . . . .  PUBLIC   CODE   ARRAY    0737H  207
+img_hdmi_mode_selectPC . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_position_bg. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_display_bg . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_phone . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_1 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_aspect_bg . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_demo_page_items . . . . . . . . .  PUBLIC   CODE   ARRAY    0668H  207
+menu_main_page_items . . . . . . . . .  PUBLIC   CODE   ARRAY    0000H  207
+img_apc_autocolor1 . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_2 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_yuv_list_bg . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_touch_button . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_3 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_system_touch. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_apc_list_position . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_rgb_list_contrast . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_return_icon . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_system_page_items . . . . . . . .  PUBLIC   CODE   ARRAY    029BH  207
+img_yuv_menu_bg. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_4 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_main_system . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_slider_bg . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_hdmi_mode_tv1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_popup_aspect_zoom_select . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_5 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_slide_gray . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_apc_phase. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_navi_close . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_6 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_restore_bg. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_demo_icon . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_hdmi_mode_page_items. . . . . . .  PUBLIC   CODE   ARRAY    0D98H  161
+img_system_sys_info1 . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_7 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_input_page. . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00C6H  11
+img_hdmi_mode. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 27  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+proc_phone_menu. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_phone_8 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_position_left_tsc . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_slider_right_tsc. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_popup_aspect_pano. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_palette1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_9 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_main_info . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_position_ok . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_slider_text_items . . . . . . . .  PUBLIC   CODE   ARRAY    11C8H  15
+proc_display_resolution. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_autoadj_cancel. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_home_icon . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_dialog_ok. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_check0 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_down. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_system_info . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_input_hdmi. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_demo_grid. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_check1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_system_touch . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+proc_apc_list_bright . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_slide_red. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_system. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_star. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_input_page_items. . . . . . . . .  PUBLIC   CODE   ARRAY    00CFH  391
+img_popup_aspect_full. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_main_input. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_slider3_page. . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00D1H  11
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+img_apc_autoadj1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_yuv_saturate . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_navi_return. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_dir . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_system_display1. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_audio_bg. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_aspect_ok . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_wait . . . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_display_resolution . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_rgb_list_bright . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_apc_color. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_return . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_hdmi . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 28  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_navi_demo. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_slider_left_tsc . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_slider3_page_items. . . . . . . .  PUBLIC   CODE   ARRAY    11D7H  276
+img_hdmi_setting1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+proc_grid_demo_start . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_position_down_tsc . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_slider_ok . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_sysinfo_bg . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_display_flip1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_yuv_contrast . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+img_popup_aspect_normal1 . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_apc_contrast1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_yuv_hue1 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_input . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_input_ypbpr . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_input_cvbs. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_apc_list_clock. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_restore_ok. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_hdmi_list_page. . . . . . . . . .  PUBLIC   XDATA  STRUCT   00DCH  11
+img_hdmi_mode_selectTV . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_position_box_gray. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_display_backlight1 . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_navi_home. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_msg . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_flip_undo . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_slide_bg . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_dialog_cancel. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_bg. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_rgb_color. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_audio_bg . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_exit_icon . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_osd_page. . . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00E7H  11
+MY_SLIDEIMAGE. . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  10
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0006H  4
+proc_apc_list_phase. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_position_up. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_ani . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_hdmi_list_page_items. . . . . . .  PUBLIC   CODE   ARRAY    0ACFH  161
+img_apc_position1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_rgb_contrast1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_set . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_hdmi_list_mode. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_position_box_red . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_demo_rose. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_phone_text_items. . . . . . . . .  PUBLIC   CODE   ARRAY    0605H  30
+menu_gps_page. . . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00F2H  11
+img_popup_aspect_zoom. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_system_restore1. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 29  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_input_ypbpr. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_cvbs . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+menu_dvi_mode_page . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00FDH  11
+img_navi_setup . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_aspect_cancel . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_osd_page_items. . . . . . . . . .  PUBLIC   CODE   ARRAY    0C56H  161
+img_popup_aspect_bg. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_slide_right1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_apc_pclock1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_bg . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_bg. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_navi_menu. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+proc_wait_demo_start . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_demo_bg . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_main_bg . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+image_info_s . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+menu_gps_page_items. . . . . . . . . .  PUBLIC   CODE   ARRAY    036AH  69
+img_yuv_bright . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_dial0. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+image_info_t . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+proc_system_bg . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_main_gps. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_osd_trans . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_dvi_mode_page_items . . . . . . .  PUBLIC   CODE   ARRAY    0CF7H  161
+img_apc_bright1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 30  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+img_phone_dial1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_yuv_list_saturate . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_dvi_mode_24bit. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_osd_timer. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_rose_demo_start . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_dvi_mode_16bit. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_apc_list_page . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0108H  11
+img_system_bg_bottom . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+proc_hdmi_mode_bg. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_main_audio1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_apc_list_color. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_flip_bg . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_phone_right0 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_sharp0 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_system_btooth1 . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_button1 . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_info_bg . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_touch_bg . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_right1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_sharp1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_button2 . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_osd_time. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_yuv_list_contrast . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_demo_bg. . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_bg. . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_button3 . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_rgb_bright1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_button4 . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_menu_list_return. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_apc_list_page_items . . . . . . .  PUBLIC   CODE   ARRAY    09A4H  299
+img_popup_aspect_pano_sel. . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_slide_left1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_osd_trans. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_svideo1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_gps . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_button5 . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_rgb_list_page . . . . . . . . . .  PUBLIC   XDATA  STRUCT   0113H  11
+img_dvi_mode_24bit . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_display_osd1 . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_input_bg. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_dvi_mode_16bit . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_rgb_list_color. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_hdmi_mode_bg . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_main_phone1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_display_aspect. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_autocolor_page. . . . . . . . . .  PUBLIC   XDATA  STRUCT   011EH  11
+img_flip_bg. . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_input_bg_bottom. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_hdmi_mode_pc. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_touch_button1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_touch_ok. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_wait_menu_start . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_phone_help0. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 31  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+MY_RLE_INFO. . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  5
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+menu_rgb_list_page_items . . . . . . .  PUBLIC   CODE   ARRAY    08ECH  184
+img_phone_help1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+proc_phone_up. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_apc_phase1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_left0. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_navi_close1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+image_item_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+proc_slider3_bg. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+img_phone_left1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+image_item_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+menu_autocolor_page_items. . . . . . .  PUBLIC   CODE   ARRAY    0E95H  92
+img_hdmi_mode1 . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_00 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_popup_aspect_pano1 . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_10 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+img_phone_01 . . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   5125    ----
+   XDATA SIZE       =    297    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

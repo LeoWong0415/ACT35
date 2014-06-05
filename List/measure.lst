@@ -1,0 +1,3966 @@
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MEASURE
+OBJECT MODULE PLACED IN .\Output\measure.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE measure.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
+                    - MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\measure.lst) OBJECT(.\Output\measur
+                    -e.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * measure.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      video measure module 
+  10           *
+  11           * measure step
+  12           * ============
+  13           *
+  14           *      Step1: Assign a dummy large window.
+  15           *      Step2: Assign a option parameters.
+  16           *      Step3: Start measure. If it successes, do next step.
+  17           *      Step4: Find out the PC mode, and decide the index.
+  18           *      Step5: Change a filter bandwidth as 0.
+  19           *      Step6: Assign LLPLL value that is related with Htotal pixel, and then wait until it has a stable state.
+  20           *      Step7: Change a filter bandwidth as 7.
+  21           *      Step8: Adjust the polarity.
+  22           *      Step9: Find a phase value, or use a EEPROM value.
+  23           *             After step9, do not call the MeasStartMeaasure again. FW will use a measured value.
+  24           *      Step10: Read the measured value and adjust the input crop, the scale rate, and the scaler output.
+  25           *      Step11: Check and find the PC mode again. If PC mode is different, retry all steps.
+  26          */
+  27          
+  28          #include "Config.h"
+  29          #include "reg.h"
+  30          #include "typedefs.h"
+  31          #include "TW8835.h"
+  32          
+  33          #include "Printf.h"
+  34          #include "Monitor.h"
+  35          #include "I2C.h"
+  36          #include "CPU.h"
+  37          #include "Scaler.h"
+  38          
+  39          #include "InputCtrl.h"
+  40          #include "Global.h"
+  41          
+  42          #include "measure.h"
+  43          #include "vadc.h"
+  44          
+  45          #include "eeprom.h"
+  46          
+  47          #include "PC_modes.h"
+  48          #include "settings.h"
+  49          
+  50          #include "scaler.h"
+  51          #include "DTV.h"
+  52          
+  53          #include "spi.h"        
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 2   
+
+  54          
+  55          #include "DebugMsg.h"   //
+  56          
+  57          //================== Input Measurement ====================================
+  58          //===============================================
+  59          // Measure 1 START
+  60          //===============================================
+  61          WORD MeasVLen, MeasVStart; 
+  62          WORD MeasHLen, MeasHStart;
+  63          WORD RGB_HSTART; 
+  64          BYTE RGB_VDE;
+  65          
+  66          
+  67          //=============================================================================
+  68          // Measurement Page:5
+  69          //=============================================================================
+  70          
+  71          //-----------------------------------------------------------------------------
+  72          /**
+  73          * set Measure window
+  74          *
+  75          *       register
+  76          *       R500[2:0]R501[7:0]      Measurement Window Horizontal Start [10:0]
+  77          *       R502[3:0]R503[7:0]      Measurement Window Horizontal length [11:0]
+  78          *       R504[2:0]R505[7:0]      Measurement Window Vertical Start [10:0]
+  79          *       R506[2:0]R507[7:0]      Measurement Window Vertical Length [10:0]
+  80          * @param x: Horizontal start
+  81          * @param y: Vertical Start
+  82          * @param w: Horizontal Width
+  83          * @param h: Vertical Height
+  84          */
+  85          void MeasSetWindow( WORD x, WORD y, WORD w, WORD h )
+  86          {       
+  87   1              //TW8835 needs minimum 2 Horizontal start position
+  88   1              if(x < 2)
+  89   1                      x = 2;
+  90   1      
+  91   1              WriteTW88Page(PAGE5_MEAS );
+  92   1              Write2TW88(REG500_MEAS_HSTART_MSB, REG501_MEAS_HSTART_LSB, x);          
+  93   1              Write2TW88(REG502_MEAS_HLEN_MSB,   REG503_MEAS_HLEN_LSB,   w);
+  94   1      
+  95   1              Write2TW88(REG505_MEAS_VSTART_MSB, REG505_MEAS_VSTART_LSB, y);          
+  96   1              Write2TW88(REG506_MEAS_VLEN_MSB,   REG507_MEAS_VLEN_LSB,   h);
+  97   1      }
+  98          
+  99          //-----------------------------------------------------------------------------
+ 100          // Measure Options
+ 101          //-----------------------------------------------------------------------------
+ 102          //R508[]                Measurement Input Selection, Measurement Start Register
+ 103          //R509[]                Measurement Option, Input Change Detection Register
+ 104          //R50A[]                Measurement Option Register
+ 105          //R50B[]                Measurement Option Register - Threshold value for input active region detection
+ 106          
+ 107          
+ 108          //-----------------------------------------------------------------------------
+ 109          /**
+ 110          * set field
+ 111          *
+ 112          *       register
+ 113          *       R508[3:2]       Field Select for input Measure.
+ 114          *                               00b=Odd field only. 01b:Even field only, 10b or 11b=both field
+ 115          */
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 3   
+
+ 116          void MeasSetField(BYTE field)
+ 117          {
+ 118   1              WriteTW88Page(PAGE5_MEAS );
+ 119   1              WriteTW88(REG508, ReadTW88(REG508) & 0xF3 | (field << 2) );     // Note:DO not turn on the start
+ 120   1      }
+ 121          
+ 122          #ifdef UNCALLED_CODE
+              //-----------------------------------------------------------------------------
+              //register
+              //      R508[1] Lock the data while reading out
+              void MeasLockData(BYTE fLock)
+              {
+                      WriteTW88Page(PAGE5_MEAS );
+                      WriteTW88(REG508, ReadTW88(REG508) & 0xFD | (fLock << 1) );     // Note:DO not turn on the start
+              }
+              #endif
+ 132          
+ 133          
+ 134          //-----------------------------------------------------------------------------
+ 135          /**
+ 136          * Start Measurement. 
+ 137          *
+ 138          * It will update the measure result register.
+ 139          *       register
+ 140          *       R508[0]
+ 141          * @return
+ 142          *       0:success
+ 143          *       1:failed
+ 144          */
+ 145          BYTE MeasStartMeasure(void)
+ 146          {
+ 147   1              volatile BYTE val;
+ 148   1              BYTE i;
+ 149   1      
+ 150   1              WriteTW88Page(PAGE5_MEAS );
+ 151   1      
+ 152   1              WriteTW88(REG508, ReadTW88(REG508) | 1 );       // Measure start
+ 153   1      
+ 154   1              // WaitMeasurementDataReady
+ 155   1              for(i=0; i<200; i++) {                  // make more delay
+ 156   2                      delay1ms(10);                           // 10ms delay 
+ 157   2                      val = ReadTW88(REG508);
+ 158   2                      if((val & 0x01) == 0) {
+ 159   3                              //dPrintf("StartMeasure success%bd",i);
+ 160   3                              return ERR_SUCCESS;
+ 161   3                      }
+ 162   2              }
+ 163   1              dPuts("\nStartMeasure failed");
+ 164   1              return ERR_FAIL;                // means timeout
+ 165   1      }
+ 166          
+ 167          
+ 168          //-----------------------------------------------------------------------------
+ 169          //desc
+ 170          //      The default uses 27MHz for HPeriod Register (R524[7:0]R525[7:0]).
+ 171          //      If User enable R509[7], the HPeriod register value will be based on the input clock.
+ 172          //@param
+ 173          //      ON:Use a input clock for HPeriod register
+ 174          //return 
+ 175          //      OLD value, ON or OFF
+ 176          //register
+ 177          //      R509[7] : Hidden. Use input clock when it read HPeriod. 
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 4   
+
+ 178          #if 0
+              BYTE MeasSetInputClkForHPeriodReg(BYTE fOn)
+              {
+                      BYTE val;
+              
+                      WriteTW88Page(PAGE5_MEAS );
+                      val = ReadTW88(REG509);
+                      if(fOn) WriteTW88(REG509, val | 0x80);
+                      else    WriteTW88(REG509, val & ~0x80);
+              
+                      return (val & 0x80 ? ON:OFF);
+              }
+              #endif
+ 191          //-----------------------------------------------------------------------------
+ 192          /**
+ 193          * get 27MHz flag
+ 194          */
+ 195          BYTE MeasGetInputClkForHPeriodReg(void)
+ 196          {
+ 197   1              WriteTW88Page(PAGE5_MEAS );
+ 198   1              if(ReadTW88(REG509) & 0x80)     return 1;
+ 199   1              else                                            return 0;
+ 200   1      }
+ 201          
+ 202          
+ 203          #ifdef UNCALLED_SEGMENT
+              //-----------------------------------------------------------------------------
+              //desc
+              //register
+              //      R509[6:4]       Noise mask bits for each of the 3 LSB input signals
+              void MeasSetNoiseMask(BYTE mask)
+              {
+                      WriteTW88Page(PAGE5_MEAS );
+                      WriteTW88(REG509, (ReadTW88(REG509) & 0x8F) | (mask << 4));     
+              }
+              #endif
+ 214          
+ 215          //-----------------------------------------------------------------------------
+ 216          /**
+ 217          * set Error Tolerance value
+ 218          *
+ 219          *       register
+ 220          *       R509[3:1]
+ 221          * @param value - 100b = 32 counts
+ 222          */
+ 223          void MeasSetErrTolerance(BYTE value)
+ 224          {
+ 225   1              WriteTW88Page(PAGE5_MEAS);
+ 226   1              WriteTW88(REG509, (ReadTW88(REG509) & 0xF1) | (value << 1));    //up to 32 counts
+ 227   1      }
+ 228          
+ 229          //-----------------------------------------------------------------------------
+ 230          /**
+ 231          * turn on the En.Changed Detection.
+ 232          *
+ 233          * If FW call MeasStartMeasure when R509[0]==0, 
+ 234          * Chip captures the measure value and uses it as a reference value for SYNC interrupt.
+ 235          * SYNC intr is related with R002[2] and R004[2:1]
+ 236          *
+ 237          *       step
+ 238          *       MeasEnableChangedDetection(OFF);
+ 239          *       MeasStartMeasure() with proper setting. It will save the reference value.
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 5   
+
+ 240          *       MeasEnableChangedDetection(ON);
+ 241          *       wait INTR
+ 242          *
+ 243          *       register
+ 244          *       R509[0] 
+ 245          */
+ 246          void MeasEnableChangedDetection(BYTE on)
+ 247          {
+ 248   1              WriteTW88Page(PAGE5_MEAS);
+ 249   1                              
+ 250   1              if(on)  WriteTW88(REG509, ReadTW88(REG509) | 0x01);
+ 251   1              else    WriteTW88(REG509, ReadTW88(REG509) & ~0x01);
+ 252   1      }
+ 253          
+ 254          
+ 255          //-----------------------------------------------------------------------------
+ 256          /**
+ 257          * enable DE Measure
+ 258          *
+ 259          *       register
+ 260          *       R50A[7]         Enable edge adjustment
+ 261          *       R50A[3]         Enable Luminance measurement
+ 262          *       R50A[2:1]       Noise filter selection for luminance measurement
+ 263          *       R50A[0]         De Measurement Enable
+ 264          */
+ 265          void MeasEnableDeMeasure(BYTE fOn)
+ 266          {
+ 267   1              WriteTW88Page(PAGE5_MEAS );
+ 268   1              if(fOn) WriteTW88(REG50A, ReadTW88(REG50A) | 0x01 );
+ 269   1              else    WriteTW88(REG50A, ReadTW88(REG50A) & 0xFE );
+ 270   1      }
+ 271          
+ 272          //-----------------------------------------------------------------------------
+ 273          /**
+ 274          * set measure threshold as
+ 275          *
+ 276          *       register
+ 277          *       R50B[7:0]
+ 278          */
+ 279          void MeasSetThreshold(BYTE thold)
+ 280          {
+ 281   1              WriteTW88Page(PAGE5_MEAS );
+ 282   1              WriteTW88(REG50B, thold ); 
+ 283   1      }
+ 284          
+ 285          
+ 286          //-----------------------------------------------------------------------------
+ 287          // Measure Phase
+ 288          //-----------------------------------------------------------------------------
+ 289          
+ 290          //R510 R211 R512 R513   Phase_R Registers
+ 291          //R514 R215 R516 R517   Phase_G Registers
+ 292          //R518 R219 R51A R51B   Phase_B Registers
+ 293          
+ 294          #ifdef UNCALLED_SEGMENT
+              //-----------------------------------------------------------------------------
+              //desc
+              //      note:we use high 24bit.
+              //register
+              //      R510[7:0]       Phase_R Byte 3
+              //      R511[7:0]       Phase_R Byte 2
+              //      R512[7:0]       Phase_R Byte 1
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 6   
+
+              //      R513[7:0]       Phase_R Byte 0
+              DWORD MeasReadPhaseR(void)
+              {
+                      DWORD PhaseR;
+                      WriteTW88Page(PAGE5_MEAS );
+                      //Read4TW88(REG510,REG511,REG512,REG513, PhaseR);
+                      Read3TW88(REG510,REG511,REG512, PhaseR);
+                      return PhaseR;
+              }
+              //-----------------------------------------------------------------------------
+              //desc
+              //      note:we use high 24bit.
+              //register
+              //      R514[7:0]       Phase_G Byte 3
+              //      R515[7:0]       Phase_G Byte 2
+              //      R516[7:0]       Phase_G Byte 1
+              //      R517[7:0]       Phase_G Byte 0
+              DWORD MeasReadPhaseG(void)
+              {
+                      DWORD PhaseG;
+                      WriteTW88Page(PAGE5_MEAS );
+                      //Read4TW88(REG514,REG515,REG516,REG517, PhaseG);
+                      Read3TW88(REG514,REG515,REG516, PhaseG);
+                      return PhaseG;
+              }
+              //-----------------------------------------------------------------------------
+              //desc
+              //      note:we use high 24bit.
+              //register
+              //      R518[7:0]       Phase_B Byte 3
+              //      R519[7:0]       Phase_B Byte 2
+              //      R51A[7:0]       Phase_B Byte 1
+              //      R51B[7:0]       Phase_B Byte 0
+              DWORD MeasReadPhaseB(void)
+              {
+                      DWORD PhaseB;
+                      WriteTW88Page(PAGE5_MEAS );
+                      //Read4TW88(REG518,REG519,REG51A,REG51B, PhaseB);
+                      Read3TW88(REG518,REG519,REG51A, PhaseB);
+                      return PhaseB;
+              }
+              #endif //..UNCALLED_SEGMENT
+ 344          
+ 345          #ifdef SUPPORT_PC
+ 346          //-----------------------------------------------------------------------------
+ 347          /**
+ 348          * Read RGB Phase value
+ 349          *
+ 350          * Phase R/G/B have a seperate registers.
+ 351          * But, FW needs only a total value.
+ 352          */
+ 353          DWORD MeasReadPhaseRGB(void)
+ 354          {
+ 355   1              DWORD PhaseRGB;
+ 356   1              DWORD Phase;
+ 357   1              WriteTW88Page(PAGE5_MEAS );
+ 358   1              Read3TW88(REG510,REG511,REG512, Phase); PhaseRGB = Phase;       //PhaseR
+ 359   1              Read3TW88(REG514,REG515,REG516, Phase); PhaseRGB+= Phase;       //PhaseG
+ 360   1              Read3TW88(REG518,REG519,REG51A, Phase); PhaseRGB+= Phase;       //PhaseB.
+ 361   1              return PhaseRGB;
+ 362   1      }
+ 363          #endif
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 7   
+
+ 364          
+ 365          
+ 366          //-----------------------------------------------------------------------------
+ 367          //R51C  minimum R
+ 368          //R51D  minimum G
+ 369          //R51E  minimum B
+ 370          //R51F  maximum R
+ 371          //R520  maximum G
+ 372          //R521  maximum B
+ 373          //-----------------------------------------------------------------------------
+ 374          
+ 375          
+ 376          //-----------------------------------------------------------------------------
+ 377          //internal
+ 378          /**
+ 379          * read the measured VPeriod value.
+ 380          *
+ 381          *       register
+ 382          *       R522[7:0]R523[7:0]      Vertical Period Register
+ 383          */
+ 384          WORD MeasGetVPeriod( void )
+ 385          {
+ 386   1              WORD    period;
+ 387   1      
+ 388   1              WriteTW88Page(PAGE5_MEAS );
+ 389   1              Read2TW88(REG522,REG523, period);
+ 390   1              return( period );
+ 391   1      }
+ 392          
+ 393          //-----------------------------------------------------------------------------
+ 394          /**
+ 395          * read the measured HPeriod value.
+ 396          *
+ 397          * If R509[7]==0, use 27MHz. default
+ 398          * If R509[7]==1, use input clock.
+ 399          *
+ 400          *       register
+ 401          *       R524[7:0]R525[7:0]      Horizontal Period Registers
+ 402          */
+ 403          WORD MeasGetHPeriod( void )
+ 404          {
+ 405   1              WORD    period;
+ 406   1      
+ 407   1              WriteTW88Page(PAGE5_MEAS );
+ 408   1              Read2TW88(REG524,REG525, period);
+ 409   1              return( period );
+ 410   1      }
+ 411          
+ 412          //-----------------------------------------------------------------------------
+ 413          /**
+ 414          * get Horizontal Total.
+ 415          *
+ 416          * use 27MHz to get a HPeriod value if R509[7]==0.
+ 417          */
+ 418          WORD MeasGetHTotal(BYTE hPol)
+ 419          {
+ 420   1              DWORD dTemp;
+ 421   1              WORD sspll;
+ 422   1              WORD hTotal;
+ 423   1      
+ 424   1              if(hPol) {
+ 425   2                      hTotal = MeasGetVsyncRisePos();
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 8   
+
+ 426   2              }
+ 427   1              else {
+ 428   2                      hTotal = MeasGetHPeriod();
+ 429   2                      if(MeasGetInputClkForHPeriodReg()==0) {
+ 430   3                              dTemp = SspllGetPPF(0); //SspllGetFreqReg();
+ 431   3                              Printf("\nhPeriod:%d dTemp:%ld",hTotal, dTemp);
+ 432   3                              sspll = dTemp / 1000000;
+ 433   3                              dTemp = hTotal;
+ 434   3                              hTotal = dTemp * 27 / sspll;
+ 435   3                              Printf("\nsspll:%d",sspll);
+ 436   3                      }
+ 437   2                      hTotal += 1;    //adjust
+ 438   2              }
+ 439   1              return hTotal;
+ 440   1      }
+ 441          
+ 442          
+ 443          
+ 444          #ifdef UNCALLED_SEGMENT
+              //-----------------------------------------------------------------------------
+              //desc
+              //
+              //return
+              //      KHz
+              BYTE MeasGetHFreq(void)
+              {
+                      WORD freq;
+                      DWORD PCLK;
+                      WORD period;
+              
+                      period = MeasGetHPeriod();
+                      WriteTW88Page(PAGE5_MEAS );
+                      if(ReadTW88(REG509) & 0x80) {           //If R509[7]==1, use input clock.
+                              PCLK = SspllGetPPF(0);
+                      }
+                      else {
+                              PCLK = 27000000L;
+                      }
+              
+                      freq = (WORD)(PCLK / period);
+                      dPrintf("\nHFreq:%d.%d PCLK:%ld period:%d",freq/1000, freq%1000,PCLK, period);
+                      return (BYTE)(freq/1000); 
+              }
+              #endif
+ 470          
+ 471          //-----------------------------------------------------------------------------
+ 472          /**
+ 473          * get Hsync Rise to Fall Registers value
+ 474          *                                                        
+ 475          *       register
+ 476          *       R526 R527       Hsync Rise to Fall Registers
+ 477          */
+ 478          WORD MeasGetHSyncRiseToFallWidth(void)
+ 479          {
+ 480   1              WORD wTemp;
+ 481   1              WriteTW88Page(PAGE5_MEAS );
+ 482   1              Read2TW88(REG526,REG527, wTemp);
+ 483   1              return wTemp;
+ 484   1      }
+ 485          
+ 486          //-----------------------------------------------------------------------------
+ 487          /**
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 9   
+
+ 488          * get "Hsync Rise to Horizontal Active End" value
+ 489          *
+ 490          *       register
+ 491          *       R528 R529 Hsync Rise to Horizontal Active End
+ 492          */
+ 493          WORD MeasGetHSyncRiseToHActiveEnd(void)
+ 494          {
+ 495   1              WORD wTemp;
+ 496   1              WriteTW88Page(PAGE5_MEAS );
+ 497   1              Read2TW88(REG528,REG529, wTemp);
+ 498   1              return wTemp;
+ 499   1      }
+ 500          
+ 501          
+ 502          //-----------------------------------------------------------------------------
+ 503          /**
+ 504          * get "Vsync High Width Registers" value
+ 505          *
+ 506          *       register
+ 507          *       R52A R52B               Vsync High Width Registers
+ 508          */
+ 509          WORD MeasGetVSyncRiseToFallWidth(void)
+ 510          {
+ 511   1              WORD wTemp;
+ 512   1              WriteTW88Page(PAGE5_MEAS );
+ 513   1              Read2TW88(REG52A,REG52B, wTemp);
+ 514   1              return wTemp;
+ 515   1      }
+ 516          
+ 517          //-----------------------------------------------------------------------------
+ 518          /**
+ 519          * get "Vsync Rise Position Registers" value
+ 520          *
+ 521          *       register
+ 522          *       R52C R52D       Vsync Rise Position Registers
+ 523          */
+ 524          WORD MeasGetVsyncRisePos(void)
+ 525          {
+ 526   1              WORD wTemp;
+ 527   1              WriteTW88Page(PAGE5_MEAS );
+ 528   1              Read2TW88(REG52C,REG52D, wTemp);
+ 529   1              return wTemp;   
+ 530   1      }
+ 531          
+ 532          
+ 533          //-----------------------------------------------------------------------------
+ 534          /**
+ 535          * Get Horizontal Active value
+ 536          *
+ 537          * extern
+ 538          *       InputMain
+ 539          *
+ 540          *       register
+ 541          *       R52E R52F       Horizontal Active Starting Pixel Position I Registers
+ 542          *       R530 R531       Horizontal Active Starting Pixel Position II Registers
+ 543          *       R532 R533       Horizontal Active Ending Pixel Position I Registers
+ 544          *       R534 R535       Horizontal Active Ending Pixel Position II Register
+ 545          */
+ 546          WORD MeasGetHActive( WORD *start )
+ 547          {
+ 548   1              WORD    period, end;
+ 549   1      
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 10  
+
+ 550   1              WriteTW88Page(PAGE5_MEAS );
+ 551   1      
+ 552   1              Read2TW88(REG52E, REG52F, period);
+ 553   1              Read2TW88(REG530, REG531, *start);
+ 554   1      
+ 555   1              if ( *start < period )  //select big
+ 556   1                      *start = period;
+ 557   1      
+ 558   1              Read2TW88(REG532, REG533, period);
+ 559   1              Read2TW88(REG534, REG535, end);
+ 560   1              if ( end > period )             //select small
+ 561   1                      end = period;
+ 562   1      
+ 563   1              period = end - *start + 1;
+ 564   1      
+ 565   1              return( period );
+ 566   1      }
+ 567          #if 0
+              //-----------------------------------------------------------------------------
+              BYTE MesaGetHPol(void)
+              {
+                      WORD SyncRiseToFall;
+                      WORD hStart;
+                      WORD hActive;
+                      BYTE hPol;
+              
+                      SyncRiseToFall = MeasGetHSyncRiseToFallWidth();
+                      hActive = MeasGetHActive( &hStart );
+              
+                      //get HPol
+                      if(SyncRiseToFall > hActive)    hPol = 0;       //high at active
+                      else                                                    hPol = 1;
+                      return hPol;
+              }
+              #endif
+ 585          
+ 586          //return hTotal value
+ 587          #if defined(SUPPORT_PC) || defined(SUPPORT_DVI) || defined(SUPPORT_HDMI_EP9351) || defined(SUPPORT_HDMI_Si
+             -IRX)
+ 588          //-----------------------------------------------------------------------------
+ 589          /** 
+ 590          * get divider value for DVI
+ 591          */
+ 592          WORD MeasGetDviDivider(void)
+ 593          {
+ 594   1      #if 0
+                      WORD    end;
+                      WriteTW88Page(PAGE5_MEAS );
+                      Read2TW88(REG534, REG535, end);
+              
+                      return (end + (end/8));
+              #else
+ 601   1              //if FW use DE measure, we can get a correct value.
+ 602   1              WORD SyncRiseToFall;
+ 603   1              WORD hStart;
+ 604   1              WORD hTotal,hActive;
+ 605   1              BYTE hPol;
+ 606   1      
+ 607   1              SyncRiseToFall = MeasGetHSyncRiseToFallWidth();
+ 608   1              hActive = MeasGetHActive( &hStart );
+ 609   1      
+ 610   1              //get HPol
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 11  
+
+ 611   1              if(SyncRiseToFall > hActive)    hPol = 0;       //high at active
+ 612   1              else                                                    hPol = 1;
+ 613   1      
+ 614   1              //get HTotal
+ 615   1              hTotal = MeasGetHTotal(hPol);
+ 616   1              if(hTotal < SyncRiseToFall)     {
+ 617   2                      //special case at 2880x240p
+ 618   2                      if(MeasGetVsyncRisePos() < SyncRiseToFall)      
+ 619   2                              hTotal += 1;
+ 620   2                      hTotal <<= 1;
+ 621   2              }
+ 622   1              return hTotal;  
+ 623   1      #endif
+ 624   1      }
+ 625          #endif
+ 626          
+ 627          #ifdef SUPPORT_COMPONENT
+ 628          //-----------------------------------------------------------------------------
+ 629          /**
+ 630          * get HAvtive2 value
+ 631          */
+ 632          WORD MeasGetHActive2( void )
+ 633          {
+ 634   1              WORD    start;
+ 635   1      
+ 636   1              WriteTW88Page(PAGE5_MEAS );
+ 637   1              Read2TW88(REG530, REG531, start);
+ 638   1              return start;
+ 639   1      }
+ 640          #endif
+ 641          
+ 642          //-----------------------------------------------------------------------------
+ 643          /**
+ 644          * get Vertical Active value
+ 645          *
+ 646          * VActive is a VStart position.
+ 647          * Get the start position and the length for the vertical active.
+ 648          *
+ 649          *       register
+ 650          *       R536 R537               Vertical Active Starting Line I Registers
+ 651          *       R538 R539               Vertical Active Starting Line II Registers
+ 652          *       R53A R53B               Vertical Active Ending Line I Registers
+ 653          *       R53C R53D               Vertical Active Ending Line II Registers
+ 654          */
+ 655          WORD MeasGetVActive( WORD *start )
+ 656          {
+ 657   1              WORD    period, end;
+ 658   1      
+ 659   1              WriteTW88Page(PAGE5_MEAS );
+ 660   1      
+ 661   1              Read2TW88(REG536,REG537, period);
+ 662   1              Read2TW88(REG538,REG539, *start);
+ 663   1              if ( *start < period )  //select big
+ 664   1                      *start = period;
+ 665   1      
+ 666   1              Read2TW88(REG53A,REG53B, period);
+ 667   1              Read2TW88(REG53C,REG53D, end);
+ 668   1              if ( end < period )             //select big
+ 669   1                      end = period;
+ 670   1      
+ 671   1              period = end - *start + 1;
+ 672   1              return( period );
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 12  
+
+ 673   1      }
+ 674          #if defined(SUPPORT_COMPONENT)
+ 675          //-----------------------------------------------------------------------------
+ 676          /**
+ 677          * get VActive2 value
+ 678          */
+ 679          WORD MeasGetVActive2(void)
+ 680          {
+ 681   1              WORD temp16;
+ 682   1              WriteTW88Page(PAGE5_MEAS );
+ 683   1              Read2TW88(REG538,REG539, temp16);
+ 684   1              return temp16;
+ 685   1      }
+ 686          #endif
+ 687          
+ 688          //-----------------------------------------------------------------------------
+ 689          //      R540 - Liminance Value - Minimum Register
+ 690          //      R541 - Liminance Value - Maximum Register
+ 691          //      R542 - Liminance Value - Average Register
+ 692          //-----------------------------------------------------------------------------
+ 693          
+ 694          
+ 695          #if defined(SUPPORT_COMPONENT) || defined(SUPPORT_PC) || defined(SUPPORT_DVI) || defined(SUPPORT_HDMI_EP93
+             -51) || defined(SUPPORT_HDMI_SiIRX)
+ 696          //-----------------------------------------------------------------------------
+ 697          //internal
+ 698          /**
+ 699          * get VPeriod value on 27MHz
+ 700          *
+ 701          *       register
+ 702          *       R543 R544 R545 Vertical Period in 27 MHz Registers
+ 703          */
+ 704          DWORD   MeasGetVPeriod27( void )
+ 705          {
+ 706   1              DWORD   period;
+ 707   1              WriteTW88Page(PAGE5_MEAS );
+ 708   1              Read3TW88(REG543, REG544, REG545, period);      //Vertical Period in 27 MHz Registers
+ 709   1              return( period );
+ 710   1      }
+ 711          #endif
+ 712          
+ 713          #if defined(SUPPORT_COMPONENT) || defined(SUPPORT_PC) || defined(SUPPORT_DVI)
+ 714          //-----------------------------------------------------------------------------
+ 715          /**
+ 716          * get Vertical Frequency
+ 717          */
+ 718          BYTE MeasGetVFreq(void)
+ 719          {
+ 720   1              DWORD   vperiod;
+ 721   1              BYTE    vfreq;
+ 722   1      
+ 723   1              vperiod = MeasGetVPeriod27();
+ 724   1              vfreq = 27000000L / vperiod;
+ 725   1              //dPrintf("\nVFreq:%bd",vfreq);
+ 726   1              return vfreq;
+ 727   1      }
+ 728          #endif
+ 729          
+ 730          #if defined(SUPPORT_PC)
+ 731          //-----------------------------------------------------------------------------
+ 732          /**
+ 733          * rounddown Vertical Frequcncy value
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 13  
+
+ 734          *
+ 735          * PC wants to detect, 56Hz, 60Hz, ..
+ 736          */
+ 737          BYTE MeasRoundDownVFreqValue(BYTE vfreq)
+ 738          {
+ 739   1              if ( vfreq < 58 ) vfreq = 56;           //<58
+ 740   1              else if ( vfreq < 61 ) vfreq = 60;      //58~60
+ 741   1              else if ( vfreq < 71 ) vfreq = 70;      //61~70
+ 742   1              else if ( vfreq < 73 ) vfreq = 72;      //71~72
+ 743   1              else if ( vfreq < 77 ) vfreq = 75;      //73~76
+ 744   1              else if ( vfreq < 87 ) vfreq = 85;      //77~86
+ 745   1              //else { vfreq will not be changed. }
+ 746   1              return vfreq;
+ 747   1      }
+ 748          #endif
+ 749          
+ 750          //===============================================
+ 751          // Meas Leve 1
+ 752          //===============================================
+ 753          
+ 754          //===============================================
+ 755          // Measure 1 START
+ 756          //===============================================
+ 757          
+ 758          //void  PCLKAdjust( BYTE mode )
+ 759          //void  PCLKAdjustDVI( void )
+ 760          
+ 761          
+ 762          
+ 763          #ifdef SUPPORT_PC
+ 764          //-----------------------------------------------------------------------------
+ 765          /**
+ 766          * calculate Phase value
+ 767          *
+ 768          * RGBBufferPtr[] use 4*32 (128) bytes. 
+ 769          * SPI_Buffer[SPI_BUFFER_SIZE] have to bigger or equal then 128 bytes.
+ 770          */
+ 771          void AutoTunePhase(void)
+ 772          {
+ 773   1              DECLARE_LOCAL_page
+ 774   1              BYTE    i, j;
+ 775   1              DWORD   RGBmin;
+ 776   1              DWORD   *RGBBufferPtr;
+ 777   1              BYTE    OldPhase;
+ 778   1      
+ 779   1              RGBBufferPtr = (DWORD *)SPI_Buffer;
+ 780   1      
+ 781   1              ReadTW88Page(page);
+ 782   1              OldPhase=VAdcGetPhase();
+ 783   1      
+ 784   1              for(i=0; i<32; i++) {                                           // full scan PHASE
+ 785   2                      VAdcSetPhase(i, 0);
+ 786   2                      delay1ms(5);
+ 787   2              
+ 788   2                      if(MeasStartMeasure())  {
+ 789   3                              VAdcSetPhase(OldPhase, 0);
+ 790   3                              WriteTW88Page(page);
+ 791   3                              return;
+ 792   3                      }
+ 793   2                      RGBBufferPtr[i]  = MeasReadPhaseRGB();
+ 794   2      
+ 795   2                      dPrintf("\nPhase %02bd: %08ld", i, RGBBufferPtr[i]);
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 14  
+
+ 796   2              }
+ 797   1              
+ 798   1              //search minimum value.
+ 799   1              RGBmin = RGBBufferPtr[0];
+ 800   1              j = 0;
+ 801   1              for ( i=1; i<32; i++ ) {
+ 802   2                      if ( RGBmin > RGBBufferPtr[i] ) {
+ 803   3                              RGBmin = RGBBufferPtr[i];
+ 804   3                              j = i;
+ 805   3                      }
+ 806   2              }
+ 807   1              dPrintf("\nRGBmin = %ld, phaseMin = %bd", RGBmin, j);
+ 808   1      
+ 809   1              //compare the min value with the 180 degree value.
+ 810   1              j = ( j + 16 ) % 32;
+ 811   1              dPrintf(" phaseMax = %bd", j);
+ 812   1      
+ 813   1              RGBmin = RGBBufferPtr[j] / ( RGBBufferPtr[j] - RGBmin );
+ 814   1              dPrintf("\nRGB diff = %ld", RGBmin);
+ 815   1      
+ 816   1              if ( RGBmin > 10 ) {
+ 817   2                      dPuts("\ndifference is lower than 10%, cannot find correct phase");
+ 818   2                      VAdcSetPhase(OldPhase,0);       //restore Old Phase value.
+ 819   2              }
+ 820   1              else {
+ 821   2                      //select big.
+ 822   2                      VAdcSetPhase(j, 0);
+ 823   2              }
+ 824   1      
+ 825   1              WriteTW88Page(page);
+ 826   1      }
+ 827          #endif
+ 828          
+ 829          #ifdef SUPPORT_PC
+ 830          //-----------------------------------------------------------------------------
+ 831          /**
+ 832          * calculate color value
+ 833          */
+ 834          void AutoTuneColor(void)
+ 835          {
+ 836   1              DECLARE_LOCAL_page
+ 837   1              BYTE    MeasR, MeasG, MeasB;
+ 838   1              WORD    GainR, GainG, GainB;
+ 839   1              WORD    nGainR, nGainG, nGainB;
+ 840   1      
+ 841   1              ReadTW88Page(page);
+ 842   1      
+ 843   1              nGainR = nGainG = nGainB = 0xf0;
+ 844   1              GainG = VAdcReadGChannelGainReg();
+ 845   1              GainB = VAdcReadBChannelGainReg();
+ 846   1              GainR = VAdcReadRChannelGainReg();
+ 847   1              if(nGainG != GainG
+ 848   1              || nGainB != GainB
+ 849   1              || nGainR != GainR) 
+ 850   1                      VAdcSetChannelGainReg(nGainG,nGainB,nGainR);
+ 851   1      
+ 852   1              do {
+ 853   2                      GainR = nGainR;
+ 854   2                      GainG = nGainG;
+ 855   2                      GainB = nGainB; 
+ 856   2                      if(MeasStartMeasure())  {
+ 857   3                              WriteTW88Page(page );
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 15  
+
+ 858   3                              return;
+ 859   3                      }
+ 860   2                      WriteTW88Page(5 );
+ 861   2                      MeasG = ReadTW88(REG51F );
+ 862   2                      MeasB = ReadTW88(REG520 );
+ 863   2                      MeasR = ReadTW88(REG521 );
+ 864   2                      nGainR = GainR + (WORD)(0xFF - MeasR);
+ 865   2                      nGainG = GainG + (WORD)(0xFF - MeasG);
+ 866   2                      nGainB = GainB + (WORD)(0xFF - MeasB);
+ 867   2                      if ( nGainR > 0x1FF ) nGainR = 0x1FF;
+ 868   2                      if ( nGainG > 0x1FF ) nGainG = 0x1FF;
+ 869   2                      if ( nGainB > 0x1FF ) nGainB = 0x1FF;
+ 870   2      
+ 871   2                      if(nGainG != GainG
+ 872   2                      || nGainB != GainB
+ 873   2                      || nGainR != GainR) 
+ 874   2                              VAdcSetChannelGainReg(nGainG,nGainB,nGainR);
+ 875   2      
+ 876   2                      dPrintf("\nMeasure: R: 0x%02bx, G: 0x%02bx, B: 0x%02bx", MeasR, MeasG, MeasB );
+ 877   2                      dPrintf("\nNew Gains: R:%d, G:%d, B:%d", nGainR, nGainG, nGainB );
+ 878   2              } while (( nGainR != GainR ) || ( nGainG != GainG ) || ( nGainB != GainB)) ;
+ 879   1      
+ 880   1              if (( nGainR == 0x1FF ) && ( nGainG == 0x1FF ) && ( nGainB == 0x1FF )) 
+ 881   1                      ePrintf("\nMeasurement block has PROBLEM!!!!");
+ 882   1              WriteTW88Page(page );
+ 883   1      }
+ 884          #endif
+ 885          
+ 886          #ifdef SUPPORT_PC
+ 887          //-----------------------------------------------------------------------------
+ 888          /**
+ 889          * check VPulse
+ 890          */
+ 891          BYTE MeasCheckVPulse(void)
+ 892          {
+ 893   1              BYTE i;
+ 894   1              WORD HStart, HActive, VPulse;
+ 895   1              BYTE VPulseErr;
+ 896   1      
+ 897   1              HActive = MeasGetHActive( &HStart );                            //h_active_start h_active_perios
+ 898   1              for(i=0; i < 100; i++) {
+ 899   2                      VPulseErr = 0;
+ 900   2                      if(MeasStartMeasure()) {
+ 901   3                              return 1;
+ 902   3                      }
+ 903   2                      VPulse = MeasGetVSyncRiseToFallWidth();
+ 904   2                      if((HActive/2) < VPulse) {
+ 905   3                              //incorrect vpulse.       BK110830 NG
+ 906   3                              VPulseErr = 1;
+ 907   3                              //if(HLen == HLenOld) 
+ 908   3                              {
+ 909   4                                      dPrintf("\nVErr @%bd %d",i, VPulse);
+ 910   4                                      delay1ms(10);
+ 911   4                              }
+ 912   3                      }
+ 913   2                      else
+ 914   2                              return 0;
+ 915   2              }
+ 916   1              return 1;
+ 917   1      }
+ 918          #endif
+ 919          
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 16  
+
+ 920          //===============================================
+ 921          // Measure 1 END
+ 922          //===============================================
+ 923          
+ 924          
+ 925          //-----------------------------------------------------------------------------
+ 926          /**
+ 927          * check the measure value again
+ 928          */
+ 929          void CheckMeasure(void)
+ 930          {
+ 931   1              WORD SyncRiseToFall,HRiseToActEnd;
+ 932   1      
+ 933   1              WORD hStart,vStart;
+ 934   1      
+ 935   1              WORD hTotal,hSync,hBPorch,hActive,hFPorch;
+ 936   1              BYTE hPol;
+ 937   1              WORD vTotal,vSync,vBPorch,vActive,vFPorch;
+ 938   1              BYTE vPol;
+ 939   1              BYTE special;
+ 940   1      
+ 941   1      
+ 942   1              special = 0;
+ 943   1              //---------------------
+ 944   1              //horizontal
+ 945   1              //---------------------
+ 946   1              SyncRiseToFall = MeasGetHSyncRiseToFallWidth();
+ 947   1              HRiseToActEnd = MeasGetHSyncRiseToHActiveEnd();
+ 948   1      
+ 949   1              //get hActive
+ 950   1              hActive = MeasGetHActive( &hStart );
+ 951   1      
+ 952   1      
+ 953   1              //get HPol
+ 954   1              if(SyncRiseToFall > hActive)    hPol = 0;       //high at active
+ 955   1              else                                                    hPol = 1;
+ 956   1      
+ 957   1              //get HTotal
+ 958   1              hTotal = MeasGetHTotal(hPol);
+ 959   1              if(hTotal < SyncRiseToFall)     {
+ 960   2                      //special case at 2880x240p
+ 961   2                      if(MeasGetVsyncRisePos() < SyncRiseToFall)      
+ 962   2                              hTotal += 1;
+ 963   2                      hTotal <<= 1;
+ 964   2                      special = 1;
+ 965   2              }
+ 966   1      
+ 967   1              //get hFPorch hSync hBPorch
+ 968   1              if(hPol==0) {
+ 969   2      
+ 970   2                      hFPorch = SyncRiseToFall - HRiseToActEnd -1;
+ 971   2                      hSync = hTotal - SyncRiseToFall -1;
+ 972   2      
+ 973   2                      if(special==1)
+ 974   2                              hSync += 2;
+ 975   2      
+ 976   2                      hBPorch = HRiseToActEnd - hActive;
+ 977   2              }
+ 978   1              else {
+ 979   2                      hFPorch = hTotal - HRiseToActEnd;
+ 980   2                      hSync = SyncRiseToFall -1;
+ 981   2                      hBPorch = HRiseToActEnd - hActive - hSync;
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 17  
+
+ 982   2              }
+ 983   1      
+ 984   1              //---------------------
+ 985   1              //vertical
+ 986   1              //---------------------
+ 987   1              SyncRiseToFall = MeasGetVSyncRiseToFallWidth();
+ 988   1      
+ 989   1              //get vActive
+ 990   1              vActive = MeasGetVActive( &vStart );
+ 991   1      
+ 992   1              //get vTotal
+ 993   1              vTotal = MeasGetVPeriod();
+ 994   1      
+ 995   1              //get vPol
+ 996   1              if(SyncRiseToFall > vActive)    vPol = 0;       //high at active
+ 997   1              else                                                    vPol = 1;
+ 998   1      
+ 999   1              //get vFPorch vSync vBPorch
+1000   1              if(vPol==0) {
+1001   2                      vSync = vTotal - SyncRiseToFall;
+1002   2                      vBPorch = vStart;
+1003   2                      vFPorch = vTotal - vActive - vSync - vBPorch;
+1004   2              }
+1005   1              else {
+1006   2                      vSync = SyncRiseToFall;
+1007   2                      vBPorch = vStart - vSync;
+1008   2                      vFPorch = vTotal - vActive - vSync - vBPorch;
+1009   2              }
+1010   1              Printf("\nMeasure");
+1011   1              Printf("\n\tH total:%d Sync:%d BPorch:%d Active:%d FPorch:%d Pol:%bd",hTotal,hSync,hBPorch,hActive,hFPorc
+             -h,hPol);
+1012   1              Printf("\n\tV total:%d Sync:%d BPorch:%d Active:%d FPorch:%d Pol:%bd",vTotal,vSync,vBPorch,vActive,vFPorc
+             -h,vPol);
+1013   1              Printf("\nhStart:%d vStart:%d",hStart,vStart);
+1014   1      
+1015   1      #ifdef SUPPORT_HDMI_EP9351
+                      DumpDviTable(hActive,vActive);
+              #endif
+1018   1      }
+1019          
+1020          
+1021          
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 18  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com0076 (BEGIN)
+0000         L?0119:
+0000         L?0120:
+0000 E500        E     MOV     A,regTW88+01H
+0002 2409              ADD     A,#09H
+0004         L?0121:
+0004 F582              MOV     DPL,A
+0006 E500        E     MOV     A,regTW88
+0008 3405              ADDC    A,#05H
+000A F583              MOV     DPH,A
+000C 22                RET     
+000D         L?0122:
+000D         L?0123:
+000D E0                MOVX    A,@DPTR
+000E FF                MOV     R7,A
+000F EB                MOV     A,R3
+0010 4F                ORL     A,R7
+0011 FF                MOV     R7,A
+0012 EA                MOV     A,R2
+0013 FE                MOV     R6,A
+0014 E9                MOV     A,R1
+0015 FD                MOV     R5,A
+0016 E8                MOV     A,R0
+0017 FC                MOV     R4,A
+0018         L?0124:
+0018 900000      R     MOV     DPTR,#Phase
+001B 120000      E     LCALL   ?C?LSTXDATA
+001E 900000      R     MOV     DPTR,#Phase
+0021 E0                MOVX    A,@DPTR
+0022 FC                MOV     R4,A
+0023 A3                INC     DPTR
+0024 E0                MOVX    A,@DPTR
+0025 FD                MOV     R5,A
+0026 A3                INC     DPTR
+0027 E0                MOVX    A,@DPTR
+0028 FE                MOV     R6,A
+0029 A3                INC     DPTR
+002A E0                MOVX    A,@DPTR
+002B FF                MOV     R7,A
+002C 7808              MOV     R0,#08H
+002E 120000      E     LCALL   ?C?LSHL
+0031 900000      R     MOV     DPTR,#Phase
+0034 120000      E     LCALL   ?C?LSTXDATA
+0037 900000      R     MOV     DPTR,#Phase
+003A         L?0125:
+003A E0                MOVX    A,@DPTR
+003B F8                MOV     R0,A
+003C A3                INC     DPTR
+003D E0                MOVX    A,@DPTR
+003E F9                MOV     R1,A
+003F         L?0126:
+003F A3                INC     DPTR
+0040 E0                MOVX    A,@DPTR
+0041 FA                MOV     R2,A
+0042 A3                INC     DPTR
+0043 E0                MOVX    A,@DPTR
+0044 FB                MOV     R3,A
+0045 22                RET     
+0046         L?0127:
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 19  
+
+0046 E0                MOVX    A,@DPTR
+0047 FF                MOV     R7,A
+0048 EB                MOV     A,R3
+0049 4F                ORL     A,R7
+004A FF                MOV     R7,A
+004B EA                MOV     A,R2
+004C FE                MOV     R6,A
+004D E9                MOV     A,R1
+004E FD                MOV     R5,A
+004F E8                MOV     A,R0
+0050 FC                MOV     R4,A
+0051         L?0128:
+0051 900000      R     MOV     DPTR,#period
+0054 120000      E     LCALL   ?C?LSTXDATA
+0057 900000      R     MOV     DPTR,#period
+005A         L?0129:
+005A E0                MOVX    A,@DPTR
+005B FC                MOV     R4,A
+005C A3                INC     DPTR
+005D E0                MOVX    A,@DPTR
+005E FD                MOV     R5,A
+005F         L?0130:
+005F A3                INC     DPTR
+0060 E0                MOVX    A,@DPTR
+0061 FE                MOV     R6,A
+0062 A3                INC     DPTR
+0063 E0                MOVX    A,@DPTR
+0064 FF                MOV     R7,A
+0065 22                RET     
+0066         L?0131:
+0066 8FF0              MOV     B,R7
+0068         L?0132:
+0068 120000      E     LCALL   ?C?ISTPTR
+006B         L?0133:
+006B 900000      R     MOV     DPTR,#start
+006E         L?0134:
+006E E0                MOVX    A,@DPTR
+006F FB                MOV     R3,A
+0070 A3                INC     DPTR
+0071 E0                MOVX    A,@DPTR
+0072 FA                MOV     R2,A
+0073 A3                INC     DPTR
+0074 E0                MOVX    A,@DPTR
+0075 F9                MOV     R1,A
+0076 22                RET     
+0077         L?0135:
+0077 E0                MOVX    A,@DPTR
+0078 FF                MOV     R7,A
+0079 900000      R     MOV     DPTR,#period
+007C E4                CLR     A
+007D F0                MOVX    @DPTR,A
+007E A3                INC     DPTR
+007F EF                MOV     A,R7
+0080 F0                MOVX    @DPTR,A
+0081 E0                MOVX    A,@DPTR
+0082 900000      R     MOV     DPTR,#period
+0085         L?0136:
+0085 7F00              MOV     R7,#00H
+0087 FE                MOV     R6,A
+0088         L?0137:
+0088 F0                MOVX    @DPTR,A
+0089 A3                INC     DPTR
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 20  
+
+008A EF                MOV     A,R7
+008B F0                MOVX    @DPTR,A
+008C E500        E     MOV     A,regTW88+01H
+008E 22                RET     
+008F         L?0138:
+008F 7BFF              MOV     R3,#0FFH
+0091         L?0139:
+0091 E0                MOVX    A,@DPTR
+0092 FF                MOV     R7,A
+0093 A3                INC     DPTR
+0094 E0                MOVX    A,@DPTR
+0095 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0098 CF                XCH     A,R7
+0099 F0                MOVX    @DPTR,A
+009A A3                INC     DPTR
+009B EF                MOV     A,R7
+009C F0                MOVX    @DPTR,A
+009D 22                RET     
+009E         L?0140:
+009E 900000      R     MOV     DPTR,#i
+00A1         L?0141:
+00A1 E0                MOVX    A,@DPTR
+00A2 75F004            MOV     B,#04H
+00A5         L?0142:
+00A5 A4                MUL     AB
+00A6 F582              MOV     DPL,A
+00A8 85F083            MOV     DPH,B
+00AB 020000      E     LJMP    ?C?LLDOPTR
+00AE         L?0143:
+00AE EE                MOV     A,R6
+00AF F0                MOVX    @DPTR,A
+00B0 A3                INC     DPTR
+00B1 EF                MOV     A,R7
+00B2 F0                MOVX    @DPTR,A
+00B3         L?0144:
+00B3 D3                SETB    C
+00B4 900000      R     MOV     DPTR,#SyncRiseToFall+01H
+00B7 E0                MOVX    A,@DPTR
+00B8 9F                SUBB    A,R7
+00B9 900000      R     MOV     DPTR,#SyncRiseToFall
+00BC E0                MOVX    A,@DPTR
+00BD 9E                SUBB    A,R6
+00BE 22                RET     
+00BF         L?0145:
+00BF         L?0146:
+00BF E0                MOVX    A,@DPTR
+00C0 FF                MOV     R7,A
+00C1 EB                MOV     A,R3
+00C2 4F                ORL     A,R7
+00C3 FF                MOV     R7,A
+00C4 EA                MOV     A,R2
+00C5 FE                MOV     R6,A
+00C6 E9                MOV     A,R1
+00C7 FD                MOV     R5,A
+00C8 E8                MOV     A,R0
+00C9 FC                MOV     R4,A
+00CA 900000      R     MOV     DPTR,#Phase
+00CD 020000      E     LJMP    ?C?LSTXDATA
+00D0         L?0147:
+00D0 900000      R     MOV     DPTR,#period
+00D3 E0                MOVX    A,@DPTR
+00D4 FC                MOV     R4,A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 21  
+
+00D5 A3                INC     DPTR
+00D6 E0                MOVX    A,@DPTR
+00D7 FD                MOV     R5,A
+00D8 22                RET     
+00D9         L?0148:
+00D9 EF                MOV     A,R7
+00DA 2B                ADD     A,R3
+00DB FF                MOV     R7,A
+00DC EE                MOV     A,R6
+00DD 3A                ADDC    A,R2
+00DE FE                MOV     R6,A
+00DF ED                MOV     A,R5
+00E0 39                ADDC    A,R1
+00E1 FD                MOV     R5,A
+00E2 EC                MOV     A,R4
+00E3 38                ADDC    A,R0
+00E4 FC                MOV     R4,A
+00E5         L?0149:
+00E5 900000      R     MOV     DPTR,#PhaseRGB
+00E8 020000      E     LJMP    ?C?LSTXDATA
+00EB         L?0150:
+00EB E0                MOVX    A,@DPTR
+00EC 900000      R     MOV     DPTR,#period
+00EF         L?0151:
+00EF FF                MOV     R7,A
+00F0 E4                CLR     A
+00F1 F0                MOVX    @DPTR,A
+00F2 A3                INC     DPTR
+00F3 EF                MOV     A,R7
+00F4 F0                MOVX    @DPTR,A
+00F5 E0                MOVX    A,@DPTR
+00F6 7F00              MOV     R7,#00H
+00F8 FE                MOV     R6,A
+00F9 22                RET     
+00FA         L?0152:
+00FA         L?0153:
+00FA E0                MOVX    A,@DPTR
+00FB FF                MOV     R7,A
+00FC A3                INC     DPTR
+00FD E0                MOVX    A,@DPTR
+00FE 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
+0101 CF                XCH     A,R7
+0102 F0                MOVX    @DPTR,A
+0103 A3                INC     DPTR
+0104 EF                MOV     A,R7
+0105 F0                MOVX    @DPTR,A
+0106 22                RET     
+0107         L?0154:
+0107 900000      R     MOV     DPTR,#period
+010A E0                MOVX    A,@DPTR
+010B FC                MOV     R4,A
+010C A3                INC     DPTR
+010D E0                MOVX    A,@DPTR
+010E FD                MOV     R5,A
+010F 22                RET     
+0110         L?0155:
+0110 FF                MOV     R7,A
+0111 C3                CLR     C
+0112 74FF              MOV     A,#0FFH
+0114 9F                SUBB    A,R7
+0115 FF                MOV     R7,A
+0116 E4                CLR     A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 22  
+
+0117 9400              SUBB    A,#00H
+0119 FE                MOV     R6,A
+011A E0                MOVX    A,@DPTR
+011B 22                RET     
+011C         L?0157:
+011C 7808              MOV     R0,#08H
+011E 120000      E     LCALL   ?C?LSHL
+0121 900000      R     MOV     DPTR,#period
+0124 120000      E     LCALL   ?C?LSTXDATA
+0127 900000      R     MOV     DPTR,#period
+012A 22                RET     
+012B         L?0158:
+012B CF                XCH     A,R7
+012C 24FF              ADD     A,#0FFH
+012E CF                XCH     A,R7
+012F 34FF              ADDC    A,#0FFH
+0131 F0                MOVX    @DPTR,A
+0132 A3                INC     DPTR
+0133 EF                MOV     A,R7
+0134 F0                MOVX    @DPTR,A
+0135 22                RET     
+0136         L?0159:
+0136         L?0160:
+0136 900000      R     MOV     DPTR,#hTotal
+0139 EE                MOV     A,R6
+013A F0                MOVX    @DPTR,A
+013B A3                INC     DPTR
+013C EF                MOV     A,R7
+013D F0                MOVX    @DPTR,A
+013E 22                RET     
+013F         L?0161:
+013F 95F0              SUBB    A,B
+0141 CF                XCH     A,R7
+0142 2401              ADD     A,#01H
+0144 CF                XCH     A,R7
+0145 3400              ADDC    A,#00H
+0147 FE                MOV     R6,A
+0148 F0                MOVX    @DPTR,A
+0149 A3                INC     DPTR
+014A EF                MOV     A,R7
+014B F0                MOVX    @DPTR,A
+014C 22                RET     
+014D         L?0162:
+014D FF                MOV     R7,A
+014E         L?0163:
+014E E0                MOVX    A,@DPTR
+014F FC                MOV     R4,A
+0150 A3                INC     DPTR
+0151 E0                MOVX    A,@DPTR
+0152 FD                MOV     R5,A
+0153 C3                CLR     C
+0154 22                RET     
+0155         L?0164:
+0155         L?0165:
+0155 E0                MOVX    A,@DPTR
+0156 FF                MOV     R7,A
+0157 E4                CLR     A
+0158 FC                MOV     R4,A
+0159 FD                MOV     R5,A
+015A FE                MOV     R6,A
+015B 22                RET     
+015C         L?0166:
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 23  
+
+015C FD                MOV     R5,A
+015D ED                MOV     A,R5
+015E FF                MOV     R7,A
+015F EE                MOV     A,R6
+0160 F0                MOVX    @DPTR,A
+0161 A3                INC     DPTR
+0162 EF                MOV     A,R7
+0163 F0                MOVX    @DPTR,A
+0164 22                RET     
+0165         L?0167:
+0165 CF                XCH     A,R7
+0166 F0                MOVX    @DPTR,A
+0167 A3                INC     DPTR
+0168 EF                MOV     A,R7
+0169 F0                MOVX    @DPTR,A
+016A 900000      R     MOV     DPTR,#nGainG
+016D E0                MOVX    A,@DPTR
+016E FF                MOV     R7,A
+016F A3                INC     DPTR
+0170 E0                MOVX    A,@DPTR
+0171 22                RET     
+0172         L?0168:
+0172 CF                XCH     A,R7
+0173 F0                MOVX    @DPTR,A
+0174 A3                INC     DPTR
+0175 EF                MOV     A,R7
+0176 F0                MOVX    @DPTR,A
+0177 900000      R     MOV     DPTR,#nGainB
+017A E0                MOVX    A,@DPTR
+017B FF                MOV     R7,A
+017C A3                INC     DPTR
+017D E0                MOVX    A,@DPTR
+017E 22                RET     
+017F         L?0169:
+017F 900000      R     MOV     DPTR,#GainG
+0182 E0                MOVX    A,@DPTR
+0183 FE                MOV     R6,A
+0184 A3                INC     DPTR
+0185 E0                MOVX    A,@DPTR
+0186 FF                MOV     R7,A
+0187 900000      R     MOV     DPTR,#nGainG
+018A E0                MOVX    A,@DPTR
+018B 22                RET     
+018C         L?0170:
+018C 900000      R     MOV     DPTR,#GainR
+018F E0                MOVX    A,@DPTR
+0190 FE                MOV     R6,A
+0191 A3                INC     DPTR
+0192 E0                MOVX    A,@DPTR
+0193 FF                MOV     R7,A
+0194 900000      R     MOV     DPTR,#nGainR
+0197 E0                MOVX    A,@DPTR
+0198 22                RET     
+0199         L?0171:
+0199 E0                MOVX    A,@DPTR
+019A FF                MOV     R7,A
+019B A3                INC     DPTR
+019C E0                MOVX    A,@DPTR
+019D 900000      E     MOV     DPTR,#?_Printf?BYTE+07H
+01A0 CF                XCH     A,R7
+01A1 F0                MOVX    @DPTR,A
+01A2 A3                INC     DPTR
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 24  
+
+01A3 EF                MOV     A,R7
+01A4 F0                MOVX    @DPTR,A
+01A5 22                RET     
+01A6         L?0172:
+01A6 E0                MOVX    A,@DPTR
+01A7 FF                MOV     R7,A
+01A8 A3                INC     DPTR
+01A9 E0                MOVX    A,@DPTR
+01AA 900000      E     MOV     DPTR,#?_Printf?BYTE+09H
+01AD CF                XCH     A,R7
+01AE F0                MOVX    @DPTR,A
+01AF A3                INC     DPTR
+01B0 EF                MOV     A,R7
+01B1 F0                MOVX    @DPTR,A
+01B2 22                RET     
+01B3         L?0173:
+01B3 E0                MOVX    A,@DPTR
+01B4 FF                MOV     R7,A
+01B5 A3                INC     DPTR
+01B6 E0                MOVX    A,@DPTR
+01B7 900000      E     MOV     DPTR,#?_Printf?BYTE+0BH
+01BA CF                XCH     A,R7
+01BB F0                MOVX    @DPTR,A
+01BC A3                INC     DPTR
+01BD EF                MOV     A,R7
+01BE F0                MOVX    @DPTR,A
+01BF 22                RET     
+01C0         L?0174:
+01C0         L?0175:
+01C0 EE                MOV     A,R6
+01C1 F0                MOVX    @DPTR,A
+01C2 A3                INC     DPTR
+01C3 EF                MOV     A,R7
+01C4 F0                MOVX    @DPTR,A
+01C5 7B01              MOV     R3,#01H
+01C7 22                RET     
+01C8         L?0176:
+01C8 D3                SETB    C
+01C9 900000      R     MOV     DPTR,#SyncRiseToFall+01H
+01CC E0                MOVX    A,@DPTR
+01CD 9F                SUBB    A,R7
+01CE 900000      R     MOV     DPTR,#SyncRiseToFall
+01D1 E0                MOVX    A,@DPTR
+01D2 9E                SUBB    A,R6
+01D3 22                RET     
+01D4         L?0177:
+01D4 8FF0              MOV     B,R7
+01D6         L?0178:
+01D6 120000      E     LCALL   ?C?ISTPTR
+01D9 900000      R     MOV     DPTR,#start
+01DC 22                RET     
+01DD         L?0179:
+01DD         L?0180:
+01DD 7401              MOV     A,#01H
+01DF F0                MOVX    @DPTR,A
+01E0 A3                INC     DPTR
+01E1 74FF              MOV     A,#0FFH
+01E3 F0                MOVX    @DPTR,A
+01E4 22                RET     
+01E5         L?0181:
+01E5 EB                MOV     A,R3
+01E6 F0                MOVX    @DPTR,A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 25  
+
+01E7 A3                INC     DPTR
+01E8 EA                MOV     A,R2
+01E9 F0                MOVX    @DPTR,A
+01EA A3                INC     DPTR
+01EB E9                MOV     A,R1
+01EC F0                MOVX    @DPTR,A
+01ED E500        E     MOV     A,regTW88+01H
+01EF 22                RET     
+01F0         L?0183:
+01F0 E0                MOVX    A,@DPTR
+01F1 FC                MOV     R4,A
+01F2 A3                INC     DPTR
+01F3 E0                MOVX    A,@DPTR
+01F4 FD                MOV     R5,A
+01F5 EC                MOV     A,R4
+01F6 FF                MOV     R7,A
+01F7 E500        E     MOV     A,regTW88+01H
+01F9 22                RET     
+01FA         L?0184:
+01FA         L?0185:
+01FA 900000      R     MOV     DPTR,#RGBmin
+01FD 020000      E     LJMP    ?C?LSTXDATA
+0200         L?0186:
+0200         L?0187:
+0200 E4                CLR     A
+0201 F0                MOVX    @DPTR,A
+0202 A3                INC     DPTR
+0203 74F0              MOV     A,#0F0H
+0205 F0                MOVX    @DPTR,A
+0206 22                RET     
+             ; FUNCTION Com0076 (END)
+
+             ; FUNCTION _MeasSetWindow (BEGIN)
+                                           ; SOURCE LINE # 85
+0000 900000      R     MOV     DPTR,#y
+0003 EC                MOV     A,R4
+0004 F0                MOVX    @DPTR,A
+0005 A3                INC     DPTR
+0006 ED                MOV     A,R5
+0007 F0                MOVX    @DPTR,A
+0008 900000      R     MOV     DPTR,#x
+000B EE                MOV     A,R6
+000C F0                MOVX    @DPTR,A
+000D A3                INC     DPTR
+000E EF                MOV     A,R7
+000F F0                MOVX    @DPTR,A
+;---- Variable 'w' assigned to Register 'R2/R3' ----
+                                           ; SOURCE LINE # 86
+                                           ; SOURCE LINE # 88
+0010 C3                CLR     C
+0011 9402              SUBB    A,#02H
+0013 EE                MOV     A,R6
+0014 9400              SUBB    A,#00H
+0016 5009              JNC     ?C0001
+                                           ; SOURCE LINE # 89
+0018 900000      R     MOV     DPTR,#x
+001B E4                CLR     A
+001C F0                MOVX    @DPTR,A
+001D A3                INC     DPTR
+001E 7402              MOV     A,#02H
+0020 F0                MOVX    @DPTR,A
+0021         ?C0001:
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 26  
+
+                                           ; SOURCE LINE # 92
+0021 900000      R     MOV     DPTR,#x
+0024 E0                MOVX    A,@DPTR
+0025 FF                MOV     R7,A
+0026 E4                CLR     A
+0027 2500        E     ADD     A,regTW88+01H
+0029 120000      R     LCALL   L?0121
+002C EF                MOV     A,R7
+002D F0                MOVX    @DPTR,A
+002E 900000      R     MOV     DPTR,#x
+0031 A3                INC     DPTR
+0032 E0                MOVX    A,@DPTR
+0033 FF                MOV     R7,A
+0034 E500        E     MOV     A,regTW88+01H
+0036 2401              ADD     A,#01H
+0038 120000      R     LCALL   L?0121
+003B EF                MOV     A,R7
+003C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 93
+003D EA                MOV     A,R2
+003E FF                MOV     R7,A
+003F E500        E     MOV     A,regTW88+01H
+0041 2402              ADD     A,#02H
+0043 120000      R     LCALL   L?0121
+0046 EF                MOV     A,R7
+0047 F0                MOVX    @DPTR,A
+0048 E500        E     MOV     A,regTW88+01H
+004A 2403              ADD     A,#03H
+004C 120000      R     LCALL   L?0121
+004F EB                MOV     A,R3
+0050 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 95
+0051 900000      R     MOV     DPTR,#y
+0054 120000      R     LCALL   L?0183
+0057 2404              ADD     A,#04H
+0059 120000      R     LCALL   L?0121
+005C EF                MOV     A,R7
+005D F0                MOVX    @DPTR,A
+005E E500        E     MOV     A,regTW88+01H
+0060 2405              ADD     A,#05H
+0062 120000      R     LCALL   L?0121
+0065 ED                MOV     A,R5
+0066 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 96
+0067 900000      R     MOV     DPTR,#h
+006A 120000      R     LCALL   L?0183
+006D 2406              ADD     A,#06H
+006F 120000      R     LCALL   L?0121
+0072 EF                MOV     A,R7
+0073 F0                MOVX    @DPTR,A
+0074 E500        E     MOV     A,regTW88+01H
+0076 2407              ADD     A,#07H
+0078 120000      R     LCALL   L?0121
+007B ED                MOV     A,R5
+007C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 97
+007D 22                RET     
+             ; FUNCTION _MeasSetWindow (END)
+
+             ; FUNCTION _MeasSetField (BEGIN)
+                                           ; SOURCE LINE # 116
+;---- Variable 'field' assigned to Register 'R7' ----
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 27  
+
+                                           ; SOURCE LINE # 117
+                                           ; SOURCE LINE # 119
+0000 E500        E     MOV     A,regTW88+01H
+0002 2408              ADD     A,#08H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+0008 54F3              ANL     A,#0F3H
+000A FE                MOV     R6,A
+000B EF                MOV     A,R7
+000C 25E0              ADD     A,ACC
+000E 25E0              ADD     A,ACC
+0010 4E                ORL     A,R6
+0011 FF                MOV     R7,A
+0012 E500        E     MOV     A,regTW88+01H
+0014 2408              ADD     A,#08H
+0016 120000      R     LCALL   L?0121
+0019 EF                MOV     A,R7
+001A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 120
+001B 22                RET     
+             ; FUNCTION _MeasSetField (END)
+
+             ; FUNCTION MeasStartMeasure (BEGIN)
+                                           ; SOURCE LINE # 145
+                                           ; SOURCE LINE # 146
+                                           ; SOURCE LINE # 152
+0000 E500        E     MOV     A,regTW88+01H
+0002 2408              ADD     A,#08H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+0008 4401              ORL     A,#01H
+000A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 155
+;---- Variable 'i' assigned to Register 'R5' ----
+000B E4                CLR     A
+000C FD                MOV     R5,A
+000D         ?C0004:
+                                           ; SOURCE LINE # 156
+000D 7F0A              MOV     R7,#0AH
+000F 7E00              MOV     R6,#00H
+0011 120000      E     LCALL   _delay1ms
+                                           ; SOURCE LINE # 157
+0014 E500        E     MOV     A,regTW88+01H
+0016 2408              ADD     A,#08H
+0018 120000      R     LCALL   L?0121
+001B E0                MOVX    A,@DPTR
+001C 900000      R     MOV     DPTR,#val
+001F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 158
+0020 E0                MOVX    A,@DPTR
+0021 20E003            JB      ACC.0,?C0006
+                                           ; SOURCE LINE # 160
+0024 7F00              MOV     R7,#00H
+0026 22                RET     
+                                           ; SOURCE LINE # 161
+                                           ; SOURCE LINE # 162
+0027         ?C0006:
+0027 0D                INC     R5
+0028 ED                MOV     A,R5
+0029 B4C8E1            CJNE    A,#0C8H,?C0004
+002C         ?C0005:
+                                           ; SOURCE LINE # 163
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 28  
+
+002C 7BFF              MOV     R3,#0FFH
+002E 7A00        R     MOV     R2,#HIGH ?SC_0
+0030 7900        R     MOV     R1,#LOW ?SC_0
+0032 120000      E     LCALL   _dPuts
+                                           ; SOURCE LINE # 164
+0035 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 165
+0037         ?C0008:
+0037 22                RET     
+             ; FUNCTION MeasStartMeasure (END)
+
+             ; FUNCTION MeasGetInputClkForHPeriodReg (BEGIN)
+                                           ; SOURCE LINE # 195
+                                           ; SOURCE LINE # 196
+                                           ; SOURCE LINE # 198
+0000 120000      R     LCALL   L?0119
+0003 E0                MOVX    A,@DPTR
+0004 30E703            JNB     ACC.7,?C0009
+0007 7F01              MOV     R7,#01H
+0009 22                RET     
+000A         ?C0009:
+                                           ; SOURCE LINE # 199
+000A 7F00              MOV     R7,#00H
+                                           ; SOURCE LINE # 200
+000C         ?C0010:
+000C 22                RET     
+             ; FUNCTION MeasGetInputClkForHPeriodReg (END)
+
+             ; FUNCTION _MeasSetErrTolerance (BEGIN)
+                                           ; SOURCE LINE # 223
+;---- Variable 'value' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 224
+                                           ; SOURCE LINE # 226
+0000 120000      R     LCALL   L?0119
+0003 E0                MOVX    A,@DPTR
+0004 54F1              ANL     A,#0F1H
+0006 FE                MOV     R6,A
+0007 EF                MOV     A,R7
+0008 25E0              ADD     A,ACC
+000A 4E                ORL     A,R6
+000B FF                MOV     R7,A
+000C 120000      R     LCALL   L?0120
+000F EF                MOV     A,R7
+0010 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 227
+0011 22                RET     
+             ; FUNCTION _MeasSetErrTolerance (END)
+
+             ; FUNCTION _MeasEnableChangedDetection (BEGIN)
+                                           ; SOURCE LINE # 246
+;---- Variable 'on' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 247
+                                           ; SOURCE LINE # 250
+0000 EF                MOV     A,R7
+0001 6008              JZ      ?C0013
+0003 120000      R     LCALL   L?0120
+0006 E0                MOVX    A,@DPTR
+0007 4401              ORL     A,#01H
+0009 F0                MOVX    @DPTR,A
+000A 22                RET     
+000B         ?C0013:
+                                           ; SOURCE LINE # 251
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 29  
+
+000B 120000      R     LCALL   L?0120
+000E E0                MOVX    A,@DPTR
+000F 54FE              ANL     A,#0FEH
+0011 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 252
+0012         ?C0015:
+0012 22                RET     
+             ; FUNCTION _MeasEnableChangedDetection (END)
+
+             ; FUNCTION _MeasEnableDeMeasure (BEGIN)
+                                           ; SOURCE LINE # 265
+;---- Variable 'fOn' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 266
+                                           ; SOURCE LINE # 268
+0000 EF                MOV     A,R7
+0001 600C              JZ      ?C0016
+0003 E500        E     MOV     A,regTW88+01H
+0005 240A              ADD     A,#0AH
+0007 120000      R     LCALL   L?0121
+000A E0                MOVX    A,@DPTR
+000B 4401              ORL     A,#01H
+000D F0                MOVX    @DPTR,A
+000E 22                RET     
+000F         ?C0016:
+                                           ; SOURCE LINE # 269
+000F E500        E     MOV     A,regTW88+01H
+0011 240A              ADD     A,#0AH
+0013 120000      R     LCALL   L?0121
+0016 E0                MOVX    A,@DPTR
+0017 54FE              ANL     A,#0FEH
+0019 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 270
+001A         ?C0018:
+001A 22                RET     
+             ; FUNCTION _MeasEnableDeMeasure (END)
+
+             ; FUNCTION _MeasSetThreshold (BEGIN)
+                                           ; SOURCE LINE # 279
+;---- Variable 'thold' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 280
+                                           ; SOURCE LINE # 282
+0000 E500        E     MOV     A,regTW88+01H
+0002 240B              ADD     A,#0BH
+0004 120000      R     LCALL   L?0121
+0007 EF                MOV     A,R7
+0008 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 283
+0009 22                RET     
+             ; FUNCTION _MeasSetThreshold (END)
+
+             ; FUNCTION MeasReadPhaseRGB (BEGIN)
+                                           ; SOURCE LINE # 353
+                                           ; SOURCE LINE # 354
+                                           ; SOURCE LINE # 358
+0000 E500        E     MOV     A,regTW88+01H
+0002 2410              ADD     A,#010H
+0004 120000      R     LCALL   L?0121
+0007 120000      R     LCALL   L?0164
+000A 120000      R     LCALL   L?0124
+000D E500        E     MOV     A,regTW88+01H
+000F 2411              ADD     A,#011H
+0011 120000      R     LCALL   L?0121
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 30  
+
+0014 120000      R     LCALL   L?0122
+0017 E500        E     MOV     A,regTW88+01H
+0019 2412              ADD     A,#012H
+001B 120000      R     LCALL   L?0121
+001E 120000      R     LCALL   L?0145
+0021 900000      R     MOV     DPTR,#Phase
+0024 120000      R     LCALL   L?0129
+0027 120000      R     LCALL   L?0149
+                                           ; SOURCE LINE # 359
+002A E500        E     MOV     A,regTW88+01H
+002C 2414              ADD     A,#014H
+002E 120000      R     LCALL   L?0121
+0031 120000      R     LCALL   L?0164
+0034 120000      R     LCALL   L?0124
+0037 E500        E     MOV     A,regTW88+01H
+0039 2415              ADD     A,#015H
+003B 120000      R     LCALL   L?0121
+003E 120000      R     LCALL   L?0122
+0041 E500        E     MOV     A,regTW88+01H
+0043 2416              ADD     A,#016H
+0045 120000      R     LCALL   L?0121
+0048 120000      R     LCALL   L?0145
+004B 900000      R     MOV     DPTR,#PhaseRGB
+004E 120000      R     LCALL   L?0129
+0051 A3                INC     DPTR
+0052 120000      R     LCALL   L?0125
+0055 120000      R     LCALL   L?0148
+                                           ; SOURCE LINE # 360
+0058 E500        E     MOV     A,regTW88+01H
+005A 2418              ADD     A,#018H
+005C 120000      R     LCALL   L?0121
+005F 120000      R     LCALL   L?0165
+0062 120000      R     LCALL   L?0124
+0065 E500        E     MOV     A,regTW88+01H
+0067 2419              ADD     A,#019H
+0069 120000      R     LCALL   L?0121
+006C 120000      R     LCALL   L?0123
+006F E500        E     MOV     A,regTW88+01H
+0071 241A              ADD     A,#01AH
+0073 120000      R     LCALL   L?0121
+0076 120000      R     LCALL   L?0146
+0079 900000      R     MOV     DPTR,#PhaseRGB
+007C 120000      R     LCALL   L?0129
+007F A3                INC     DPTR
+0080 120000      R     LCALL   L?0125
+0083 120000      R     LCALL   L?0148
+                                           ; SOURCE LINE # 361
+0086 900000      R     MOV     DPTR,#PhaseRGB
+0089 120000      R     LCALL   L?0129
+                                           ; SOURCE LINE # 362
+008C         ?C0020:
+008C 22                RET     
+             ; FUNCTION MeasReadPhaseRGB (END)
+
+             ; FUNCTION MeasGetVPeriod (BEGIN)
+                                           ; SOURCE LINE # 384
+                                           ; SOURCE LINE # 385
+                                           ; SOURCE LINE # 389
+0000 E500        E     MOV     A,regTW88+01H
+0002 2422              ADD     A,#022H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 31  
+
+;---- Variable 'period' assigned to Register 'R6/R7' ----
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 2423              ADD     A,#023H
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 390
+                                           ; SOURCE LINE # 391
+0014         ?C0021:
+0014 22                RET     
+             ; FUNCTION MeasGetVPeriod (END)
+
+             ; FUNCTION MeasGetHPeriod (BEGIN)
+                                           ; SOURCE LINE # 403
+                                           ; SOURCE LINE # 404
+                                           ; SOURCE LINE # 408
+0000 E500        E     MOV     A,regTW88+01H
+0002 2424              ADD     A,#024H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'period' assigned to Register 'R6/R7' ----
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 2425              ADD     A,#025H
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 409
+                                           ; SOURCE LINE # 410
+0014         ?C0022:
+0014 22                RET     
+             ; FUNCTION MeasGetHPeriod (END)
+
+             ; FUNCTION _MeasGetHTotal (BEGIN)
+                                           ; SOURCE LINE # 418
+;---- Variable 'hPol' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 419
+                                           ; SOURCE LINE # 424
+0000 EF                MOV     A,R7
+0001 6009              JZ      ?C0023
+                                           ; SOURCE LINE # 425
+0003 120000      R     LCALL   MeasGetVsyncRisePos
+0006 120000      R     LCALL   L?0159
+                                           ; SOURCE LINE # 426
+0009 020000      R     LJMP    ?C0024
+000C         ?C0023:
+                                           ; SOURCE LINE # 427
+                                           ; SOURCE LINE # 428
+000C 120000      R     LCALL   MeasGetHPeriod
+000F 120000      R     LCALL   L?0159
+                                           ; SOURCE LINE # 429
+0012 120000      R     LCALL   MeasGetInputClkForHPeriodReg
+0015 EF                MOV     A,R7
+0016 6003              JZ      $ + 5H
+0018 020000      R     LJMP    ?C0025
+                                           ; SOURCE LINE # 430
+001B FF                MOV     R7,A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 32  
+
+001C 120000      E     LCALL   _SspllGetPPF
+001F 900000      R     MOV     DPTR,#dTemp
+0022 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 431
+0025 7A00        R     MOV     R2,#HIGH ?SC_21
+0027 7900        R     MOV     R1,#LOW ?SC_21
+0029 900000      R     MOV     DPTR,#hTotal
+002C 120000      R     LCALL   L?0138
+002F 900000      R     MOV     DPTR,#dTemp
+0032 120000      R     LCALL   L?0129
+0035 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
+0038 120000      E     LCALL   ?C?LSTXDATA
+003B 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 432
+003E 7B40              MOV     R3,#040H
+0040 7A42              MOV     R2,#042H
+0042 790F              MOV     R1,#0FH
+0044 7800              MOV     R0,#00H
+0046 900000      R     MOV     DPTR,#dTemp
+0049 120000      R     LCALL   L?0129
+004C 120000      E     LCALL   ?C?ULDIV
+004F 900000      R     MOV     DPTR,#sspll
+0052 EE                MOV     A,R6
+0053 F0                MOVX    @DPTR,A
+0054 A3                INC     DPTR
+0055 EF                MOV     A,R7
+0056 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 433
+0057 120000      R     LCALL   L?0130
+005A E4                CLR     A
+005B FC                MOV     R4,A
+005C FD                MOV     R5,A
+005D 900000      R     MOV     DPTR,#dTemp
+0060 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 434
+0063 E4                CLR     A
+0064 7F1B              MOV     R7,#01BH
+0066 FE                MOV     R6,A
+0067 FD                MOV     R5,A
+0068 FC                MOV     R4,A
+0069 900000      R     MOV     DPTR,#dTemp
+006C 120000      R     LCALL   L?0125
+006F 120000      E     LCALL   ?C?LMUL
+0072 C006              PUSH    AR6
+0074 C007              PUSH    AR7
+0076 900000      R     MOV     DPTR,#sspll
+0079 E0                MOVX    A,@DPTR
+007A FE                MOV     R6,A
+007B A3                INC     DPTR
+007C E0                MOVX    A,@DPTR
+007D FB                MOV     R3,A
+007E AA06              MOV     R2,AR6
+0080 E4                CLR     A
+0081 F9                MOV     R1,A
+0082 F8                MOV     R0,A
+0083 D007              POP     AR7
+0085 D006              POP     AR6
+0087 120000      E     LCALL   ?C?ULDIV
+008A 120000      R     LCALL   L?0160
+                                           ; SOURCE LINE # 435
+008D 7A00        R     MOV     R2,#HIGH ?SC_43
+008F 7900        R     MOV     R1,#LOW ?SC_43
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 33  
+
+0091 900000      R     MOV     DPTR,#sspll
+0094 120000      R     LCALL   L?0138
+0097 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 436
+009A         ?C0025:
+                                           ; SOURCE LINE # 437
+009A 900000      R     MOV     DPTR,#hTotal+01H
+009D E0                MOVX    A,@DPTR
+009E 04                INC     A
+009F F0                MOVX    @DPTR,A
+00A0 7006              JNZ     ?C0101
+00A2 900000      R     MOV     DPTR,#hTotal
+00A5 E0                MOVX    A,@DPTR
+00A6 04                INC     A
+00A7 F0                MOVX    @DPTR,A
+00A8         ?C0101:
+                                           ; SOURCE LINE # 438
+00A8         ?C0024:
+                                           ; SOURCE LINE # 439
+00A8 900000      R     MOV     DPTR,#hTotal
+00AB E0                MOVX    A,@DPTR
+00AC FE                MOV     R6,A
+00AD A3                INC     DPTR
+00AE E0                MOVX    A,@DPTR
+00AF FF                MOV     R7,A
+                                           ; SOURCE LINE # 440
+00B0         ?C0026:
+00B0 22                RET     
+             ; FUNCTION _MeasGetHTotal (END)
+
+             ; FUNCTION MeasGetHSyncRiseToFallWidth (BEGIN)
+                                           ; SOURCE LINE # 478
+                                           ; SOURCE LINE # 479
+                                           ; SOURCE LINE # 482
+0000 E500        E     MOV     A,regTW88+01H
+0002 2426              ADD     A,#026H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'wTemp' assigned to Register 'R6/R7' ----
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 2427              ADD     A,#027H
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 483
+                                           ; SOURCE LINE # 484
+0014         ?C0027:
+0014 22                RET     
+             ; FUNCTION MeasGetHSyncRiseToFallWidth (END)
+
+             ; FUNCTION MeasGetHSyncRiseToHActiveEnd (BEGIN)
+                                           ; SOURCE LINE # 493
+                                           ; SOURCE LINE # 494
+                                           ; SOURCE LINE # 497
+0000 E500        E     MOV     A,regTW88+01H
+0002 2428              ADD     A,#028H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'wTemp' assigned to Register 'R6/R7' ----
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 34  
+
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 2429              ADD     A,#029H
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 498
+                                           ; SOURCE LINE # 499
+0014         ?C0028:
+0014 22                RET     
+             ; FUNCTION MeasGetHSyncRiseToHActiveEnd (END)
+
+             ; FUNCTION MeasGetVSyncRiseToFallWidth (BEGIN)
+                                           ; SOURCE LINE # 509
+                                           ; SOURCE LINE # 510
+                                           ; SOURCE LINE # 513
+0000 E500        E     MOV     A,regTW88+01H
+0002 242A              ADD     A,#02AH
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'wTemp' assigned to Register 'R6/R7' ----
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 242B              ADD     A,#02BH
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 514
+                                           ; SOURCE LINE # 515
+0014         ?C0029:
+0014 22                RET     
+             ; FUNCTION MeasGetVSyncRiseToFallWidth (END)
+
+             ; FUNCTION MeasGetVsyncRisePos (BEGIN)
+                                           ; SOURCE LINE # 524
+                                           ; SOURCE LINE # 525
+                                           ; SOURCE LINE # 528
+0000 E500        E     MOV     A,regTW88+01H
+0002 242C              ADD     A,#02CH
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'wTemp' assigned to Register 'R6/R7' ----
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 242D              ADD     A,#02DH
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 529
+                                           ; SOURCE LINE # 530
+0014         ?C0030:
+0014 22                RET     
+             ; FUNCTION MeasGetVsyncRisePos (END)
+
+             ; FUNCTION _MeasGetHActive (BEGIN)
+                                           ; SOURCE LINE # 546
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 35  
+
+0000 900000      R     MOV     DPTR,#start
+                                           ; SOURCE LINE # 547
+                                           ; SOURCE LINE # 552
+0003 120000      R     LCALL   L?0181
+0006 242E              ADD     A,#02EH
+0008 120000      R     LCALL   L?0121
+000B 120000      R     LCALL   L?0135
+000E 242F              ADD     A,#02FH
+0010 120000      R     LCALL   L?0121
+0013 E0                MOVX    A,@DPTR
+0014 FD                MOV     R5,A
+0015 ED                MOV     A,R5
+0016 FF                MOV     R7,A
+0017 900000      R     MOV     DPTR,#period
+001A EE                MOV     A,R6
+                                           ; SOURCE LINE # 553
+001B 120000      R     LCALL   L?0137
+001E 2430              ADD     A,#030H
+0020 120000      R     LCALL   L?0121
+0023 E0                MOVX    A,@DPTR
+0024 FF                MOV     R7,A
+0025 120000      R     LCALL   L?0133
+0028 E4                CLR     A
+0029 120000      R     LCALL   L?0131
+002C 120000      E     LCALL   ?C?ILDPTR
+002F 75F000            MOV     B,#00H
+0032 120000      R     LCALL   L?0132
+0035 120000      E     LCALL   ?C?ILDPTR
+0038 FF                MOV     R7,A
+0039 E500        E     MOV     A,regTW88+01H
+003B 2431              ADD     A,#031H
+003D 120000      R     LCALL   L?0121
+0040 E0                MOVX    A,@DPTR
+0041 FD                MOV     R5,A
+0042 EF                MOV     A,R7
+0043 4D                ORL     A,R5
+0044 FF                MOV     R7,A
+0045 E5F0              MOV     A,B
+                                           ; SOURCE LINE # 555
+0047 120000      R     LCALL   L?0131
+004A 120000      E     LCALL   ?C?ILDPTR
+004D FF                MOV     R7,A
+004E 120000      R     LCALL   L?0147
+0051 D3                SETB    C
+0052 9F                SUBB    A,R7
+0053 EC                MOV     A,R4
+0054 95F0              SUBB    A,B
+0056 4006              JC      ?C0031
+                                           ; SOURCE LINE # 556
+0058 EC                MOV     A,R4
+0059 8DF0              MOV     B,R5
+005B 120000      E     LCALL   ?C?ISTPTR
+005E         ?C0031:
+                                           ; SOURCE LINE # 558
+005E E500        E     MOV     A,regTW88+01H
+0060 2432              ADD     A,#032H
+0062 120000      R     LCALL   L?0121
+0065 120000      R     LCALL   L?0135
+0068 2433              ADD     A,#033H
+006A 120000      R     LCALL   L?0121
+006D E0                MOVX    A,@DPTR
+006E FD                MOV     R5,A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 36  
+
+006F ED                MOV     A,R5
+0070 FF                MOV     R7,A
+0071 900000      R     MOV     DPTR,#period
+0074 EE                MOV     A,R6
+                                           ; SOURCE LINE # 559
+0075 120000      R     LCALL   L?0137
+0078 2434              ADD     A,#034H
+007A 120000      R     LCALL   L?0121
+007D E0                MOVX    A,@DPTR
+007E FF                MOV     R7,A
+007F 900000      R     MOV     DPTR,#end
+0082 E4                CLR     A
+0083 F0                MOVX    @DPTR,A
+0084 A3                INC     DPTR
+0085 EF                MOV     A,R7
+0086 F0                MOVX    @DPTR,A
+0087 E0                MOVX    A,@DPTR
+0088 900000      R     MOV     DPTR,#end
+008B 120000      R     LCALL   L?0136
+008E 2435              ADD     A,#035H
+0090 120000      R     LCALL   L?0121
+0093 E0                MOVX    A,@DPTR
+0094 900000      R     MOV     DPTR,#end
+0097 120000      R     LCALL   L?0166
+                                           ; SOURCE LINE # 560
+009A 120000      R     LCALL   L?0147
+009D C3                CLR     C
+009E 9F                SUBB    A,R7
+009F EC                MOV     A,R4
+00A0 9E                SUBB    A,R6
+00A1 5006              JNC     ?C0032
+                                           ; SOURCE LINE # 561
+00A3 A3                INC     DPTR
+00A4 EC                MOV     A,R4
+00A5 F0                MOVX    @DPTR,A
+00A6 A3                INC     DPTR
+00A7 ED                MOV     A,R5
+00A8 F0                MOVX    @DPTR,A
+00A9         ?C0032:
+                                           ; SOURCE LINE # 563
+00A9 120000      R     LCALL   L?0133
+00AC 120000      E     LCALL   ?C?ILDPTR
+00AF FF                MOV     R7,A
+00B0 C3                CLR     C
+00B1 900000      R     MOV     DPTR,#end+01H
+00B4 E0                MOVX    A,@DPTR
+00B5 9F                SUBB    A,R7
+00B6 FF                MOV     R7,A
+00B7 900000      R     MOV     DPTR,#end
+00BA E0                MOVX    A,@DPTR
+00BB 900000      R     MOV     DPTR,#period
+00BE 120000      R     LCALL   L?0161
+                                           ; SOURCE LINE # 565
+                                           ; SOURCE LINE # 566
+00C1         ?C0033:
+00C1 22                RET     
+             ; FUNCTION _MeasGetHActive (END)
+
+             ; FUNCTION MeasGetDviDivider (BEGIN)
+                                           ; SOURCE LINE # 592
+                                           ; SOURCE LINE # 593
+                                           ; SOURCE LINE # 607
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 37  
+
+0000 120000      R     LCALL   MeasGetHSyncRiseToFallWidth
+0003 900000      R     MOV     DPTR,#SyncRiseToFall
+                                           ; SOURCE LINE # 608
+0006 120000      R     LCALL   L?0174
+0009 7A00        R     MOV     R2,#HIGH hStart
+000B 7900        R     MOV     R1,#LOW hStart
+000D 120000      R     LCALL   _MeasGetHActive
+;---- Variable 'hActive' assigned to Register 'R6/R7' ----
+                                           ; SOURCE LINE # 611
+0010 120000      R     LCALL   L?0176
+0013 4007              JC      ?C0034
+0015 E4                CLR     A
+0016 900000      R     MOV     DPTR,#hPol
+0019 F0                MOVX    @DPTR,A
+001A 8006              SJMP    ?C0035
+001C         ?C0034:
+                                           ; SOURCE LINE # 612
+001C 900000      R     MOV     DPTR,#hPol
+001F 7401              MOV     A,#01H
+0021 F0                MOVX    @DPTR,A
+0022         ?C0035:
+                                           ; SOURCE LINE # 615
+0022 900000      R     MOV     DPTR,#hPol
+0025 E0                MOVX    A,@DPTR
+0026 FF                MOV     R7,A
+0027 120000      R     LCALL   _MeasGetHTotal
+;---- Variable 'hTotal' assigned to Register 'R2/R3' ----
+002A AB07              MOV     R3,AR7
+002C AA06              MOV     R2,AR6
+                                           ; SOURCE LINE # 616
+002E D3                SETB    C
+002F 900000      R     MOV     DPTR,#SyncRiseToFall+01H
+0032 E0                MOVX    A,@DPTR
+0033 9B                SUBB    A,R3
+0034 900000      R     MOV     DPTR,#SyncRiseToFall
+0037 E0                MOVX    A,@DPTR
+0038 9A                SUBB    A,R2
+0039 4014              JC      ?C0036
+                                           ; SOURCE LINE # 618
+003B 120000      R     LCALL   MeasGetVsyncRisePos
+003E 120000      R     LCALL   L?0176
+0041 4005              JC      ?C0037
+                                           ; SOURCE LINE # 619
+0043 0B                INC     R3
+0044 BB0001            CJNE    R3,#00H,?C0102
+0047 0A                INC     R2
+0048         ?C0102:
+0048         ?C0037:
+                                           ; SOURCE LINE # 620
+0048 EB                MOV     A,R3
+0049 25E0              ADD     A,ACC
+004B FB                MOV     R3,A
+004C EA                MOV     A,R2
+004D 33                RLC     A
+004E FA                MOV     R2,A
+                                           ; SOURCE LINE # 621
+004F         ?C0036:
+                                           ; SOURCE LINE # 622
+004F AE02              MOV     R6,AR2
+0051 AF03              MOV     R7,AR3
+                                           ; SOURCE LINE # 624
+0053         ?C0038:
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 38  
+
+0053 22                RET     
+             ; FUNCTION MeasGetDviDivider (END)
+
+             ; FUNCTION MeasGetHActive2 (BEGIN)
+                                           ; SOURCE LINE # 632
+                                           ; SOURCE LINE # 633
+                                           ; SOURCE LINE # 637
+0000 E500        E     MOV     A,regTW88+01H
+0002 2430              ADD     A,#030H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'start' assigned to Register 'R6/R7' ----
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 2431              ADD     A,#031H
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 638
+                                           ; SOURCE LINE # 639
+0014         ?C0039:
+0014 22                RET     
+             ; FUNCTION MeasGetHActive2 (END)
+
+             ; FUNCTION _MeasGetVActive (BEGIN)
+                                           ; SOURCE LINE # 655
+0000 900000      R     MOV     DPTR,#start
+                                           ; SOURCE LINE # 656
+                                           ; SOURCE LINE # 661
+0003 120000      R     LCALL   L?0181
+0006 2436              ADD     A,#036H
+0008 120000      R     LCALL   L?0121
+000B 120000      R     LCALL   L?0150
+000E 900000      R     MOV     DPTR,#period
+0011 120000      R     LCALL   L?0137
+0014 2437              ADD     A,#037H
+0016 120000      R     LCALL   L?0121
+0019 E0                MOVX    A,@DPTR
+001A FD                MOV     R5,A
+001B ED                MOV     A,R5
+001C FF                MOV     R7,A
+001D 900000      R     MOV     DPTR,#period
+0020 EE                MOV     A,R6
+                                           ; SOURCE LINE # 662
+0021 120000      R     LCALL   L?0137
+0024 2438              ADD     A,#038H
+0026 120000      R     LCALL   L?0121
+0029 E0                MOVX    A,@DPTR
+002A FF                MOV     R7,A
+002B 900000      R     MOV     DPTR,#start
+002E 120000      R     LCALL   L?0134
+0031 E4                CLR     A
+0032 120000      R     LCALL   L?0177
+0035 120000      R     LCALL   L?0134
+0038 120000      E     LCALL   ?C?ILDPTR
+003B 75F000            MOV     B,#00H
+003E 120000      R     LCALL   L?0178
+0041 120000      R     LCALL   L?0134
+0044 120000      E     LCALL   ?C?ILDPTR
+0047 FF                MOV     R7,A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 39  
+
+0048 E500        E     MOV     A,regTW88+01H
+004A 2439              ADD     A,#039H
+004C 120000      R     LCALL   L?0121
+004F E0                MOVX    A,@DPTR
+0050 FD                MOV     R5,A
+0051 EF                MOV     A,R7
+0052 4D                ORL     A,R5
+0053 FF                MOV     R7,A
+0054 E5F0              MOV     A,B
+                                           ; SOURCE LINE # 663
+0056 120000      R     LCALL   L?0177
+0059 120000      R     LCALL   L?0134
+005C 120000      E     LCALL   ?C?ILDPTR
+005F FF                MOV     R7,A
+0060 120000      R     LCALL   L?0154
+0063 D3                SETB    C
+0064 9F                SUBB    A,R7
+0065 EC                MOV     A,R4
+0066 95F0              SUBB    A,B
+0068 4006              JC      ?C0040
+                                           ; SOURCE LINE # 664
+006A EC                MOV     A,R4
+006B 8DF0              MOV     B,R5
+006D 120000      E     LCALL   ?C?ISTPTR
+0070         ?C0040:
+                                           ; SOURCE LINE # 666
+0070 E500        E     MOV     A,regTW88+01H
+0072 243A              ADD     A,#03AH
+0074 120000      R     LCALL   L?0121
+0077 120000      R     LCALL   L?0150
+007A 900000      R     MOV     DPTR,#period
+007D 120000      R     LCALL   L?0137
+0080 243B              ADD     A,#03BH
+0082 120000      R     LCALL   L?0121
+0085 E0                MOVX    A,@DPTR
+0086 FD                MOV     R5,A
+0087 ED                MOV     A,R5
+0088 FF                MOV     R7,A
+0089 900000      R     MOV     DPTR,#period
+008C EE                MOV     A,R6
+                                           ; SOURCE LINE # 667
+008D 120000      R     LCALL   L?0137
+0090 243C              ADD     A,#03CH
+0092 120000      R     LCALL   L?0121
+0095 E0                MOVX    A,@DPTR
+0096 900000      R     MOV     DPTR,#end
+0099 120000      R     LCALL   L?0151
+009C 900000      R     MOV     DPTR,#end
+009F 120000      R     LCALL   L?0137
+00A2 243D              ADD     A,#03DH
+00A4 120000      R     LCALL   L?0121
+00A7 E0                MOVX    A,@DPTR
+00A8 900000      R     MOV     DPTR,#end
+00AB 120000      R     LCALL   L?0166
+                                           ; SOURCE LINE # 668
+00AE 120000      R     LCALL   L?0154
+00B1 D3                SETB    C
+00B2 9F                SUBB    A,R7
+00B3 EC                MOV     A,R4
+00B4 9E                SUBB    A,R6
+00B5 4006              JC      ?C0041
+                                           ; SOURCE LINE # 669
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 40  
+
+00B7 A3                INC     DPTR
+00B8 EC                MOV     A,R4
+00B9 F0                MOVX    @DPTR,A
+00BA A3                INC     DPTR
+00BB ED                MOV     A,R5
+00BC F0                MOVX    @DPTR,A
+00BD         ?C0041:
+                                           ; SOURCE LINE # 671
+00BD 900000      R     MOV     DPTR,#start
+00C0 120000      R     LCALL   L?0134
+00C3 120000      E     LCALL   ?C?ILDPTR
+00C6 FF                MOV     R7,A
+00C7 C3                CLR     C
+00C8 900000      R     MOV     DPTR,#end+01H
+00CB E0                MOVX    A,@DPTR
+00CC 9F                SUBB    A,R7
+00CD FF                MOV     R7,A
+00CE 900000      R     MOV     DPTR,#end
+00D1 E0                MOVX    A,@DPTR
+00D2 900000      R     MOV     DPTR,#period
+00D5 120000      R     LCALL   L?0161
+                                           ; SOURCE LINE # 672
+                                           ; SOURCE LINE # 673
+00D8         ?C0042:
+00D8 22                RET     
+             ; FUNCTION _MeasGetVActive (END)
+
+             ; FUNCTION MeasGetVActive2 (BEGIN)
+                                           ; SOURCE LINE # 679
+                                           ; SOURCE LINE # 680
+                                           ; SOURCE LINE # 683
+0000 E500        E     MOV     A,regTW88+01H
+0002 2438              ADD     A,#038H
+0004 120000      R     LCALL   L?0121
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'temp16' assigned to Register 'R6/R7' ----
+0008 FE                MOV     R6,A
+0009 E500        E     MOV     A,regTW88+01H
+000B 2439              ADD     A,#039H
+000D 120000      R     LCALL   L?0121
+0010 E0                MOVX    A,@DPTR
+0011 FD                MOV     R5,A
+0012 ED                MOV     A,R5
+0013 FF                MOV     R7,A
+                                           ; SOURCE LINE # 684
+                                           ; SOURCE LINE # 685
+0014         ?C0043:
+0014 22                RET     
+             ; FUNCTION MeasGetVActive2 (END)
+
+             ; FUNCTION MeasGetVPeriod27 (BEGIN)
+                                           ; SOURCE LINE # 704
+                                           ; SOURCE LINE # 705
+                                           ; SOURCE LINE # 708
+0000 E500        E     MOV     A,regTW88+01H
+0002 2443              ADD     A,#043H
+0004 120000      R     LCALL   L?0121
+0007 120000      R     LCALL   L?0165
+000A 120000      R     LCALL   L?0128
+000D 120000      R     LCALL   L?0157
+0010 120000      R     LCALL   L?0125
+0013 E500        E     MOV     A,regTW88+01H
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 41  
+
+0015 2444              ADD     A,#044H
+0017 120000      R     LCALL   L?0121
+001A 120000      R     LCALL   L?0127
+001D 120000      R     LCALL   L?0157
+0020 120000      R     LCALL   L?0125
+0023 E500        E     MOV     A,regTW88+01H
+0025 2445              ADD     A,#045H
+0027 120000      R     LCALL   L?0121
+                                           ; SOURCE LINE # 709
+002A 120000      R     LCALL   L?0127
+                                           ; SOURCE LINE # 710
+002D         ?C0044:
+002D 22                RET     
+             ; FUNCTION MeasGetVPeriod27 (END)
+
+             ; FUNCTION MeasGetVFreq (BEGIN)
+                                           ; SOURCE LINE # 718
+                                           ; SOURCE LINE # 719
+                                           ; SOURCE LINE # 723
+0000 120000      R     LCALL   MeasGetVPeriod27
+;---- Variable 'vperiod' assigned to Register 'R4/R5/R6/R7' ----
+                                           ; SOURCE LINE # 724
+0003 AB07              MOV     R3,AR7
+0005 AA06              MOV     R2,AR6
+0007 A905              MOV     R1,AR5
+0009 A804              MOV     R0,AR4
+000B 7FC0              MOV     R7,#0C0H
+000D 7EFC              MOV     R6,#0FCH
+000F 7D9B              MOV     R5,#09BH
+0011 7C01              MOV     R4,#01H
+0013 120000      E     LCALL   ?C?ULDIV
+;---- Variable 'vfreq' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 726
+                                           ; SOURCE LINE # 727
+0016         ?C0045:
+0016 22                RET     
+             ; FUNCTION MeasGetVFreq (END)
+
+             ; FUNCTION _MeasRoundDownVFreqValue (BEGIN)
+                                           ; SOURCE LINE # 737
+;---- Variable 'vfreq' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 738
+                                           ; SOURCE LINE # 739
+0000 EF                MOV     A,R7
+0001 C3                CLR     C
+0002 943A              SUBB    A,#03AH
+0004 5004              JNC     ?C0046
+0006 7F38              MOV     R7,#038H
+0008 8030              SJMP    ?C0047
+000A         ?C0046:
+                                           ; SOURCE LINE # 740
+000A EF                MOV     A,R7
+000B C3                CLR     C
+000C 943D              SUBB    A,#03DH
+000E 5004              JNC     ?C0048
+0010 7F3C              MOV     R7,#03CH
+0012 8026              SJMP    ?C0047
+0014         ?C0048:
+                                           ; SOURCE LINE # 741
+0014 EF                MOV     A,R7
+0015 C3                CLR     C
+0016 9447              SUBB    A,#047H
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 42  
+
+0018 5004              JNC     ?C0050
+001A 7F46              MOV     R7,#046H
+001C 801C              SJMP    ?C0047
+001E         ?C0050:
+                                           ; SOURCE LINE # 742
+001E EF                MOV     A,R7
+001F C3                CLR     C
+0020 9449              SUBB    A,#049H
+0022 5004              JNC     ?C0052
+0024 7F48              MOV     R7,#048H
+0026 8012              SJMP    ?C0047
+0028         ?C0052:
+                                           ; SOURCE LINE # 743
+0028 EF                MOV     A,R7
+0029 C3                CLR     C
+002A 944D              SUBB    A,#04DH
+002C 5004              JNC     ?C0054
+002E 7F4B              MOV     R7,#04BH
+0030 8008              SJMP    ?C0047
+0032         ?C0054:
+                                           ; SOURCE LINE # 744
+0032 EF                MOV     A,R7
+0033 C3                CLR     C
+0034 9457              SUBB    A,#057H
+0036 5002              JNC     ?C0047
+0038 7F55              MOV     R7,#055H
+003A         ?C0047:
+                                           ; SOURCE LINE # 746
+                                           ; SOURCE LINE # 747
+003A         ?C0057:
+003A 22                RET     
+             ; FUNCTION _MeasRoundDownVFreqValue (END)
+
+             ; FUNCTION AutoTunePhase (BEGIN)
+                                           ; SOURCE LINE # 771
+                                           ; SOURCE LINE # 772
+                                           ; SOURCE LINE # 779
+0000 900000      R     MOV     DPTR,#RGBBufferPtr
+0003 7401              MOV     A,#01H
+0005 F0                MOVX    @DPTR,A
+0006 A3                INC     DPTR
+0007 7400        E     MOV     A,#HIGH SPI_Buffer
+0009 F0                MOVX    @DPTR,A
+000A A3                INC     DPTR
+000B 7400        E     MOV     A,#LOW SPI_Buffer
+000D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 782
+000E 120000      E     LCALL   VAdcGetPhase
+0011 900000      R     MOV     DPTR,#OldPhase
+0014 EF                MOV     A,R7
+0015 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 784
+0016 E4                CLR     A
+0017 900000      R     MOV     DPTR,#i
+001A F0                MOVX    @DPTR,A
+001B         ?C0058:
+001B 900000      R     MOV     DPTR,#i
+001E E0                MOVX    A,@DPTR
+001F FF                MOV     R7,A
+0020 C3                CLR     C
+0021 9420              SUBB    A,#020H
+0023 505E              JNC     ?C0059
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 43  
+
+                                           ; SOURCE LINE # 785
+0025 E4                CLR     A
+0026 FD                MOV     R5,A
+0027 120000      E     LCALL   _VAdcSetPhase
+                                           ; SOURCE LINE # 786
+002A 7F05              MOV     R7,#05H
+002C 7E00              MOV     R6,#00H
+002E 120000      E     LCALL   _delay1ms
+                                           ; SOURCE LINE # 788
+0031 120000      R     LCALL   MeasStartMeasure
+0034 EF                MOV     A,R7
+0035 6006              JZ      ?C0061
+                                           ; SOURCE LINE # 789
+0037 900000      R     MOV     DPTR,#OldPhase
+003A 020000      R     LJMP    ?C0115
+                                           ; SOURCE LINE # 792
+003D         ?C0061:
+                                           ; SOURCE LINE # 793
+003D 120000      R     LCALL   MeasReadPhaseRGB
+0040 900000      R     MOV     DPTR,#RGBBufferPtr
+0043 120000      R     LCALL   L?0134
+0046 900000      R     MOV     DPTR,#i
+0049 E0                MOVX    A,@DPTR
+004A 75F004            MOV     B,#04H
+004D A4                MUL     AB
+004E F582              MOV     DPL,A
+0050 85F083            MOV     DPH,B
+0053 120000      E     LCALL   ?C?LSTOPTR
+                                           ; SOURCE LINE # 795
+0056 900000      R     MOV     DPTR,#i
+0059 E0                MOVX    A,@DPTR
+005A FF                MOV     R7,A
+005B 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+005E F0                MOVX    @DPTR,A
+005F 900000      R     MOV     DPTR,#RGBBufferPtr
+0062 120000      R     LCALL   L?0134
+0065 75F004            MOV     B,#04H
+0068 EF                MOV     A,R7
+0069 120000      R     LCALL   L?0142
+006C 900000      E     MOV     DPTR,#?_dPrintf?BYTE+04H
+006F 120000      E     LCALL   ?C?LSTXDATA
+0072 7BFF              MOV     R3,#0FFH
+0074 7A00        R     MOV     R2,#HIGH ?SC_53
+0076 7900        R     MOV     R1,#LOW ?SC_53
+0078 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 796
+007B 900000      R     MOV     DPTR,#i
+007E E0                MOVX    A,@DPTR
+007F 04                INC     A
+0080 F0                MOVX    @DPTR,A
+0081 8098              SJMP    ?C0058
+0083         ?C0059:
+                                           ; SOURCE LINE # 799
+0083 900000      R     MOV     DPTR,#RGBBufferPtr
+0086 120000      R     LCALL   L?0134
+0089 120000      E     LCALL   ?C?LLDPTR
+008C 120000      R     LCALL   L?0184
+                                           ; SOURCE LINE # 800
+008F E4                CLR     A
+0090 900000      R     MOV     DPTR,#j
+0093 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 801
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 44  
+
+0094 900000      R     MOV     DPTR,#i
+0097 04                INC     A
+0098 F0                MOVX    @DPTR,A
+0099         ?C0063:
+                                           ; SOURCE LINE # 802
+0099 900000      R     MOV     DPTR,#RGBBufferPtr
+009C 120000      R     LCALL   L?0134
+009F 120000      R     LCALL   L?0140
+00A2 900000      R     MOV     DPTR,#RGBmin
+00A5 120000      R     LCALL   L?0125
+00A8 D3                SETB    C
+00A9 120000      E     LCALL   ?C?ULCMP
+00AC 4012              JC      ?C0065
+                                           ; SOURCE LINE # 803
+00AE 900000      R     MOV     DPTR,#RGBBufferPtr
+00B1 120000      R     LCALL   L?0134
+00B4 120000      R     LCALL   L?0140
+00B7 120000      R     LCALL   L?0184
+                                           ; SOURCE LINE # 804
+00BA 900000      R     MOV     DPTR,#i
+00BD E0                MOVX    A,@DPTR
+00BE A3                INC     DPTR
+00BF F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 805
+                                           ; SOURCE LINE # 806
+00C0         ?C0065:
+00C0 900000      R     MOV     DPTR,#i
+00C3 E0                MOVX    A,@DPTR
+00C4 04                INC     A
+00C5 F0                MOVX    @DPTR,A
+00C6 E0                MOVX    A,@DPTR
+00C7 B420CF            CJNE    A,#020H,?C0063
+00CA         ?C0064:
+                                           ; SOURCE LINE # 807
+00CA 7BFF              MOV     R3,#0FFH
+00CC 7A00        R     MOV     R2,#HIGH ?SC_73
+00CE 7900        R     MOV     R1,#LOW ?SC_73
+00D0 900000      R     MOV     DPTR,#RGBmin
+00D3 120000      R     LCALL   L?0129
+00D6 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+00D9 120000      E     LCALL   ?C?LSTXDATA
+00DC 900000      R     MOV     DPTR,#j
+00DF E0                MOVX    A,@DPTR
+00E0 900000      E     MOV     DPTR,#?_dPrintf?BYTE+07H
+00E3 F0                MOVX    @DPTR,A
+00E4 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 810
+00E7 900000      R     MOV     DPTR,#j
+00EA E0                MOVX    A,@DPTR
+00EB 2410              ADD     A,#010H
+00ED 541F              ANL     A,#01FH
+00EF F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 811
+00F0 7BFF              MOV     R3,#0FFH
+00F2 7A00        R     MOV     R2,#HIGH ?SC_103
+00F4 7900        R     MOV     R1,#LOW ?SC_103
+00F6 E0                MOVX    A,@DPTR
+00F7 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+00FA F0                MOVX    @DPTR,A
+00FB 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 813
+00FE 900000      R     MOV     DPTR,#RGBBufferPtr
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 45  
+
+0101 120000      R     LCALL   L?0134
+0104 900000      R     MOV     DPTR,#j
+0107 120000      R     LCALL   L?0141
+010A 900000      R     MOV     DPTR,#RGBmin
+010D 120000      R     LCALL   L?0125
+0110 C3                CLR     C
+0111 EF                MOV     A,R7
+0112 9B                SUBB    A,R3
+0113 FF                MOV     R7,A
+0114 EE                MOV     A,R6
+0115 9A                SUBB    A,R2
+0116 FE                MOV     R6,A
+0117 ED                MOV     A,R5
+0118 99                SUBB    A,R1
+0119 FD                MOV     R5,A
+011A EC                MOV     A,R4
+011B 98                SUBB    A,R0
+011C FC                MOV     R4,A
+011D C004              PUSH    AR4
+011F C005              PUSH    AR5
+0121 C006              PUSH    AR6
+0123 C007              PUSH    AR7
+0125 A3                INC     DPTR
+0126 120000      R     LCALL   L?0134
+0129 900000      R     MOV     DPTR,#j
+012C 120000      R     LCALL   L?0141
+012F D003              POP     AR3
+0131 D002              POP     AR2
+0133 D001              POP     AR1
+0135 D000              POP     AR0
+0137 120000      E     LCALL   ?C?ULDIV
+013A 120000      R     LCALL   L?0185
+                                           ; SOURCE LINE # 814
+013D 7BFF              MOV     R3,#0FFH
+013F 7A00        R     MOV     R2,#HIGH ?SC_119
+0141 7900        R     MOV     R1,#LOW ?SC_119
+0143 900000      R     MOV     DPTR,#RGBmin
+0146 120000      R     LCALL   L?0129
+0149 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+014C 120000      E     LCALL   ?C?LSTXDATA
+014F 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 816
+0152 E4                CLR     A
+0153 7F0A              MOV     R7,#0AH
+0155 FE                MOV     R6,A
+0156 FD                MOV     R5,A
+0157 FC                MOV     R4,A
+0158 900000      R     MOV     DPTR,#RGBmin
+015B 120000      R     LCALL   L?0125
+015E D3                SETB    C
+015F 120000      E     LCALL   ?C?ULCMP
+0162 400E              JC      ?C0067
+                                           ; SOURCE LINE # 817
+0164 7BFF              MOV     R3,#0FFH
+0166 7A00        R     MOV     R2,#HIGH ?SC_135
+0168 7900        R     MOV     R1,#LOW ?SC_135
+016A 120000      E     LCALL   _dPuts
+                                           ; SOURCE LINE # 818
+016D 900000      R     MOV     DPTR,#OldPhase
+                                           ; SOURCE LINE # 819
+0170 8003              SJMP    ?C0114
+0172         ?C0067:
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 46  
+
+                                           ; SOURCE LINE # 820
+                                           ; SOURCE LINE # 822
+0172 900000      R     MOV     DPTR,#j
+0175         ?C0114:
+0175         ?C0115:
+0175 E0                MOVX    A,@DPTR
+0176 FF                MOV     R7,A
+0177 E4                CLR     A
+0178 FD                MOV     R5,A
+0179 120000      E     LCALL   _VAdcSetPhase
+                                           ; SOURCE LINE # 823
+                                           ; SOURCE LINE # 826
+017C         ?C0062:
+017C 22                RET     
+             ; FUNCTION AutoTunePhase (END)
+
+             ; FUNCTION AutoTuneColor (BEGIN)
+                                           ; SOURCE LINE # 834
+                                           ; SOURCE LINE # 835
+                                           ; SOURCE LINE # 843
+0000 900000      R     MOV     DPTR,#nGainB
+0003 120000      R     LCALL   L?0186
+0006 900000      R     MOV     DPTR,#nGainG
+0009 120000      R     LCALL   L?0186
+000C 900000      R     MOV     DPTR,#nGainR
+000F 120000      R     LCALL   L?0187
+                                           ; SOURCE LINE # 844
+0012 120000      E     LCALL   VAdcReadGChannelGainReg
+0015 900000      R     MOV     DPTR,#GainG
+0018 EE                MOV     A,R6
+0019 F0                MOVX    @DPTR,A
+001A A3                INC     DPTR
+001B EF                MOV     A,R7
+001C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 845
+001D 120000      E     LCALL   VAdcReadBChannelGainReg
+0020 900000      R     MOV     DPTR,#GainB
+0023 EE                MOV     A,R6
+0024 F0                MOVX    @DPTR,A
+0025 A3                INC     DPTR
+0026 EF                MOV     A,R7
+0027 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 846
+0028 120000      E     LCALL   VAdcReadRChannelGainReg
+002B 900000      R     MOV     DPTR,#GainR
+002E EE                MOV     A,R6
+002F F0                MOVX    @DPTR,A
+0030 A3                INC     DPTR
+0031 EF                MOV     A,R7
+0032 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 847
+0033 A3                INC     DPTR
+0034 E0                MOVX    A,@DPTR
+0035 FC                MOV     R4,A
+0036 A3                INC     DPTR
+0037 E0                MOVX    A,@DPTR
+0038 FD                MOV     R5,A
+0039 900000      R     MOV     DPTR,#nGainG
+003C E0                MOVX    A,@DPTR
+003D FE                MOV     R6,A
+003E A3                INC     DPTR
+003F E0                MOVX    A,@DPTR
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 47  
+
+0040 FF                MOV     R7,A
+0041 B5052C            CJNE    A,AR5,?C0070
+0044 EE                MOV     A,R6
+0045 B50428            CJNE    A,AR4,?C0070
+0048 900000      R     MOV     DPTR,#GainB
+004B E0                MOVX    A,@DPTR
+004C FC                MOV     R4,A
+004D A3                INC     DPTR
+004E E0                MOVX    A,@DPTR
+004F FD                MOV     R5,A
+0050 900000      R     MOV     DPTR,#nGainB
+0053 E0                MOVX    A,@DPTR
+0054 B50419            CJNE    A,AR4,?C0070
+0057 A3                INC     DPTR
+0058 E0                MOVX    A,@DPTR
+0059 B50514            CJNE    A,AR5,?C0070
+005C 900000      R     MOV     DPTR,#GainR
+005F E0                MOVX    A,@DPTR
+0060 FC                MOV     R4,A
+0061 A3                INC     DPTR
+0062 E0                MOVX    A,@DPTR
+0063 FD                MOV     R5,A
+0064 900000      R     MOV     DPTR,#nGainR
+0067 E0                MOVX    A,@DPTR
+0068 6C                XRL     A,R4
+0069 7003              JNZ     ?C0105
+006B A3                INC     DPTR
+006C E0                MOVX    A,@DPTR
+006D 6D                XRL     A,R5
+006E         ?C0105:
+006E 6006              JZ      ?C0073
+0070         ?C0070:
+                                           ; SOURCE LINE # 850
+0070 900000      R     MOV     DPTR,#nGainB
+0073 120000      R     LCALL   L?0156
+0076         ?C0073:
+                                           ; SOURCE LINE # 852
+                                           ; SOURCE LINE # 853
+0076 900000      R     MOV     DPTR,#nGainR
+0079 E0                MOVX    A,@DPTR
+007A FF                MOV     R7,A
+007B A3                INC     DPTR
+007C E0                MOVX    A,@DPTR
+007D 900000      R     MOV     DPTR,#GainR
+                                           ; SOURCE LINE # 854
+0080 120000      R     LCALL   L?0167
+0083 900000      R     MOV     DPTR,#GainG
+                                           ; SOURCE LINE # 855
+0086 120000      R     LCALL   L?0168
+0089 900000      R     MOV     DPTR,#GainB
+008C CF                XCH     A,R7
+008D F0                MOVX    @DPTR,A
+008E A3                INC     DPTR
+008F EF                MOV     A,R7
+0090 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 856
+0091 120000      R     LCALL   MeasStartMeasure
+0094 EF                MOV     A,R7
+0095 6003              JZ      $ + 5H
+0097 020000      R     LJMP    ?C0075
+                                           ; SOURCE LINE # 859
+009A         ?C0074:
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 48  
+
+                                           ; SOURCE LINE # 861
+009A E500        E     MOV     A,regTW88+01H
+009C 241F              ADD     A,#01FH
+009E 120000      R     LCALL   L?0121
+00A1 E0                MOVX    A,@DPTR
+00A2 900000      R     MOV     DPTR,#MeasG
+00A5 F0                MOVX    @DPTR,A
+00A6 FB                MOV     R3,A
+                                           ; SOURCE LINE # 862
+00A7 E500        E     MOV     A,regTW88+01H
+00A9 2420              ADD     A,#020H
+00AB 120000      R     LCALL   L?0121
+00AE E0                MOVX    A,@DPTR
+00AF 900000      R     MOV     DPTR,#MeasB
+00B2 F0                MOVX    @DPTR,A
+00B3 FA                MOV     R2,A
+                                           ; SOURCE LINE # 863
+00B4 E500        E     MOV     A,regTW88+01H
+00B6 2421              ADD     A,#021H
+00B8 120000      R     LCALL   L?0121
+00BB E0                MOVX    A,@DPTR
+00BC FF                MOV     R7,A
+00BD 900000      R     MOV     DPTR,#MeasR
+00C0 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 864
+00C1 C3                CLR     C
+00C2 74FF              MOV     A,#0FFH
+00C4 9F                SUBB    A,R7
+00C5 FF                MOV     R7,A
+00C6 E4                CLR     A
+00C7 9400              SUBB    A,#00H
+00C9 FE                MOV     R6,A
+00CA 900000      R     MOV     DPTR,#GainR+01H
+00CD E0                MOVX    A,@DPTR
+00CE 2F                ADD     A,R7
+00CF FF                MOV     R7,A
+00D0 900000      R     MOV     DPTR,#GainR
+00D3 E0                MOVX    A,@DPTR
+00D4 3E                ADDC    A,R6
+00D5 900000      R     MOV     DPTR,#nGainR
+00D8 F0                MOVX    @DPTR,A
+00D9 A3                INC     DPTR
+00DA EF                MOV     A,R7
+00DB F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 865
+00DC EB                MOV     A,R3
+00DD 900000      R     MOV     DPTR,#GainG+01H
+00E0 120000      R     LCALL   L?0155
+00E3 2F                ADD     A,R7
+00E4 FF                MOV     R7,A
+00E5 900000      R     MOV     DPTR,#GainG
+00E8 E0                MOVX    A,@DPTR
+00E9 3E                ADDC    A,R6
+00EA 900000      R     MOV     DPTR,#nGainG
+00ED F0                MOVX    @DPTR,A
+00EE A3                INC     DPTR
+00EF EF                MOV     A,R7
+00F0 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 866
+00F1 EA                MOV     A,R2
+00F2 900000      R     MOV     DPTR,#GainB
+00F5 120000      R     LCALL   L?0155
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 49  
+
+00F8 FC                MOV     R4,A
+00F9 A3                INC     DPTR
+00FA E0                MOVX    A,@DPTR
+00FB FD                MOV     R5,A
+00FC 2F                ADD     A,R7
+00FD FF                MOV     R7,A
+00FE EC                MOV     A,R4
+00FF 3E                ADDC    A,R6
+0100 900000      R     MOV     DPTR,#nGainB
+0103 F0                MOVX    @DPTR,A
+0104 A3                INC     DPTR
+0105 EF                MOV     A,R7
+0106 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 867
+0107 D3                SETB    C
+0108 900000      R     MOV     DPTR,#nGainR+01H
+010B E0                MOVX    A,@DPTR
+010C 94FF              SUBB    A,#0FFH
+010E 900000      R     MOV     DPTR,#nGainR
+0111 E0                MOVX    A,@DPTR
+0112 9401              SUBB    A,#01H
+0114 4003              JC      ?C0076
+0116 120000      R     LCALL   L?0179
+0119         ?C0076:
+                                           ; SOURCE LINE # 868
+0119 D3                SETB    C
+011A 900000      R     MOV     DPTR,#nGainG+01H
+011D E0                MOVX    A,@DPTR
+011E 94FF              SUBB    A,#0FFH
+0120 900000      R     MOV     DPTR,#nGainG
+0123 E0                MOVX    A,@DPTR
+0124 9401              SUBB    A,#01H
+0126 4003              JC      ?C0077
+0128 120000      R     LCALL   L?0179
+012B         ?C0077:
+                                           ; SOURCE LINE # 869
+012B D3                SETB    C
+012C 900000      R     MOV     DPTR,#nGainB+01H
+012F E0                MOVX    A,@DPTR
+0130 94FF              SUBB    A,#0FFH
+0132 900000      R     MOV     DPTR,#nGainB
+0135 E0                MOVX    A,@DPTR
+0136 9401              SUBB    A,#01H
+0138 4003              JC      ?C0078
+013A 120000      R     LCALL   L?0180
+013D         ?C0078:
+                                           ; SOURCE LINE # 871
+013D 120000      R     LCALL   L?0169
+0140 B5061A            CJNE    A,AR6,?C0080
+0143 A3                INC     DPTR
+0144 E0                MOVX    A,@DPTR
+0145 B50715            CJNE    A,AR7,?C0080
+0148 A3                INC     DPTR
+0149 E0                MOVX    A,@DPTR
+014A B50410            CJNE    A,AR4,?C0080
+014D A3                INC     DPTR
+014E E0                MOVX    A,@DPTR
+014F B5050B            CJNE    A,AR5,?C0080
+0152 120000      R     LCALL   L?0170
+0155 6E                XRL     A,R6
+0156 7003              JNZ     ?C0108
+0158 A3                INC     DPTR
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 50  
+
+0159 E0                MOVX    A,@DPTR
+015A 6F                XRL     A,R7
+015B         ?C0108:
+015B 600C              JZ      ?C0079
+015D         ?C0080:
+                                           ; SOURCE LINE # 874
+015D 900000      R     MOV     DPTR,#nGainG
+0160 E0                MOVX    A,@DPTR
+0161 FE                MOV     R6,A
+0162 A3                INC     DPTR
+0163 E0                MOVX    A,@DPTR
+0164 FF                MOV     R7,A
+0165 A3                INC     DPTR
+0166 120000      R     LCALL   L?0156
+0169         ?C0079:
+                                           ; SOURCE LINE # 876
+0169 7BFF              MOV     R3,#0FFH
+016B 7A00        R     MOV     R2,#HIGH ?SC_192
+016D 7900        R     MOV     R1,#LOW ?SC_192
+016F 900000      R     MOV     DPTR,#MeasR
+0172 E0                MOVX    A,@DPTR
+0173 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+0176 F0                MOVX    @DPTR,A
+0177 900000      R     MOV     DPTR,#MeasG
+017A E0                MOVX    A,@DPTR
+017B 900000      E     MOV     DPTR,#?_dPrintf?BYTE+04H
+017E F0                MOVX    @DPTR,A
+017F 900000      R     MOV     DPTR,#MeasB
+0182 E0                MOVX    A,@DPTR
+0183 900000      E     MOV     DPTR,#?_dPrintf?BYTE+05H
+0186 F0                MOVX    @DPTR,A
+0187 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 877
+018A 7BFF              MOV     R3,#0FFH
+018C 7A00        R     MOV     R2,#HIGH ?SC_237
+018E 7900        R     MOV     R1,#LOW ?SC_237
+0190 900000      R     MOV     DPTR,#nGainR
+0193 E0                MOVX    A,@DPTR
+0194 FF                MOV     R7,A
+0195 A3                INC     DPTR
+0196 E0                MOVX    A,@DPTR
+0197 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+019A 120000      R     LCALL   L?0167
+019D 900000      E     MOV     DPTR,#?_dPrintf?BYTE+05H
+01A0 120000      R     LCALL   L?0168
+01A3 900000      E     MOV     DPTR,#?_dPrintf?BYTE+07H
+01A6 CF                XCH     A,R7
+01A7 F0                MOVX    @DPTR,A
+01A8 A3                INC     DPTR
+01A9 EF                MOV     A,R7
+01AA F0                MOVX    @DPTR,A
+01AB 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 878
+01AE 120000      R     LCALL   L?0170
+01B1 FC                MOV     R4,A
+01B2 A3                INC     DPTR
+01B3 E0                MOVX    A,@DPTR
+01B4 FD                MOV     R5,A
+01B5 6F                XRL     A,R7
+01B6 7002              JNZ     ?C0109
+01B8 EC                MOV     A,R4
+01B9 6E                XRL     A,R6
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 51  
+
+01BA         ?C0109:
+01BA 6003              JZ      $ + 5H
+01BC 020000      R     LJMP    ?C0073
+01BF 120000      R     LCALL   L?0169
+01C2 6E                XRL     A,R6
+01C3 7003              JNZ     ?C0110
+01C5 A3                INC     DPTR
+01C6 E0                MOVX    A,@DPTR
+01C7 6F                XRL     A,R7
+01C8         ?C0110:
+01C8 6003              JZ      $ + 5H
+01CA 020000      R     LJMP    ?C0073
+01CD 900000      R     MOV     DPTR,#GainB
+01D0 E0                MOVX    A,@DPTR
+01D1 FE                MOV     R6,A
+01D2 A3                INC     DPTR
+01D3 E0                MOVX    A,@DPTR
+01D4 FF                MOV     R7,A
+01D5 900000      R     MOV     DPTR,#nGainB
+01D8 E0                MOVX    A,@DPTR
+01D9 FA                MOV     R2,A
+01DA A3                INC     DPTR
+01DB E0                MOVX    A,@DPTR
+01DC FB                MOV     R3,A
+01DD 6F                XRL     A,R7
+01DE 7002              JNZ     ?C0111
+01E0 EA                MOV     A,R2
+01E1 6E                XRL     A,R6
+01E2         ?C0111:
+01E2 6003              JZ      $ + 5H
+01E4 020000      R     LJMP    ?C0073
+                                           ; SOURCE LINE # 880
+01E7 BC011E            CJNE    R4,#01H,?C0075
+01EA BDFF1B            CJNE    R5,#0FFH,?C0075
+01ED 900000      R     MOV     DPTR,#nGainG
+01F0 E0                MOVX    A,@DPTR
+01F1 B40114            CJNE    A,#01H,?C0075
+01F4 A3                INC     DPTR
+01F5 E0                MOVX    A,@DPTR
+01F6 B4FF0F            CJNE    A,#0FFH,?C0075
+01F9 BA010C            CJNE    R2,#01H,?C0075
+01FC BBFF09            CJNE    R3,#0FFH,?C0075
+                                           ; SOURCE LINE # 881
+01FF 7BFF              MOV     R3,#0FFH
+0201 7A00        R     MOV     R2,#HIGH ?SC_266
+0203 7900        R     MOV     R1,#LOW ?SC_266
+0205 120000      E     LCALL   _ePrintf
+                                           ; SOURCE LINE # 883
+0208         ?C0075:
+0208 22                RET     
+0209         L?0156:
+0209 E0                MOVX    A,@DPTR
+020A FC                MOV     R4,A
+020B A3                INC     DPTR
+020C E0                MOVX    A,@DPTR
+020D FD                MOV     R5,A
+020E 900000      R     MOV     DPTR,#nGainR
+0211 E0                MOVX    A,@DPTR
+0212 FA                MOV     R2,A
+0213 A3                INC     DPTR
+0214 E0                MOVX    A,@DPTR
+0215 FB                MOV     R3,A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 52  
+
+0216 120000      E     LCALL   _VAdcSetChannelGainReg
+0219 22                RET     
+             ; FUNCTION AutoTuneColor (END)
+
+             ; FUNCTION MeasCheckVPulse (BEGIN)
+                                           ; SOURCE LINE # 891
+                                           ; SOURCE LINE # 892
+                                           ; SOURCE LINE # 897
+0000 7B01              MOV     R3,#01H
+0002 7A00        R     MOV     R2,#HIGH HStart
+0004 7900        R     MOV     R1,#LOW HStart
+0006 120000      R     LCALL   _MeasGetHActive
+0009 900000      R     MOV     DPTR,#HActive
+000C EE                MOV     A,R6
+000D F0                MOVX    @DPTR,A
+000E A3                INC     DPTR
+000F EF                MOV     A,R7
+0010 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 898
+0011 E4                CLR     A
+0012 900000      R     MOV     DPTR,#i
+0015 F0                MOVX    @DPTR,A
+0016         ?C0082:
+                                           ; SOURCE LINE # 899
+0016 E4                CLR     A
+0017 900000      R     MOV     DPTR,#VPulseErr
+001A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 900
+001B 120000      R     LCALL   MeasStartMeasure
+001E EF                MOV     A,R7
+001F 6003              JZ      ?C0085
+                                           ; SOURCE LINE # 901
+0021 7F01              MOV     R7,#01H
+0023 22                RET     
+                                           ; SOURCE LINE # 902
+0024         ?C0085:
+                                           ; SOURCE LINE # 903
+0024 120000      R     LCALL   MeasGetVSyncRiseToFallWidth
+;---- Variable 'VPulse' assigned to Register 'R4/R5' ----
+0027 AD07              MOV     R5,AR7
+0029 AC06              MOV     R4,AR6
+                                           ; SOURCE LINE # 904
+002B 900000      R     MOV     DPTR,#HActive
+002E E0                MOVX    A,@DPTR
+002F C3                CLR     C
+0030 13                RRC     A
+0031 FE                MOV     R6,A
+0032 A3                INC     DPTR
+0033 E0                MOVX    A,@DPTR
+0034 13                RRC     A
+0035 C3                CLR     C
+0036 9D                SUBB    A,R5
+0037 EE                MOV     A,R6
+0038 9C                SUBB    A,R4
+0039 5026              JNC     ?C0087
+                                           ; SOURCE LINE # 906
+003B A3                INC     DPTR
+003C 7401              MOV     A,#01H
+003E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 908
+                                           ; SOURCE LINE # 909
+003F 7BFF              MOV     R3,#0FFH
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 53  
+
+0041 7A00        R     MOV     R2,#HIGH ?SC_301
+0043 7900        R     MOV     R1,#LOW ?SC_301
+0045 900000      R     MOV     DPTR,#i
+0048 E0                MOVX    A,@DPTR
+0049 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+004C F0                MOVX    @DPTR,A
+004D AE04              MOV     R6,AR4
+004F A3                INC     DPTR
+0050 EE                MOV     A,R6
+0051 F0                MOVX    @DPTR,A
+0052 A3                INC     DPTR
+0053 EF                MOV     A,R7
+0054 F0                MOVX    @DPTR,A
+0055 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 910
+0058 7F0A              MOV     R7,#0AH
+005A 7E00              MOV     R6,#00H
+005C 120000      E     LCALL   _delay1ms
+                                           ; SOURCE LINE # 911
+                                           ; SOURCE LINE # 912
+005F 8003              SJMP    ?C0084
+0061         ?C0087:
+                                           ; SOURCE LINE # 914
+0061 7F00              MOV     R7,#00H
+0063 22                RET     
+                                           ; SOURCE LINE # 915
+0064         ?C0084:
+0064 900000      R     MOV     DPTR,#i
+0067 E0                MOVX    A,@DPTR
+0068 04                INC     A
+0069 F0                MOVX    @DPTR,A
+006A E0                MOVX    A,@DPTR
+006B C3                CLR     C
+006C 9464              SUBB    A,#064H
+006E 40A6              JC      ?C0082
+0070         ?C0083:
+                                           ; SOURCE LINE # 916
+0070 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 917
+0072         ?C0086:
+0072 22                RET     
+             ; FUNCTION MeasCheckVPulse (END)
+
+             ; FUNCTION CheckMeasure (BEGIN)
+                                           ; SOURCE LINE # 929
+                                           ; SOURCE LINE # 930
+                                           ; SOURCE LINE # 942
+0000 E4                CLR     A
+0001 900000      R     MOV     DPTR,#special
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 946
+0005 120000      R     LCALL   MeasGetHSyncRiseToFallWidth
+0008 900000      R     MOV     DPTR,#SyncRiseToFall
+000B EE                MOV     A,R6
+000C F0                MOVX    @DPTR,A
+000D A3                INC     DPTR
+000E EF                MOV     A,R7
+000F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 947
+0010 120000      R     LCALL   MeasGetHSyncRiseToHActiveEnd
+0013 900000      R     MOV     DPTR,#HRiseToActEnd
+                                           ; SOURCE LINE # 950
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 54  
+
+0016 120000      R     LCALL   L?0174
+0019 7A00        R     MOV     R2,#HIGH hStart
+001B 7900        R     MOV     R1,#LOW hStart
+001D 120000      R     LCALL   _MeasGetHActive
+0020 900000      R     MOV     DPTR,#hActive
+                                           ; SOURCE LINE # 954
+0023 120000      R     LCALL   L?0143
+0026 4007              JC      ?C0089
+0028 E4                CLR     A
+0029 900000      R     MOV     DPTR,#hPol
+002C F0                MOVX    @DPTR,A
+002D 8006              SJMP    ?C0090
+002F         ?C0089:
+                                           ; SOURCE LINE # 955
+002F 900000      R     MOV     DPTR,#hPol
+0032 7401              MOV     A,#01H
+0034 F0                MOVX    @DPTR,A
+0035         ?C0090:
+                                           ; SOURCE LINE # 958
+0035 900000      R     MOV     DPTR,#hPol
+0038 E0                MOVX    A,@DPTR
+0039 FF                MOV     R7,A
+003A 120000      R     LCALL   _MeasGetHTotal
+003D 900000      R     MOV     DPTR,#hTotal
+                                           ; SOURCE LINE # 959
+0040 120000      R     LCALL   L?0143
+0043 4029              JC      ?C0091
+                                           ; SOURCE LINE # 961
+0045 120000      R     LCALL   MeasGetVsyncRisePos
+0048 120000      R     LCALL   L?0144
+004B 400E              JC      ?C0092
+                                           ; SOURCE LINE # 962
+004D 900000      R     MOV     DPTR,#hTotal+01H
+0050 E0                MOVX    A,@DPTR
+0051 04                INC     A
+0052 F0                MOVX    @DPTR,A
+0053 7006              JNZ     ?C0113
+0055 900000      R     MOV     DPTR,#hTotal
+0058 E0                MOVX    A,@DPTR
+0059 04                INC     A
+005A F0                MOVX    @DPTR,A
+005B         ?C0113:
+005B         ?C0092:
+                                           ; SOURCE LINE # 963
+005B 900000      R     MOV     DPTR,#hTotal+01H
+005E E0                MOVX    A,@DPTR
+005F 25E0              ADD     A,ACC
+0061 F0                MOVX    @DPTR,A
+0062 900000      R     MOV     DPTR,#hTotal
+0065 E0                MOVX    A,@DPTR
+0066 33                RLC     A
+0067 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 964
+0068 900000      R     MOV     DPTR,#special
+006B 7401              MOV     A,#01H
+006D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 965
+006E         ?C0091:
+                                           ; SOURCE LINE # 968
+006E 900000      R     MOV     DPTR,#hPol
+0071 E0                MOVX    A,@DPTR
+0072 7053              JNZ     ?C0093
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 55  
+
+                                           ; SOURCE LINE # 970
+0074 900000      R     MOV     DPTR,#HRiseToActEnd
+0077 E0                MOVX    A,@DPTR
+0078 FE                MOV     R6,A
+0079 A3                INC     DPTR
+007A E0                MOVX    A,@DPTR
+007B 900000      R     MOV     DPTR,#SyncRiseToFall
+007E 120000      R     LCALL   L?0162
+0081 9F                SUBB    A,R7
+0082 FF                MOV     R7,A
+0083 EC                MOV     A,R4
+0084 9E                SUBB    A,R6
+0085 900000      R     MOV     DPTR,#hFPorch
+0088 120000      R     LCALL   L?0158
+                                           ; SOURCE LINE # 971
+008B C3                CLR     C
+008C 900000      R     MOV     DPTR,#hTotal+01H
+008F E0                MOVX    A,@DPTR
+0090 9D                SUBB    A,R5
+0091 FF                MOV     R7,A
+0092 900000      R     MOV     DPTR,#hTotal
+0095 E0                MOVX    A,@DPTR
+0096 9C                SUBB    A,R4
+0097 900000      R     MOV     DPTR,#hSync
+009A 120000      R     LCALL   L?0158
+                                           ; SOURCE LINE # 973
+009D 900000      R     MOV     DPTR,#special
+00A0 E0                MOVX    A,@DPTR
+00A1 B4010E            CJNE    A,#01H,?C0094
+                                           ; SOURCE LINE # 974
+00A4 900000      R     MOV     DPTR,#hSync+01H
+00A7 E0                MOVX    A,@DPTR
+00A8 2402              ADD     A,#02H
+00AA F0                MOVX    @DPTR,A
+00AB 900000      R     MOV     DPTR,#hSync
+00AE E0                MOVX    A,@DPTR
+00AF 3400              ADDC    A,#00H
+00B1 F0                MOVX    @DPTR,A
+00B2         ?C0094:
+                                           ; SOURCE LINE # 976
+00B2 900000      R     MOV     DPTR,#hActive
+00B5 E0                MOVX    A,@DPTR
+00B6 FE                MOV     R6,A
+00B7 A3                INC     DPTR
+00B8 E0                MOVX    A,@DPTR
+00B9 FF                MOV     R7,A
+00BA C3                CLR     C
+00BB 900000      R     MOV     DPTR,#HRiseToActEnd+01H
+00BE E0                MOVX    A,@DPTR
+00BF 9F                SUBB    A,R7
+00C0 FF                MOV     R7,A
+00C1 900000      R     MOV     DPTR,#HRiseToActEnd
+00C4 E0                MOVX    A,@DPTR
+                                           ; SOURCE LINE # 977
+00C5 8040              SJMP    ?C0117
+00C7         ?C0093:
+                                           ; SOURCE LINE # 978
+                                           ; SOURCE LINE # 979
+00C7 900000      R     MOV     DPTR,#HRiseToActEnd
+00CA E0                MOVX    A,@DPTR
+00CB FA                MOV     R2,A
+00CC A3                INC     DPTR
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 56  
+
+00CD E0                MOVX    A,@DPTR
+00CE FB                MOV     R3,A
+00CF C3                CLR     C
+00D0 900000      R     MOV     DPTR,#hTotal+01H
+00D3 E0                MOVX    A,@DPTR
+00D4 9B                SUBB    A,R3
+00D5 FE                MOV     R6,A
+00D6 900000      R     MOV     DPTR,#hTotal
+00D9 E0                MOVX    A,@DPTR
+00DA 9A                SUBB    A,R2
+00DB 900000      R     MOV     DPTR,#hFPorch
+00DE F0                MOVX    @DPTR,A
+00DF A3                INC     DPTR
+00E0 CE                XCH     A,R6
+00E1 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 980
+00E2 900000      R     MOV     DPTR,#SyncRiseToFall+01H
+00E5 E0                MOVX    A,@DPTR
+00E6 24FF              ADD     A,#0FFH
+00E8 FF                MOV     R7,A
+00E9 900000      R     MOV     DPTR,#SyncRiseToFall
+00EC E0                MOVX    A,@DPTR
+00ED 34FF              ADDC    A,#0FFH
+00EF FE                MOV     R6,A
+00F0 900000      R     MOV     DPTR,#hSync
+00F3 F0                MOVX    @DPTR,A
+00F4 A3                INC     DPTR
+00F5 EF                MOV     A,R7
+00F6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 981
+00F7 900000      R     MOV     DPTR,#hActive
+00FA 120000      R     LCALL   L?0163
+00FD EB                MOV     A,R3
+00FE 9D                SUBB    A,R5
+00FF FD                MOV     R5,A
+0100 EA                MOV     A,R2
+0101 9C                SUBB    A,R4
+0102 CD                XCH     A,R5
+0103 C3                CLR     C
+0104 9F                SUBB    A,R7
+0105 FF                MOV     R7,A
+0106 ED                MOV     A,R5
+0107         ?C0117:
+0107 9E                SUBB    A,R6
+0108 900000      R     MOV     DPTR,#hBPorch
+010B F0                MOVX    @DPTR,A
+010C A3                INC     DPTR
+010D EF                MOV     A,R7
+010E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 982
+010F         ?C0095:
+                                           ; SOURCE LINE # 987
+010F 120000      R     LCALL   MeasGetVSyncRiseToFallWidth
+0112 900000      R     MOV     DPTR,#SyncRiseToFall
+                                           ; SOURCE LINE # 990
+0115 120000      R     LCALL   L?0175
+0118 7A00        R     MOV     R2,#HIGH vStart
+011A 7900        R     MOV     R1,#LOW vStart
+011C 120000      R     LCALL   _MeasGetVActive
+011F 900000      R     MOV     DPTR,#vActive
+0122 EE                MOV     A,R6
+0123 F0                MOVX    @DPTR,A
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 57  
+
+0124 A3                INC     DPTR
+0125 EF                MOV     A,R7
+0126 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 993
+0127 120000      R     LCALL   MeasGetVPeriod
+012A 900000      R     MOV     DPTR,#vTotal
+012D EE                MOV     A,R6
+012E F0                MOVX    @DPTR,A
+012F A3                INC     DPTR
+0130 EF                MOV     A,R7
+0131 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 996
+0132 900000      R     MOV     DPTR,#vActive
+0135 E0                MOVX    A,@DPTR
+0136 FE                MOV     R6,A
+0137 A3                INC     DPTR
+0138 E0                MOVX    A,@DPTR
+0139 FF                MOV     R7,A
+013A 120000      R     LCALL   L?0144
+013D 4007              JC      ?C0096
+013F E4                CLR     A
+0140 900000      R     MOV     DPTR,#vPol
+0143 F0                MOVX    @DPTR,A
+0144 8006              SJMP    ?C0097
+0146         ?C0096:
+                                           ; SOURCE LINE # 997
+0146 900000      R     MOV     DPTR,#vPol
+0149 7401              MOV     A,#01H
+014B F0                MOVX    @DPTR,A
+014C         ?C0097:
+                                           ; SOURCE LINE # 1000
+014C 900000      R     MOV     DPTR,#vPol
+014F E0                MOVX    A,@DPTR
+0150 900000      R     MOV     DPTR,#SyncRiseToFall
+0153 7034              JNZ     ?C0098
+                                           ; SOURCE LINE # 1001
+0155 E0                MOVX    A,@DPTR
+0156 FE                MOV     R6,A
+0157 A3                INC     DPTR
+0158 E0                MOVX    A,@DPTR
+0159 900000      R     MOV     DPTR,#vTotal
+015C 120000      R     LCALL   L?0162
+015F 9F                SUBB    A,R7
+0160 FF                MOV     R7,A
+0161 EC                MOV     A,R4
+0162 9E                SUBB    A,R6
+0163 FE                MOV     R6,A
+0164 A3                INC     DPTR
+0165 F0                MOVX    @DPTR,A
+0166 A3                INC     DPTR
+0167 EF                MOV     A,R7
+0168 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1002
+0169 900000      R     MOV     DPTR,#vStart
+016C E0                MOVX    A,@DPTR
+016D FB                MOV     R3,A
+016E A3                INC     DPTR
+016F E0                MOVX    A,@DPTR
+0170 900000      R     MOV     DPTR,#vBPorch
+0173 CB                XCH     A,R3
+0174 F0                MOVX    @DPTR,A
+0175 A3                INC     DPTR
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 58  
+
+0176 EB                MOV     A,R3
+0177 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1003
+0178 120000      R     LCALL   L?0126
+017B C3                CLR     C
+017C ED                MOV     A,R5
+017D 9B                SUBB    A,R3
+017E FD                MOV     R5,A
+017F EC                MOV     A,R4
+0180 9A                SUBB    A,R2
+0181 CD                XCH     A,R5
+0182 C3                CLR     C
+0183 9F                SUBB    A,R7
+0184 FF                MOV     R7,A
+0185 ED                MOV     A,R5
+0186 9E                SUBB    A,R6
+                                           ; SOURCE LINE # 1004
+0187 803B              SJMP    ?C0116
+0189         ?C0098:
+                                           ; SOURCE LINE # 1005
+                                           ; SOURCE LINE # 1006
+0189 E0                MOVX    A,@DPTR
+018A FF                MOV     R7,A
+018B A3                INC     DPTR
+018C E0                MOVX    A,@DPTR
+018D 900000      R     MOV     DPTR,#vSync
+0190 CF                XCH     A,R7
+0191 F0                MOVX    @DPTR,A
+0192 A3                INC     DPTR
+0193 EF                MOV     A,R7
+0194 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1007
+0195 900000      R     MOV     DPTR,#vSync
+0198 E0                MOVX    A,@DPTR
+0199 FA                MOV     R2,A
+019A A3                INC     DPTR
+019B E0                MOVX    A,@DPTR
+019C FB                MOV     R3,A
+019D C3                CLR     C
+019E 900000      R     MOV     DPTR,#vStart+01H
+01A1 E0                MOVX    A,@DPTR
+01A2 9B                SUBB    A,R3
+01A3 FE                MOV     R6,A
+01A4 900000      R     MOV     DPTR,#vStart
+01A7 E0                MOVX    A,@DPTR
+01A8 9A                SUBB    A,R2
+01A9 900000      R     MOV     DPTR,#vBPorch
+01AC F0                MOVX    @DPTR,A
+01AD A3                INC     DPTR
+01AE CE                XCH     A,R6
+01AF F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1008
+01B0 120000      R     LCALL   L?0130
+01B3 C3                CLR     C
+01B4 900000      R     MOV     DPTR,#vTotal+01H
+01B7 E0                MOVX    A,@DPTR
+01B8 9F                SUBB    A,R7
+01B9 FF                MOV     R7,A
+01BA 900000      R     MOV     DPTR,#vTotal
+01BD E0                MOVX    A,@DPTR
+01BE 9E                SUBB    A,R6
+01BF CF                XCH     A,R7
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 59  
+
+01C0 C3                CLR     C
+01C1 9B                SUBB    A,R3
+01C2 CF                XCH     A,R7
+01C3 9A                SUBB    A,R2
+01C4         ?C0116:
+01C4 FE                MOV     R6,A
+01C5 900000      R     MOV     DPTR,#vBPorch
+01C8 120000      R     LCALL   L?0163
+01CB EF                MOV     A,R7
+01CC 9D                SUBB    A,R5
+01CD FF                MOV     R7,A
+01CE EE                MOV     A,R6
+01CF 9C                SUBB    A,R4
+01D0 900000      R     MOV     DPTR,#vFPorch
+01D3 F0                MOVX    @DPTR,A
+01D4 A3                INC     DPTR
+01D5 EF                MOV     A,R7
+01D6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1009
+01D7         ?C0099:
+                                           ; SOURCE LINE # 1010
+01D7 7BFF              MOV     R3,#0FFH
+01D9 7A00        R     MOV     R2,#HIGH ?SC_315
+01DB 7900        R     MOV     R1,#LOW ?SC_315
+01DD 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 1011
+01E0 7BFF              MOV     R3,#0FFH
+01E2 7A00        R     MOV     R2,#HIGH ?SC_324
+01E4 7900        R     MOV     R1,#LOW ?SC_324
+01E6 900000      R     MOV     DPTR,#hTotal
+01E9 120000      R     LCALL   L?0139
+01EC 900000      R     MOV     DPTR,#hSync
+01EF 120000      R     LCALL   L?0152
+01F2 900000      R     MOV     DPTR,#hBPorch
+01F5 120000      R     LCALL   L?0171
+01F8 900000      R     MOV     DPTR,#hActive
+01FB 120000      R     LCALL   L?0172
+01FE 900000      R     MOV     DPTR,#hFPorch
+0201 120000      R     LCALL   L?0173
+0204 900000      R     MOV     DPTR,#hPol
+                                           ; SOURCE LINE # 1012
+0207 120000      R     LCALL   L?0182
+020A 7A00        R     MOV     R2,#HIGH ?SC_383
+020C 7900        R     MOV     R1,#LOW ?SC_383
+020E 900000      R     MOV     DPTR,#vTotal
+0211 120000      R     LCALL   L?0139
+0214 900000      R     MOV     DPTR,#vSync
+0217 120000      R     LCALL   L?0152
+021A 900000      R     MOV     DPTR,#vBPorch
+021D 120000      R     LCALL   L?0171
+0220 900000      R     MOV     DPTR,#vActive
+0223 120000      R     LCALL   L?0172
+0226 900000      R     MOV     DPTR,#vFPorch
+0229 120000      R     LCALL   L?0173
+022C 900000      R     MOV     DPTR,#vPol
+                                           ; SOURCE LINE # 1013
+022F 120000      R     LCALL   L?0182
+0232 7A00        R     MOV     R2,#HIGH ?SC_442
+0234 7900        R     MOV     R1,#LOW ?SC_442
+0236 900000      R     MOV     DPTR,#hStart
+0239 120000      R     LCALL   L?0139
+023C 900000      R     MOV     DPTR,#vStart
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 60  
+
+023F 120000      R     LCALL   L?0153
+0242 020000      E     LJMP    _Printf
+                                           ; SOURCE LINE # 1018
+0245         L?0182:
+0245 E0                MOVX    A,@DPTR
+0246 900000      E     MOV     DPTR,#?_Printf?BYTE+0DH
+0249 F0                MOVX    @DPTR,A
+024A 120000      E     LCALL   _Printf
+024D 7BFF              MOV     R3,#0FFH
+024F 22                RET     
+             ; FUNCTION CheckMeasure (END)
+
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 61  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+MeasVLen . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_INT    0000H  2
+VAdcReadBChannelGainReg. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MeasGetVSyncRiseToFallWidth. . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  wTemp. . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+_VAdcSetPhase. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MeasGetHActive2. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  start. . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+_MeasSetErrTolerance . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+VAdcReadGChannelGainReg. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MeasGetVsyncRisePos. . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  wTemp. . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+VAdcReadRChannelGainReg. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MeasGetVFreq . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  vperiod. . . . . . . . . . . . . . .  * REG *  DATA   U_LONG   0004H  4
+  vfreq. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+_dPuts . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MeasGetVActive2. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  temp16 . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+RGB_HSTART . . . . . . . . . . . . . .  PUBLIC   XDATA  U_INT    0002H  2
+_MeasRoundDownVFreqValue . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  vfreq. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+_SspllGetPPF . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MeasGetDviDivider. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  SyncRiseToFall . . . . . . . . . . .  AUTO     XDATA  U_INT    0000H  2
+  hStart . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0002H  2
+  hTotal . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0002H  2
+  hActive. . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+  hPol . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0004H  1
+RGB_VDE. . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0004H  1
+_MeasSetField. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  field. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+_delay1ms. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_MeasEnableChangedDetection. . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  on . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+SPI_Buffer . . . . . . . . . . . . . .  EXTERN   XDATA  ARRAY    -----  128
+AutoTunePhase. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  j. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  RGBmin . . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0002H  4
+  RGBBufferPtr . . . . . . . . . . . .  AUTO     XDATA  PTR      0006H  3
+  OldPhase . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0009H  1
+MeasGetHSyncRiseToHActiveEnd . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  wTemp. . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+_MeasSetWindow . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  x. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0000H  2
+  y. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0002H  2
+  w. . . . . . . . . . . . . . . . . .  AUTO     DATA   U_INT    0002H  2
+  h. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0006H  2
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 62  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+CheckMeasure . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  SyncRiseToFall . . . . . . . . . . .  AUTO     XDATA  U_INT    0000H  2
+  HRiseToActEnd. . . . . . . . . . . .  AUTO     XDATA  U_INT    0002H  2
+  hStart . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0004H  2
+  vStart . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0006H  2
+  hTotal . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0008H  2
+  hSync. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    000AH  2
+  hBPorch. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    000CH  2
+  hActive. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    000EH  2
+  hFPorch. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0010H  2
+  hPol . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0012H  1
+  vTotal . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0013H  2
+  vSync. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0015H  2
+  vBPorch. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0017H  2
+  vActive. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0019H  2
+  vFPorch. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    001BH  2
+  vPol . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   001DH  1
+  special. . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   001EH  1
+AutoTuneColor. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  MeasR. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  MeasG. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  MeasB. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
+  GainR. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0003H  2
+  GainG. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0005H  2
+  GainB. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0007H  2
+  nGainR . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0009H  2
+  nGainG . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    000BH  2
+  nGainB . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    000DH  2
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+MeasCheckVPulse. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  HStart . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0001H  2
+  HActive. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0003H  2
+  VPulse . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0004H  2
+  VPulseErr. . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
+MeasGetVPeriod27 . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  period . . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0000H  4
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+_MeasGetHActive. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  start. . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0000H  3
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 63  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  period . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0003H  2
+  end. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0005H  2
+MeasGetInputClkForHPeriodReg . . . . .  PUBLIC   CODE   PROC     0000H  -----
+_MeasEnableDeMeasure . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  fOn. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+MeasReadPhaseRGB . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  PhaseRGB . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0000H  4
+  Phase. . . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0004H  4
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+MeasGetHPeriod . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  period . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+_dPrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_ePrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
+_MeasGetVActive. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  start. . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0000H  3
+  period . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0003H  2
+  end. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0005H  2
+MeasHStart . . . . . . . . . . . . . .  PUBLIC   XDATA  U_INT    0005H  2
+MeasGetVPeriod . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  period . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+_MeasSetThreshold. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  thold. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+_VAdcSetChannelGainReg . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MeasVStart . . . . . . . . . . . . . .  PUBLIC   XDATA  U_INT    0007H  2
+MeasStartMeasure . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  val. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+MeasHLen . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_INT    0009H  2
+MeasGetHSyncRiseToFallWidth. . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  wTemp. . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+VAdcGetPhase . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_Printf. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_MeasGetHTotal . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  hPol . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  dTemp. . . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0000H  4
+  sspll. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0004H  2
+  hTotal . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0006H  2
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3551    ----
+   CONSTANT SIZE    =    463    ----
+   XDATA SIZE       =     11     110
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 64  
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

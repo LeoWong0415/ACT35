@@ -1,0 +1,3864 @@
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MONITOR_MCU
+OBJECT MODULE PLACED IN .\Output\Monitor_MCU.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Monitor_MCU.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
+                    -OWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Monitor_MCU.lst) OBJECT(.\Outpu
+                    -t\Monitor_MCU.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * Monitor_MCU.c 
+   4           * @author Harry Han
+   5           * @author YoungHwan Bae
+   6           * @author Brian Kang
+   7           * @version 1.0
+   8           * @section LICENSE
+   9           *      Copyright (C) 2011~2012 Intersil Corporation
+  10           * @section DESCRIPTION
+  11           *      Interface between TW_Terminal2 and Firmware.
+  12          */
+  13          
+  14          //*****************************************************************************
+  15          //
+  16          //                                                              Monitor_CPU.c
+  17          //
+  18          //*****************************************************************************
+  19          //
+  20          //
+  21          #include "Config.h"
+  22          #include "reg.h"
+  23          #include "typedefs.h"
+  24          #include "TW8835.h"
+  25          
+  26          #include "Global.h"
+  27          #include "CPU.h"
+  28          #include "printf.h"
+  29          #include "util.h"
+  30          #include "reg_debug.h"
+  31          
+  32          //=============================================================================
+  33          BYTE WriteSFR(BYTE addr, BYTE dat)
+  34          {
+  35   1              switch (addr) {
+  36   2                      case 0x80:      SFR_80h = dat;  if( echo ) return SFR_80h; else return 0;
+  37   2                      case 0x81:      SFR_81h = dat;  if( echo ) return SFR_81h; else return 0;
+  38   2                      case 0x82:      SFR_82h = dat;  if( echo ) return SFR_82h; else return 0;
+  39   2                      case 0x83:      SFR_83h = dat;  if( echo ) return SFR_83h; else return 0;
+  40   2                      case 0x84:      SFR_84h = dat;  if( echo ) return SFR_84h; else return 0;
+  41   2                      case 0x85:      SFR_85h = dat;  if( echo ) return SFR_85h; else return 0;
+  42   2                      case 0x86:      SFR_86h = dat;  if( echo ) return SFR_86h; else return 0;
+  43   2                      case 0x87:      SFR_87h = dat;  if( echo ) return SFR_87h; else return 0;
+  44   2                      case 0x88:      SFR_88h = dat;  if( echo ) return SFR_88h; else return 0;
+  45   2                      case 0x89:      SFR_89h = dat;  if( echo ) return SFR_89h; else return 0;
+  46   2                      case 0x8a:      SFR_8ah = dat;  if( echo ) return SFR_8ah; else return 0;
+  47   2                      case 0x8b:      SFR_8bh = dat;  if( echo ) return SFR_8bh; else return 0;
+  48   2                      case 0x8c:      SFR_8ch = dat;  if( echo ) return SFR_8ch; else return 0;
+  49   2                      case 0x8d:      SFR_8dh = dat;  if( echo ) return SFR_8dh; else return 0;
+  50   2                      case 0x8e:      SFR_8eh = dat;  if( echo ) return SFR_8eh; else return 0;
+  51   2                      case 0x8f:      SFR_8fh = dat;  if( echo ) return SFR_8fh; else return 0;
+  52   2      
+  53   2                      case 0x90:      SFR_90h = dat;  if( echo ) return SFR_90h; else return 0;
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 2   
+
+  54   2                      case 0x91:      SFR_91h = dat;  if( echo ) return SFR_91h; else return 0;
+  55   2                      case 0x92:      SFR_92h = dat;  if( echo ) return SFR_92h; else return 0;
+  56   2                      case 0x93:      SFR_93h = dat;  if( echo ) return SFR_93h; else return 0;
+  57   2                      case 0x94:      SFR_94h = dat;  if( echo ) return SFR_94h; else return 0;
+  58   2                      case 0x95:      SFR_95h = dat;  if( echo ) return SFR_95h; else return 0;
+  59   2                      case 0x96:      SFR_96h = dat;  if( echo ) return SFR_96h; else return 0;
+  60   2                      case 0x97:      SFR_97h = dat;  if( echo ) return SFR_97h; else return 0;
+  61   2                      case 0x98:      SFR_98h = dat;  if( echo ) return SFR_98h; else return 0;
+  62   2                      case 0x99:      SFR_99h = dat;  if( echo ) return SFR_99h; else return 0;
+  63   2                      case 0x9a:      SFR_9ah = dat;  if( echo ) return SFR_9ah; else return 0;
+  64   2                      case 0x9b:      SFR_9bh = dat;  if( echo ) return SFR_9bh; else return 0;
+  65   2                      case 0x9c:      SFR_9ch = dat;  if( echo ) return SFR_9ch; else return 0;
+  66   2                      case 0x9d:      SFR_9dh = dat;  if( echo ) return SFR_9dh; else return 0;
+  67   2                      case 0x9e:      SFR_9eh = dat;  if( echo ) return SFR_9eh; else return 0;
+  68   2                      case 0x9f:      SFR_9fh = dat;  if( echo ) return SFR_9fh; else return 0;
+  69   2                                                        
+  70   2                      case 0xa0:      SFR_a0h = dat;  if( echo ) return SFR_a0h; else return 0;
+  71   2                      case 0xa1:      SFR_a1h = dat;  if( echo ) return SFR_a1h; else return 0;
+  72   2                      case 0xa2:      SFR_a2h = dat;  if( echo ) return SFR_a2h; else return 0;
+  73   2                      case 0xa3:      SFR_a3h = dat;  if( echo ) return SFR_a3h; else return 0;
+  74   2                      case 0xa4:      SFR_a4h = dat;  if( echo ) return SFR_a4h; else return 0;
+  75   2                      case 0xa5:      SFR_a5h = dat;  if( echo ) return SFR_a5h; else return 0;
+  76   2                      case 0xa6:      SFR_a6h = dat;  if( echo ) return SFR_a6h; else return 0;
+  77   2                      case 0xa7:      SFR_a7h = dat;  if( echo ) return SFR_a7h; else return 0;
+  78   2                      case 0xa8:      SFR_a8h = dat;  if( echo ) return SFR_a8h; else return 0;
+  79   2                      case 0xa9:      SFR_a9h = dat;  if( echo ) return SFR_a9h; else return 0;
+  80   2                      case 0xaa:      SFR_aah = dat;  if( echo ) return SFR_aah; else return 0;
+  81   2                      case 0xab:      SFR_abh = dat;  if( echo ) return SFR_abh; else return 0;
+  82   2                      case 0xac:      SFR_ach = dat;  if( echo ) return SFR_ach; else return 0;
+  83   2                      case 0xad:      SFR_adh = dat;  if( echo ) return SFR_adh; else return 0;
+  84   2                      case 0xae:      SFR_aeh = dat;  if( echo ) return SFR_aeh; else return 0;
+  85   2                      case 0xaf:      SFR_afh = dat;  if( echo ) return SFR_afh; else return 0;
+  86   2                                                        
+  87   2                      case 0xb0:      SFR_b0h = dat;  if( echo ) return SFR_b0h; else return 0;
+  88   2                      case 0xb1:      SFR_b1h = dat;  if( echo ) return SFR_b1h; else return 0;
+  89   2                      case 0xb2:      SFR_b2h = dat;  if( echo ) return SFR_b2h; else return 0;
+  90   2                      case 0xb3:      SFR_b3h = dat;  if( echo ) return SFR_b3h; else return 0;
+  91   2                      case 0xb4:      SFR_b4h = dat;  if( echo ) return SFR_b4h; else return 0;
+  92   2                      case 0xb5:      SFR_b5h = dat;  if( echo ) return SFR_b5h; else return 0;
+  93   2                      case 0xb6:      SFR_b6h = dat;  if( echo ) return SFR_b6h; else return 0;
+  94   2                      case 0xb7:      SFR_b7h = dat;  if( echo ) return SFR_b7h; else return 0;
+  95   2                      case 0xb8:      SFR_b8h = dat;  if( echo ) return SFR_b8h; else return 0;
+  96   2                      case 0xb9:      SFR_b9h = dat;  if( echo ) return SFR_b9h; else return 0;
+  97   2                      case 0xba:      SFR_bah = dat;  if( echo ) return SFR_bah; else return 0;
+  98   2                      case 0xbb:      SFR_bbh = dat;  if( echo ) return SFR_bbh; else return 0;
+  99   2                      case 0xbc:      SFR_bch = dat;  if( echo ) return SFR_bch; else return 0;
+ 100   2                      case 0xbd:      SFR_bdh = dat;  if( echo ) return SFR_bdh; else return 0;
+ 101   2                      case 0xbe:      SFR_beh = dat;  if( echo ) return SFR_beh; else return 0;
+ 102   2                      case 0xbf:      SFR_bfh = dat;  if( echo ) return SFR_bfh; else return 0;
+ 103   2                                                        
+ 104   2                      case 0xc0:      SFR_c0h = dat;  if( echo ) return SFR_c0h; else return 0;
+ 105   2                      case 0xc1:      SFR_c1h = dat;  if( echo ) return SFR_c1h; else return 0;
+ 106   2                      case 0xc2:      SFR_c2h = dat;  if( echo ) return SFR_c2h; else return 0;
+ 107   2                      case 0xc3:      SFR_c3h = dat;  if( echo ) return SFR_c3h; else return 0;
+ 108   2                      case 0xc4:      SFR_c4h = dat;  if( echo ) return SFR_c4h; else return 0;
+ 109   2                      case 0xc5:      SFR_c5h = dat;  if( echo ) return SFR_c5h; else return 0;
+ 110   2                      case 0xc6:      SFR_c6h = dat;  if( echo ) return SFR_c6h; else return 0;
+ 111   2                      case 0xc7:      SFR_c7h = dat;  if( echo ) return SFR_c7h; else return 0;
+ 112   2                      case 0xc8:      SFR_c8h = dat;  if( echo ) return SFR_c8h; else return 0;
+ 113   2                      case 0xc9:      SFR_c9h = dat;  if( echo ) return SFR_c9h; else return 0;
+ 114   2                      case 0xca:      SFR_cah = dat;  if( echo ) return SFR_cah; else return 0;
+ 115   2                      case 0xcb:      SFR_cbh = dat;  if( echo ) return SFR_cbh; else return 0;
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 3   
+
+ 116   2                      case 0xcc:      SFR_cch = dat;  if( echo ) return SFR_cch; else return 0;
+ 117   2                      case 0xcd:      SFR_cdh = dat;  if( echo ) return SFR_cdh; else return 0;
+ 118   2                      case 0xce:      SFR_ceh = dat;  if( echo ) return SFR_ceh; else return 0;
+ 119   2                      case 0xcf:      SFR_cfh = dat;  if( echo ) return SFR_cfh; else return 0;
+ 120   2                                                        
+ 121   2                      case 0xd0:      SFR_d0h = dat;  if( echo ) return SFR_d0h; else return 0;
+ 122   2                      case 0xd1:      SFR_d1h = dat;  if( echo ) return SFR_d1h; else return 0;
+ 123   2                      case 0xd2:      SFR_d2h = dat;  if( echo ) return SFR_d2h; else return 0;
+ 124   2                      case 0xd3:      SFR_d3h = dat;  if( echo ) return SFR_d3h; else return 0;
+ 125   2                      case 0xd4:      SFR_d4h = dat;  if( echo ) return SFR_d4h; else return 0;
+ 126   2                      case 0xd5:      SFR_d5h = dat;  if( echo ) return SFR_d5h; else return 0;
+ 127   2                      case 0xd6:      SFR_d6h = dat;  if( echo ) return SFR_d6h; else return 0;
+ 128   2                      case 0xd7:      SFR_d7h = dat;  if( echo ) return SFR_d7h; else return 0;
+ 129   2                      case 0xd8:      SFR_ebh = 0xaa;
+ 130   2                                              SFR_ebh = 0x55;
+ 131   2                                              SFR_d8h = dat;  if( echo ) return SFR_d8h; else return 0;
+ 132   2                      case 0xd9:      SFR_d9h = dat;  if( echo ) return SFR_d9h; else return 0;
+ 133   2                      case 0xda:      SFR_dah = dat;  if( echo ) return SFR_dah; else return 0;
+ 134   2                      case 0xdb:      SFR_dbh = dat;  if( echo ) return SFR_dbh; else return 0;
+ 135   2                      case 0xdc:      SFR_dch = dat;  if( echo ) return SFR_dch; else return 0;
+ 136   2                      case 0xdd:      SFR_ddh = dat;  if( echo ) return SFR_ddh; else return 0;
+ 137   2                      case 0xde:      SFR_deh = dat;  if( echo ) return SFR_deh; else return 0;
+ 138   2                      case 0xdf:      SFR_dfh = dat;  if( echo ) return SFR_dfh; else return 0;
+ 139   2                                                        
+ 140   2                      case 0xe0:      SFR_e0h = dat;  if( echo ) return SFR_e0h; else return 0;
+ 141   2                      case 0xe1:      SFR_e1h = dat;  if( echo ) return SFR_e1h; else return 0;
+ 142   2                      case 0xe2:      SFR_e2h = dat;  if( echo ) return SFR_e2h; else return 0;
+ 143   2                      case 0xe3:      SFR_e3h = dat;  if( echo ) return SFR_e3h; else return 0;
+ 144   2                      case 0xe4:      SFR_e4h = dat;  if( echo ) return SFR_e4h; else return 0;
+ 145   2                      case 0xe5:      SFR_e5h = dat;  if( echo ) return SFR_e5h; else return 0;
+ 146   2                      case 0xe6:      SFR_e6h = dat;  if( echo ) return SFR_e6h; else return 0;
+ 147   2                      case 0xe7:      SFR_e7h = dat;  if( echo ) return SFR_e7h; else return 0;
+ 148   2                      case 0xe8:      SFR_e8h = dat;  if( echo ) return SFR_e8h; else return 0;
+ 149   2                      case 0xe9:      SFR_e9h = dat;  if( echo ) return SFR_e9h; else return 0;
+ 150   2                      case 0xea:      SFR_eah = dat;  if( echo ) return SFR_eah; else return 0;
+ 151   2                      case 0xeb:      SFR_ebh = dat;  if( echo ) return SFR_ebh; else return 0;
+ 152   2                      case 0xec:      SFR_ech = dat;  if( echo ) return SFR_ech; else return 0;
+ 153   2                      case 0xed:      SFR_edh = dat;  if( echo ) return SFR_edh; else return 0;
+ 154   2                      case 0xee:      SFR_eeh = dat;  if( echo ) return SFR_eeh; else return 0;
+ 155   2                      case 0xef:      SFR_efh = dat;  if( echo ) return SFR_efh; else return 0;
+ 156   2                                                        
+ 157   2                      case 0xf0:      SFR_f0h = dat;  if( echo ) return SFR_f0h; else return 0;
+ 158   2                      case 0xf1:      SFR_f1h = dat;  if( echo ) return SFR_f1h; else return 0;
+ 159   2                      case 0xf2:      SFR_f2h = dat;  if( echo ) return SFR_f2h; else return 0;
+ 160   2                      case 0xf3:      SFR_f3h = dat;  if( echo ) return SFR_f3h; else return 0;
+ 161   2                      case 0xf4:      SFR_f4h = dat;  if( echo ) return SFR_f4h; else return 0;
+ 162   2                      case 0xf5:      SFR_f5h = dat;  if( echo ) return SFR_f5h; else return 0;
+ 163   2                      case 0xf6:      SFR_f6h = dat;  if( echo ) return SFR_f6h; else return 0;
+ 164   2                      case 0xf7:      SFR_f7h = dat;  if( echo ) return SFR_f7h; else return 0;
+ 165   2                      case 0xf8:      SFR_f8h = dat;  if( echo ) return SFR_f8h; else return 0;
+ 166   2                      case 0xf9:      SFR_f9h = dat;  if( echo ) return SFR_f9h; else return 0;
+ 167   2                      case 0xfa:      SFR_fah = dat;  if( echo ) return SFR_fah; else return 0;
+ 168   2                      case 0xfb:      SFR_fbh = dat;  if( echo ) return SFR_fbh; else return 0;
+ 169   2                      case 0xfc:      SFR_fch = dat;  if( echo ) return SFR_fch; else return 0;
+ 170   2                      case 0xfd:      SFR_fdh = dat;  if( echo ) return SFR_fdh; else return 0;
+ 171   2                      case 0xfe:      SFR_feh = dat;  if( echo ) return SFR_feh; else return 0;
+ 172   2                      case 0xff:      SFR_ffh = dat;  if( echo ) return SFR_ffh; else return 0;
+ 173   2              }
+ 174   1              return 0;
+ 175   1      }
+ 176          
+ 177          //=============================================================================
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 4   
+
+ 178          BYTE ReadSFR(BYTE addr)
+ 179          {
+ 180   1              switch (addr) {
+ 181   2                      case 0x80:      return SFR_80h;
+ 182   2                      case 0x81:      return SFR_81h;
+ 183   2                      case 0x82:      return SFR_82h;
+ 184   2                      case 0x83:      return SFR_83h;
+ 185   2                      case 0x84:      return SFR_84h;
+ 186   2                      case 0x85:      return SFR_85h;
+ 187   2                      case 0x86:      return SFR_86h;
+ 188   2                      case 0x87:      return SFR_87h;
+ 189   2                      case 0x88:      return SFR_88h;
+ 190   2                      case 0x89:      return SFR_89h;
+ 191   2                      case 0x8a:      return SFR_8ah;
+ 192   2                      case 0x8b:      return SFR_8bh;
+ 193   2                      case 0x8c:      return SFR_8ch;
+ 194   2                      case 0x8d:      return SFR_8dh;
+ 195   2                      case 0x8e:      return SFR_8eh;
+ 196   2                      case 0x8f:      return SFR_8fh;
+ 197   2                                        
+ 198   2                      case 0x90:      return SFR_90h;
+ 199   2                      case 0x91:      return SFR_91h;
+ 200   2                      case 0x92:      return SFR_92h;
+ 201   2                      case 0x93:      return SFR_93h;
+ 202   2                      case 0x94:      return SFR_94h;
+ 203   2                      case 0x95:      return SFR_95h;
+ 204   2                      case 0x96:      return SFR_96h;
+ 205   2                      case 0x97:      return SFR_97h;
+ 206   2                      case 0x98:      return SFR_98h;
+ 207   2                      case 0x99:      return SFR_99h;
+ 208   2                      case 0x9a:      return SFR_9ah;
+ 209   2                      case 0x9b:      return SFR_9bh;
+ 210   2                      case 0x9c:      return SFR_9ch;
+ 211   2                      case 0x9d:      return SFR_9dh;
+ 212   2                      case 0x9e:      return SFR_9eh;
+ 213   2                      case 0x9f:      return SFR_9fh;
+ 214   2                                        
+ 215   2                      case 0xa0:      return SFR_a0h;
+ 216   2                      case 0xa1:      return SFR_a1h;
+ 217   2                      case 0xa2:      return SFR_a2h;
+ 218   2                      case 0xa3:      return SFR_a3h;
+ 219   2                      case 0xa4:      return SFR_a4h;
+ 220   2                      case 0xa5:      return SFR_a5h;
+ 221   2                      case 0xa6:      return SFR_a6h;
+ 222   2                      case 0xa7:      return SFR_a7h;
+ 223   2                      case 0xa8:      return SFR_a8h;
+ 224   2                      case 0xa9:      return SFR_a9h;
+ 225   2                      case 0xaa:      return SFR_aah;
+ 226   2                      case 0xab:      return SFR_abh;
+ 227   2                      case 0xac:      return SFR_ach;
+ 228   2                      case 0xad:      return SFR_adh;
+ 229   2                      case 0xae:      return SFR_aeh;
+ 230   2                      case 0xaf:      return SFR_afh;
+ 231   2                                        
+ 232   2                      case 0xb0:      return SFR_b0h;
+ 233   2                      case 0xb1:      return SFR_b1h;
+ 234   2                      case 0xb2:      return SFR_b2h;
+ 235   2                      case 0xb3:      return SFR_b3h;
+ 236   2                      case 0xb4:      return SFR_b4h;
+ 237   2                      case 0xb5:      return SFR_b5h;
+ 238   2                      case 0xb6:      return SFR_b6h;
+ 239   2                      case 0xb7:      return SFR_b7h;
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 5   
+
+ 240   2                      case 0xb8:      return SFR_b8h;
+ 241   2                      case 0xb9:      return SFR_b9h;
+ 242   2                      case 0xba:      return SFR_bah;
+ 243   2                      case 0xbb:      return SFR_bbh;
+ 244   2                      case 0xbc:      return SFR_bch;
+ 245   2                      case 0xbd:      return SFR_bdh;
+ 246   2                      case 0xbe:      return SFR_beh;
+ 247   2                      case 0xbf:      return SFR_bfh;
+ 248   2                                        
+ 249   2                      case 0xc0:      return SFR_c0h;
+ 250   2                      case 0xc1:      return SFR_c1h;
+ 251   2                      case 0xc2:      return SFR_c2h;
+ 252   2                      case 0xc3:      return SFR_c3h;
+ 253   2                      case 0xc4:      return SFR_c4h;
+ 254   2                      case 0xc5:      return SFR_c5h;
+ 255   2                      case 0xc6:      return SFR_c6h;
+ 256   2                      case 0xc7:      return SFR_c7h;
+ 257   2                      case 0xc8:      return SFR_c8h;
+ 258   2                      case 0xc9:      return SFR_c9h;
+ 259   2                      case 0xca:      return SFR_cah;
+ 260   2                      case 0xcb:      return SFR_cbh;
+ 261   2                      case 0xcc:      return SFR_cch;
+ 262   2                      case 0xcd:      return SFR_cdh;
+ 263   2                      case 0xce:      return SFR_ceh;
+ 264   2                      case 0xcf:      return SFR_cfh;
+ 265   2                                        
+ 266   2                      case 0xd0:      return SFR_d0h;
+ 267   2                      case 0xd1:      return SFR_d1h;
+ 268   2                      case 0xd2:      return SFR_d2h;
+ 269   2                      case 0xd3:      return SFR_d3h;
+ 270   2                      case 0xd4:      return SFR_d4h;
+ 271   2                      case 0xd5:      return SFR_d5h;
+ 272   2                      case 0xd6:      return SFR_d6h;
+ 273   2                      case 0xd7:      return SFR_d7h;
+ 274   2                      case 0xd8:      return SFR_d8h;
+ 275   2                      case 0xd9:      return SFR_d9h;
+ 276   2                      case 0xda:      return SFR_dah;
+ 277   2                      case 0xdb:      return SFR_dbh;
+ 278   2                      case 0xdc:      return SFR_dch;
+ 279   2                      case 0xdd:      return SFR_ddh;
+ 280   2                      case 0xde:      return SFR_deh;
+ 281   2                      case 0xdf:      return SFR_dfh;
+ 282   2                                        
+ 283   2                      case 0xe0:      return SFR_e0h;
+ 284   2                      case 0xe1:      return SFR_e1h;
+ 285   2                      case 0xe2:      return SFR_e2h;
+ 286   2                      case 0xe3:      return SFR_e3h;
+ 287   2                      case 0xe4:      return SFR_e4h;
+ 288   2                      case 0xe5:      return SFR_e5h;
+ 289   2                      case 0xe6:      return SFR_e6h;
+ 290   2                      case 0xe7:      return SFR_e7h;
+ 291   2                      case 0xe8:      return SFR_e8h;
+ 292   2                      case 0xe9:      return SFR_e9h;
+ 293   2                      case 0xea:      return SFR_eah;
+ 294   2                      case 0xeb:      return SFR_ebh;
+ 295   2                      case 0xec:      return SFR_ech;
+ 296   2                      case 0xed:      return SFR_edh;
+ 297   2                      case 0xee:      return SFR_eeh;
+ 298   2                      case 0xef:      return SFR_efh;
+ 299   2                                        
+ 300   2                      case 0xf0:      return SFR_f0h;
+ 301   2                      case 0xf1:      return SFR_f1h;
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 6   
+
+ 302   2                      case 0xf2:      return SFR_f2h;
+ 303   2                      case 0xf3:      return SFR_f3h;
+ 304   2                      case 0xf4:      return SFR_f4h;
+ 305   2                      case 0xf5:      return SFR_f5h;
+ 306   2                      case 0xf6:      return SFR_f6h;
+ 307   2                      case 0xf7:      return SFR_f7h;
+ 308   2                      case 0xf8:      return SFR_f8h;
+ 309   2                      case 0xf9:      return SFR_f9h;
+ 310   2                      case 0xfa:      return SFR_fah;
+ 311   2                      case 0xfb:      return SFR_fbh;
+ 312   2                      case 0xfc:      return SFR_fch;
+ 313   2                      case 0xfd:      return SFR_fdh;
+ 314   2                      case 0xfe:      return SFR_feh;
+ 315   2                      case 0xff:      return SFR_ffh;
+ 316   2      
+ 317   2                      default: return 0;
+ 318   2      
+ 319   2              }
+ 320   1      }
+ 321          
+ 322          //=============================================================================
+ 323          //                      Help Message
+ 324          //=============================================================================
+ 325          void MCUHelp(void)
+ 326          {
+ 327   1      
+ 328   1              Puts("\n=======================================================");
+ 329   1              Puts("\n>>>     Welcome to Intersil Monitor  Rev 1.00     <<<");
+ 330   1              Puts("\n=======================================================");
+ 331   1              Puts("\n   MCU Rs ii             ; Read SFR");
+ 332   1              Puts("\n   MCU Ws ii dd          ; Write SFR");
+ 333   1              Puts("\n   MCU Ds                ; Dump SFR");
+ 334   1              Puts("\n   MCU Rx ii             ; Read XDATA");
+ 335   1              Puts("\n   MCU Wx ii dd          ; Write XDATA");
+ 336   1              Puts("\n   MCU Dx [ii] [cc]      ; Dump XDATA");
+ 337   1      #if defined(SUPPORT_WATCHDOG) || defined(DEBUG_WATCHDOG)
+                      Puts("\n   MCU WDT [0/1/2]       ; WatchDog disable/enable/test");
+              #endif
+ 340   1              Puts("\n   MCU stop              ; stop mode");
+ 341   1              Puts("\n=======IE,DE,EI [n]====================================");
+ 342   1              Puts("\n");
+ 343   1      
+ 344   1      }
+ 345          
+ 346          //=============================================================================
+ 347          //
+ 348          //=============================================================================
+ 349          void MonitorMCU(void)
+ 350          {
+ 351   1              BYTE ret, i, j;
+ 352   1               
+ 353   1              BYTE argv_num1, argv_num2; //, argv_num3;
+ 354   1      
+ 355   1              //if ( argc>2) {                                                 BKFYI: It will hurt a speed
+ 356   1              //      argv_num1 = a2h( argv[2] );
+ 357   1              //      if ( argc>3 ) {
+ 358   1              //              argv_num2 = a2h( argv[3] );
+ 359   1              //              if (argc > 4) {
+ 360   1              //                      argv_num3 = a2h( argv[4] );
+ 361   1              //              }
+ 362   1              //      }
+ 363   1              //}
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 7   
+
+ 364   1      
+ 365   1              //---------------------- Write SFR -----------------------
+ 366   1              if( !stricmp( argv[1], "Ws" ) ) {
+ 367   2                      if( argc < 4 ) {
+ 368   3                              Printf(" ----> Missing parameter !!!");
+ 369   3                              return;
+ 370   3                      }
+ 371   2                      argv_num1 = a2h( argv[2] );
+ 372   2                      argv_num2 = a2h( argv[3] );
+ 373   2                      ret = WriteSFR(argv_num1, argv_num2);
+ 374   2                      if( echo ) {
+ 375   3                              Printf("\nMCU SFR Write: %02bx=%02bx (%02bx) ", argv_num1, argv_num2, ret);
+ 376   3                              for(i=0; i<8; i++) {
+ 377   4                                      if( ret & 0x80 ) Puts("1"); else Puts("0");
+ 378   4                                      ret <<=1;
+ 379   4                              }
+ 380   3                      }
+ 381   2              }
+ 382   1      
+ 383   1              //---------------------- Read SFR ------------------------
+ 384   1              else if( !stricmp( argv[1], "Rs" ) ) {
+ 385   2                      if( argc < 3 ) {
+ 386   3                              Printf(" ----> Missing parameter !!!");
+ 387   3                              return;
+ 388   3                      }
+ 389   2                      argv_num1 = a2h( argv[2] );
+ 390   2                      ret = ReadSFR(argv_num1);
+ 391   2                      if( echo ) {
+ 392   3                              Printf("\nMCU SFR Read: %02bx=%02bx ", argv_num1, ret);
+ 393   3                              for(i=0; i<8; i++) {
+ 394   4                                      if( ret & 0x80 ) Puts("1"); else Puts("0");
+ 395   4                                      ret <<=1;
+ 396   4                              }
+ 397   3                      }
+ 398   2              }
+ 399   1      
+ 400   1              //---------------------- Dump SFR ------------------------
+ 401   1              else if( !stricmp( argv[1], "Ds" ) ) {
+ 402   2      
+ 403   2                      Printf("\nDump DP8051 SFR");
+ 404   2                      for (j=0x8; j<=0x0f; j++) {
+ 405   3                              Printf("\nSFR %02bx: ", j*0x10);
+ 406   3                              for(i=0; i<8; i++) Printf("%02bx ", ReadSFR(j*0x10+i) );
+ 407   3                              Printf("- ");
+ 408   3                              for(; i<16; i++) Printf("%02bx ", ReadSFR(j*0x10+i) );
+ 409   3                      }
+ 410   2      
+ 411   2              }
+ 412   1      
+ 413   1              //---------------------- Dump xdata ----------------------
+ 414   1              else if( !stricmp( argv[1], "Wx" ) ) {
+ 415   2      
+ 416   2                      WORD addr;
+ 417   2      
+ 418   2                      if( argc < 4 ) {
+ 419   3                              Printf(" ----> Missing parameter !!!");
+ 420   3                              return;
+ 421   3                      }
+ 422   2                      addr      = a2h( argv[2] );
+ 423   2                      argv_num2 = a2h( argv[3] );
+ 424   2                      
+ 425   2                      *(BYTE xdata *)(addr) = argv_num2;
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 8   
+
+ 426   2                      ret = *(BYTE xdata *)(addr);
+ 427   2                      
+ 428   2                      if( echo ) {
+ 429   3                              Printf("\nMCU XDATA Write: %04x=%02bx (%02bx) ", addr, argv_num2, ret);
+ 430   3                      }
+ 431   2              }
+ 432   1      
+ 433   1              //---------------------- Dump xdata ----------------------
+ 434   1              else if( !stricmp( argv[1], "Rx" ) ) {
+ 435   2      
+ 436   2                      WORD addr;
+ 437   2      
+ 438   2                      if( argc < 3 ) {
+ 439   3                              Printf(" ----> Missing parameter !!!");
+ 440   3                              return;
+ 441   3                      }
+ 442   2                      addr = a2h(argv[2]);
+ 443   2      
+ 444   2                      ret = *(BYTE xdata *)(addr);
+ 445   2      
+ 446   2                      if( echo ) {
+ 447   3                              Printf("\nMCU XDATA Read: %04x=%02bx ", addr, ret);
+ 448   3                      }
+ 449   2              }
+ 450   1      
+ 451   1              //---------------------- Dump xdata ----------------------
+ 452   1              else if( !stricmp( argv[1], "Dx" ) ) {
+ 453   2      
+ 454   2                      //data BYTE xdata *osddata = (BYTE xdata *)0xc002;
+ 455   2      
+ 456   2                      WORD addr=0x0000, len=0x100;
+ 457   2      
+ 458   2                      if( argc>=3 ) addr = a2h(argv[2]);
+ 459   2                      if( argc>=4 ) len  = a2h(argv[3]);
+ 460   2      
+ 461   2                      Printf("\nDump DP8051 XDATA 0x%04x ", addr);
+ 462   2                      for (j=0; j<len/0x10; j++) {
+ 463   3                              Printf("\nXDATA %04x: ", (WORD)(addr+j*0x10) );
+ 464   3                              for(i=0; i<8; i++) Printf("%02bx ", *(BYTE xdata *)(addr + j*0x10+i) );
+ 465   3                              Printf("- ");
+ 466   3                              for(; i<16; i++) Printf("%02bx ", *(BYTE xdata *)(addr + j*0x10+i) );
+ 467   3                      }
+ 468   2      
+ 469   2              }
+ 470   1      
+ 471   1              //---------------------- Enable WDT ------------------------
+ 472   1      #if defined(SUPPORT_WATCHDOG) || defined(DEBUG_WATCHDOG)
+                      else if( !stricmp( argv[1], "WDT" ) ) {
+                              if(argc > 2) {
+                                      if( argv[2][0]=='1' ) {
+                                              BYTE mode;
+                                              if(argc > 3) 
+                                                      mode=a2h(argv[3]);
+                                              else    
+                                                      mode = 0;
+              
+                                              EnableWatchdog(mode);
+                                              Printf("\nWatchdog Timer is enabled. mode:%bx", mode);
+                                      }
+                                      else if( argv[2][0]=='2' ) {
+                                              Puts("Watchdog test....");
+                                              RestartWatchdog();
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 9   
+
+                                              Puts("start....");
+                                              delay1s(1,__LINE__);
+                                              delay1s(1,__LINE__);
+                                              delay1s(1,__LINE__);
+                                              delay1s(1,__LINE__);
+                                              delay1s(1,__LINE__);
+                                              //system reset before you here.
+                                              Puts("..FAIL");
+                                      }
+                                      else {
+                                              DisableWatchdog();
+                                              Printf("\nWatchdog Timer is disabled.");
+                                      }
+                              }
+                              else {
+                                      Puts("\nWatchdog ");
+                                      if(SFR_WDCON & 0x02) Puts("On");
+                                      else                 Puts("Off");
+              #ifdef SUPPORT_WATCHDOG
+                                      Puts(" with SUPPORT_WATCH");
+              #endif
+              #ifdef DEBUG_WATCHDOG
+                                      Puts(" with DEBUG_WATCH");
+              #endif
+                              }
+              
+                      }
+              #endif
+ 516   1              //---------------------- Enable INT ------------------------
+ 517   1              else if( !stricmp( argv[1], "IE" ) ) {
+ 518   2                      if ( argc < 3 ) {
+ 519   3                              Puts("\nMCU IE n 1/0 - MCU interrupt en/disable #n ");
+ 520   3                              return;
+ 521   3                      }
+ 522   2                      argv_num1 = a2h( argv[2] );
+ 523   2      
+ 524   2                      if( argv[3][0]=='1' ) {
+ 525   3                              EnableInterrupt( argv_num1 );
+ 526   3                              Printf("\nInterrupt #%d is enabled.", argv_num1);
+ 527   3                      }
+ 528   2                      else {
+ 529   3                              DisableInterrupt( argv_num1 );
+ 530   3                              Printf("\nInterrupt #%d is disabled.", argv_num1);
+ 531   3                      }
+ 532   2              }
+ 533   1              //---------------------- Extended INT ------------------------
+ 534   1              else if( !stricmp( argv[1], "DE" ) ) {
+ 535   2                      Printf("\nEnable DE-end Interrupt");
+ 536   2                      SFR_IE1 = 0;    // Clear Pending Interrupt
+ 537   2                      SFR_EX1 = 1;    // Enable Interrupt
+ 538   2              }
+ 539   1              //---------------------- Extended INT ------------------------
+ 540   1              else if( !stricmp( argv[1], "EI" ) ) {
+ 541   2              extern DWORD IntCount;
+ 542   2                      if( argc < 3 ) {
+ 543   3                              Printf("\nMCU extend Interrupt Status: %02bx, count: %ld", EXINT_STATUS, IntCount );
+ 544   3                              IntCount = 0;
+ 545   3      #ifdef DEBUG_ISR
+                                      Printf(" MCU %04x", MCU_INT_STATUS);
+                                      MCU_INT_STATUS = 0;
+              #endif
+ 549   3                              return;
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 10  
+
+ 550   3                      }
+ 551   2                      argv_num1 = a2h( argv[2] );
+ 552   2      
+ 553   2                      EXINT_STATUS &= argv_num1;
+ 554   2                      
+ 555   2              }
+ 556   1              //---------------------- PMU stop------------------------
+ 557   1              else if( !stricmp( argv[1], "stop" ) ) {
+ 558   2                      Printf("\nGoto STOP mode");
+ 559   2                      Printf("\nTo resume, write REG0D4[1]=1 by I2C");
+ 560   2                      SFR_PCON |= 0x12;
+ 561   2                      //----- need nop to clean up the pipeline.
+ 562   2                      _nop_();
+ 563   2                      _nop_();
+ 564   2                      _nop_();
+ 565   2                      _nop_();
+ 566   2                      _nop_();
+ 567   2                      _nop_();
+ 568   2                      _nop_();
+ 569   2                      _nop_();
+ 570   2                      _nop_();
+ 571   2                      _nop_();                
+ 572   2              }
+ 573   1              //---------------------- Read SFR ------------------------
+ 574   1              else if( !stricmp( argv[1], "H" ) || !stricmp( argv[1], "HELP" ) || !stricmp( argv[1], "?" ) ) {
+ 575   2                      MCUHelp();
+ 576   2              }
+ 577   1              //--------------------------------------------------------
+ 578   1              else
+ 579   1                      Printf("\nInvalid command..."); 
+ 580   1              
+ 581   1              //--------------------------------------------------------
+ 582   1      }
+ 583          
+ 584          
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 11  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com0259 (BEGIN)
+0000         L?0602:
+0000 A3                INC     DPTR
+0001         L?0603:
+0001 F0                MOVX    @DPTR,A
+0002 900000      E     MOV     DPTR,#argv+03H
+0005         L?0604:
+0005 E0                MOVX    A,@DPTR
+0006 FB                MOV     R3,A
+0007 A3                INC     DPTR
+0008 E0                MOVX    A,@DPTR
+0009 FA                MOV     R2,A
+000A A3                INC     DPTR
+000B E0                MOVX    A,@DPTR
+000C F9                MOV     R1,A
+000D 22                RET     
+000E         L?0606:
+000E         L?0607:
+000E 900000      E     MOV     DPTR,#?_stricmp?BYTE+03H
+0011 74FF              MOV     A,#0FFH
+0013 F0                MOVX    @DPTR,A
+0014 A3                INC     DPTR
+0015 22                RET     
+0016         L?0612:
+0016         L?0613:
+0016 900000      E     MOV     DPTR,#argc
+0019 E0                MOVX    A,@DPTR
+001A C3                CLR     C
+001B 9403              SUBB    A,#03H
+001D 22                RET     
+001E         L?0616:
+001E 7BFF              MOV     R3,#0FFH
+0020 900000      R     MOV     DPTR,#addr
+0023 E0                MOVX    A,@DPTR
+0024 FF                MOV     R7,A
+0025 A3                INC     DPTR
+0026 E0                MOVX    A,@DPTR
+0027 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+002A CF                XCH     A,R7
+002B F0                MOVX    @DPTR,A
+002C A3                INC     DPTR
+002D EF                MOV     A,R7
+002E F0                MOVX    @DPTR,A
+002F 22                RET     
+0030         L?0617:
+0030 900000      R     MOV     DPTR,#ret
+0033 E0                MOVX    A,@DPTR
+0034 25E0              ADD     A,ACC
+0036 F0                MOVX    @DPTR,A
+0037 A3                INC     DPTR
+0038 E0                MOVX    A,@DPTR
+0039 04                INC     A
+003A F0                MOVX    @DPTR,A
+003B E0                MOVX    A,@DPTR
+003C C3                CLR     C
+003D 9408              SUBB    A,#08H
+003F 22                RET     
+0040         L?0618:
+0040         L?0619:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 12  
+
+0040 900000      E     MOV     DPTR,#argc
+0043 E0                MOVX    A,@DPTR
+0044 C3                CLR     C
+0045 9404              SUBB    A,#04H
+0047 22                RET     
+0048         L?0620:
+0048 75F003            MOV     B,#03H
+004B A4                MUL     AB
+004C C583              XCH     A,DPH
+004E 25F0              ADD     A,B
+0050 C583              XCH     A,DPH
+0052 22                RET     
+0053         L?0621:
+0053 7BFF              MOV     R3,#0FFH
+0055 900000      R     MOV     DPTR,#argv_num1
+0058 E0                MOVX    A,@DPTR
+0059 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+005C F0                MOVX    @DPTR,A
+005D 22                RET     
+             ; FUNCTION Com0259 (END)
+
+             ; FUNCTION _WriteSFR (BEGIN)
+                                           ; SOURCE LINE # 33
+;---- Variable 'dat' assigned to Register 'R5' ----
+;---- Variable 'addr' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 34
+                                           ; SOURCE LINE # 35
+0000 EF                MOV     A,R7
+0001 2480              ADD     A,#080H
+0003 B48000            CJNE    A,#080H,?C0585
+0006         ?C0585:
+0006 4003              JC      $ + 5H
+0008 020000      R     LJMP    ?C0001
+000B 900000      R     MOV     DPTR,#?C0586
+000E 120000      R     LCALL   L?0620
+0011 73                JMP     @A+DPTR
+0012         ?C0586:
+0012 020000      R     LJMP    ?C0002
+0015 020000      R     LJMP    ?C0006
+0018 020000      R     LJMP    ?C0009
+001B 020000      R     LJMP    ?C0012
+001E 020000      R     LJMP    ?C0015
+0021 020000      R     LJMP    ?C0018
+0024 020000      R     LJMP    ?C0021
+0027 020000      R     LJMP    ?C0024
+002A 020000      R     LJMP    ?C0027
+002D 020000      R     LJMP    ?C0030
+0030 020000      R     LJMP    ?C0033
+0033 020000      R     LJMP    ?C0036
+0036 020000      R     LJMP    ?C0039
+0039 020000      R     LJMP    ?C0042
+003C 020000      R     LJMP    ?C0045
+003F 020000      R     LJMP    ?C0048
+0042 020000      R     LJMP    ?C0051
+0045 020000      R     LJMP    ?C0054
+0048 020000      R     LJMP    ?C0057
+004B 020000      R     LJMP    ?C0060
+004E 020000      R     LJMP    ?C0063
+0051 020000      R     LJMP    ?C0066
+0054 020000      R     LJMP    ?C0069
+0057 020000      R     LJMP    ?C0072
+005A 020000      R     LJMP    ?C0075
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 13  
+
+005D 020000      R     LJMP    ?C0078
+0060 020000      R     LJMP    ?C0081
+0063 020000      R     LJMP    ?C0084
+0066 020000      R     LJMP    ?C0087
+0069 020000      R     LJMP    ?C0090
+006C 020000      R     LJMP    ?C0093
+006F 020000      R     LJMP    ?C0096
+0072 020000      R     LJMP    ?C0099
+0075 020000      R     LJMP    ?C0102
+0078 020000      R     LJMP    ?C0105
+007B 020000      R     LJMP    ?C0108
+007E 020000      R     LJMP    ?C0111
+0081 020000      R     LJMP    ?C0114
+0084 020000      R     LJMP    ?C0117
+0087 020000      R     LJMP    ?C0120
+008A 020000      R     LJMP    ?C0123
+008D 020000      R     LJMP    ?C0126
+0090 020000      R     LJMP    ?C0129
+0093 020000      R     LJMP    ?C0132
+0096 020000      R     LJMP    ?C0135
+0099 020000      R     LJMP    ?C0138
+009C 020000      R     LJMP    ?C0141
+009F 020000      R     LJMP    ?C0144
+00A2 020000      R     LJMP    ?C0147
+00A5 020000      R     LJMP    ?C0150
+00A8 020000      R     LJMP    ?C0153
+00AB 020000      R     LJMP    ?C0156
+00AE 020000      R     LJMP    ?C0159
+00B1 020000      R     LJMP    ?C0162
+00B4 020000      R     LJMP    ?C0165
+00B7 020000      R     LJMP    ?C0168
+00BA 020000      R     LJMP    ?C0171
+00BD 020000      R     LJMP    ?C0174
+00C0 020000      R     LJMP    ?C0177
+00C3 020000      R     LJMP    ?C0180
+00C6 020000      R     LJMP    ?C0183
+00C9 020000      R     LJMP    ?C0186
+00CC 020000      R     LJMP    ?C0189
+00CF 020000      R     LJMP    ?C0192
+00D2 020000      R     LJMP    ?C0195
+00D5 020000      R     LJMP    ?C0198
+00D8 020000      R     LJMP    ?C0201
+00DB 020000      R     LJMP    ?C0204
+00DE 020000      R     LJMP    ?C0207
+00E1 020000      R     LJMP    ?C0210
+00E4 020000      R     LJMP    ?C0213
+00E7 020000      R     LJMP    ?C0216
+00EA 020000      R     LJMP    ?C0219
+00ED 020000      R     LJMP    ?C0222
+00F0 020000      R     LJMP    ?C0225
+00F3 020000      R     LJMP    ?C0228
+00F6 020000      R     LJMP    ?C0231
+00F9 020000      R     LJMP    ?C0234
+00FC 020000      R     LJMP    ?C0237
+00FF 020000      R     LJMP    ?C0240
+0102 020000      R     LJMP    ?C0243
+0105 020000      R     LJMP    ?C0246
+0108 020000      R     LJMP    ?C0249
+010B 020000      R     LJMP    ?C0252
+010E 020000      R     LJMP    ?C0255
+0111 020000      R     LJMP    ?C0258
+0114 020000      R     LJMP    ?C0261
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 14  
+
+0117 020000      R     LJMP    ?C0264
+011A 020000      R     LJMP    ?C0267
+011D 020000      R     LJMP    ?C0270
+0120 020000      R     LJMP    ?C0273
+0123 020000      R     LJMP    ?C0276
+0126 020000      R     LJMP    ?C0279
+0129 020000      R     LJMP    ?C0282
+012C 020000      R     LJMP    ?C0285
+012F 020000      R     LJMP    ?C0288
+0132 020000      R     LJMP    ?C0291
+0135 020000      R     LJMP    ?C0294
+0138 020000      R     LJMP    ?C0297
+013B 020000      R     LJMP    ?C0300
+013E 020000      R     LJMP    ?C0303
+0141 020000      R     LJMP    ?C0306
+0144 020000      R     LJMP    ?C0309
+0147 020000      R     LJMP    ?C0312
+014A 020000      R     LJMP    ?C0315
+014D 020000      R     LJMP    ?C0318
+0150 020000      R     LJMP    ?C0321
+0153 020000      R     LJMP    ?C0324
+0156 020000      R     LJMP    ?C0327
+0159 020000      R     LJMP    ?C0330
+015C 020000      R     LJMP    ?C0333
+015F 020000      R     LJMP    ?C0336
+0162 020000      R     LJMP    ?C0339
+0165 020000      R     LJMP    ?C0342
+0168 020000      R     LJMP    ?C0345
+016B 020000      R     LJMP    ?C0348
+016E 020000      R     LJMP    ?C0351
+0171 020000      R     LJMP    ?C0354
+0174 020000      R     LJMP    ?C0357
+0177 020000      R     LJMP    ?C0360
+017A 020000      R     LJMP    ?C0363
+017D 020000      R     LJMP    ?C0366
+0180 020000      R     LJMP    ?C0369
+0183 020000      R     LJMP    ?C0372
+0186 020000      R     LJMP    ?C0375
+0189 020000      R     LJMP    ?C0378
+018C 020000      R     LJMP    ?C0381
+018F 020000      R     LJMP    ?C0384
+                                           ; SOURCE LINE # 36
+0192         ?C0002:
+0192 8D80              MOV     SFR_80h,R5
+0194 300003      E     JNB     echo,?C0003
+0197 AF80              MOV     R7,SFR_80h
+0199 22                RET     
+019A         ?C0003:
+019A 7F00              MOV     R7,#00H
+019C 22                RET     
+                                           ; SOURCE LINE # 37
+019D         ?C0006:
+019D 8D81              MOV     SFR_81h,R5
+019F 300003      E     JNB     echo,?C0007
+01A2 AF81              MOV     R7,SFR_81h
+01A4 22                RET     
+01A5         ?C0007:
+01A5 7F00              MOV     R7,#00H
+01A7 22                RET     
+                                           ; SOURCE LINE # 38
+01A8         ?C0009:
+01A8 8D82              MOV     DPL,R5
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 15  
+
+01AA 300003      E     JNB     echo,?C0010
+01AD AF82              MOV     R7,DPL
+01AF 22                RET     
+01B0         ?C0010:
+01B0 7F00              MOV     R7,#00H
+01B2 22                RET     
+                                           ; SOURCE LINE # 39
+01B3         ?C0012:
+01B3 8D83              MOV     DPH,R5
+01B5 300003      E     JNB     echo,?C0013
+01B8 AF83              MOV     R7,DPH
+01BA 22                RET     
+01BB         ?C0013:
+01BB 7F00              MOV     R7,#00H
+01BD 22                RET     
+                                           ; SOURCE LINE # 40
+01BE         ?C0015:
+01BE 8D84              MOV     SFR_84h,R5
+01C0 300003      E     JNB     echo,?C0016
+01C3 AF84              MOV     R7,SFR_84h
+01C5 22                RET     
+01C6         ?C0016:
+01C6 7F00              MOV     R7,#00H
+01C8 22                RET     
+                                           ; SOURCE LINE # 41
+01C9         ?C0018:
+01C9 8D85              MOV     SFR_85h,R5
+01CB 300003      E     JNB     echo,?C0019
+01CE AF85              MOV     R7,SFR_85h
+01D0 22                RET     
+01D1         ?C0019:
+01D1 7F00              MOV     R7,#00H
+01D3 22                RET     
+                                           ; SOURCE LINE # 42
+01D4         ?C0021:
+01D4 8D86              MOV     SFR_86h,R5
+01D6 300003      E     JNB     echo,?C0022
+01D9 AF86              MOV     R7,SFR_86h
+01DB 22                RET     
+01DC         ?C0022:
+01DC 7F00              MOV     R7,#00H
+01DE 22                RET     
+                                           ; SOURCE LINE # 43
+01DF         ?C0024:
+01DF 8D87              MOV     SFR_87h,R5
+01E1 300003      E     JNB     echo,?C0025
+01E4 AF87              MOV     R7,SFR_87h
+01E6 22                RET     
+01E7         ?C0025:
+01E7 7F00              MOV     R7,#00H
+01E9 22                RET     
+                                           ; SOURCE LINE # 44
+01EA         ?C0027:
+01EA 8D88              MOV     SFR_88h,R5
+01EC 300003      E     JNB     echo,?C0028
+01EF AF88              MOV     R7,SFR_88h
+01F1 22                RET     
+01F2         ?C0028:
+01F2 7F00              MOV     R7,#00H
+01F4 22                RET     
+                                           ; SOURCE LINE # 45
+01F5         ?C0030:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 16  
+
+01F5 8D89              MOV     SFR_89h,R5
+01F7 300003      E     JNB     echo,?C0031
+01FA AF89              MOV     R7,SFR_89h
+01FC 22                RET     
+01FD         ?C0031:
+01FD 7F00              MOV     R7,#00H
+01FF 22                RET     
+                                           ; SOURCE LINE # 46
+0200         ?C0033:
+0200 8D8A              MOV     SFR_8ah,R5
+0202 300003      E     JNB     echo,?C0034
+0205 AF8A              MOV     R7,SFR_8ah
+0207 22                RET     
+0208         ?C0034:
+0208 7F00              MOV     R7,#00H
+020A 22                RET     
+                                           ; SOURCE LINE # 47
+020B         ?C0036:
+020B 8D8B              MOV     SFR_8bh,R5
+020D 300003      E     JNB     echo,?C0037
+0210 AF8B              MOV     R7,SFR_8bh
+0212 22                RET     
+0213         ?C0037:
+0213 7F00              MOV     R7,#00H
+0215 22                RET     
+                                           ; SOURCE LINE # 48
+0216         ?C0039:
+0216 8D8C              MOV     SFR_8ch,R5
+0218 300003      E     JNB     echo,?C0040
+021B AF8C              MOV     R7,SFR_8ch
+021D 22                RET     
+021E         ?C0040:
+021E 7F00              MOV     R7,#00H
+0220 22                RET     
+                                           ; SOURCE LINE # 49
+0221         ?C0042:
+0221 8D8D              MOV     SFR_8dh,R5
+0223 300003      E     JNB     echo,?C0043
+0226 AF8D              MOV     R7,SFR_8dh
+0228 22                RET     
+0229         ?C0043:
+0229 7F00              MOV     R7,#00H
+022B 22                RET     
+                                           ; SOURCE LINE # 50
+022C         ?C0045:
+022C 8D8E              MOV     SFR_8eh,R5
+022E 300003      E     JNB     echo,?C0046
+0231 AF8E              MOV     R7,SFR_8eh
+0233 22                RET     
+0234         ?C0046:
+0234 7F00              MOV     R7,#00H
+0236 22                RET     
+                                           ; SOURCE LINE # 51
+0237         ?C0048:
+0237 8D8F              MOV     SFR_8fh,R5
+0239 300003      E     JNB     echo,?C0049
+023C AF8F              MOV     R7,SFR_8fh
+023E 22                RET     
+023F         ?C0049:
+023F 7F00              MOV     R7,#00H
+0241 22                RET     
+                                           ; SOURCE LINE # 53
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 17  
+
+0242         ?C0051:
+0242 8D90              MOV     SFR_90h,R5
+0244 300003      E     JNB     echo,?C0052
+0247 AF90              MOV     R7,SFR_90h
+0249 22                RET     
+024A         ?C0052:
+024A 7F00              MOV     R7,#00H
+024C 22                RET     
+                                           ; SOURCE LINE # 54
+024D         ?C0054:
+024D 8D91              MOV     SFR_91h,R5
+024F 300003      E     JNB     echo,?C0055
+0252 AF91              MOV     R7,SFR_91h
+0254 22                RET     
+0255         ?C0055:
+0255 7F00              MOV     R7,#00H
+0257 22                RET     
+                                           ; SOURCE LINE # 55
+0258         ?C0057:
+0258 8D92              MOV     SFR_92h,R5
+025A 300003      E     JNB     echo,?C0058
+025D AF92              MOV     R7,SFR_92h
+025F 22                RET     
+0260         ?C0058:
+0260 7F00              MOV     R7,#00H
+0262 22                RET     
+                                           ; SOURCE LINE # 56
+0263         ?C0060:
+0263 8D93              MOV     SFR_93h,R5
+0265 300003      E     JNB     echo,?C0061
+0268 AF93              MOV     R7,SFR_93h
+026A 22                RET     
+026B         ?C0061:
+026B 7F00              MOV     R7,#00H
+026D 22                RET     
+                                           ; SOURCE LINE # 57
+026E         ?C0063:
+026E 8D94              MOV     SFR_94h,R5
+0270 300003      E     JNB     echo,?C0064
+0273 AF94              MOV     R7,SFR_94h
+0275 22                RET     
+0276         ?C0064:
+0276 7F00              MOV     R7,#00H
+0278 22                RET     
+                                           ; SOURCE LINE # 58
+0279         ?C0066:
+0279 8D95              MOV     SFR_95h,R5
+027B 300003      E     JNB     echo,?C0067
+027E AF95              MOV     R7,SFR_95h
+0280 22                RET     
+0281         ?C0067:
+0281 7F00              MOV     R7,#00H
+0283 22                RET     
+                                           ; SOURCE LINE # 59
+0284         ?C0069:
+0284 8D96              MOV     SFR_96h,R5
+0286 300003      E     JNB     echo,?C0070
+0289 AF96              MOV     R7,SFR_96h
+028B 22                RET     
+028C         ?C0070:
+028C 7F00              MOV     R7,#00H
+028E 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 18  
+
+                                           ; SOURCE LINE # 60
+028F         ?C0072:
+028F 8D97              MOV     SFR_97h,R5
+0291 300003      E     JNB     echo,?C0073
+0294 AF97              MOV     R7,SFR_97h
+0296 22                RET     
+0297         ?C0073:
+0297 7F00              MOV     R7,#00H
+0299 22                RET     
+                                           ; SOURCE LINE # 61
+029A         ?C0075:
+029A 8D98              MOV     SFR_98h,R5
+029C 300003      E     JNB     echo,?C0076
+029F AF98              MOV     R7,SFR_98h
+02A1 22                RET     
+02A2         ?C0076:
+02A2 7F00              MOV     R7,#00H
+02A4 22                RET     
+                                           ; SOURCE LINE # 62
+02A5         ?C0078:
+02A5 8D99              MOV     SFR_99h,R5
+02A7 300003      E     JNB     echo,?C0079
+02AA AF99              MOV     R7,SFR_99h
+02AC 22                RET     
+02AD         ?C0079:
+02AD 7F00              MOV     R7,#00H
+02AF 22                RET     
+                                           ; SOURCE LINE # 63
+02B0         ?C0081:
+02B0 8D9A              MOV     SFR_9ah,R5
+02B2 300003      E     JNB     echo,?C0082
+02B5 AF9A              MOV     R7,SFR_9ah
+02B7 22                RET     
+02B8         ?C0082:
+02B8 7F00              MOV     R7,#00H
+02BA 22                RET     
+                                           ; SOURCE LINE # 64
+02BB         ?C0084:
+02BB 8D9B              MOV     SFR_9bh,R5
+02BD 300003      E     JNB     echo,?C0085
+02C0 AF9B              MOV     R7,SFR_9bh
+02C2 22                RET     
+02C3         ?C0085:
+02C3 7F00              MOV     R7,#00H
+02C5 22                RET     
+                                           ; SOURCE LINE # 65
+02C6         ?C0087:
+02C6 8D9C              MOV     SFR_9ch,R5
+02C8 300003      E     JNB     echo,?C0088
+02CB AF9C              MOV     R7,SFR_9ch
+02CD 22                RET     
+02CE         ?C0088:
+02CE 7F00              MOV     R7,#00H
+02D0 22                RET     
+                                           ; SOURCE LINE # 66
+02D1         ?C0090:
+02D1 8D9D              MOV     SFR_9dh,R5
+02D3 300003      E     JNB     echo,?C0091
+02D6 AF9D              MOV     R7,SFR_9dh
+02D8 22                RET     
+02D9         ?C0091:
+02D9 7F00              MOV     R7,#00H
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 19  
+
+02DB 22                RET     
+                                           ; SOURCE LINE # 67
+02DC         ?C0093:
+02DC 8D9E              MOV     SFR_9eh,R5
+02DE 300003      E     JNB     echo,?C0094
+02E1 AF9E              MOV     R7,SFR_9eh
+02E3 22                RET     
+02E4         ?C0094:
+02E4 7F00              MOV     R7,#00H
+02E6 22                RET     
+                                           ; SOURCE LINE # 68
+02E7         ?C0096:
+02E7 8D9F              MOV     SFR_9fh,R5
+02E9 300003      E     JNB     echo,?C0097
+02EC AF9F              MOV     R7,SFR_9fh
+02EE 22                RET     
+02EF         ?C0097:
+02EF 7F00              MOV     R7,#00H
+02F1 22                RET     
+                                           ; SOURCE LINE # 70
+02F2         ?C0099:
+02F2 8DA0              MOV     SFR_a0h,R5
+02F4 300003      E     JNB     echo,?C0100
+02F7 AFA0              MOV     R7,SFR_a0h
+02F9 22                RET     
+02FA         ?C0100:
+02FA 7F00              MOV     R7,#00H
+02FC 22                RET     
+                                           ; SOURCE LINE # 71
+02FD         ?C0102:
+02FD 8DA1              MOV     SFR_a1h,R5
+02FF 300003      E     JNB     echo,?C0103
+0302 AFA1              MOV     R7,SFR_a1h
+0304 22                RET     
+0305         ?C0103:
+0305 7F00              MOV     R7,#00H
+0307 22                RET     
+                                           ; SOURCE LINE # 72
+0308         ?C0105:
+0308 8DA2              MOV     SFR_a2h,R5
+030A 300003      E     JNB     echo,?C0106
+030D AFA2              MOV     R7,SFR_a2h
+030F 22                RET     
+0310         ?C0106:
+0310 7F00              MOV     R7,#00H
+0312 22                RET     
+                                           ; SOURCE LINE # 73
+0313         ?C0108:
+0313 8DA3              MOV     SFR_a3h,R5
+0315 300003      E     JNB     echo,?C0109
+0318 AFA3              MOV     R7,SFR_a3h
+031A 22                RET     
+031B         ?C0109:
+031B 7F00              MOV     R7,#00H
+031D 22                RET     
+                                           ; SOURCE LINE # 74
+031E         ?C0111:
+031E 8DA4              MOV     SFR_a4h,R5
+0320 300003      E     JNB     echo,?C0112
+0323 AFA4              MOV     R7,SFR_a4h
+0325 22                RET     
+0326         ?C0112:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 20  
+
+0326 7F00              MOV     R7,#00H
+0328 22                RET     
+                                           ; SOURCE LINE # 75
+0329         ?C0114:
+0329 8DA5              MOV     SFR_a5h,R5
+032B 300003      E     JNB     echo,?C0115
+032E AFA5              MOV     R7,SFR_a5h
+0330 22                RET     
+0331         ?C0115:
+0331 7F00              MOV     R7,#00H
+0333 22                RET     
+                                           ; SOURCE LINE # 76
+0334         ?C0117:
+0334 8DA6              MOV     SFR_a6h,R5
+0336 300003      E     JNB     echo,?C0118
+0339 AFA6              MOV     R7,SFR_a6h
+033B 22                RET     
+033C         ?C0118:
+033C 7F00              MOV     R7,#00H
+033E 22                RET     
+                                           ; SOURCE LINE # 77
+033F         ?C0120:
+033F 8DA7              MOV     SFR_a7h,R5
+0341 300003      E     JNB     echo,?C0121
+0344 AFA7              MOV     R7,SFR_a7h
+0346 22                RET     
+0347         ?C0121:
+0347 7F00              MOV     R7,#00H
+0349 22                RET     
+                                           ; SOURCE LINE # 78
+034A         ?C0123:
+034A 8DA8              MOV     SFR_a8h,R5
+034C 300003      E     JNB     echo,?C0124
+034F AFA8              MOV     R7,SFR_a8h
+0351 22                RET     
+0352         ?C0124:
+0352 7F00              MOV     R7,#00H
+0354 22                RET     
+                                           ; SOURCE LINE # 79
+0355         ?C0126:
+0355 8DA9              MOV     SFR_a9h,R5
+0357 300003      E     JNB     echo,?C0127
+035A AFA9              MOV     R7,SFR_a9h
+035C 22                RET     
+035D         ?C0127:
+035D 7F00              MOV     R7,#00H
+035F 22                RET     
+                                           ; SOURCE LINE # 80
+0360         ?C0129:
+0360 8DAA              MOV     SFR_aah,R5
+0362 300003      E     JNB     echo,?C0130
+0365 AFAA              MOV     R7,SFR_aah
+0367 22                RET     
+0368         ?C0130:
+0368 7F00              MOV     R7,#00H
+036A 22                RET     
+                                           ; SOURCE LINE # 81
+036B         ?C0132:
+036B 8DAB              MOV     SFR_abh,R5
+036D 300003      E     JNB     echo,?C0133
+0370 AFAB              MOV     R7,SFR_abh
+0372 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 21  
+
+0373         ?C0133:
+0373 7F00              MOV     R7,#00H
+0375 22                RET     
+                                           ; SOURCE LINE # 82
+0376         ?C0135:
+0376 8DAC              MOV     SFR_ach,R5
+0378 300003      E     JNB     echo,?C0136
+037B AFAC              MOV     R7,SFR_ach
+037D 22                RET     
+037E         ?C0136:
+037E 7F00              MOV     R7,#00H
+0380 22                RET     
+                                           ; SOURCE LINE # 83
+0381         ?C0138:
+0381 8DAD              MOV     SFR_adh,R5
+0383 300003      E     JNB     echo,?C0139
+0386 AFAD              MOV     R7,SFR_adh
+0388 22                RET     
+0389         ?C0139:
+0389 7F00              MOV     R7,#00H
+038B 22                RET     
+                                           ; SOURCE LINE # 84
+038C         ?C0141:
+038C 8DAE              MOV     SFR_aeh,R5
+038E 300003      E     JNB     echo,?C0142
+0391 AFAE              MOV     R7,SFR_aeh
+0393 22                RET     
+0394         ?C0142:
+0394 7F00              MOV     R7,#00H
+0396 22                RET     
+                                           ; SOURCE LINE # 85
+0397         ?C0144:
+0397 8DAF              MOV     SFR_afh,R5
+0399 300003      E     JNB     echo,?C0145
+039C AFAF              MOV     R7,SFR_afh
+039E 22                RET     
+039F         ?C0145:
+039F 7F00              MOV     R7,#00H
+03A1 22                RET     
+                                           ; SOURCE LINE # 87
+03A2         ?C0147:
+03A2 8DB0              MOV     SFR_b0h,R5
+03A4 300003      E     JNB     echo,?C0148
+03A7 AFB0              MOV     R7,SFR_b0h
+03A9 22                RET     
+03AA         ?C0148:
+03AA 7F00              MOV     R7,#00H
+03AC 22                RET     
+                                           ; SOURCE LINE # 88
+03AD         ?C0150:
+03AD 8DB1              MOV     SFR_b1h,R5
+03AF 300003      E     JNB     echo,?C0151
+03B2 AFB1              MOV     R7,SFR_b1h
+03B4 22                RET     
+03B5         ?C0151:
+03B5 7F00              MOV     R7,#00H
+03B7 22                RET     
+                                           ; SOURCE LINE # 89
+03B8         ?C0153:
+03B8 8DB2              MOV     SFR_b2h,R5
+03BA 300003      E     JNB     echo,?C0154
+03BD AFB2              MOV     R7,SFR_b2h
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 22  
+
+03BF 22                RET     
+03C0         ?C0154:
+03C0 7F00              MOV     R7,#00H
+03C2 22                RET     
+                                           ; SOURCE LINE # 90
+03C3         ?C0156:
+03C3 8DB3              MOV     SFR_b3h,R5
+03C5 300003      E     JNB     echo,?C0157
+03C8 AFB3              MOV     R7,SFR_b3h
+03CA 22                RET     
+03CB         ?C0157:
+03CB 7F00              MOV     R7,#00H
+03CD 22                RET     
+                                           ; SOURCE LINE # 91
+03CE         ?C0159:
+03CE 8DB4              MOV     SFR_b4h,R5
+03D0 300003      E     JNB     echo,?C0160
+03D3 AFB4              MOV     R7,SFR_b4h
+03D5 22                RET     
+03D6         ?C0160:
+03D6 7F00              MOV     R7,#00H
+03D8 22                RET     
+                                           ; SOURCE LINE # 92
+03D9         ?C0162:
+03D9 8DB5              MOV     SFR_b5h,R5
+03DB 300003      E     JNB     echo,?C0163
+03DE AFB5              MOV     R7,SFR_b5h
+03E0 22                RET     
+03E1         ?C0163:
+03E1 7F00              MOV     R7,#00H
+03E3 22                RET     
+                                           ; SOURCE LINE # 93
+03E4         ?C0165:
+03E4 8DB6              MOV     SFR_b6h,R5
+03E6 300003      E     JNB     echo,?C0166
+03E9 AFB6              MOV     R7,SFR_b6h
+03EB 22                RET     
+03EC         ?C0166:
+03EC 7F00              MOV     R7,#00H
+03EE 22                RET     
+                                           ; SOURCE LINE # 94
+03EF         ?C0168:
+03EF 8DB7              MOV     SFR_b7h,R5
+03F1 300003      E     JNB     echo,?C0169
+03F4 AFB7              MOV     R7,SFR_b7h
+03F6 22                RET     
+03F7         ?C0169:
+03F7 7F00              MOV     R7,#00H
+03F9 22                RET     
+                                           ; SOURCE LINE # 95
+03FA         ?C0171:
+03FA 8DB8              MOV     SFR_b8h,R5
+03FC 300003      E     JNB     echo,?C0172
+03FF AFB8              MOV     R7,SFR_b8h
+0401 22                RET     
+0402         ?C0172:
+0402 7F00              MOV     R7,#00H
+0404 22                RET     
+                                           ; SOURCE LINE # 96
+0405         ?C0174:
+0405 8DB9              MOV     SFR_b9h,R5
+0407 300003      E     JNB     echo,?C0175
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 23  
+
+040A AFB9              MOV     R7,SFR_b9h
+040C 22                RET     
+040D         ?C0175:
+040D 7F00              MOV     R7,#00H
+040F 22                RET     
+                                           ; SOURCE LINE # 97
+0410         ?C0177:
+0410 8DBA              MOV     SFR_bah,R5
+0412 300003      E     JNB     echo,?C0178
+0415 AFBA              MOV     R7,SFR_bah
+0417 22                RET     
+0418         ?C0178:
+0418 7F00              MOV     R7,#00H
+041A 22                RET     
+                                           ; SOURCE LINE # 98
+041B         ?C0180:
+041B 8DBB              MOV     SFR_bbh,R5
+041D 300003      E     JNB     echo,?C0181
+0420 AFBB              MOV     R7,SFR_bbh
+0422 22                RET     
+0423         ?C0181:
+0423 7F00              MOV     R7,#00H
+0425 22                RET     
+                                           ; SOURCE LINE # 99
+0426         ?C0183:
+0426 8DBC              MOV     SFR_bch,R5
+0428 300003      E     JNB     echo,?C0184
+042B AFBC              MOV     R7,SFR_bch
+042D 22                RET     
+042E         ?C0184:
+042E 7F00              MOV     R7,#00H
+0430 22                RET     
+                                           ; SOURCE LINE # 100
+0431         ?C0186:
+0431 8DBD              MOV     SFR_bdh,R5
+0433 300003      E     JNB     echo,?C0187
+0436 AFBD              MOV     R7,SFR_bdh
+0438 22                RET     
+0439         ?C0187:
+0439 7F00              MOV     R7,#00H
+043B 22                RET     
+                                           ; SOURCE LINE # 101
+043C         ?C0189:
+043C 8DBE              MOV     SFR_beh,R5
+043E 300003      E     JNB     echo,?C0190
+0441 AFBE              MOV     R7,SFR_beh
+0443 22                RET     
+0444         ?C0190:
+0444 7F00              MOV     R7,#00H
+0446 22                RET     
+                                           ; SOURCE LINE # 102
+0447         ?C0192:
+0447 8DBF              MOV     SFR_bfh,R5
+0449 300003      E     JNB     echo,?C0193
+044C AFBF              MOV     R7,SFR_bfh
+044E 22                RET     
+044F         ?C0193:
+044F 7F00              MOV     R7,#00H
+0451 22                RET     
+                                           ; SOURCE LINE # 104
+0452         ?C0195:
+0452 8DC0              MOV     SFR_c0h,R5
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 24  
+
+0454 300003      E     JNB     echo,?C0196
+0457 AFC0              MOV     R7,SFR_c0h
+0459 22                RET     
+045A         ?C0196:
+045A 7F00              MOV     R7,#00H
+045C 22                RET     
+                                           ; SOURCE LINE # 105
+045D         ?C0198:
+045D 8DC1              MOV     SFR_c1h,R5
+045F 300003      E     JNB     echo,?C0199
+0462 AFC1              MOV     R7,SFR_c1h
+0464 22                RET     
+0465         ?C0199:
+0465 7F00              MOV     R7,#00H
+0467 22                RET     
+                                           ; SOURCE LINE # 106
+0468         ?C0201:
+0468 8DC2              MOV     SFR_c2h,R5
+046A 300003      E     JNB     echo,?C0202
+046D AFC2              MOV     R7,SFR_c2h
+046F 22                RET     
+0470         ?C0202:
+0470 7F00              MOV     R7,#00H
+0472 22                RET     
+                                           ; SOURCE LINE # 107
+0473         ?C0204:
+0473 8DC3              MOV     SFR_c3h,R5
+0475 300003      E     JNB     echo,?C0205
+0478 AFC3              MOV     R7,SFR_c3h
+047A 22                RET     
+047B         ?C0205:
+047B 7F00              MOV     R7,#00H
+047D 22                RET     
+                                           ; SOURCE LINE # 108
+047E         ?C0207:
+047E 8DC4              MOV     SFR_c4h,R5
+0480 300003      E     JNB     echo,?C0208
+0483 AFC4              MOV     R7,SFR_c4h
+0485 22                RET     
+0486         ?C0208:
+0486 7F00              MOV     R7,#00H
+0488 22                RET     
+                                           ; SOURCE LINE # 109
+0489         ?C0210:
+0489 8DC5              MOV     SFR_c5h,R5
+048B 300003      E     JNB     echo,?C0211
+048E AFC5              MOV     R7,SFR_c5h
+0490 22                RET     
+0491         ?C0211:
+0491 7F00              MOV     R7,#00H
+0493 22                RET     
+                                           ; SOURCE LINE # 110
+0494         ?C0213:
+0494 8DC6              MOV     SFR_c6h,R5
+0496 300003      E     JNB     echo,?C0214
+0499 AFC6              MOV     R7,SFR_c6h
+049B 22                RET     
+049C         ?C0214:
+049C 7F00              MOV     R7,#00H
+049E 22                RET     
+                                           ; SOURCE LINE # 111
+049F         ?C0216:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 25  
+
+049F 8DC7              MOV     SFR_c7h,R5
+04A1 300003      E     JNB     echo,?C0217
+04A4 AFC7              MOV     R7,SFR_c7h
+04A6 22                RET     
+04A7         ?C0217:
+04A7 7F00              MOV     R7,#00H
+04A9 22                RET     
+                                           ; SOURCE LINE # 112
+04AA         ?C0219:
+04AA 8DC8              MOV     SFR_c8h,R5
+04AC 300003      E     JNB     echo,?C0220
+04AF AFC8              MOV     R7,SFR_c8h
+04B1 22                RET     
+04B2         ?C0220:
+04B2 7F00              MOV     R7,#00H
+04B4 22                RET     
+                                           ; SOURCE LINE # 113
+04B5         ?C0222:
+04B5 8DC9              MOV     SFR_c9h,R5
+04B7 300003      E     JNB     echo,?C0223
+04BA AFC9              MOV     R7,SFR_c9h
+04BC 22                RET     
+04BD         ?C0223:
+04BD 7F00              MOV     R7,#00H
+04BF 22                RET     
+                                           ; SOURCE LINE # 114
+04C0         ?C0225:
+04C0 8DCA              MOV     SFR_cah,R5
+04C2 300003      E     JNB     echo,?C0226
+04C5 AFCA              MOV     R7,SFR_cah
+04C7 22                RET     
+04C8         ?C0226:
+04C8 7F00              MOV     R7,#00H
+04CA 22                RET     
+                                           ; SOURCE LINE # 115
+04CB         ?C0228:
+04CB 8DCB              MOV     SFR_cbh,R5
+04CD 300003      E     JNB     echo,?C0229
+04D0 AFCB              MOV     R7,SFR_cbh
+04D2 22                RET     
+04D3         ?C0229:
+04D3 7F00              MOV     R7,#00H
+04D5 22                RET     
+                                           ; SOURCE LINE # 116
+04D6         ?C0231:
+04D6 8DCC              MOV     SFR_cch,R5
+04D8 300003      E     JNB     echo,?C0232
+04DB AFCC              MOV     R7,SFR_cch
+04DD 22                RET     
+04DE         ?C0232:
+04DE 7F00              MOV     R7,#00H
+04E0 22                RET     
+                                           ; SOURCE LINE # 117
+04E1         ?C0234:
+04E1 8DCD              MOV     SFR_cdh,R5
+04E3 300003      E     JNB     echo,?C0235
+04E6 AFCD              MOV     R7,SFR_cdh
+04E8 22                RET     
+04E9         ?C0235:
+04E9 7F00              MOV     R7,#00H
+04EB 22                RET     
+                                           ; SOURCE LINE # 118
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 26  
+
+04EC         ?C0237:
+04EC 8DCE              MOV     SFR_ceh,R5
+04EE 300003      E     JNB     echo,?C0238
+04F1 AFCE              MOV     R7,SFR_ceh
+04F3 22                RET     
+04F4         ?C0238:
+04F4 7F00              MOV     R7,#00H
+04F6 22                RET     
+                                           ; SOURCE LINE # 119
+04F7         ?C0240:
+04F7 8DCF              MOV     SFR_cfh,R5
+04F9 300003      E     JNB     echo,?C0241
+04FC AFCF              MOV     R7,SFR_cfh
+04FE 22                RET     
+04FF         ?C0241:
+04FF 7F00              MOV     R7,#00H
+0501 22                RET     
+                                           ; SOURCE LINE # 121
+0502         ?C0243:
+0502 8DD0              MOV     SFR_d0h,R5
+0504 300003      E     JNB     echo,?C0244
+0507 AFD0              MOV     R7,SFR_d0h
+0509 22                RET     
+050A         ?C0244:
+050A 7F00              MOV     R7,#00H
+050C 22                RET     
+                                           ; SOURCE LINE # 122
+050D         ?C0246:
+050D 8DD1              MOV     SFR_d1h,R5
+050F 300003      E     JNB     echo,?C0247
+0512 AFD1              MOV     R7,SFR_d1h
+0514 22                RET     
+0515         ?C0247:
+0515 7F00              MOV     R7,#00H
+0517 22                RET     
+                                           ; SOURCE LINE # 123
+0518         ?C0249:
+0518 8DD2              MOV     SFR_d2h,R5
+051A 300003      E     JNB     echo,?C0250
+051D AFD2              MOV     R7,SFR_d2h
+051F 22                RET     
+0520         ?C0250:
+0520 7F00              MOV     R7,#00H
+0522 22                RET     
+                                           ; SOURCE LINE # 124
+0523         ?C0252:
+0523 8DD3              MOV     SFR_d3h,R5
+0525 300003      E     JNB     echo,?C0253
+0528 AFD3              MOV     R7,SFR_d3h
+052A 22                RET     
+052B         ?C0253:
+052B 7F00              MOV     R7,#00H
+052D 22                RET     
+                                           ; SOURCE LINE # 125
+052E         ?C0255:
+052E 8DD4              MOV     SFR_d4h,R5
+0530 300003      E     JNB     echo,?C0256
+0533 AFD4              MOV     R7,SFR_d4h
+0535 22                RET     
+0536         ?C0256:
+0536 7F00              MOV     R7,#00H
+0538 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 27  
+
+                                           ; SOURCE LINE # 126
+0539         ?C0258:
+0539 8DD5              MOV     SFR_d5h,R5
+053B 300003      E     JNB     echo,?C0259
+053E AFD5              MOV     R7,SFR_d5h
+0540 22                RET     
+0541         ?C0259:
+0541 7F00              MOV     R7,#00H
+0543 22                RET     
+                                           ; SOURCE LINE # 127
+0544         ?C0261:
+0544 8DD6              MOV     SFR_d6h,R5
+0546 300003      E     JNB     echo,?C0262
+0549 AFD6              MOV     R7,SFR_d6h
+054B 22                RET     
+054C         ?C0262:
+054C 7F00              MOV     R7,#00H
+054E 22                RET     
+                                           ; SOURCE LINE # 128
+054F         ?C0264:
+054F 8DD7              MOV     SFR_d7h,R5
+0551 300003      E     JNB     echo,?C0265
+0554 AFD7              MOV     R7,SFR_d7h
+0556 22                RET     
+0557         ?C0265:
+0557 7F00              MOV     R7,#00H
+0559 22                RET     
+                                           ; SOURCE LINE # 129
+055A         ?C0267:
+055A 75EBAA            MOV     SFR_ebh,#0AAH
+                                           ; SOURCE LINE # 130
+055D 75EB55            MOV     SFR_ebh,#055H
+                                           ; SOURCE LINE # 131
+0560 8DD8              MOV     SFR_d8h,R5
+0562 300003      E     JNB     echo,?C0268
+0565 AFD8              MOV     R7,SFR_d8h
+0567 22                RET     
+0568         ?C0268:
+0568 7F00              MOV     R7,#00H
+056A 22                RET     
+                                           ; SOURCE LINE # 132
+056B         ?C0270:
+056B 8DD9              MOV     SFR_d9h,R5
+056D 300003      E     JNB     echo,?C0271
+0570 AFD9              MOV     R7,SFR_d9h
+0572 22                RET     
+0573         ?C0271:
+0573 7F00              MOV     R7,#00H
+0575 22                RET     
+                                           ; SOURCE LINE # 133
+0576         ?C0273:
+0576 8DDA              MOV     SFR_dah,R5
+0578 300003      E     JNB     echo,?C0274
+057B AFDA              MOV     R7,SFR_dah
+057D 22                RET     
+057E         ?C0274:
+057E 7F00              MOV     R7,#00H
+0580 22                RET     
+                                           ; SOURCE LINE # 134
+0581         ?C0276:
+0581 8DDB              MOV     SFR_dbh,R5
+0583 300003      E     JNB     echo,?C0277
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 28  
+
+0586 AFDB              MOV     R7,SFR_dbh
+0588 22                RET     
+0589         ?C0277:
+0589 7F00              MOV     R7,#00H
+058B 22                RET     
+                                           ; SOURCE LINE # 135
+058C         ?C0279:
+058C 8DDC              MOV     SFR_dch,R5
+058E 300003      E     JNB     echo,?C0280
+0591 AFDC              MOV     R7,SFR_dch
+0593 22                RET     
+0594         ?C0280:
+0594 7F00              MOV     R7,#00H
+0596 22                RET     
+                                           ; SOURCE LINE # 136
+0597         ?C0282:
+0597 8DDD              MOV     SFR_ddh,R5
+0599 300003      E     JNB     echo,?C0283
+059C AFDD              MOV     R7,SFR_ddh
+059E 22                RET     
+059F         ?C0283:
+059F 7F00              MOV     R7,#00H
+05A1 22                RET     
+                                           ; SOURCE LINE # 137
+05A2         ?C0285:
+05A2 8DDE              MOV     SFR_deh,R5
+05A4 300003      E     JNB     echo,?C0286
+05A7 AFDE              MOV     R7,SFR_deh
+05A9 22                RET     
+05AA         ?C0286:
+05AA 7F00              MOV     R7,#00H
+05AC 22                RET     
+                                           ; SOURCE LINE # 138
+05AD         ?C0288:
+05AD 8DDF              MOV     SFR_dfh,R5
+05AF 300003      E     JNB     echo,?C0289
+05B2 AFDF              MOV     R7,SFR_dfh
+05B4 22                RET     
+05B5         ?C0289:
+05B5 7F00              MOV     R7,#00H
+05B7 22                RET     
+                                           ; SOURCE LINE # 140
+05B8         ?C0291:
+05B8 ED                MOV     A,R5
+05B9 300002      E     JNB     echo,?C0292
+05BC FF                MOV     R7,A
+05BD 22                RET     
+05BE         ?C0292:
+05BE 7F00              MOV     R7,#00H
+05C0 22                RET     
+                                           ; SOURCE LINE # 141
+05C1         ?C0294:
+05C1 8DE1              MOV     SFR_e1h,R5
+05C3 300003      E     JNB     echo,?C0295
+05C6 AFE1              MOV     R7,SFR_e1h
+05C8 22                RET     
+05C9         ?C0295:
+05C9 7F00              MOV     R7,#00H
+05CB 22                RET     
+                                           ; SOURCE LINE # 142
+05CC         ?C0297:
+05CC 8DE2              MOV     SFR_e2h,R5
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 29  
+
+05CE 300003      E     JNB     echo,?C0298
+05D1 AFE2              MOV     R7,SFR_e2h
+05D3 22                RET     
+05D4         ?C0298:
+05D4 7F00              MOV     R7,#00H
+05D6 22                RET     
+                                           ; SOURCE LINE # 143
+05D7         ?C0300:
+05D7 8DE3              MOV     SFR_e3h,R5
+05D9 300003      E     JNB     echo,?C0301
+05DC AFE3              MOV     R7,SFR_e3h
+05DE 22                RET     
+05DF         ?C0301:
+05DF 7F00              MOV     R7,#00H
+05E1 22                RET     
+                                           ; SOURCE LINE # 144
+05E2         ?C0303:
+05E2 8DE4              MOV     SFR_e4h,R5
+05E4 300003      E     JNB     echo,?C0304
+05E7 AFE4              MOV     R7,SFR_e4h
+05E9 22                RET     
+05EA         ?C0304:
+05EA 7F00              MOV     R7,#00H
+05EC 22                RET     
+                                           ; SOURCE LINE # 145
+05ED         ?C0306:
+05ED 8DE5              MOV     SFR_e5h,R5
+05EF 300003      E     JNB     echo,?C0307
+05F2 AFE5              MOV     R7,SFR_e5h
+05F4 22                RET     
+05F5         ?C0307:
+05F5 7F00              MOV     R7,#00H
+05F7 22                RET     
+                                           ; SOURCE LINE # 146
+05F8         ?C0309:
+05F8 8DE6              MOV     SFR_e6h,R5
+05FA 300003      E     JNB     echo,?C0310
+05FD AFE6              MOV     R7,SFR_e6h
+05FF 22                RET     
+0600         ?C0310:
+0600 7F00              MOV     R7,#00H
+0602 22                RET     
+                                           ; SOURCE LINE # 147
+0603         ?C0312:
+0603 8DE7              MOV     SFR_e7h,R5
+0605 300003      E     JNB     echo,?C0313
+0608 AFE7              MOV     R7,SFR_e7h
+060A 22                RET     
+060B         ?C0313:
+060B 7F00              MOV     R7,#00H
+060D 22                RET     
+                                           ; SOURCE LINE # 148
+060E         ?C0315:
+060E 8DE8              MOV     SFR_e8h,R5
+0610 300003      E     JNB     echo,?C0316
+0613 AFE8              MOV     R7,SFR_e8h
+0615 22                RET     
+0616         ?C0316:
+0616 7F00              MOV     R7,#00H
+0618 22                RET     
+                                           ; SOURCE LINE # 149
+0619         ?C0318:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 30  
+
+0619 8DE9              MOV     SFR_e9h,R5
+061B 300003      E     JNB     echo,?C0319
+061E AFE9              MOV     R7,SFR_e9h
+0620 22                RET     
+0621         ?C0319:
+0621 7F00              MOV     R7,#00H
+0623 22                RET     
+                                           ; SOURCE LINE # 150
+0624         ?C0321:
+0624 8DEA              MOV     SFR_eah,R5
+0626 300003      E     JNB     echo,?C0322
+0629 AFEA              MOV     R7,SFR_eah
+062B 22                RET     
+062C         ?C0322:
+062C 7F00              MOV     R7,#00H
+062E 22                RET     
+                                           ; SOURCE LINE # 151
+062F         ?C0324:
+062F 8DEB              MOV     SFR_ebh,R5
+0631 300003      E     JNB     echo,?C0325
+0634 AFEB              MOV     R7,SFR_ebh
+0636 22                RET     
+0637         ?C0325:
+0637 7F00              MOV     R7,#00H
+0639 22                RET     
+                                           ; SOURCE LINE # 152
+063A         ?C0327:
+063A 8DEC              MOV     SFR_ech,R5
+063C 300003      E     JNB     echo,?C0328
+063F AFEC              MOV     R7,SFR_ech
+0641 22                RET     
+0642         ?C0328:
+0642 7F00              MOV     R7,#00H
+0644 22                RET     
+                                           ; SOURCE LINE # 153
+0645         ?C0330:
+0645 8DED              MOV     SFR_edh,R5
+0647 300003      E     JNB     echo,?C0331
+064A AFED              MOV     R7,SFR_edh
+064C 22                RET     
+064D         ?C0331:
+064D 7F00              MOV     R7,#00H
+064F 22                RET     
+                                           ; SOURCE LINE # 154
+0650         ?C0333:
+0650 8DEE              MOV     SFR_eeh,R5
+0652 300003      E     JNB     echo,?C0334
+0655 AFEE              MOV     R7,SFR_eeh
+0657 22                RET     
+0658         ?C0334:
+0658 7F00              MOV     R7,#00H
+065A 22                RET     
+                                           ; SOURCE LINE # 155
+065B         ?C0336:
+065B 8DEF              MOV     SFR_efh,R5
+065D 300003      E     JNB     echo,?C0337
+0660 AFEF              MOV     R7,SFR_efh
+0662 22                RET     
+0663         ?C0337:
+0663 7F00              MOV     R7,#00H
+0665 22                RET     
+                                           ; SOURCE LINE # 157
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 31  
+
+0666         ?C0339:
+0666 8DF0              MOV     B,R5
+0668 300003      E     JNB     echo,?C0340
+066B AFF0              MOV     R7,B
+066D 22                RET     
+066E         ?C0340:
+066E 7F00              MOV     R7,#00H
+0670 22                RET     
+                                           ; SOURCE LINE # 158
+0671         ?C0342:
+0671 8DF1              MOV     SFR_f1h,R5
+0673 300003      E     JNB     echo,?C0343
+0676 AFF1              MOV     R7,SFR_f1h
+0678 22                RET     
+0679         ?C0343:
+0679 7F00              MOV     R7,#00H
+067B 22                RET     
+                                           ; SOURCE LINE # 159
+067C         ?C0345:
+067C 8DF2              MOV     SFR_f2h,R5
+067E 300003      E     JNB     echo,?C0346
+0681 AFF2              MOV     R7,SFR_f2h
+0683 22                RET     
+0684         ?C0346:
+0684 7F00              MOV     R7,#00H
+0686 22                RET     
+                                           ; SOURCE LINE # 160
+0687         ?C0348:
+0687 8DF3              MOV     SFR_f3h,R5
+0689 300003      E     JNB     echo,?C0349
+068C AFF3              MOV     R7,SFR_f3h
+068E 22                RET     
+068F         ?C0349:
+068F 7F00              MOV     R7,#00H
+0691 22                RET     
+                                           ; SOURCE LINE # 161
+0692         ?C0351:
+0692 8DF4              MOV     SFR_f4h,R5
+0694 300003      E     JNB     echo,?C0352
+0697 AFF4              MOV     R7,SFR_f4h
+0699 22                RET     
+069A         ?C0352:
+069A 7F00              MOV     R7,#00H
+069C 22                RET     
+                                           ; SOURCE LINE # 162
+069D         ?C0354:
+069D 8DF5              MOV     SFR_f5h,R5
+069F 300003      E     JNB     echo,?C0355
+06A2 AFF5              MOV     R7,SFR_f5h
+06A4 22                RET     
+06A5         ?C0355:
+06A5 7F00              MOV     R7,#00H
+06A7 22                RET     
+                                           ; SOURCE LINE # 163
+06A8         ?C0357:
+06A8 8DF6              MOV     SFR_f6h,R5
+06AA 300003      E     JNB     echo,?C0358
+06AD AFF6              MOV     R7,SFR_f6h
+06AF 22                RET     
+06B0         ?C0358:
+06B0 7F00              MOV     R7,#00H
+06B2 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 32  
+
+                                           ; SOURCE LINE # 164
+06B3         ?C0360:
+06B3 8DF7              MOV     SFR_f7h,R5
+06B5 300003      E     JNB     echo,?C0361
+06B8 AFF7              MOV     R7,SFR_f7h
+06BA 22                RET     
+06BB         ?C0361:
+06BB 7F00              MOV     R7,#00H
+06BD 22                RET     
+                                           ; SOURCE LINE # 165
+06BE         ?C0363:
+06BE 8DF8              MOV     SFR_f8h,R5
+06C0 300003      E     JNB     echo,?C0364
+06C3 AFF8              MOV     R7,SFR_f8h
+06C5 22                RET     
+06C6         ?C0364:
+06C6 7F00              MOV     R7,#00H
+06C8 22                RET     
+                                           ; SOURCE LINE # 166
+06C9         ?C0366:
+06C9 8DF9              MOV     SFR_f9h,R5
+06CB 300003      E     JNB     echo,?C0367
+06CE AFF9              MOV     R7,SFR_f9h
+06D0 22                RET     
+06D1         ?C0367:
+06D1 7F00              MOV     R7,#00H
+06D3 22                RET     
+                                           ; SOURCE LINE # 167
+06D4         ?C0369:
+06D4 8DFA              MOV     SFR_fah,R5
+06D6 300003      E     JNB     echo,?C0370
+06D9 AFFA              MOV     R7,SFR_fah
+06DB 22                RET     
+06DC         ?C0370:
+06DC 7F00              MOV     R7,#00H
+06DE 22                RET     
+                                           ; SOURCE LINE # 168
+06DF         ?C0372:
+06DF 8DFB              MOV     SFR_fbh,R5
+06E1 300003      E     JNB     echo,?C0373
+06E4 AFFB              MOV     R7,SFR_fbh
+06E6 22                RET     
+06E7         ?C0373:
+06E7 7F00              MOV     R7,#00H
+06E9 22                RET     
+                                           ; SOURCE LINE # 169
+06EA         ?C0375:
+06EA 8DFC              MOV     SFR_fch,R5
+06EC 300003      E     JNB     echo,?C0376
+06EF AFFC              MOV     R7,SFR_fch
+06F1 22                RET     
+06F2         ?C0376:
+06F2 7F00              MOV     R7,#00H
+06F4 22                RET     
+                                           ; SOURCE LINE # 170
+06F5         ?C0378:
+06F5 8DFD              MOV     SFR_fdh,R5
+06F7 300003      E     JNB     echo,?C0379
+06FA AFFD              MOV     R7,SFR_fdh
+06FC 22                RET     
+06FD         ?C0379:
+06FD 7F00              MOV     R7,#00H
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 33  
+
+06FF 22                RET     
+                                           ; SOURCE LINE # 171
+0700         ?C0381:
+0700 8DFE              MOV     SFR_feh,R5
+0702 300003      E     JNB     echo,?C0382
+0705 AFFE              MOV     R7,SFR_feh
+0707 22                RET     
+0708         ?C0382:
+0708 7F00              MOV     R7,#00H
+070A 22                RET     
+                                           ; SOURCE LINE # 172
+070B         ?C0384:
+070B AF05              MOV     R7,AR5
+070D 8FFF              MOV     SFR_ffh,R7
+070F 300003      E     JNB     echo,?C0385
+0712 AFFF              MOV     R7,SFR_ffh
+0714 22                RET     
+0715         ?C0385:
+0715 7F00              MOV     R7,#00H
+0717 22                RET     
+                                           ; SOURCE LINE # 173
+0718         ?C0001:
+                                           ; SOURCE LINE # 174
+0718 7F00              MOV     R7,#00H
+                                           ; SOURCE LINE # 175
+071A         ?C0004:
+071A 22                RET     
+             ; FUNCTION _WriteSFR (END)
+
+             ; FUNCTION _ReadSFR (BEGIN)
+                                           ; SOURCE LINE # 178
+;---- Variable 'addr' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 179
+                                           ; SOURCE LINE # 180
+0000 EF                MOV     A,R7
+0001 2480              ADD     A,#080H
+0003 B48000            CJNE    A,#080H,?C0587
+0006         ?C0587:
+0006 4003              JC      $ + 5H
+0008 020000      R     LJMP    ?C0517
+000B 900000      R     MOV     DPTR,#?C0588
+000E 120000      R     LCALL   L?0620
+0011 73                JMP     @A+DPTR
+0012         ?C0588:
+0012 020000      R     LJMP    ?C0388
+0015 020000      R     LJMP    ?C0390
+0018 020000      R     LJMP    ?C0391
+001B 020000      R     LJMP    ?C0392
+001E 020000      R     LJMP    ?C0393
+0021 020000      R     LJMP    ?C0394
+0024 020000      R     LJMP    ?C0395
+0027 020000      R     LJMP    ?C0396
+002A 020000      R     LJMP    ?C0397
+002D 020000      R     LJMP    ?C0398
+0030 020000      R     LJMP    ?C0399
+0033 020000      R     LJMP    ?C0400
+0036 020000      R     LJMP    ?C0401
+0039 020000      R     LJMP    ?C0402
+003C 020000      R     LJMP    ?C0403
+003F 020000      R     LJMP    ?C0404
+0042 020000      R     LJMP    ?C0405
+0045 020000      R     LJMP    ?C0406
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 34  
+
+0048 020000      R     LJMP    ?C0407
+004B 020000      R     LJMP    ?C0408
+004E 020000      R     LJMP    ?C0409
+0051 020000      R     LJMP    ?C0410
+0054 020000      R     LJMP    ?C0411
+0057 020000      R     LJMP    ?C0412
+005A 020000      R     LJMP    ?C0413
+005D 020000      R     LJMP    ?C0414
+0060 020000      R     LJMP    ?C0415
+0063 020000      R     LJMP    ?C0416
+0066 020000      R     LJMP    ?C0417
+0069 020000      R     LJMP    ?C0418
+006C 020000      R     LJMP    ?C0419
+006F 020000      R     LJMP    ?C0420
+0072 020000      R     LJMP    ?C0421
+0075 020000      R     LJMP    ?C0422
+0078 020000      R     LJMP    ?C0423
+007B 020000      R     LJMP    ?C0424
+007E 020000      R     LJMP    ?C0425
+0081 020000      R     LJMP    ?C0426
+0084 020000      R     LJMP    ?C0427
+0087 020000      R     LJMP    ?C0428
+008A 020000      R     LJMP    ?C0429
+008D 020000      R     LJMP    ?C0430
+0090 020000      R     LJMP    ?C0431
+0093 020000      R     LJMP    ?C0432
+0096 020000      R     LJMP    ?C0433
+0099 020000      R     LJMP    ?C0434
+009C 020000      R     LJMP    ?C0435
+009F 020000      R     LJMP    ?C0436
+00A2 020000      R     LJMP    ?C0437
+00A5 020000      R     LJMP    ?C0438
+00A8 020000      R     LJMP    ?C0439
+00AB 020000      R     LJMP    ?C0440
+00AE 020000      R     LJMP    ?C0441
+00B1 020000      R     LJMP    ?C0442
+00B4 020000      R     LJMP    ?C0443
+00B7 020000      R     LJMP    ?C0444
+00BA 020000      R     LJMP    ?C0445
+00BD 020000      R     LJMP    ?C0446
+00C0 020000      R     LJMP    ?C0447
+00C3 020000      R     LJMP    ?C0448
+00C6 020000      R     LJMP    ?C0449
+00C9 020000      R     LJMP    ?C0450
+00CC 020000      R     LJMP    ?C0451
+00CF 020000      R     LJMP    ?C0452
+00D2 020000      R     LJMP    ?C0453
+00D5 020000      R     LJMP    ?C0454
+00D8 020000      R     LJMP    ?C0455
+00DB 020000      R     LJMP    ?C0456
+00DE 020000      R     LJMP    ?C0457
+00E1 020000      R     LJMP    ?C0458
+00E4 020000      R     LJMP    ?C0459
+00E7 020000      R     LJMP    ?C0460
+00EA 020000      R     LJMP    ?C0461
+00ED 020000      R     LJMP    ?C0462
+00F0 020000      R     LJMP    ?C0463
+00F3 020000      R     LJMP    ?C0464
+00F6 020000      R     LJMP    ?C0465
+00F9 020000      R     LJMP    ?C0466
+00FC 020000      R     LJMP    ?C0467
+00FF 020000      R     LJMP    ?C0468
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 35  
+
+0102 020000      R     LJMP    ?C0469
+0105 020000      R     LJMP    ?C0470
+0108 020000      R     LJMP    ?C0471
+010B 020000      R     LJMP    ?C0472
+010E 020000      R     LJMP    ?C0473
+0111 020000      R     LJMP    ?C0474
+0114 020000      R     LJMP    ?C0475
+0117 020000      R     LJMP    ?C0476
+011A 020000      R     LJMP    ?C0477
+011D 020000      R     LJMP    ?C0478
+0120 020000      R     LJMP    ?C0479
+0123 020000      R     LJMP    ?C0480
+0126 020000      R     LJMP    ?C0481
+0129 020000      R     LJMP    ?C0482
+012C 020000      R     LJMP    ?C0483
+012F 020000      R     LJMP    ?C0484
+0132 020000      R     LJMP    ?C0485
+0135 020000      R     LJMP    ?C0486
+0138 020000      R     LJMP    ?C0487
+013B 020000      R     LJMP    ?C0488
+013E 020000      R     LJMP    ?C0489
+0141 020000      R     LJMP    ?C0490
+0144 020000      R     LJMP    ?C0491
+0147 020000      R     LJMP    ?C0492
+014A 020000      R     LJMP    ?C0493
+014D 020000      R     LJMP    ?C0494
+0150 020000      R     LJMP    ?C0495
+0153 020000      R     LJMP    ?C0496
+0156 020000      R     LJMP    ?C0497
+0159 020000      R     LJMP    ?C0498
+015C 020000      R     LJMP    ?C0499
+015F 020000      R     LJMP    ?C0500
+0162 020000      R     LJMP    ?C0501
+0165 020000      R     LJMP    ?C0502
+0168 020000      R     LJMP    ?C0503
+016B 020000      R     LJMP    ?C0504
+016E 020000      R     LJMP    ?C0505
+0171 020000      R     LJMP    ?C0506
+0174 020000      R     LJMP    ?C0507
+0177 020000      R     LJMP    ?C0508
+017A 020000      R     LJMP    ?C0509
+017D 020000      R     LJMP    ?C0510
+0180 020000      R     LJMP    ?C0511
+0183 020000      R     LJMP    ?C0512
+0186 020000      R     LJMP    ?C0513
+0189 020000      R     LJMP    ?C0514
+018C 020000      R     LJMP    ?C0515
+018F 020000      R     LJMP    ?C0516
+                                           ; SOURCE LINE # 181
+0192         ?C0388:
+0192 AF80              MOV     R7,SFR_80h
+0194 22                RET     
+                                           ; SOURCE LINE # 182
+0195         ?C0390:
+0195 AF81              MOV     R7,SFR_81h
+0197 22                RET     
+                                           ; SOURCE LINE # 183
+0198         ?C0391:
+0198 AF82              MOV     R7,DPL
+019A 22                RET     
+                                           ; SOURCE LINE # 184
+019B         ?C0392:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 36  
+
+019B AF83              MOV     R7,DPH
+019D 22                RET     
+                                           ; SOURCE LINE # 185
+019E         ?C0393:
+019E AF84              MOV     R7,SFR_84h
+01A0 22                RET     
+                                           ; SOURCE LINE # 186
+01A1         ?C0394:
+01A1 AF85              MOV     R7,SFR_85h
+01A3 22                RET     
+                                           ; SOURCE LINE # 187
+01A4         ?C0395:
+01A4 AF86              MOV     R7,SFR_86h
+01A6 22                RET     
+                                           ; SOURCE LINE # 188
+01A7         ?C0396:
+01A7 AF87              MOV     R7,SFR_87h
+01A9 22                RET     
+                                           ; SOURCE LINE # 189
+01AA         ?C0397:
+01AA AF88              MOV     R7,SFR_88h
+01AC 22                RET     
+                                           ; SOURCE LINE # 190
+01AD         ?C0398:
+01AD AF89              MOV     R7,SFR_89h
+01AF 22                RET     
+                                           ; SOURCE LINE # 191
+01B0         ?C0399:
+01B0 AF8A              MOV     R7,SFR_8ah
+01B2 22                RET     
+                                           ; SOURCE LINE # 192
+01B3         ?C0400:
+01B3 AF8B              MOV     R7,SFR_8bh
+01B5 22                RET     
+                                           ; SOURCE LINE # 193
+01B6         ?C0401:
+01B6 AF8C              MOV     R7,SFR_8ch
+01B8 22                RET     
+                                           ; SOURCE LINE # 194
+01B9         ?C0402:
+01B9 AF8D              MOV     R7,SFR_8dh
+01BB 22                RET     
+                                           ; SOURCE LINE # 195
+01BC         ?C0403:
+01BC AF8E              MOV     R7,SFR_8eh
+01BE 22                RET     
+                                           ; SOURCE LINE # 196
+01BF         ?C0404:
+01BF AF8F              MOV     R7,SFR_8fh
+01C1 22                RET     
+                                           ; SOURCE LINE # 198
+01C2         ?C0405:
+01C2 AF90              MOV     R7,SFR_90h
+01C4 22                RET     
+                                           ; SOURCE LINE # 199
+01C5         ?C0406:
+01C5 AF91              MOV     R7,SFR_91h
+01C7 22                RET     
+                                           ; SOURCE LINE # 200
+01C8         ?C0407:
+01C8 AF92              MOV     R7,SFR_92h
+01CA 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 37  
+
+                                           ; SOURCE LINE # 201
+01CB         ?C0408:
+01CB AF93              MOV     R7,SFR_93h
+01CD 22                RET     
+                                           ; SOURCE LINE # 202
+01CE         ?C0409:
+01CE AF94              MOV     R7,SFR_94h
+01D0 22                RET     
+                                           ; SOURCE LINE # 203
+01D1         ?C0410:
+01D1 AF95              MOV     R7,SFR_95h
+01D3 22                RET     
+                                           ; SOURCE LINE # 204
+01D4         ?C0411:
+01D4 AF96              MOV     R7,SFR_96h
+01D6 22                RET     
+                                           ; SOURCE LINE # 205
+01D7         ?C0412:
+01D7 AF97              MOV     R7,SFR_97h
+01D9 22                RET     
+                                           ; SOURCE LINE # 206
+01DA         ?C0413:
+01DA AF98              MOV     R7,SFR_98h
+01DC 22                RET     
+                                           ; SOURCE LINE # 207
+01DD         ?C0414:
+01DD AF99              MOV     R7,SFR_99h
+01DF 22                RET     
+                                           ; SOURCE LINE # 208
+01E0         ?C0415:
+01E0 AF9A              MOV     R7,SFR_9ah
+01E2 22                RET     
+                                           ; SOURCE LINE # 209
+01E3         ?C0416:
+01E3 AF9B              MOV     R7,SFR_9bh
+01E5 22                RET     
+                                           ; SOURCE LINE # 210
+01E6         ?C0417:
+01E6 AF9C              MOV     R7,SFR_9ch
+01E8 22                RET     
+                                           ; SOURCE LINE # 211
+01E9         ?C0418:
+01E9 AF9D              MOV     R7,SFR_9dh
+01EB 22                RET     
+                                           ; SOURCE LINE # 212
+01EC         ?C0419:
+01EC AF9E              MOV     R7,SFR_9eh
+01EE 22                RET     
+                                           ; SOURCE LINE # 213
+01EF         ?C0420:
+01EF AF9F              MOV     R7,SFR_9fh
+01F1 22                RET     
+                                           ; SOURCE LINE # 215
+01F2         ?C0421:
+01F2 AFA0              MOV     R7,SFR_a0h
+01F4 22                RET     
+                                           ; SOURCE LINE # 216
+01F5         ?C0422:
+01F5 AFA1              MOV     R7,SFR_a1h
+01F7 22                RET     
+                                           ; SOURCE LINE # 217
+01F8         ?C0423:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 38  
+
+01F8 AFA2              MOV     R7,SFR_a2h
+01FA 22                RET     
+                                           ; SOURCE LINE # 218
+01FB         ?C0424:
+01FB AFA3              MOV     R7,SFR_a3h
+01FD 22                RET     
+                                           ; SOURCE LINE # 219
+01FE         ?C0425:
+01FE AFA4              MOV     R7,SFR_a4h
+0200 22                RET     
+                                           ; SOURCE LINE # 220
+0201         ?C0426:
+0201 AFA5              MOV     R7,SFR_a5h
+0203 22                RET     
+                                           ; SOURCE LINE # 221
+0204         ?C0427:
+0204 AFA6              MOV     R7,SFR_a6h
+0206 22                RET     
+                                           ; SOURCE LINE # 222
+0207         ?C0428:
+0207 AFA7              MOV     R7,SFR_a7h
+0209 22                RET     
+                                           ; SOURCE LINE # 223
+020A         ?C0429:
+020A AFA8              MOV     R7,SFR_a8h
+020C 22                RET     
+                                           ; SOURCE LINE # 224
+020D         ?C0430:
+020D AFA9              MOV     R7,SFR_a9h
+020F 22                RET     
+                                           ; SOURCE LINE # 225
+0210         ?C0431:
+0210 AFAA              MOV     R7,SFR_aah
+0212 22                RET     
+                                           ; SOURCE LINE # 226
+0213         ?C0432:
+0213 AFAB              MOV     R7,SFR_abh
+0215 22                RET     
+                                           ; SOURCE LINE # 227
+0216         ?C0433:
+0216 AFAC              MOV     R7,SFR_ach
+0218 22                RET     
+                                           ; SOURCE LINE # 228
+0219         ?C0434:
+0219 AFAD              MOV     R7,SFR_adh
+021B 22                RET     
+                                           ; SOURCE LINE # 229
+021C         ?C0435:
+021C AFAE              MOV     R7,SFR_aeh
+021E 22                RET     
+                                           ; SOURCE LINE # 230
+021F         ?C0436:
+021F AFAF              MOV     R7,SFR_afh
+0221 22                RET     
+                                           ; SOURCE LINE # 232
+0222         ?C0437:
+0222 AFB0              MOV     R7,SFR_b0h
+0224 22                RET     
+                                           ; SOURCE LINE # 233
+0225         ?C0438:
+0225 AFB1              MOV     R7,SFR_b1h
+0227 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 39  
+
+                                           ; SOURCE LINE # 234
+0228         ?C0439:
+0228 AFB2              MOV     R7,SFR_b2h
+022A 22                RET     
+                                           ; SOURCE LINE # 235
+022B         ?C0440:
+022B AFB3              MOV     R7,SFR_b3h
+022D 22                RET     
+                                           ; SOURCE LINE # 236
+022E         ?C0441:
+022E AFB4              MOV     R7,SFR_b4h
+0230 22                RET     
+                                           ; SOURCE LINE # 237
+0231         ?C0442:
+0231 AFB5              MOV     R7,SFR_b5h
+0233 22                RET     
+                                           ; SOURCE LINE # 238
+0234         ?C0443:
+0234 AFB6              MOV     R7,SFR_b6h
+0236 22                RET     
+                                           ; SOURCE LINE # 239
+0237         ?C0444:
+0237 AFB7              MOV     R7,SFR_b7h
+0239 22                RET     
+                                           ; SOURCE LINE # 240
+023A         ?C0445:
+023A AFB8              MOV     R7,SFR_b8h
+023C 22                RET     
+                                           ; SOURCE LINE # 241
+023D         ?C0446:
+023D AFB9              MOV     R7,SFR_b9h
+023F 22                RET     
+                                           ; SOURCE LINE # 242
+0240         ?C0447:
+0240 AFBA              MOV     R7,SFR_bah
+0242 22                RET     
+                                           ; SOURCE LINE # 243
+0243         ?C0448:
+0243 AFBB              MOV     R7,SFR_bbh
+0245 22                RET     
+                                           ; SOURCE LINE # 244
+0246         ?C0449:
+0246 AFBC              MOV     R7,SFR_bch
+0248 22                RET     
+                                           ; SOURCE LINE # 245
+0249         ?C0450:
+0249 AFBD              MOV     R7,SFR_bdh
+024B 22                RET     
+                                           ; SOURCE LINE # 246
+024C         ?C0451:
+024C AFBE              MOV     R7,SFR_beh
+024E 22                RET     
+                                           ; SOURCE LINE # 247
+024F         ?C0452:
+024F AFBF              MOV     R7,SFR_bfh
+0251 22                RET     
+                                           ; SOURCE LINE # 249
+0252         ?C0453:
+0252 AFC0              MOV     R7,SFR_c0h
+0254 22                RET     
+                                           ; SOURCE LINE # 250
+0255         ?C0454:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 40  
+
+0255 AFC1              MOV     R7,SFR_c1h
+0257 22                RET     
+                                           ; SOURCE LINE # 251
+0258         ?C0455:
+0258 AFC2              MOV     R7,SFR_c2h
+025A 22                RET     
+                                           ; SOURCE LINE # 252
+025B         ?C0456:
+025B AFC3              MOV     R7,SFR_c3h
+025D 22                RET     
+                                           ; SOURCE LINE # 253
+025E         ?C0457:
+025E AFC4              MOV     R7,SFR_c4h
+0260 22                RET     
+                                           ; SOURCE LINE # 254
+0261         ?C0458:
+0261 AFC5              MOV     R7,SFR_c5h
+0263 22                RET     
+                                           ; SOURCE LINE # 255
+0264         ?C0459:
+0264 AFC6              MOV     R7,SFR_c6h
+0266 22                RET     
+                                           ; SOURCE LINE # 256
+0267         ?C0460:
+0267 AFC7              MOV     R7,SFR_c7h
+0269 22                RET     
+                                           ; SOURCE LINE # 257
+026A         ?C0461:
+026A AFC8              MOV     R7,SFR_c8h
+026C 22                RET     
+                                           ; SOURCE LINE # 258
+026D         ?C0462:
+026D AFC9              MOV     R7,SFR_c9h
+026F 22                RET     
+                                           ; SOURCE LINE # 259
+0270         ?C0463:
+0270 AFCA              MOV     R7,SFR_cah
+0272 22                RET     
+                                           ; SOURCE LINE # 260
+0273         ?C0464:
+0273 AFCB              MOV     R7,SFR_cbh
+0275 22                RET     
+                                           ; SOURCE LINE # 261
+0276         ?C0465:
+0276 AFCC              MOV     R7,SFR_cch
+0278 22                RET     
+                                           ; SOURCE LINE # 262
+0279         ?C0466:
+0279 AFCD              MOV     R7,SFR_cdh
+027B 22                RET     
+                                           ; SOURCE LINE # 263
+027C         ?C0467:
+027C AFCE              MOV     R7,SFR_ceh
+027E 22                RET     
+                                           ; SOURCE LINE # 264
+027F         ?C0468:
+027F AFCF              MOV     R7,SFR_cfh
+0281 22                RET     
+                                           ; SOURCE LINE # 266
+0282         ?C0469:
+0282 AFD0              MOV     R7,SFR_d0h
+0284 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 41  
+
+                                           ; SOURCE LINE # 267
+0285         ?C0470:
+0285 AFD1              MOV     R7,SFR_d1h
+0287 22                RET     
+                                           ; SOURCE LINE # 268
+0288         ?C0471:
+0288 AFD2              MOV     R7,SFR_d2h
+028A 22                RET     
+                                           ; SOURCE LINE # 269
+028B         ?C0472:
+028B AFD3              MOV     R7,SFR_d3h
+028D 22                RET     
+                                           ; SOURCE LINE # 270
+028E         ?C0473:
+028E AFD4              MOV     R7,SFR_d4h
+0290 22                RET     
+                                           ; SOURCE LINE # 271
+0291         ?C0474:
+0291 AFD5              MOV     R7,SFR_d5h
+0293 22                RET     
+                                           ; SOURCE LINE # 272
+0294         ?C0475:
+0294 AFD6              MOV     R7,SFR_d6h
+0296 22                RET     
+                                           ; SOURCE LINE # 273
+0297         ?C0476:
+0297 AFD7              MOV     R7,SFR_d7h
+0299 22                RET     
+                                           ; SOURCE LINE # 274
+029A         ?C0477:
+029A AFD8              MOV     R7,SFR_d8h
+029C 22                RET     
+                                           ; SOURCE LINE # 275
+029D         ?C0478:
+029D AFD9              MOV     R7,SFR_d9h
+029F 22                RET     
+                                           ; SOURCE LINE # 276
+02A0         ?C0479:
+02A0 AFDA              MOV     R7,SFR_dah
+02A2 22                RET     
+                                           ; SOURCE LINE # 277
+02A3         ?C0480:
+02A3 AFDB              MOV     R7,SFR_dbh
+02A5 22                RET     
+                                           ; SOURCE LINE # 278
+02A6         ?C0481:
+02A6 AFDC              MOV     R7,SFR_dch
+02A8 22                RET     
+                                           ; SOURCE LINE # 279
+02A9         ?C0482:
+02A9 AFDD              MOV     R7,SFR_ddh
+02AB 22                RET     
+                                           ; SOURCE LINE # 280
+02AC         ?C0483:
+02AC AFDE              MOV     R7,SFR_deh
+02AE 22                RET     
+                                           ; SOURCE LINE # 281
+02AF         ?C0484:
+02AF AFDF              MOV     R7,SFR_dfh
+02B1 22                RET     
+                                           ; SOURCE LINE # 283
+02B2         ?C0485:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 42  
+
+02B2 FF                MOV     R7,A
+02B3 22                RET     
+                                           ; SOURCE LINE # 284
+02B4         ?C0486:
+02B4 AFE1              MOV     R7,SFR_e1h
+02B6 22                RET     
+                                           ; SOURCE LINE # 285
+02B7         ?C0487:
+02B7 AFE2              MOV     R7,SFR_e2h
+02B9 22                RET     
+                                           ; SOURCE LINE # 286
+02BA         ?C0488:
+02BA AFE3              MOV     R7,SFR_e3h
+02BC 22                RET     
+                                           ; SOURCE LINE # 287
+02BD         ?C0489:
+02BD AFE4              MOV     R7,SFR_e4h
+02BF 22                RET     
+                                           ; SOURCE LINE # 288
+02C0         ?C0490:
+02C0 AFE5              MOV     R7,SFR_e5h
+02C2 22                RET     
+                                           ; SOURCE LINE # 289
+02C3         ?C0491:
+02C3 AFE6              MOV     R7,SFR_e6h
+02C5 22                RET     
+                                           ; SOURCE LINE # 290
+02C6         ?C0492:
+02C6 AFE7              MOV     R7,SFR_e7h
+02C8 22                RET     
+                                           ; SOURCE LINE # 291
+02C9         ?C0493:
+02C9 AFE8              MOV     R7,SFR_e8h
+02CB 22                RET     
+                                           ; SOURCE LINE # 292
+02CC         ?C0494:
+02CC AFE9              MOV     R7,SFR_e9h
+02CE 22                RET     
+                                           ; SOURCE LINE # 293
+02CF         ?C0495:
+02CF AFEA              MOV     R7,SFR_eah
+02D1 22                RET     
+                                           ; SOURCE LINE # 294
+02D2         ?C0496:
+02D2 AFEB              MOV     R7,SFR_ebh
+02D4 22                RET     
+                                           ; SOURCE LINE # 295
+02D5         ?C0497:
+02D5 AFEC              MOV     R7,SFR_ech
+02D7 22                RET     
+                                           ; SOURCE LINE # 296
+02D8         ?C0498:
+02D8 AFED              MOV     R7,SFR_edh
+02DA 22                RET     
+                                           ; SOURCE LINE # 297
+02DB         ?C0499:
+02DB AFEE              MOV     R7,SFR_eeh
+02DD 22                RET     
+                                           ; SOURCE LINE # 298
+02DE         ?C0500:
+02DE AFEF              MOV     R7,SFR_efh
+02E0 22                RET     
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 43  
+
+                                           ; SOURCE LINE # 300
+02E1         ?C0501:
+02E1 AFF0              MOV     R7,B
+02E3 22                RET     
+                                           ; SOURCE LINE # 301
+02E4         ?C0502:
+02E4 AFF1              MOV     R7,SFR_f1h
+02E6 22                RET     
+                                           ; SOURCE LINE # 302
+02E7         ?C0503:
+02E7 AFF2              MOV     R7,SFR_f2h
+02E9 22                RET     
+                                           ; SOURCE LINE # 303
+02EA         ?C0504:
+02EA AFF3              MOV     R7,SFR_f3h
+02EC 22                RET     
+                                           ; SOURCE LINE # 304
+02ED         ?C0505:
+02ED AFF4              MOV     R7,SFR_f4h
+02EF 22                RET     
+                                           ; SOURCE LINE # 305
+02F0         ?C0506:
+02F0 AFF5              MOV     R7,SFR_f5h
+02F2 22                RET     
+                                           ; SOURCE LINE # 306
+02F3         ?C0507:
+02F3 AFF6              MOV     R7,SFR_f6h
+02F5 22                RET     
+                                           ; SOURCE LINE # 307
+02F6         ?C0508:
+02F6 AFF7              MOV     R7,SFR_f7h
+02F8 22                RET     
+                                           ; SOURCE LINE # 308
+02F9         ?C0509:
+02F9 AFF8              MOV     R7,SFR_f8h
+02FB 22                RET     
+                                           ; SOURCE LINE # 309
+02FC         ?C0510:
+02FC AFF9              MOV     R7,SFR_f9h
+02FE 22                RET     
+                                           ; SOURCE LINE # 310
+02FF         ?C0511:
+02FF AFFA              MOV     R7,SFR_fah
+0301 22                RET     
+                                           ; SOURCE LINE # 311
+0302         ?C0512:
+0302 AFFB              MOV     R7,SFR_fbh
+0304 22                RET     
+                                           ; SOURCE LINE # 312
+0305         ?C0513:
+0305 AFFC              MOV     R7,SFR_fch
+0307 22                RET     
+                                           ; SOURCE LINE # 313
+0308         ?C0514:
+0308 AFFD              MOV     R7,SFR_fdh
+030A 22                RET     
+                                           ; SOURCE LINE # 314
+030B         ?C0515:
+030B AFFE              MOV     R7,SFR_feh
+030D 22                RET     
+                                           ; SOURCE LINE # 315
+030E         ?C0516:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 44  
+
+030E AFFF              MOV     R7,SFR_ffh
+0310 22                RET     
+                                           ; SOURCE LINE # 317
+0311         ?C0517:
+0311 7F00              MOV     R7,#00H
+                                           ; SOURCE LINE # 319
+                                           ; SOURCE LINE # 320
+0313         ?C0389:
+0313 22                RET     
+             ; FUNCTION _ReadSFR (END)
+
+             ; FUNCTION MCUHelp (BEGIN)
+                                           ; SOURCE LINE # 325
+                                           ; SOURCE LINE # 326
+                                           ; SOURCE LINE # 328
+                                           ; SOURCE LINE # 329
+0000 120000      R     LCALL   L?0608
+0003 7A00        R     MOV     R2,#HIGH ?SC_57
+0005 7900        R     MOV     R1,#LOW ?SC_57
+0007 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 330
+                                           ; SOURCE LINE # 331
+000A 120000      R     LCALL   L?0608
+000D 7A00        R     MOV     R2,#HIGH ?SC_112
+000F 7900        R     MOV     R1,#LOW ?SC_112
+0011 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 332
+0014 7A00        R     MOV     R2,#HIGH ?SC_149
+0016 7900        R     MOV     R1,#LOW ?SC_149
+                                           ; SOURCE LINE # 333
+0018 120000      R     LCALL   L?0610
+001B 7A00        R     MOV     R2,#HIGH ?SC_187
+001D 7900        R     MOV     R1,#LOW ?SC_187
+001F 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 334
+0022 7A00        R     MOV     R2,#HIGH ?SC_224
+0024 7900        R     MOV     R1,#LOW ?SC_224
+                                           ; SOURCE LINE # 335
+0026 120000      R     LCALL   L?0610
+0029 7A00        R     MOV     R2,#HIGH ?SC_263
+002B 7900        R     MOV     R1,#LOW ?SC_263
+002D 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 336
+0030 7BFF              MOV     R3,#0FFH
+0032 7A00        R     MOV     R2,#HIGH ?SC_303
+0034 7900        R     MOV     R1,#LOW ?SC_303
+0036 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 340
+0039 7BFF              MOV     R3,#0FFH
+003B 7A00        R     MOV     R2,#HIGH ?SC_342
+003D 7900        R     MOV     R1,#LOW ?SC_342
+003F 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 341
+0042 7BFF              MOV     R3,#0FFH
+0044 7A00        R     MOV     R2,#HIGH ?SC_380
+0046 7900        R     MOV     R1,#LOW ?SC_380
+0048 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 342
+004B 7BFF              MOV     R3,#0FFH
+004D 7A00        R     MOV     R2,#HIGH ?SC_437
+004F 7900        R     MOV     R1,#LOW ?SC_437
+0051 020000      E     LJMP    _Puts
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 45  
+
+                                           ; SOURCE LINE # 344
+0054         L?0608:
+0054 7BFF              MOV     R3,#0FFH
+0056 7A00        R     MOV     R2,#HIGH ?SC_0
+0058 7900        R     MOV     R1,#LOW ?SC_0
+005A 120000      E     LCALL   _Puts
+005D 7BFF              MOV     R3,#0FFH
+005F 22                RET     
+0060         L?0610:
+0060 7BFF              MOV     R3,#0FFH
+0062 120000      E     LCALL   _Puts
+0065 7BFF              MOV     R3,#0FFH
+0067 22                RET     
+             ; FUNCTION MCUHelp (END)
+
+             ; FUNCTION MonitorMCU (BEGIN)
+                                           ; SOURCE LINE # 349
+                                           ; SOURCE LINE # 350
+                                           ; SOURCE LINE # 366
+0000 120000      R     LCALL   L?0606
+0003 7400        R     MOV     A,#HIGH ?SC_439
+0005 F0                MOVX    @DPTR,A
+0006 7400        R     MOV     A,#LOW ?SC_439
+0008 120000      R     LCALL   L?0600
+000B 7068              JNZ     ?C0519
+                                           ; SOURCE LINE # 367
+000D 120000      R     LCALL   L?0618
+0010 5003              JNC     ?C0520
+                                           ; SOURCE LINE # 368
+0012 020000      R     LJMP    ?C0595
+                                           ; SOURCE LINE # 370
+0015         ?C0520:
+                                           ; SOURCE LINE # 371
+0015 900000      E     MOV     DPTR,#argv+06H
+0018 120000      R     LCALL   L?0604
+001B 120000      R     LCALL   L?0615
+                                           ; SOURCE LINE # 372
+001E 900000      E     MOV     DPTR,#argv+09H
+0021 120000      R     LCALL   L?0604
+0024 120000      E     LCALL   _a2h
+0027 900000      R     MOV     DPTR,#argv_num2
+002A EF                MOV     A,R7
+002B F0                MOVX    @DPTR,A
+002C FD                MOV     R5,A
+                                           ; SOURCE LINE # 373
+002D 900000      R     MOV     DPTR,#argv_num1
+0030 E0                MOVX    A,@DPTR
+0031 FF                MOV     R7,A
+0032 120000      R     LCALL   _WriteSFR
+0035 900000      R     MOV     DPTR,#ret
+0038 EF                MOV     A,R7
+0039 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 374
+003A 200003      E     JB      echo,$ + 6H
+003D 020000      R     LJMP    ?C0521
+                                           ; SOURCE LINE # 375
+0040 7A00        R     MOV     R2,#HIGH ?SC_471
+0042 7900        R     MOV     R1,#LOW ?SC_471
+0044 120000      R     LCALL   L?0621
+0047 900000      R     MOV     DPTR,#argv_num2
+004A E0                MOVX    A,@DPTR
+004B 900000      E     MOV     DPTR,#?_Printf?BYTE+04H
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 46  
+
+004E F0                MOVX    @DPTR,A
+004F 900000      R     MOV     DPTR,#ret
+0052 E0                MOVX    A,@DPTR
+0053 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
+                                           ; SOURCE LINE # 376
+0056 120000      R     LCALL   L?0611
+0059         ?C0523:
+                                           ; SOURCE LINE # 377
+0059 900000      R     MOV     DPTR,#ret
+005C E0                MOVX    A,@DPTR
+005D 7BFF              MOV     R3,#0FFH
+005F 30E706            JNB     ACC.7,?C0526
+0062 7A00        R     MOV     R2,#HIGH ?SC_508
+0064 7900        R     MOV     R1,#LOW ?SC_508
+0066 8004              SJMP    ?C0591
+0068         ?C0526:
+0068 7A00        R     MOV     R2,#HIGH ?SC_510
+006A 7900        R     MOV     R1,#LOW ?SC_510
+006C         ?C0591:
+006C 120000      E     LCALL   _Puts
+006F         ?C0527:
+                                           ; SOURCE LINE # 378
+                                           ; SOURCE LINE # 379
+006F 120000      R     LCALL   L?0617
+0072 40E5              JC      ?C0523
+0074 22                RET     
+                                           ; SOURCE LINE # 380
+                                           ; SOURCE LINE # 381
+0075         ?C0519:
+                                           ; SOURCE LINE # 384
+0075 120000      R     LCALL   L?0606
+0078 7400        R     MOV     A,#HIGH ?SC_512
+007A F0                MOVX    @DPTR,A
+007B 7400        R     MOV     A,#LOW ?SC_512
+007D 120000      R     LCALL   L?0600
+0080 704C              JNZ     ?C0529
+                                           ; SOURCE LINE # 385
+0082 120000      R     LCALL   L?0612
+0085 5003              JNC     ?C0530
+                                           ; SOURCE LINE # 386
+0087         ?C0590:
+0087 020000      R     LJMP    ?C0595
+                                           ; SOURCE LINE # 388
+008A         ?C0530:
+                                           ; SOURCE LINE # 389
+008A 900000      E     MOV     DPTR,#argv+06H
+008D 120000      R     LCALL   L?0604
+0090 120000      R     LCALL   L?0615
+                                           ; SOURCE LINE # 390
+0093 120000      R     LCALL   _ReadSFR
+0096 900000      R     MOV     DPTR,#ret
+0099 EF                MOV     A,R7
+009A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 391
+009B 200003      E     JB      echo,$ + 6H
+009E 020000      R     LJMP    ?C0521
+                                           ; SOURCE LINE # 392
+00A1 7A00        R     MOV     R2,#HIGH ?SC_515
+00A3 7900        R     MOV     R1,#LOW ?SC_515
+00A5 120000      R     LCALL   L?0621
+00A8 900000      R     MOV     DPTR,#ret
+00AB E0                MOVX    A,@DPTR
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 47  
+
+00AC 900000      E     MOV     DPTR,#?_Printf?BYTE+04H
+                                           ; SOURCE LINE # 393
+00AF 120000      R     LCALL   L?0611
+00B2         ?C0532:
+                                           ; SOURCE LINE # 394
+00B2 900000      R     MOV     DPTR,#ret
+00B5 E0                MOVX    A,@DPTR
+00B6 7BFF              MOV     R3,#0FFH
+00B8 30E706            JNB     ACC.7,?C0535
+00BB 7A00        R     MOV     R2,#HIGH ?SC_508
+00BD 7900        R     MOV     R1,#LOW ?SC_508
+00BF 8004              SJMP    ?C0594
+00C1         ?C0535:
+00C1 7A00        R     MOV     R2,#HIGH ?SC_510
+00C3 7900        R     MOV     R1,#LOW ?SC_510
+00C5         ?C0594:
+00C5 120000      E     LCALL   _Puts
+00C8         ?C0536:
+                                           ; SOURCE LINE # 395
+                                           ; SOURCE LINE # 396
+00C8 120000      R     LCALL   L?0617
+00CB 40E5              JC      ?C0532
+00CD         ?C0592:
+00CD 22                RET     
+                                           ; SOURCE LINE # 397
+                                           ; SOURCE LINE # 398
+00CE         ?C0529:
+                                           ; SOURCE LINE # 401
+00CE 120000      R     LCALL   L?0607
+00D1 7400        R     MOV     A,#HIGH ?SC_543
+00D3 F0                MOVX    @DPTR,A
+00D4 7400        R     MOV     A,#LOW ?SC_543
+00D6 120000      R     LCALL   L?0602
+00D9 120000      E     LCALL   _stricmp
+00DC EF                MOV     A,R7
+00DD 4E                ORL     A,R6
+00DE 7056              JNZ     ?C0538
+                                           ; SOURCE LINE # 403
+00E0 7BFF              MOV     R3,#0FFH
+00E2 7A00        R     MOV     R2,#HIGH ?SC_546
+00E4 7900        R     MOV     R1,#LOW ?SC_546
+00E6 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 404
+00E9 900000      R     MOV     DPTR,#j
+00EC 7408              MOV     A,#08H
+00EE F0                MOVX    @DPTR,A
+00EF         ?C0539:
+00EF 900000      R     MOV     DPTR,#j
+00F2 E0                MOVX    A,@DPTR
+00F3 FF                MOV     R7,A
+00F4 D3                SETB    C
+00F5 940F              SUBB    A,#0FH
+00F7 4003              JC      $ + 5H
+00F9 020000      R     LJMP    ?C0521
+                                           ; SOURCE LINE # 405
+00FC 7BFF              MOV     R3,#0FFH
+00FE 7A00        R     MOV     R2,#HIGH ?SC_563
+0100 7900        R     MOV     R1,#LOW ?SC_563
+0102 EF                MOV     A,R7
+0103 C4                SWAP    A
+0104 54F0              ANL     A,#0F0H
+0106 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 48  
+
+                                           ; SOURCE LINE # 406
+0109 120000      R     LCALL   L?0622
+010C         ?C0542:
+010C 900000      R     MOV     DPTR,#i
+010F E0                MOVX    A,@DPTR
+0110 FF                MOV     R7,A
+0111 C3                CLR     C
+0112 9408              SUBB    A,#08H
+0114 5005              JNC     ?C0543
+0116 120000      R     LCALL   L?0609
+0119 80F1              SJMP    ?C0542
+011B         ?C0543:
+                                           ; SOURCE LINE # 407
+011B 120000      R     LCALL   L?0623
+                                           ; SOURCE LINE # 408
+011E         ?C0545:
+011E 900000      R     MOV     DPTR,#i
+0121 E0                MOVX    A,@DPTR
+0122 FF                MOV     R7,A
+0123 C3                CLR     C
+0124 9410              SUBB    A,#010H
+0126 5005              JNC     ?C0541
+0128 120000      R     LCALL   L?0609
+012B 80F1              SJMP    ?C0545
+                                           ; SOURCE LINE # 409
+012D         ?C0541:
+012D 900000      R     MOV     DPTR,#j
+0130 E0                MOVX    A,@DPTR
+0131 04                INC     A
+0132 F0                MOVX    @DPTR,A
+0133 020000      R     LJMP    ?C0539
+                                           ; SOURCE LINE # 411
+0136         ?C0538:
+                                           ; SOURCE LINE # 414
+0136 120000      R     LCALL   L?0607
+0139 7400        R     MOV     A,#HIGH ?SC_586
+013B F0                MOVX    @DPTR,A
+013C 7400        R     MOV     A,#LOW ?SC_586
+013E 120000      R     LCALL   L?0602
+0141 120000      E     LCALL   _stricmp
+0144 EF                MOV     A,R7
+0145 4E                ORL     A,R6
+0146 7059              JNZ     ?C0549
+                                           ; SOURCE LINE # 418
+0148 120000      R     LCALL   L?0618
+014B 5003              JNC     ?C0550
+                                           ; SOURCE LINE # 419
+014D         ?C0593:
+014D 020000      R     LJMP    ?C0595
+                                           ; SOURCE LINE # 421
+0150         ?C0550:
+                                           ; SOURCE LINE # 422
+0150 900000      E     MOV     DPTR,#argv+06H
+0153 120000      R     LCALL   L?0604
+0156 120000      R     LCALL   L?0614
+                                           ; SOURCE LINE # 423
+0159 900000      E     MOV     DPTR,#argv+09H
+015C 120000      R     LCALL   L?0604
+015F 120000      E     LCALL   _a2h
+0162 900000      R     MOV     DPTR,#argv_num2
+0165 EF                MOV     A,R7
+0166 F0                MOVX    @DPTR,A
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 49  
+
+                                           ; SOURCE LINE # 425
+0167 A3                INC     DPTR
+0168 E0                MOVX    A,@DPTR
+0169 FC                MOV     R4,A
+016A A3                INC     DPTR
+016B E0                MOVX    A,@DPTR
+016C FD                MOV     R5,A
+016D F582              MOV     DPL,A
+016F 8C83              MOV     DPH,R4
+0171 EF                MOV     A,R7
+0172 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 426
+0173 8D82              MOV     DPL,R5
+0175 8C83              MOV     DPH,R4
+0177 E0                MOVX    A,@DPTR
+0178 900000      R     MOV     DPTR,#ret
+017B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 428
+017C 200003      E     JB      echo,$ + 6H
+017F 020000      R     LJMP    ?C0521
+                                           ; SOURCE LINE # 429
+0182 7BFF              MOV     R3,#0FFH
+0184 7A00        R     MOV     R2,#HIGH ?SC_589
+0186 7900        R     MOV     R1,#LOW ?SC_589
+0188 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+018B EC                MOV     A,R4
+018C F0                MOVX    @DPTR,A
+018D A3                INC     DPTR
+018E ED                MOV     A,R5
+018F F0                MOVX    @DPTR,A
+0190 900000      R     MOV     DPTR,#argv_num2
+0193 E0                MOVX    A,@DPTR
+0194 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
+0197 F0                MOVX    @DPTR,A
+0198 900000      R     MOV     DPTR,#ret
+019B E0                MOVX    A,@DPTR
+019C 900000      E     MOV     DPTR,#?_Printf?BYTE+06H
+                                           ; SOURCE LINE # 430
+                                           ; SOURCE LINE # 431
+019F 8047              SJMP    ?C0596
+01A1         ?C0549:
+                                           ; SOURCE LINE # 434
+01A1 120000      R     LCALL   L?0607
+01A4 7400        R     MOV     A,#HIGH ?SC_627
+01A6 F0                MOVX    @DPTR,A
+01A7 A3                INC     DPTR
+01A8 7400        R     MOV     A,#LOW ?SC_627
+01AA 120000      R     LCALL   L?0603
+01AD 120000      E     LCALL   _stricmp
+01B0 EF                MOV     A,R7
+01B1 4E                ORL     A,R6
+01B2 7038              JNZ     ?C0553
+                                           ; SOURCE LINE # 438
+01B4 120000      R     LCALL   L?0612
+01B7 5009              JNC     ?C0554
+                                           ; SOURCE LINE # 439
+01B9         ?C0595:
+01B9 7BFF              MOV     R3,#0FFH
+01BB 7A00        R     MOV     R2,#HIGH ?SC_442
+01BD 7900        R     MOV     R1,#LOW ?SC_442
+01BF 020000      R     LJMP    ?C0599
+                                           ; SOURCE LINE # 441
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 50  
+
+01C2         ?C0554:
+                                           ; SOURCE LINE # 442
+01C2 900000      E     MOV     DPTR,#argv+06H
+01C5 120000      R     LCALL   L?0604
+01C8 120000      R     LCALL   L?0614
+                                           ; SOURCE LINE # 444
+01CB F582              MOV     DPL,A
+01CD 8E83              MOV     DPH,R6
+01CF E0                MOVX    A,@DPTR
+01D0 900000      R     MOV     DPTR,#ret
+01D3 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 446
+01D4 200003      E     JB      echo,$ + 6H
+01D7 020000      R     LJMP    ?C0521
+                                           ; SOURCE LINE # 447
+01DA 7A00        R     MOV     R2,#HIGH ?SC_630
+01DC 7900        R     MOV     R1,#LOW ?SC_630
+01DE 120000      R     LCALL   L?0616
+01E1 900000      R     MOV     DPTR,#ret
+01E4 E0                MOVX    A,@DPTR
+01E5 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
+01E8         ?C0596:
+01E8 F0                MOVX    @DPTR,A
+01E9         ?C0597:
+                                           ; SOURCE LINE # 448
+                                           ; SOURCE LINE # 449
+01E9 020000      R     LJMP    ?C0599
+01EC         ?C0553:
+                                           ; SOURCE LINE # 452
+01EC 120000      R     LCALL   L?0607
+01EF 7400        R     MOV     A,#HIGH ?SC_659
+01F1 F0                MOVX    @DPTR,A
+01F2 A3                INC     DPTR
+01F3 7400        R     MOV     A,#LOW ?SC_659
+01F5 120000      R     LCALL   L?0603
+01F8 120000      E     LCALL   _stricmp
+01FB EF                MOV     A,R7
+01FC 4E                ORL     A,R6
+01FD 6003              JZ      $ + 5H
+01FF 020000      R     LJMP    ?C0557
+                                           ; SOURCE LINE # 456
+0202 900000      R     MOV     DPTR,#addr
+0205 F0                MOVX    @DPTR,A
+0206 A3                INC     DPTR
+0207 F0                MOVX    @DPTR,A
+0208 A3                INC     DPTR
+0209 04                INC     A
+020A F0                MOVX    @DPTR,A
+020B A3                INC     DPTR
+020C E4                CLR     A
+020D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 458
+020E 120000      R     LCALL   L?0613
+0211 4011              JC      ?C0558
+0213 900000      E     MOV     DPTR,#argv+06H
+0216 120000      R     LCALL   L?0604
+0219 120000      E     LCALL   _a2h
+021C 900000      R     MOV     DPTR,#addr
+021F EE                MOV     A,R6
+0220 F0                MOVX    @DPTR,A
+0221 A3                INC     DPTR
+0222 EF                MOV     A,R7
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 51  
+
+0223 F0                MOVX    @DPTR,A
+0224         ?C0558:
+                                           ; SOURCE LINE # 459
+0224 120000      R     LCALL   L?0619
+0227 4011              JC      ?C0559
+0229 900000      E     MOV     DPTR,#argv+09H
+022C 120000      R     LCALL   L?0604
+022F 120000      E     LCALL   _a2h
+0232 900000      R     MOV     DPTR,#len
+0235 EE                MOV     A,R6
+0236 F0                MOVX    @DPTR,A
+0237 A3                INC     DPTR
+0238 EF                MOV     A,R7
+0239 F0                MOVX    @DPTR,A
+023A         ?C0559:
+                                           ; SOURCE LINE # 461
+023A 7A00        R     MOV     R2,#HIGH ?SC_662
+023C 7900        R     MOV     R1,#LOW ?SC_662
+023E 120000      R     LCALL   L?0616
+0241 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 462
+0244 E4                CLR     A
+0245 900000      R     MOV     DPTR,#j
+0248 F0                MOVX    @DPTR,A
+0249         ?C0560:
+0249 900000      R     MOV     DPTR,#len
+024C E0                MOVX    A,@DPTR
+024D C4                SWAP    A
+024E F8                MOV     R0,A
+024F 54F0              ANL     A,#0F0H
+0251 C8                XCH     A,R0
+0252 68                XRL     A,R0
+0253 FE                MOV     R6,A
+0254 A3                INC     DPTR
+0255 E0                MOVX    A,@DPTR
+0256 C4                SWAP    A
+0257 540F              ANL     A,#0FH
+0259 48                ORL     A,R0
+025A FF                MOV     R7,A
+025B 900000      R     MOV     DPTR,#j
+025E E0                MOVX    A,@DPTR
+025F C3                CLR     C
+0260 9F                SUBB    A,R7
+0261 E4                CLR     A
+0262 9E                SUBB    A,R6
+0263 4003              JC      $ + 5H
+0265 020000      R     LJMP    ?C0521
+                                           ; SOURCE LINE # 463
+0268 7BFF              MOV     R3,#0FFH
+026A 7A00        R     MOV     R2,#HIGH ?SC_689
+026C 7900        R     MOV     R1,#LOW ?SC_689
+026E E0                MOVX    A,@DPTR
+026F 75F010            MOV     B,#010H
+0272 A4                MUL     AB
+0273 FF                MOV     R7,A
+0274 900000      R     MOV     DPTR,#addr+01H
+0277 E0                MOVX    A,@DPTR
+0278 2F                ADD     A,R7
+0279 FE                MOV     R6,A
+027A 900000      R     MOV     DPTR,#addr
+027D E0                MOVX    A,@DPTR
+027E 35F0              ADDC    A,B
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 52  
+
+0280 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0283 F0                MOVX    @DPTR,A
+0284 A3                INC     DPTR
+0285 CE                XCH     A,R6
+                                           ; SOURCE LINE # 464
+0286 120000      R     LCALL   L?0622
+0289         ?C0563:
+0289 900000      R     MOV     DPTR,#j
+028C 120000      R     LCALL   L?0605
+028F E0                MOVX    A,@DPTR
+0290 C3                CLR     C
+0291 9408              SUBB    A,#08H
+0293 40F4              JC      ?C0563
+0295         ?C0564:
+                                           ; SOURCE LINE # 465
+0295 120000      R     LCALL   L?0623
+                                           ; SOURCE LINE # 466
+0298         ?C0566:
+0298 900000      R     MOV     DPTR,#i
+029B E0                MOVX    A,@DPTR
+029C C3                CLR     C
+029D 9410              SUBB    A,#010H
+029F 5006              JNC     ?C0562
+02A1 A3                INC     DPTR
+02A2 120000      R     LCALL   L?0605
+02A5 80F1              SJMP    ?C0566
+                                           ; SOURCE LINE # 467
+02A7         ?C0562:
+02A7 900000      R     MOV     DPTR,#j
+02AA E0                MOVX    A,@DPTR
+02AB 04                INC     A
+02AC F0                MOVX    @DPTR,A
+02AD 020000      R     LJMP    ?C0560
+                                           ; SOURCE LINE # 469
+02B0         ?C0557:
+                                           ; SOURCE LINE # 517
+02B0 120000      R     LCALL   L?0607
+02B3 7400        R     MOV     A,#HIGH ?SC_703
+02B5 F0                MOVX    @DPTR,A
+02B6 A3                INC     DPTR
+02B7 7400        R     MOV     A,#LOW ?SC_703
+02B9 120000      R     LCALL   L?0603
+02BC 120000      E     LCALL   _stricmp
+02BF EF                MOV     A,R7
+02C0 4E                ORL     A,R6
+02C1 704B              JNZ     ?C0570
+                                           ; SOURCE LINE # 518
+02C3 120000      R     LCALL   L?0613
+02C6 5009              JNC     ?C0571
+                                           ; SOURCE LINE # 519
+02C8 7BFF              MOV     R3,#0FFH
+02CA 7A00        R     MOV     R2,#HIGH ?SC_706
+02CC 7900        R     MOV     R1,#LOW ?SC_706
+02CE 020000      E     LJMP    _Puts
+                                           ; SOURCE LINE # 521
+02D1         ?C0571:
+                                           ; SOURCE LINE # 522
+02D1 900000      E     MOV     DPTR,#argv+06H
+02D4 120000      R     LCALL   L?0604
+02D7 120000      E     LCALL   _a2h
+02DA 900000      R     MOV     DPTR,#argv_num1
+02DD EF                MOV     A,R7
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 53  
+
+02DE F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 524
+02DF 900000      E     MOV     DPTR,#argv+09H
+02E2 120000      R     LCALL   L?0604
+02E5 120000      E     LCALL   ?C?CLDPTR
+02E8 900000      R     MOV     DPTR,#argv_num1
+02EB B4310D            CJNE    A,#031H,?C0572
+                                           ; SOURCE LINE # 525
+02EE E0                MOVX    A,@DPTR
+02EF FF                MOV     R7,A
+02F0 120000      E     LCALL   _EnableInterrupt
+                                           ; SOURCE LINE # 526
+02F3 7BFF              MOV     R3,#0FFH
+02F5 7A00        R     MOV     R2,#HIGH ?SC_751
+02F7 7900        R     MOV     R1,#LOW ?SC_751
+                                           ; SOURCE LINE # 527
+02F9 800B              SJMP    ?C0589
+02FB         ?C0572:
+                                           ; SOURCE LINE # 528
+                                           ; SOURCE LINE # 529
+02FB E0                MOVX    A,@DPTR
+02FC FF                MOV     R7,A
+02FD 120000      E     LCALL   _DisableInterrupt
+                                           ; SOURCE LINE # 530
+0300 7BFF              MOV     R3,#0FFH
+0302 7A00        R     MOV     R2,#HIGH ?SC_778
+0304 7900        R     MOV     R1,#LOW ?SC_778
+0306         ?C0589:
+0306 E0                MOVX    A,@DPTR
+0307 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+030A F0                MOVX    @DPTR,A
+030B         ?C0598:
+                                           ; SOURCE LINE # 531
+                                           ; SOURCE LINE # 532
+030B 020000      R     LJMP    ?C0599
+030E         ?C0570:
+                                           ; SOURCE LINE # 534
+030E 120000      R     LCALL   L?0607
+0311 7400        R     MOV     A,#HIGH ?SC_806
+0313 F0                MOVX    @DPTR,A
+0314 A3                INC     DPTR
+0315 7400        R     MOV     A,#LOW ?SC_806
+0317 120000      R     LCALL   L?0603
+031A 120000      E     LCALL   _stricmp
+031D EF                MOV     A,R7
+031E 4E                ORL     A,R6
+031F 700E              JNZ     ?C0575
+                                           ; SOURCE LINE # 535
+0321 7BFF              MOV     R3,#0FFH
+0323 7A00        R     MOV     R2,#HIGH ?SC_809
+0325 7900        R     MOV     R1,#LOW ?SC_809
+0327 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 536
+032A C28B              CLR     SFR_IE1
+                                           ; SOURCE LINE # 537
+032C D2AA              SETB    SFR_EX1
+                                           ; SOURCE LINE # 538
+032E 22                RET     
+032F         ?C0575:
+                                           ; SOURCE LINE # 540
+032F 120000      R     LCALL   L?0607
+0332 7400        R     MOV     A,#HIGH ?SC_834
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 54  
+
+0334 F0                MOVX    @DPTR,A
+0335 A3                INC     DPTR
+0336 7400        R     MOV     A,#LOW ?SC_834
+0338 120000      R     LCALL   L?0603
+033B 120000      E     LCALL   _stricmp
+033E EF                MOV     A,R7
+033F 4E                ORL     A,R6
+0340 7044              JNZ     ?C0577
+                                           ; SOURCE LINE # 542
+0342 120000      R     LCALL   L?0613
+0345 502E              JNC     ?C0578
+                                           ; SOURCE LINE # 543
+0347 7BFF              MOV     R3,#0FFH
+0349 7A00        R     MOV     R2,#HIGH ?SC_837
+034B 7900        R     MOV     R1,#LOW ?SC_837
+034D 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0350 E500        E     MOV     A,EXINT_STATUS
+0352 F0                MOVX    @DPTR,A
+0353 900000      E     MOV     DPTR,#IntCount
+0356 E0                MOVX    A,@DPTR
+0357 FC                MOV     R4,A
+0358 A3                INC     DPTR
+0359 E0                MOVX    A,@DPTR
+035A FD                MOV     R5,A
+035B A3                INC     DPTR
+035C E0                MOVX    A,@DPTR
+035D FE                MOV     R6,A
+035E A3                INC     DPTR
+035F E0                MOVX    A,@DPTR
+0360 FF                MOV     R7,A
+0361 900000      E     MOV     DPTR,#?_Printf?BYTE+04H
+0364 120000      E     LCALL   ?C?LSTXDATA
+0367 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 544
+036A 900000      E     MOV     DPTR,#IntCount
+036D 120000      E     LCALL   ?C?LSTKXDATA
+0370 00                DB      00H
+0371 00                DB      00H
+0372 00                DB      00H
+0373 00                DB      00H
+0374 22                RET     
+                                           ; SOURCE LINE # 550
+0375         ?C0578:
+                                           ; SOURCE LINE # 551
+0375 900000      E     MOV     DPTR,#argv+06H
+0378 120000      R     LCALL   L?0604
+037B 120000      E     LCALL   _a2h
+037E 900000      R     MOV     DPTR,#argv_num1
+0381 EF                MOV     A,R7
+0382 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 553
+0383 5200        E     ANL     EXINT_STATUS,A
+                                           ; SOURCE LINE # 555
+0385 22                RET     
+0386         ?C0577:
+                                           ; SOURCE LINE # 557
+0386 120000      R     LCALL   L?0607
+0389 7400        R     MOV     A,#HIGH ?SC_885
+038B F0                MOVX    @DPTR,A
+038C A3                INC     DPTR
+038D 7400        R     MOV     A,#LOW ?SC_885
+038F 120000      R     LCALL   L?0603
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 55  
+
+0392 120000      E     LCALL   _stricmp
+0395 EF                MOV     A,R7
+0396 4E                ORL     A,R6
+0397 7020              JNZ     ?C0580
+                                           ; SOURCE LINE # 558
+0399 7BFF              MOV     R3,#0FFH
+039B 7A00        R     MOV     R2,#HIGH ?SC_890
+039D 7900        R     MOV     R1,#LOW ?SC_890
+039F 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 559
+03A2 7BFF              MOV     R3,#0FFH
+03A4 7A00        R     MOV     R2,#HIGH ?SC_906
+03A6 7900        R     MOV     R1,#LOW ?SC_906
+03A8 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 560
+03AB 438712            ORL     SFR_PCON,#012H
+                                           ; SOURCE LINE # 562
+03AE 00                NOP     
+                                           ; SOURCE LINE # 563
+03AF 00                NOP     
+                                           ; SOURCE LINE # 564
+03B0 00                NOP     
+                                           ; SOURCE LINE # 565
+03B1 00                NOP     
+                                           ; SOURCE LINE # 566
+03B2 00                NOP     
+                                           ; SOURCE LINE # 567
+03B3 00                NOP     
+                                           ; SOURCE LINE # 568
+03B4 00                NOP     
+                                           ; SOURCE LINE # 569
+03B5 00                NOP     
+                                           ; SOURCE LINE # 570
+03B6 00                NOP     
+                                           ; SOURCE LINE # 571
+03B7 00                NOP     
+                                           ; SOURCE LINE # 572
+03B8 22                RET     
+03B9         ?C0580:
+                                           ; SOURCE LINE # 574
+03B9 120000      R     LCALL   L?0607
+03BC 7400        R     MOV     A,#HIGH ?SC_943
+03BE F0                MOVX    @DPTR,A
+03BF A3                INC     DPTR
+03C0 7400        R     MOV     A,#LOW ?SC_943
+03C2 120000      R     LCALL   L?0603
+03C5 120000      E     LCALL   _stricmp
+03C8 EF                MOV     A,R7
+03C9 4E                ORL     A,R6
+03CA 6026              JZ      ?C0583
+03CC 120000      R     LCALL   L?0607
+03CF 7400        R     MOV     A,#HIGH ?SC_945
+03D1 F0                MOVX    @DPTR,A
+03D2 A3                INC     DPTR
+03D3 7400        R     MOV     A,#LOW ?SC_945
+03D5 120000      R     LCALL   L?0603
+03D8 120000      E     LCALL   _stricmp
+03DB EF                MOV     A,R7
+03DC 4E                ORL     A,R6
+03DD 6013              JZ      ?C0583
+03DF 120000      R     LCALL   L?0607
+03E2 7400        R     MOV     A,#HIGH ?SC_950
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 56  
+
+03E4 F0                MOVX    @DPTR,A
+03E5 A3                INC     DPTR
+03E6 7400        R     MOV     A,#LOW ?SC_950
+03E8 120000      R     LCALL   L?0603
+03EB 120000      E     LCALL   _stricmp
+03EE EF                MOV     A,R7
+03EF 4E                ORL     A,R6
+03F0 7003              JNZ     ?C0582
+03F2         ?C0583:
+                                           ; SOURCE LINE # 575
+03F2 020000      R     LJMP    MCUHelp
+                                           ; SOURCE LINE # 576
+03F5         ?C0582:
+                                           ; SOURCE LINE # 579
+03F5 7BFF              MOV     R3,#0FFH
+03F7 7A00        R     MOV     R2,#HIGH ?SC_952
+03F9 7900        R     MOV     R1,#LOW ?SC_952
+03FB         ?C0599:
+03FB 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 582
+03FE         ?C0521:
+03FE 22                RET     
+03FF         L?0600:
+03FF A3                INC     DPTR
+0400 F0                MOVX    @DPTR,A
+0401 900000      E     MOV     DPTR,#argv+03H
+0404 E0                MOVX    A,@DPTR
+0405 FB                MOV     R3,A
+0406 A3                INC     DPTR
+0407 E0                MOVX    A,@DPTR
+0408 FA                MOV     R2,A
+0409 A3                INC     DPTR
+040A E0                MOVX    A,@DPTR
+040B F9                MOV     R1,A
+040C 120000      E     LCALL   _stricmp
+040F EF                MOV     A,R7
+0410 4E                ORL     A,R6
+0411 22                RET     
+0412         L?0605:
+0412 7BFF              MOV     R3,#0FFH
+0414 7A00        R     MOV     R2,#HIGH ?SC_576
+0416 7900        R     MOV     R1,#LOW ?SC_576
+0418 E0                MOVX    A,@DPTR
+0419 75F010            MOV     B,#010H
+041C A4                MUL     AB
+041D FF                MOV     R7,A
+041E 900000      R     MOV     DPTR,#addr+01H
+0421 E0                MOVX    A,@DPTR
+0422 2F                ADD     A,R7
+0423 FF                MOV     R7,A
+0424 900000      R     MOV     DPTR,#addr
+0427 E0                MOVX    A,@DPTR
+0428 35F0              ADDC    A,B
+042A FE                MOV     R6,A
+042B 900000      R     MOV     DPTR,#i
+042E E0                MOVX    A,@DPTR
+042F 7C00              MOV     R4,#00H
+0431 2F                ADD     A,R7
+0432 FF                MOV     R7,A
+0433 EC                MOV     A,R4
+0434 3E                ADDC    A,R6
+0435 8F82              MOV     DPL,R7
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 57  
+
+0437 F583              MOV     DPH,A
+0439 E0                MOVX    A,@DPTR
+043A 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+043D F0                MOVX    @DPTR,A
+043E 120000      E     LCALL   _Printf
+0441 900000      R     MOV     DPTR,#i
+0444 E0                MOVX    A,@DPTR
+0445 04                INC     A
+0446 F0                MOVX    @DPTR,A
+0447 22                RET     
+0448         L?0609:
+0448 A3                INC     DPTR
+0449 E0                MOVX    A,@DPTR
+044A C4                SWAP    A
+044B 54F0              ANL     A,#0F0H
+044D FE                MOV     R6,A
+044E EF                MOV     A,R7
+044F 2E                ADD     A,R6
+0450 FF                MOV     R7,A
+0451 120000      R     LCALL   _ReadSFR
+0454 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0457 EF                MOV     A,R7
+0458 F0                MOVX    @DPTR,A
+0459 7BFF              MOV     R3,#0FFH
+045B 7A00        R     MOV     R2,#HIGH ?SC_576
+045D 7900        R     MOV     R1,#LOW ?SC_576
+045F 120000      E     LCALL   _Printf
+0462 900000      R     MOV     DPTR,#i
+0465 E0                MOVX    A,@DPTR
+0466 04                INC     A
+0467 F0                MOVX    @DPTR,A
+0468 22                RET     
+0469         L?0611:
+0469 F0                MOVX    @DPTR,A
+046A 120000      E     LCALL   _Printf
+046D E4                CLR     A
+046E 900000      R     MOV     DPTR,#i
+0471 F0                MOVX    @DPTR,A
+0472 22                RET     
+0473         L?0614:
+0473 120000      E     LCALL   _a2h
+0476 900000      R     MOV     DPTR,#addr
+0479 EE                MOV     A,R6
+047A F0                MOVX    @DPTR,A
+047B A3                INC     DPTR
+047C EF                MOV     A,R7
+047D F0                MOVX    @DPTR,A
+047E 22                RET     
+047F         L?0615:
+047F 120000      E     LCALL   _a2h
+0482 900000      R     MOV     DPTR,#argv_num1
+0485 EF                MOV     A,R7
+0486 F0                MOVX    @DPTR,A
+0487 22                RET     
+0488         L?0622:
+0488 F0                MOVX    @DPTR,A
+0489 120000      E     LCALL   _Printf
+048C E4                CLR     A
+048D 900000      R     MOV     DPTR,#i
+0490 F0                MOVX    @DPTR,A
+0491 22                RET     
+0492         L?0623:
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 58  
+
+0492 7BFF              MOV     R3,#0FFH
+0494 7A00        R     MOV     R2,#HIGH ?SC_583
+0496 7900        R     MOV     R1,#LOW ?SC_583
+0498 120000      E     LCALL   _Printf
+049B 22                RET     
+             ; FUNCTION MonitorMCU (END)
+
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 59  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+SFR_fch. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00FCH  1
+SFR_edh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00EDH  1
+SFR_deh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00DEH  1
+SFR_cfh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CFH  1
+SFR_fdh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00FDH  1
+SFR_eeh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00EEH  1
+SFR_dfh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00DFH  1
+SFR_feh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00FEH  1
+SFR_efh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00EFH  1
+SFR_ffh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00FFH  1
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+_stricmp . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SFR_IE1. . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      008BH  1
+_DisableInterrupt. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SFR_EX1. . . . . . . . . . . . . . . .  ABSBIT   -----  BIT      00AAH  1
+SFR_80h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0080H  1
+SFR_90h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0090H  1
+SFR_81h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0081H  1
+SFR_91h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0091H  1
+SFR_82h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0082H  1
+_EnableInterrupt . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+argc . . . . . . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
+SFR_92h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0092H  1
+SFR_83h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0083H  1
+SFR_93h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0093H  1
+SFR_84h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0084H  1
+echo . . . . . . . . . . . . . . . . .  EXTERN   DATA   BIT      -----  1
+SFR_94h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0094H  1
+SFR_85h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0085H  1
+SFR_95h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0095H  1
+SFR_86h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0086H  1
+SFR_96h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0096H  1
+SFR_87h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0087H  1
+SFR_97h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0097H  1
+SFR_88h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0088H  1
+SFR_98h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0098H  1
+SFR_89h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0089H  1
+SFR_99h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0099H  1
+_Puts. . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+argv . . . . . . . . . . . . . . . . .  EXTERN   XDATA  ARRAY    -----  -----
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 60  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+IntCount . . . . . . . . . . . . . . .  EXTERN   XDATA  U_LONG   -----  4
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+SFR_a0h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A0H  1
+SFR_b0h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B0H  1
+SFR_a1h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A1H  1
+SFR_c0h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C0H  1
+SFR_b1h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B1H  1
+SFR_a2h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A2H  1
+SFR_d0h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D0H  1
+SFR_c1h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C1H  1
+SFR_b2h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B2H  1
+SFR_a3h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A3H  1
+SFR_e0h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E0H  1
+SFR_d1h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D1H  1
+SFR_c2h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C2H  1
+SFR_b3h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B3H  1
+SFR_a4h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A4H  1
+SFR_f0h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F0H  1
+SFR_e1h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E1H  1
+SFR_d2h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D2H  1
+SFR_c3h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C3H  1
+SFR_b4h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B4H  1
+SFR_a5h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A5H  1
+SFR_f1h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F1H  1
+SFR_e2h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E2H  1
+SFR_d3h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D3H  1
+SFR_c4h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C4H  1
+SFR_b5h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B5H  1
+SFR_a6h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A6H  1
+SFR_f2h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F2H  1
+SFR_e3h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E3H  1
+SFR_d4h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D4H  1
+SFR_c5h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C5H  1
+SFR_b6h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B6H  1
+SFR_a7h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A7H  1
+SFR_f3h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F3H  1
+SFR_e4h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E4H  1
+SFR_d5h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D5H  1
+SFR_c6h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C6H  1
+SFR_b7h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B7H  1
+SFR_a8h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A8H  1
+SFR_8ah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008AH  1
+SFR_f4h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F4H  1
+SFR_e5h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E5H  1
+SFR_d6h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D6H  1
+SFR_c7h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C7H  1
+SFR_b8h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B8H  1
+SFR_a9h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00A9H  1
+SFR_9ah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009AH  1
+SFR_8bh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008BH  1
+SFR_f5h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F5H  1
+SFR_e6h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E6H  1
+SFR_d7h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D7H  1
+SFR_c8h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C8H  1
+SFR_b9h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B9H  1
+SFR_9bh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009BH  1
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 61  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+SFR_8ch. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008CH  1
+SFR_f6h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F6H  1
+SFR_e7h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E7H  1
+SFR_d8h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D8H  1
+SFR_c9h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C9H  1
+SFR_9ch. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009CH  1
+SFR_8dh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008DH  1
+EXINT_STATUS . . . . . . . . . . . . .  EXTERN   DATA   U_CHAR   -----  1
+SFR_f7h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F7H  1
+SFR_e8h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E8H  1
+SFR_d9h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D9H  1
+SFR_9dh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009DH  1
+SFR_8eh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008EH  1
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+MonitorMCU . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  addr . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0005H  2
+  addr . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0005H  2
+  addr . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0005H  2
+  len. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0007H  2
+  ret. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  j. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
+  argv_num1. . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0003H  1
+  argv_num2. . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0004H  1
+SFR_f8h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F8H  1
+SFR_e9h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00E9H  1
+SFR_9eh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009EH  1
+SFR_8fh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   008FH  1
+SFR_f9h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00F9H  1
+SFR_9fh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009FH  1
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+_ReadSFR . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  addr . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+MCUHelp. . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+_Printf. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SFR_aah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00AAH  1
+SFR_bah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00BAH  1
+SFR_abh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00ABH  1
+SFR_cah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CAH  1
+SFR_bbh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00BBH  1
+SFR_ach. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00ACH  1
+C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 62  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+_WriteSFR. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  addr . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  dat. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+SFR_dah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00DAH  1
+SFR_cbh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CBH  1
+SFR_bch. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00BCH  1
+SFR_adh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00ADH  1
+SFR_eah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00EAH  1
+SFR_dbh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00DBH  1
+SFR_cch. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CCH  1
+SFR_bdh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00BDH  1
+SFR_aeh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00AEH  1
+_a2h . . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SFR_fah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00FAH  1
+SFR_ebh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00EBH  1
+SFR_dch. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00DCH  1
+SFR_cdh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CDH  1
+SFR_beh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00BEH  1
+SFR_afh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00AFH  1
+SFR_fbh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00FBH  1
+SFR_ech. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00ECH  1
+SFR_ddh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00DDH  1
+SFR_ceh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CEH  1
+SFR_bfh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00BFH  1
+SFR_PCON . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   0087H  1
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   3985    ----
+   CONSTANT SIZE    =    972    ----
+   XDATA SIZE       =   ----       9
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

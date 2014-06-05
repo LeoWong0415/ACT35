@@ -1,0 +1,1850 @@
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE HID
+OBJECT MODULE PLACED IN .\Output\HID.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE HID.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
+                    -DP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\HID.lst) OBJECT(.\Output\HID.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * HID.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      Human Interface Device
+  10           *      support Keypad, touch, remocon
+  11          */
+  12          #include "config.h"
+  13          #include "reg.h"
+  14          #include "typedefs.h"
+  15          #include "TW8835.h"
+  16          
+  17          #include "global.h"
+  18          #include "CPU.h"
+  19          #include "printf.h"
+  20          
+  21          #include "I2C.h"
+  22          
+  23          #include "main.h"
+  24          #include "Remo.h"
+  25          #include "TouchKey.h"
+  26          #include "HID.h"
+  27          
+  28          #include "SOsd.h"
+  29          #include "FOsd.h"
+  30          #include "SOsdMenu.h" //NAVI_KEY_
+  31          #include "eeprom.h"
+  32          #include "InputCtrl.h"
+  33          
+  34          #ifdef SUPPORT_FOSD_MENU
+              #include "FOsdString.h"
+              #include "FOsdMenu.h"
+              #include "FOsdDisplay.h"
+              extern    bit     OnChangingValue;
+              #endif
+  40          
+  41          BYTE    InputMode = 0;
+  42          bit             OnPIP = 0;
+  43          bit             CaptureMode =0 ;
+  44          BYTE    SavePIP = 2;            // PIP_CVBS - start mode
+  45          BYTE    SaveInput = 0;  // 0(CVBS) or 1(SVGA60) for demo
+  46          BYTE    SaveNum = 0;
+  47          BYTE    LoadNum = 0;
+  48          #define CAPTURE_MAX             10
+  49          
+  50          /**
+  51          * action for remocon
+  52          */
+  53          BYTE ActionRemo(BYTE _RemoDataCode, BYTE AutoKey)
+  54          {
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 2   
+
+  55   1              DECLARE_LOCAL_page
+  56   1              BYTE value;
+  57   1      
+  58   1              UpdateOsdTimerClock();
+  59   1      
+  60   1              //BKTODO: It need on Keypad also....Let's merge remo & keypad & monitor.
+  61   1              if(TaskGetGrid()) {
+  62   2                      if(_RemoDataCode == REMO_CHNUP) {
+  63   3                              TaskSetGridCmd(NAVI_KEY_UP);
+  64   3                              return 0;
+  65   3                      }
+  66   2                      else if(_RemoDataCode == REMO_CHNDN) {
+  67   3                              TaskSetGridCmd(NAVI_KEY_DOWN);
+  68   3                              return 0;
+  69   3                      }
+  70   2                      else if(_RemoDataCode == REMO_VOLDN) {
+  71   3                              TaskSetGridCmd(NAVI_KEY_LEFT);
+  72   3                              return 0;
+  73   3                      }
+  74   2                      else if(_RemoDataCode == REMO_VOLUP) {
+  75   3                              TaskSetGridCmd(NAVI_KEY_RIGHT);
+  76   3                              return 0;
+  77   3                      }
+  78   2                      else if(_RemoDataCode == REMO_MENU || _RemoDataCode == REMO_EXIT) {
+  79   3                              TaskSetGridCmd(NAVI_KEY_ENTER);
+  80   3                              return 0;
+  81   3                      }
+  82   2              }
+  83   1      
+  84   1      
+  85   1              switch(_RemoDataCode) {
+  86   2      
+  87   2              case REMO_STANDBY:                              // power
+  88   2                      if( AutoKey )                           // need repeat key. 
+  89   2                              //return 1;
+  90   2                              return REQUEST_POWER_OFF;
+  91   2                      return 0;                                       // power off
+  92   2      
+  93   2              case REMO_MUTE:
+  94   2      //#ifdef SUPPORT_FOSD_MENU
+  95   2      //              if( AutoKey ) return 1;
+  96   2      //              ToggleAudioMute();
+  97   2      //              if( IsAudioMuteOn() )           DisplayMuteInfo();
+  98   2      //              else{                                           
+  99   2      //                      ClearMuteInfo();
+ 100   2      //                      if( DisplayInputHold ) FOsdDisplayInput();
+ 101   2      //              }
+ 102   2      //#endif
+ 103   2                      break;
+ 104   2      
+ 105   2              case REMO_INPUT:
+ 106   2      //#ifdef SUPPORT_FOSD_MENU
+ 107   2      //              InputModeNext();
+ 108   2      //#else
+ 109   2                      if(MenuGetLevel()) {
+ 110   3                              //ignore
+ 111   3                              break;  
+ 112   3                      }
+ 113   2                      //increase input mode..
+ 114   2                      InputModeNext();
+ 115   2      //#endif
+ 116   2                      break;
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 3   
+
+ 117   2              case REMO_INFO:
+ 118   2                      if(MenuGetLevel()==0) {
+ 119   3                              //toggle current video information.
+ 120   3                              if(TaskNoSignal_getCmd()==TASK_CMD_DONE) {
+ 121   4      //#ifdef SUPPORT_FOSD_MENU
+ 122   4      //                              FOsdDisplayInput();     
+ 123   4      //#else
+ 124   4                                      ReadTW88Page(page);
+ 125   4                                      WriteTW88Page(PAGE3_FOSD);
+ 126   4                                      if((ReadTW88(REG310) & 0x80)==0) {
+ 127   5                                              FOsdCopyMsgBuff2Osdram(OFF);
+ 128   5                                      }
+ 129   4                                      WriteTW88Page(page);
+ 130   4                                      FOsdWinToggleEnable(0); //win0
+ 131   4      //#endif
+ 132   4                              }                               
+ 133   3                      }
+ 134   2                      return 1;
+ 135   2              
+ 136   2              case REMO_NUM0:
+ 137   2              case REMO_NUM1:
+ 138   2              case REMO_NUM2:
+ 139   2              case REMO_NUM3:
+ 140   2              case REMO_NUM4:
+ 141   2              case REMO_NUM5:
+ 142   2              case REMO_NUM6:
+ 143   2              case REMO_NUM7:
+ 144   2              case REMO_NUM8:
+ 145   2              case REMO_NUM9:
+ 146   2                      break;
+ 147   2      
+ 148   2              
+ 149   2              case REMO_SELECT:
+ 150   2      //#ifdef SUPPORT_FOSD_MENU
+ 151   2      //              if( AutoKey ) return 1;
+ 152   2      //              if(  DisplayedOSD & FOSD_MENU  )
+ 153   2      //                      FOsdMenuProcSelectKey();
+ 154   2      //#else
+ 155   2                      if(MenuGetLevel())
+ 156   2                              MenuKeyInput(NAVI_KEY_ENTER);   
+ 157   2      //#endif
+ 158   2                      break;
+ 159   2      
+ 160   2              case REMO_CHNUP:
+ 161   2      //#ifdef SUPPORT_FOSD_MENU
+ 162   2      //              if(DisplayedOSD & FOSD_MENU)
+ 163   2      //                      FOsdMenuMoveCursor(FOSD_UP);
+ 164   2      //#else
+ 165   2                      dPuts("\nREMO_CHNUP pressed!!!");
+ 166   2                      if(MenuGetLevel())
+ 167   2                              MenuKeyInput(NAVI_KEY_UP);
+ 168   2      //#endif
+ 169   2                      break;
+ 170   2              case REMO_CHNDN:
+ 171   2      //#ifdef SUPPORT_FOSD_MENU
+ 172   2      //              if(DisplayedOSD & FOSD_MENU)
+ 173   2      //                      FOsdMenuMoveCursor(FOSD_DN);
+ 174   2      //#else
+ 175   2                      dPuts("\nREMO_CHNDN pressed!!!");
+ 176   2                      if(MenuGetLevel())
+ 177   2                              MenuKeyInput(NAVI_KEY_DOWN);
+ 178   2      //#endif
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 4   
+
+ 179   2                      break;
+ 180   2              case REMO_VOLUP:
+ 181   2      //#ifdef SUPPORT_FOSD_MENU
+ 182   2      //              if(  DisplayedOSD & FOSD_MENU  ) {
+ 183   2      //                      if( OnChangingValue )   FOsdMenuValueUpDn(FOSD_UP );
+ 184   2      //                      else                                    FOsdMenuProcSelectKey();                        
+ 185   2      //              }
+ 186   2      //              else 
+ 187   2      //              {
+ 188   2      //                      ChangeVol(1);
+ 189   2      //                      DisplayVol();
+ 190   2      //              }
+ 191   2      //#else
+ 192   2                      dPuts("\nREMO_VOLUP pressed!!!");
+ 193   2                      if(MenuGetLevel())
+ 194   2                              MenuKeyInput(NAVI_KEY_RIGHT);
+ 195   2      //#endif
+ 196   2                      break;
+ 197   2              case REMO_VOLDN:
+ 198   2      //#ifdef SUPPORT_FOSD_MENU
+ 199   2      //              if(  DisplayedOSD & FOSD_MENU  ) {
+ 200   2      //                      if( OnChangingValue ) FOsdMenuValueUpDn(FOSD_DN );
+ 201   2      //                      else FOsdHighMenu();    
+ 202   2      //              }
+ 203   2      //              else 
+ 204   2      //              {
+ 205   2      //                      ChangeVol(-1);
+ 206   2      //                      DisplayVol();
+ 207   2      //              }
+ 208   2      //#else
+ 209   2                      dPuts("\nREMO_VOLDN pressed!!!");
+ 210   2                      if(MenuGetLevel())
+ 211   2                              MenuKeyInput(NAVI_KEY_LEFT);
+ 212   2      //#endif
+ 213   2                      break;
+ 214   2              case REMO_MENU:
+ 215   2                      dPuts("\nREMO_MENU pressed!!!");
+ 216   2      //#ifdef SUPPORT_FOSD_MENU
+ 217   2      //              if(DisplayedOSD & FOSD_MENU)
+ 218   2      //                      FOsdHighMenu();
+ 219   2      //              else {
+ 220   2      //                      if(GetOSDLangEE()==OSDLANG_KR)
+ 221   2      //                              InitFontRamByNum(FONT_NUM_PLUS_RAMFONT, 0);
+ 222   2      //                      else 
+ 223   2      //                              InitFontRamByNum(FONT_NUM_DEF12X18, 0); //FOsdDownloadFont(0);  //12x18 default font
+ 224   2      //                      FOsdRamSetFifo(ON, 1);
+ 225   2      //                      FOsdMenuOpen();         
+ 226   2      //              }
+ 227   2      //#else
+ 228   2                      if(MenuGetLevel()==0)
+ 229   2                              MenuStart();    
+ 230   2                      else
+ 231   2                              MenuKeyInput(NAVI_KEY_ENTER);   
+ 232   2      //#endif
+ 233   2                      break;
+ 234   2      
+ 235   2      
+ 236   2              case REMO_EXIT:
+ 237   2                      dPuts("\nREMO_EXIT pressed!!!");
+ 238   2      //#ifdef SUPPORT_FOSD_MENU
+ 239   2      //              if(  DisplayedOSD & FOSD_MENU  )                
+ 240   2      //                      FOsdMenuDoAction(EXITMENU);
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 5   
+
+ 241   2      //#else
+ 242   2                      if(MenuGetLevel() == 1) {
+ 243   3                              MenuEnd();
+ 244   3                      }
+ 245   2                      else if(MenuGetLevel() > 1) {
+ 246   3                              proc_menu_list_return();        //only one level...
+ 247   3                      }
+ 248   2      //#endif
+ 249   2                      break;
+ 250   2      
+ 251   2              case REMO_PIPON:
+ 252   2                      dPuts("\nPIP Display mode change");
+ 253   2                      break;
+ 254   2                                       
+ 255   2              case REMO_STILL:
+ 256   2                      break;
+ 257   2              case REMO_SWAP:
+ 258   2                      //Printf("\n=====SWAP InputMode:%bd",InputMain);
+ 259   2                      if(InputMain==INPUT_BT656) {
+ 260   3                              ReadTW88Page(page);
+ 261   3                              WriteTW88Page(PAGE0_GENERAL);
+ 262   3                              value = ReadTW88(REG006);
+ 263   3                              if(value & 0x40)        WriteTW88(REG006, value & ~0x40);
+ 264   3                              else                            WriteTW88(REG006, value | 0x40);
+ 265   3                              WriteTW88Page(page);
+ 266   3                      }                       
+ 267   2                      break;
+ 268   2      
+ 269   2              case REMO_PIPINPUT:
+ 270   2                      dPuts("\nPIP input mode change");
+ 271   2                      break;
+ 272   2      
+ 273   2              case REMO_TTXRED:
+ 274   2                      break;
+ 275   2      
+ 276   2      
+ 277   2              case REMO_TTXYELLOW:
+ 278   2                      break;
+ 279   2      
+ 280   2              case REMO_TTXGREEN:     
+ 281   2                      break;
+ 282   2              
+ 283   2              case REMO_TTXCYAN:              
+ 284   2                      break;
+ 285   2      
+ 286   2              case REMO_AUTO:
+ 287   2                      break;
+ 288   2      
+ 289   2              case REMO_ASPECT:
+ 290   2                      break;
+ 291   2      
+ 292   2              }
+ 293   1              return 1;
+ 294   1      }
+ 295          
+ 296          #ifdef SUPPORT_TOUCH
+ 297          //extern BYTE   TouchStatus;
+ 298          extern WORD PosX,PosY;
+ 299          /**
+ 300          * action for Touch
+ 301          */
+ 302          BYTE ActionTouch(void)
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 6   
+
+ 303          {
+ 304   1              BYTE TscStatus;
+ 305   1              BYTE ret;
+ 306   1              WORD    xpos, ypos;
+ 307   1      
+ 308   1              UpdateOsdTimerClock();
+ 309   1      
+ 310   1              TscStatus = TouchStatus;
+ 311   1              xpos = PosX;
+ 312   1              ypos = PosY;
+ 313   1      
+ 314   1              if(MenuGetLevel()==0) {
+ 315   2       
+ 316   2                      if(TaskGetGrid()) {
+ 317   3                              if(TscStatus == TOUCHCLICK || TscStatus == TOUCHDOUBLECLICK)
+ 318   3                              {
+ 319   4                                      TaskSetGridCmd(NAVI_KEY_ENTER);
+ 320   4                                      return 0;
+ 321   4                              }
+ 322   3                      }
+ 323   2                      if(TscStatus == TOUCHDOUBLECLICK) {
+ 324   3                              MenuStart();
+ 325   3                              SetTouchStatus(TOUCHEND); //BK111108
+ 326   3                      }
+ 327   2                      else if(TscStatus == TOUCHPRESS || TscStatus >= TOUCHMOVE) {
+ 328   3                      }
+ 329   2                      else if(TscStatus == TOUCHMOVED) {
+ 330   3                              SetTouchStatus(TOUCHEND); //END
+ 331   3                      }
+ 332   2                      else if(TscStatus == TOUCHCLICK) {
+ 333   3                              SetTouchStatus(TOUCHEND); //END
+ 334   3                      }
+ 335   2      
+ 336   2                      return 0;       
+ 337   2              }
+ 338   1      
+ 339   1              //in the menu
+ 340   1              if(TscStatus == TOUCHPRESS || (TscStatus >= TOUCHMOVE)) {
+ 341   2                      //serial input mode.
+ 342   2                      ret = MenuIsTouchCalibMode();
+ 343   2                      if(ret) {
+ 344   3                              CalibTouch(ret-1);
+ 345   3      
+ 346   3                              MenuKeyInput(NAVI_KEY_ENTER); //goto next "+"
+ 347   3                              //wait until TOUCH_END
+ 348   3                              WaitTouchButtonUp();
+ 349   3                              SetTouchStatus(TOUCHEND);
+ 350   3                      }
+ 351   2      //              else if(MenuIsSlideMode()) {
+ 352   2      //                      //need MOVE for slider bar
+ 353   2      //                      MenuCheckTouchInput(TscStatus, xpos, ypos);
+ 354   2      //                      //note: do not call SetTouchStatus(0);
+ 355   2      //              }
+ 356   2                      else {
+ 357   3                              //
+ 358   3                              //update focus.
+ 359   3                              //
+ 360   3                              MenuCheckTouchInput(TscStatus, xpos, ypos);
+ 361   3                              //note: do not call SetTouchStatus(0);
+ 362   3                      }
+ 363   2                      return 0;
+ 364   2              }
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 7   
+
+ 365   1              //else if(TscStatus == TOUCHMOVE) {
+ 366   1              //      //if lost focus, do something.
+ 367   1              //}
+ 368   1              else if(TscStatus == TOUCHCLICK || TscStatus == TOUCHDOUBLECLICK || TscStatus == TOUCHLONGCLICK || TscSta
+             -tus == TOUCHMOVED) {
+ 369   2                      //action mode
+ 370   2      
+ 371   2                      if(TscStatus == TOUCHLONGCLICK) {
+ 372   3                              if(MenuGetLevel()==1 || MenuIsSystemPage()) {
+ 373   4                                      //special.
+ 374   4                                      //use default value.
+ 375   4                                      MenuTouchCalibStart();
+ 376   4                                      SetTouchStatus(TOUCHEND);
+ 377   4                                      return 0;
+ 378   4                              }
+ 379   3                      }
+ 380   2      
+ 381   2                      if(TscStatus == TOUCHMOVED)
+ 382   2                              TscStatus = TOUCHCLICK;
+ 383   2      
+ 384   2                      MenuCheckTouchInput(TscStatus,xpos, ypos);
+ 385   2                      SetTouchStatus(TOUCHEND);  //BK110601
+ 386   2                      return 0;
+ 387   2              }
+ 388   1              ePrintf("\nUnknown TscStatus :%bd", TscStatus);
+ 389   1      
+ 390   1              return 1;
+ 391   1      }
+ 392          #endif
+ 393          
+ 394          
+ 395          /**
+ 396          * check Key input
+ 397          *
+ 398          * keypad: LEFT, RIGHT, DOWN, UP, MENU, MODE
+ 399          */
+ 400          void CheckKeyIn( void ) 
+ 401          {
+ 402   1              BYTE    key;
+ 403   1      
+ 404   1      //#ifdef SUPPORT_TOUCH
+ 405   1      //      //if we support the touch, we need to init TscAdc again
+ 406   1      //      InitAUX(3);
+ 407   1      //#endif
+ 408   1      
+ 409   1              //key = ReadKeyPad();
+ 410   1              key = GetKey(1);
+ 411   1              if(key == 0) {
+ 412   2                      //sw key
+ 413   2                      if(SW_key) {
+ 414   3                              key = SW_key;
+ 415   3                              SW_key=0;
+ 416   3                      }
+ 417   2                      if( key == 0)
+ 418   2                              return;
+ 419   2              }
+ 420   1      
+ 421   1              UpdateOsdTimerClock();
+ 422   1      
+ 423   1      #ifdef DEBUG_KEYREMO
+                      dPrintf("\nGetKey(1):%02bx",key);
+              #endif
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 8   
+
+ 426   1              if(TaskGetGrid()) {
+ 427   2                      switch(key) {
+ 428   3                      case KEY_RIGHT:
+ 429   3                              TaskSetGridCmd(NAVI_KEY_RIGHT);
+ 430   3                              break;
+ 431   3                      case KEY_UP:
+ 432   3                              TaskSetGridCmd(NAVI_KEY_UP);
+ 433   3                              break;
+ 434   3                      case KEY_LEFT:
+ 435   3                              TaskSetGridCmd(NAVI_KEY_LEFT);
+ 436   3                              break;
+ 437   3                      case KEY_DOWN:
+ 438   3                              TaskSetGridCmd(NAVI_KEY_DOWN);
+ 439   3                              break;
+ 440   3                      case KEY_INPUT:
+ 441   3                      case KEY_MENU:
+ 442   3                              TaskSetGridCmd(NAVI_KEY_ENTER);
+ 443   3                              break;
+ 444   3                      }
+ 445   2                      return ;
+ 446   2              }
+ 447   1      
+ 448   1      
+ 449   1              switch ( key ) {
+ 450   2                case  KEY_RIGHT:
+ 451   2      #ifdef DEBUG_KEYREMO
+                              dPuts("\nRIGHT pressed!!!");
+              #endif
+ 454   2      #ifdef SUPPORT_FOSD_MENU
+                              if(  DisplayedOSD & FOSD_MENU  ) {
+                                      if( OnChangingValue )   FOsdMenuValueUpDn(FOSD_UP );
+                                      else                                    FOsdMenuProcSelectKey();                        
+                              }
+                              else 
+                              {
+                                      ChangeVol(1);
+                                      DisplayVol();
+                              }
+              #else
+ 465   2                      if(MenuGetLevel())
+ 466   2                              MenuKeyInput(NAVI_KEY_RIGHT);
+ 467   2      #endif
+ 468   2              break;
+ 469   2      
+ 470   2                case  KEY_UP:
+ 471   2      #ifdef DEBUG_KEYREMO
+                              dPuts("\nUP pressed!!!");
+              #endif
+ 474   2      #ifdef SUPPORT_FOSD_MENU
+                              if(DisplayedOSD & FOSD_MENU)
+                                      FOsdMenuMoveCursor(FOSD_UP);
+              #else
+ 478   2                      if(MenuGetLevel())
+ 479   2                              MenuKeyInput(NAVI_KEY_UP);
+ 480   2      #endif
+ 481   2              break;
+ 482   2      
+ 483   2                case  KEY_MENU:
+ 484   2      #ifdef DEBUG_KEYREMO
+                              dPuts("\nMENU pressed!!!");
+              #endif
+ 487   2      #ifdef SUPPORT_FOSD_MENU
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 9   
+
+                              if(DisplayedOSD & FOSD_MENU)
+                                      FOsdHighMenu();
+                              else {
+                                      if(GetOSDLangEE()==OSDLANG_KR)
+                                              InitFontRamByNum(FONT_NUM_PLUS_RAMFONT, 0);
+                                      else 
+                                              InitFontRamByNum(FONT_NUM_DEF12X18, 0); //FOsdDownloadFont(0);  //12x18 default font
+                                      FOsdRamSetFifo(ON, 1);
+                                      FOsdMenuOpen();         
+                              }
+              #else
+ 499   2                      if(MenuGetLevel()==0)
+ 500   2                              MenuStart();    
+ 501   2                      else
+ 502   2                              MenuKeyInput(NAVI_KEY_ENTER);   
+ 503   2      #endif
+ 504   2              break;
+ 505   2      
+ 506   2                case  KEY_LEFT:
+ 507   2      #ifdef DEBUG_KEYREMO
+                              dPuts("\nLEFT pressed!!!");
+              #endif
+ 510   2      #ifdef SUPPORT_FOSD_MENU
+                              if(  DisplayedOSD & FOSD_MENU  ) {
+                                      if( OnChangingValue ) FOsdMenuValueUpDn(FOSD_DN );
+                                      else FOsdHighMenu();    
+                              }
+                              else 
+                              {
+                                      ChangeVol(-1);
+                                      DisplayVol();
+                              }
+              #else
+ 521   2                      if(MenuGetLevel())
+ 522   2                              MenuKeyInput(NAVI_KEY_LEFT);
+ 523   2      #endif
+ 524   2              break;
+ 525   2      
+ 526   2                case  KEY_DOWN:
+ 527   2      #ifdef DEBUG_KEYREMO
+                              dPuts("\nDOWN pressed!!!");
+              #endif
+ 530   2      #ifdef SUPPORT_FOSD_MENU
+                              if(DisplayedOSD & FOSD_MENU)
+                                      FOsdMenuMoveCursor(FOSD_DN);
+              #else
+ 534   2                      if(MenuGetLevel())
+ 535   2                              MenuKeyInput(NAVI_KEY_DOWN);
+ 536   2      #endif
+ 537   2              break;
+ 538   2      
+ 539   2                case  KEY_INPUT:
+ 540   2      #ifdef DEBUG_KEYREMO
+                              dPuts("\nINPUT pressed!!!");
+              #endif
+ 543   2                      if(MenuGetLevel())
+ 544   2                              MenuEnd();
+ 545   2                      else
+ 546   2                              InputModeNext();
+ 547   2              break;
+ 548   2              }
+ 549   1      }
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 10  
+
+ 550          
+ 551          
+ 552          //=============================================================================
+ 553          //              BYTE CheckHumanInputs( void )
+ 554          //=============================================================================
+ 555          /**
+ 556          * check Human Inputs. (Keypad, touch, remocon, UART0)
+ 557          *
+ 558          * Just Check, NO Action.
+ 559          * extern BYTE TouchChanged;
+ 560          * @return
+ 561          *       -0: No Input
+ 562          *       -other: input type
+ 563          */
+ 564          BYTE    CheckHumanInputs( BYTE skip_tsc )
+ 565          {
+ 566   1      #ifndef DP80390
+ 567   1      #ifdef SUPPORT_TOUCH
+ 568   1      #else
+                      BYTE temp = skip_tsc;
+              #endif
+ 571   1      
+ 572   1              //
+ 573   1              //check remo input
+ 574   1              //
+ 575   1              //if(CheckRemo())
+ 576   1              //      return 1;
+ 577   1              if(RemoDataReady)
+ 578   1                      return HINPUT_REMO;
+ 579   1      
+ 580   1              //
+ 581   1              //check keypad
+ 582   1              //
+ 583   1      //#ifdef SUPPORT_ANALOG_SENSOR_NEED_VERIFY
+ 584   1      //      //CheckKeyIn();
+ 585   1      //      if ( ReadKeyPad() ) {
+ 586   1      //              dPuts("\nGet Key data");
+ 587   1      //              return ( HINPUT_KEY );          // input!!!
+ 588   1      //      }
+ 589   1      //#endif
+ 590   1              //
+ 591   1              //check touch
+ 592   1              //      
+ 593   1      #ifdef SUPPORT_TOUCH
+ 594   1              if(skip_tsc==0) {
+ 595   2                      if ( CpuTouchPressed || CpuTouchChanged ) {
+ 596   3                              dPrintf("\nSenseTouch CpuTouchPressed:%bd CpuTouchChanged:%bd",CpuTouchPressed,CpuTouchChanged);
+ 597   3                              return ( HINPUT_TSC );          // input!!!
+ 598   3                      }
+ 599   2              }
+ 600   1      #endif
+ 601   1      
+ 602   1              //
+ 603   1              //check RS232 monitor input
+ 604   1              //      
+ 605   1              if (RS_ready()) {
+ 606   2                      dPuts("\nGet serial data");
+ 607   2                      return ( HINPUT_SERIAL );               // input!!!
+ 608   2              }
+ 609   1      #else
+                      BYTE temp = skip_tsc;
+              #endif //DP80390
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 11  
+
+ 612   1      
+ 613   1              return (HINPUT_NO);
+ 614   1      }
+ 615          
+ 616          
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 12  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com0090 (BEGIN)
+0000         L?0145:
+0000 E500        E     MOV     A,regTW88+01H
+0002 2406              ADD     A,#06H
+0004 F582              MOV     DPL,A
+0006 E4                CLR     A
+0007 3500        E     ADDC    A,regTW88
+0009 F583              MOV     DPH,A
+000B 22                RET     
+             ; FUNCTION Com0090 (END)
+
+             ; FUNCTION _ActionRemo (BEGIN)
+                                           ; SOURCE LINE # 53
+0000 900000      R     MOV     DPTR,#_RemoDataCode
+0003 EF                MOV     A,R7
+0004 F0                MOVX    @DPTR,A
+0005 A3                INC     DPTR
+0006 ED                MOV     A,R5
+0007 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 54
+                                           ; SOURCE LINE # 58
+0008 120000      E     LCALL   UpdateOsdTimerClock
+                                           ; SOURCE LINE # 61
+000B 120000      E     LCALL   TaskGetGrid
+000E EF                MOV     A,R7
+000F 6040              JZ      ?C0001
+                                           ; SOURCE LINE # 62
+0011 900000      R     MOV     DPTR,#_RemoDataCode
+0014 E0                MOVX    A,@DPTR
+0015 FE                MOV     R6,A
+0016 B42004            CJNE    A,#020H,?C0002
+                                           ; SOURCE LINE # 63
+0019 7F02              MOV     R7,#02H
+                                           ; SOURCE LINE # 64
+001B 801A              SJMP    ?C0123
+                                           ; SOURCE LINE # 65
+001D         ?C0002:
+                                           ; SOURCE LINE # 66
+001D EE                MOV     A,R6
+001E B42104            CJNE    A,#021H,?C0005
+                                           ; SOURCE LINE # 67
+0021 7F03              MOV     R7,#03H
+0023         ?C0121:
+                                           ; SOURCE LINE # 68
+0023 8012              SJMP    ?C0123
+                                           ; SOURCE LINE # 69
+0025         ?C0005:
+                                           ; SOURCE LINE # 70
+0025 900000      R     MOV     DPTR,#_RemoDataCode
+0028 E0                MOVX    A,@DPTR
+0029 FE                MOV     R6,A
+002A B41104            CJNE    A,#011H,?C0007
+                                           ; SOURCE LINE # 71
+002D 7F04              MOV     R7,#04H
+002F         ?C0122:
+                                           ; SOURCE LINE # 72
+002F 8006              SJMP    ?C0123
+                                           ; SOURCE LINE # 73
+0031         ?C0007:
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 13  
+
+                                           ; SOURCE LINE # 74
+0031 EE                MOV     A,R6
+0032 B41008            CJNE    A,#010H,?C0009
+                                           ; SOURCE LINE # 75
+0035 7F05              MOV     R7,#05H
+0037         ?C0123:
+0037 120000      E     LCALL   _TaskSetGridCmd
+                                           ; SOURCE LINE # 76
+003A 7F00              MOV     R7,#00H
+003C 22                RET     
+                                           ; SOURCE LINE # 77
+003D         ?C0009:
+                                           ; SOURCE LINE # 78
+003D 900000      R     MOV     DPTR,#_RemoDataCode
+0040 E0                MOVX    A,@DPTR
+0041 FF                MOV     R7,A
+0042 643F              XRL     A,#03FH
+0044 6004              JZ      ?C0012
+0046 EF                MOV     A,R7
+0047 B41607            CJNE    A,#016H,?C0001
+004A         ?C0012:
+                                           ; SOURCE LINE # 79
+004A 7F01              MOV     R7,#01H
+004C 120000      E     LCALL   _TaskSetGridCmd
+                                           ; SOURCE LINE # 80
+004F 1F                DEC     R7
+0050 22                RET     
+                                           ; SOURCE LINE # 81
+                                           ; SOURCE LINE # 82
+0051         ?C0001:
+                                           ; SOURCE LINE # 85
+0051 900000      R     MOV     DPTR,#_RemoDataCode
+0054 E0                MOVX    A,@DPTR
+0055 120000      E     LCALL   ?C?CCASE
+0058 0000        R     DW      ?C0014
+005A 0C                DB      0CH
+005B 0000        R     DW      ?C0039
+005D 10                DB      010H
+005E 0000        R     DW      ?C0041
+0060 11                DB      011H
+0061 0000        R     DW      ?C0033
+0063 15                DB      015H
+0064 0000        R     DW      ?C0046
+0066 16                DB      016H
+0067 0000        R     DW      ?C0035
+0069 20                DB      020H
+006A 0000        R     DW      ?C0037
+006C 21                DB      021H
+006D 0000        R     DW      ?C0050
+006F 25                DB      025H
+0070 0000        R     DW      ?C0056
+0072 28                DB      028H
+0073 0000        R     DW      ?C0052
+0075 33                DB      033H
+0076 0000        R     DW      ?C0017
+0078 38                DB      038H
+0079 0000        R     DW      ?C0019
+007B 3A                DB      03AH
+007C 0000        R     DW      ?C0043
+007E 3F                DB      03FH
+007F 0000              DW      00H
+0081 0000        R     DW      ?C0013
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 14  
+
+                                           ; SOURCE LINE # 87
+0083         ?C0014:
+                                           ; SOURCE LINE # 88
+0083 900000      R     MOV     DPTR,#AutoKey
+0086 E0                MOVX    A,@DPTR
+0087 6003              JZ      ?C0015
+                                           ; SOURCE LINE # 90
+0089 7F04              MOV     R7,#04H
+008B 22                RET     
+008C         ?C0015:
+                                           ; SOURCE LINE # 91
+008C 7F00              MOV     R7,#00H
+008E 22                RET     
+                                           ; SOURCE LINE # 93
+                                           ; SOURCE LINE # 103
+                                           ; SOURCE LINE # 105
+008F         ?C0017:
+                                           ; SOURCE LINE # 109
+008F 120000      E     LCALL   MenuGetLevel
+0092 EF                MOV     A,R7
+0093 6003              JZ      $ + 5H
+0095 020000      R     LJMP    ?C0013
+                                           ; SOURCE LINE # 111
+                                           ; SOURCE LINE # 112
+0098         ?C0018:
+                                           ; SOURCE LINE # 114
+0098 120000      E     LCALL   InputModeNext
+                                           ; SOURCE LINE # 116
+009B 020000      R     LJMP    ?C0013
+                                           ; SOURCE LINE # 117
+009E         ?C0019:
+                                           ; SOURCE LINE # 118
+009E 120000      E     LCALL   MenuGetLevel
+00A1 EF                MOV     A,R7
+00A2 7020              JNZ     ?C0020
+                                           ; SOURCE LINE # 120
+00A4 120000      E     LCALL   TaskNoSignal_getCmd
+00A7 EF                MOV     A,R7
+00A8 701A              JNZ     ?C0020
+                                           ; SOURCE LINE # 126
+00AA E500        E     MOV     A,regTW88+01H
+00AC 2410              ADD     A,#010H
+00AE F582              MOV     DPL,A
+00B0 E500        E     MOV     A,regTW88
+00B2 3403              ADDC    A,#03H
+00B4 F583              MOV     DPH,A
+00B6 E0                MOVX    A,@DPTR
+00B7 20E705            JB      ACC.7,?C0022
+                                           ; SOURCE LINE # 127
+00BA E4                CLR     A
+00BB FF                MOV     R7,A
+00BC 120000      E     LCALL   _FOsdCopyMsgBuff2Osdram
+                                           ; SOURCE LINE # 128
+00BF         ?C0022:
+                                           ; SOURCE LINE # 130
+00BF E4                CLR     A
+00C0 FF                MOV     R7,A
+00C1 120000      E     LCALL   _FOsdWinToggleEnable
+                                           ; SOURCE LINE # 132
+                                           ; SOURCE LINE # 133
+00C4         ?C0020:
+                                           ; SOURCE LINE # 134
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 15  
+
+00C4 7F01              MOV     R7,#01H
+00C6 22                RET     
+                                           ; SOURCE LINE # 136
+                                           ; SOURCE LINE # 137
+                                           ; SOURCE LINE # 138
+                                           ; SOURCE LINE # 139
+                                           ; SOURCE LINE # 140
+                                           ; SOURCE LINE # 141
+                                           ; SOURCE LINE # 142
+                                           ; SOURCE LINE # 143
+                                           ; SOURCE LINE # 144
+                                           ; SOURCE LINE # 145
+                                           ; SOURCE LINE # 146
+                                           ; SOURCE LINE # 149
+00C7         ?C0033:
+                                           ; SOURCE LINE # 155
+00C7 120000      E     LCALL   MenuGetLevel
+00CA EF                MOV     A,R7
+00CB 7003              JNZ     $ + 5H
+00CD 020000      R     LJMP    ?C0013
+                                           ; SOURCE LINE # 156
+                                           ; SOURCE LINE # 158
+00D0 8055              SJMP    ?C0124
+                                           ; SOURCE LINE # 160
+00D2         ?C0035:
+                                           ; SOURCE LINE # 165
+00D2 7A00        R     MOV     R2,#HIGH ?SC_0
+00D4 7900        R     MOV     R1,#LOW ?SC_0
+                                           ; SOURCE LINE # 166
+00D6 120000      R     LCALL   L?0141
+00D9 EF                MOV     A,R7
+00DA 7003              JNZ     $ + 5H
+00DC 020000      R     LJMP    ?C0013
+                                           ; SOURCE LINE # 167
+00DF 7F02              MOV     R7,#02H
+                                           ; SOURCE LINE # 169
+00E1 8046              SJMP    ?C0128
+                                           ; SOURCE LINE # 170
+00E3         ?C0037:
+                                           ; SOURCE LINE # 175
+00E3 7A00        R     MOV     R2,#HIGH ?SC_23
+00E5 7900        R     MOV     R1,#LOW ?SC_23
+                                           ; SOURCE LINE # 176
+00E7 120000      R     LCALL   L?0141
+00EA EF                MOV     A,R7
+00EB 7003              JNZ     $ + 5H
+00ED 020000      R     LJMP    ?C0013
+                                           ; SOURCE LINE # 177
+00F0 7F03              MOV     R7,#03H
+00F2         ?C0125:
+                                           ; SOURCE LINE # 179
+00F2 8035              SJMP    ?C0128
+                                           ; SOURCE LINE # 180
+00F4         ?C0039:
+                                           ; SOURCE LINE # 192
+00F4 7A00        R     MOV     R2,#HIGH ?SC_46
+00F6 7900        R     MOV     R1,#LOW ?SC_46
+                                           ; SOURCE LINE # 193
+00F8 120000      R     LCALL   L?0143
+00FB EF                MOV     A,R7
+00FC 7003              JNZ     $ + 5H
+00FE 020000      R     LJMP    ?C0013
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 16  
+
+                                           ; SOURCE LINE # 194
+0101 7F05              MOV     R7,#05H
+0103         ?C0126:
+                                           ; SOURCE LINE # 196
+0103 8024              SJMP    ?C0128
+                                           ; SOURCE LINE # 197
+0105         ?C0041:
+                                           ; SOURCE LINE # 209
+0105 7A00        R     MOV     R2,#HIGH ?SC_69
+0107 7900        R     MOV     R1,#LOW ?SC_69
+                                           ; SOURCE LINE # 210
+0109 120000      R     LCALL   L?0143
+010C EF                MOV     A,R7
+010D 6071              JZ      ?C0013
+                                           ; SOURCE LINE # 211
+010F 7F04              MOV     R7,#04H
+0111         ?C0127:
+                                           ; SOURCE LINE # 213
+0111 8016              SJMP    ?C0128
+                                           ; SOURCE LINE # 214
+0113         ?C0043:
+                                           ; SOURCE LINE # 215
+0113 7BFF              MOV     R3,#0FFH
+0115 7A00        R     MOV     R2,#HIGH ?SC_92
+0117 7900        R     MOV     R1,#LOW ?SC_92
+0119 120000      E     LCALL   _dPuts
+                                           ; SOURCE LINE # 228
+011C 120000      E     LCALL   MenuGetLevel
+011F EF                MOV     A,R7
+0120 7005              JNZ     ?C0044
+                                           ; SOURCE LINE # 229
+0122 120000      E     LCALL   MenuStart
+0125 8059              SJMP    ?C0013
+0127         ?C0044:
+                                           ; SOURCE LINE # 231
+0127         ?C0124:
+0127 7F01              MOV     R7,#01H
+0129         ?C0128:
+0129 120000      E     LCALL   _MenuKeyInput
+                                           ; SOURCE LINE # 233
+012C 8052              SJMP    ?C0013
+                                           ; SOURCE LINE # 236
+012E         ?C0046:
+                                           ; SOURCE LINE # 237
+012E 7BFF              MOV     R3,#0FFH
+0130 7A00        R     MOV     R2,#HIGH ?SC_114
+0132 7900        R     MOV     R1,#LOW ?SC_114
+0134 120000      E     LCALL   _dPuts
+                                           ; SOURCE LINE # 242
+0137 120000      E     LCALL   MenuGetLevel
+013A BF0105            CJNE    R7,#01H,?C0047
+                                           ; SOURCE LINE # 243
+013D 120000      E     LCALL   MenuEnd
+                                           ; SOURCE LINE # 244
+0140 803E              SJMP    ?C0013
+0142         ?C0047:
+                                           ; SOURCE LINE # 245
+0142 120000      E     LCALL   MenuGetLevel
+0145 EF                MOV     A,R7
+0146 D3                SETB    C
+0147 9401              SUBB    A,#01H
+0149 4035              JC      ?C0013
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 17  
+
+                                           ; SOURCE LINE # 246
+014B 120000      E     LCALL   proc_menu_list_return
+                                           ; SOURCE LINE # 247
+                                           ; SOURCE LINE # 249
+014E 8030              SJMP    ?C0013
+                                           ; SOURCE LINE # 251
+0150         ?C0050:
+                                           ; SOURCE LINE # 252
+0150 7BFF              MOV     R3,#0FFH
+0152 7A00        R     MOV     R2,#HIGH ?SC_136
+0154 7900        R     MOV     R1,#LOW ?SC_136
+                                           ; SOURCE LINE # 253
+0156 8025              SJMP    ?C0129
+                                           ; SOURCE LINE # 255
+                                           ; SOURCE LINE # 256
+                                           ; SOURCE LINE # 257
+0158         ?C0052:
+                                           ; SOURCE LINE # 259
+0158 900000      E     MOV     DPTR,#InputMain
+015B E0                MOVX    A,@DPTR
+015C 6407              XRL     A,#07H
+015E 7020              JNZ     ?C0013
+                                           ; SOURCE LINE # 262
+0160 120000      R     LCALL   L?0145
+0163 E0                MOVX    A,@DPTR
+0164 FF                MOV     R7,A
+;---- Variable 'value' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 263
+0165 30E604            JNB     ACC.6,?C0054
+0168 54BF              ANL     A,#0BFH
+016A 8003              SJMP    ?C0120
+016C         ?C0054:
+                                           ; SOURCE LINE # 264
+016C EF                MOV     A,R7
+016D 4440              ORL     A,#040H
+016F         ?C0120:
+016F FF                MOV     R7,A
+0170 120000      R     LCALL   L?0145
+0173 EF                MOV     A,R7
+0174 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 266
+                                           ; SOURCE LINE # 267
+0175 8009              SJMP    ?C0013
+                                           ; SOURCE LINE # 269
+0177         ?C0056:
+                                           ; SOURCE LINE # 270
+0177 7BFF              MOV     R3,#0FFH
+0179 7A00        R     MOV     R2,#HIGH ?SC_161
+017B 7900        R     MOV     R1,#LOW ?SC_161
+017D         ?C0129:
+017D 120000      E     LCALL   _dPuts
+                                           ; SOURCE LINE # 271
+                                           ; SOURCE LINE # 273
+                                           ; SOURCE LINE # 274
+                                           ; SOURCE LINE # 277
+                                           ; SOURCE LINE # 278
+                                           ; SOURCE LINE # 280
+                                           ; SOURCE LINE # 281
+                                           ; SOURCE LINE # 283
+                                           ; SOURCE LINE # 284
+                                           ; SOURCE LINE # 286
+                                           ; SOURCE LINE # 287
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 18  
+
+                                           ; SOURCE LINE # 289
+                                           ; SOURCE LINE # 290
+                                           ; SOURCE LINE # 292
+0180         ?C0013:
+                                           ; SOURCE LINE # 293
+0180 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 294
+0182         ?C0003:
+0182 22                RET     
+0183         L?0141:
+0183 7BFF              MOV     R3,#0FFH
+0185 120000      E     LCALL   _dPuts
+0188 120000      E     LCALL   MenuGetLevel
+018B 22                RET     
+018C         L?0143:
+018C 7BFF              MOV     R3,#0FFH
+018E 120000      E     LCALL   _dPuts
+0191 120000      E     LCALL   MenuGetLevel
+0194 22                RET     
+             ; FUNCTION _ActionRemo (END)
+
+             ; FUNCTION ActionTouch (BEGIN)
+                                           ; SOURCE LINE # 302
+                                           ; SOURCE LINE # 303
+                                           ; SOURCE LINE # 308
+0000 120000      E     LCALL   UpdateOsdTimerClock
+                                           ; SOURCE LINE # 310
+0003 900000      E     MOV     DPTR,#TouchStatus
+0006 E0                MOVX    A,@DPTR
+0007 900000      R     MOV     DPTR,#TscStatus
+000A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 311
+000B 900000      E     MOV     DPTR,#PosX
+000E E0                MOVX    A,@DPTR
+000F FF                MOV     R7,A
+0010 A3                INC     DPTR
+0011 E0                MOVX    A,@DPTR
+0012 900000      R     MOV     DPTR,#xpos
+0015 CF                XCH     A,R7
+0016 F0                MOVX    @DPTR,A
+0017 A3                INC     DPTR
+0018 EF                MOV     A,R7
+0019 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 312
+001A 900000      E     MOV     DPTR,#PosY
+001D E0                MOVX    A,@DPTR
+001E FF                MOV     R7,A
+001F A3                INC     DPTR
+0020 E0                MOVX    A,@DPTR
+0021 900000      R     MOV     DPTR,#ypos
+0024 CF                XCH     A,R7
+0025 F0                MOVX    @DPTR,A
+0026 A3                INC     DPTR
+0027 EF                MOV     A,R7
+0028 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 314
+0029 120000      E     LCALL   MenuGetLevel
+002C EF                MOV     A,R7
+002D 704A              JNZ     ?C0063
+                                           ; SOURCE LINE # 316
+002F 120000      E     LCALL   TaskGetGrid
+0032 EF                MOV     A,R7
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 19  
+
+0033 6014              JZ      ?C0064
+                                           ; SOURCE LINE # 317
+0035 900000      R     MOV     DPTR,#TscStatus
+0038 E0                MOVX    A,@DPTR
+0039 FF                MOV     R7,A
+003A 6401              XRL     A,#01H
+003C 6004              JZ      ?C0066
+003E EF                MOV     A,R7
+003F B40207            CJNE    A,#02H,?C0064
+0042         ?C0066:
+                                           ; SOURCE LINE # 318
+                                           ; SOURCE LINE # 319
+0042 7F01              MOV     R7,#01H
+0044 120000      E     LCALL   _TaskSetGridCmd
+                                           ; SOURCE LINE # 320
+0047 1F                DEC     R7
+0048 22                RET     
+                                           ; SOURCE LINE # 321
+                                           ; SOURCE LINE # 322
+0049         ?C0064:
+                                           ; SOURCE LINE # 323
+0049 900000      R     MOV     DPTR,#TscStatus
+004C E0                MOVX    A,@DPTR
+004D B40205            CJNE    A,#02H,?C0068
+                                           ; SOURCE LINE # 324
+0050 120000      E     LCALL   MenuStart
+                                           ; SOURCE LINE # 325
+                                           ; SOURCE LINE # 326
+0053 801C              SJMP    ?C0131
+0055         ?C0068:
+                                           ; SOURCE LINE # 327
+0055 900000      R     MOV     DPTR,#TscStatus
+0058 E0                MOVX    A,@DPTR
+0059 FF                MOV     R7,A
+005A 6480              XRL     A,#080H
+005C 6018              JZ      ?C0069
+005E EF                MOV     A,R7
+005F C3                CLR     C
+0060 94C0              SUBB    A,#0C0H
+0062 5012              JNC     ?C0069
+                                           ; SOURCE LINE # 328
+0064         ?C0070:
+                                           ; SOURCE LINE # 329
+0064 EF                MOV     A,R7
+0065 B44002            CJNE    A,#040H,?C0073
+                                           ; SOURCE LINE # 330
+0068         ?C0130:
+                                           ; SOURCE LINE # 331
+0068 8007              SJMP    ?C0131
+006A         ?C0073:
+                                           ; SOURCE LINE # 332
+006A 900000      R     MOV     DPTR,#TscStatus
+006D E0                MOVX    A,@DPTR
+006E B40105            CJNE    A,#01H,?C0069
+                                           ; SOURCE LINE # 333
+0071         ?C0131:
+0071 E4                CLR     A
+0072 FF                MOV     R7,A
+0073 120000      E     LCALL   _SetTouchStatus
+                                           ; SOURCE LINE # 334
+0076         ?C0069:
+                                           ; SOURCE LINE # 336
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 20  
+
+0076 7F00              MOV     R7,#00H
+0078 22                RET     
+                                           ; SOURCE LINE # 337
+0079         ?C0063:
+                                           ; SOURCE LINE # 340
+0079 900000      R     MOV     DPTR,#TscStatus
+007C E0                MOVX    A,@DPTR
+007D FF                MOV     R7,A
+007E 6480              XRL     A,#080H
+0080 6006              JZ      ?C0077
+0082 EF                MOV     A,R7
+0083 C3                CLR     C
+0084 94C0              SUBB    A,#0C0H
+0086 4020              JC      ?C0076
+0088         ?C0077:
+                                           ; SOURCE LINE # 342
+0088 120000      E     LCALL   MenuIsTouchCalibMode
+;---- Variable 'ret' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 343
+008B EF                MOV     A,R7
+008C 6014              JZ      ?C0078
+                                           ; SOURCE LINE # 344
+008E 14                DEC     A
+008F FF                MOV     R7,A
+0090 120000      E     LCALL   _CalibTouch
+                                           ; SOURCE LINE # 346
+0093 7F01              MOV     R7,#01H
+0095 120000      E     LCALL   _MenuKeyInput
+                                           ; SOURCE LINE # 348
+0098 120000      E     LCALL   WaitTouchButtonUp
+                                           ; SOURCE LINE # 349
+009B E4                CLR     A
+009C FF                MOV     R7,A
+009D 120000      E     LCALL   _SetTouchStatus
+                                           ; SOURCE LINE # 350
+00A0 8003              SJMP    ?C0079
+00A2         ?C0078:
+                                           ; SOURCE LINE # 356
+                                           ; SOURCE LINE # 360
+00A2 120000      R     LCALL   L?0142
+                                           ; SOURCE LINE # 362
+00A5         ?C0079:
+                                           ; SOURCE LINE # 363
+00A5 7F00              MOV     R7,#00H
+00A7 22                RET     
+                                           ; SOURCE LINE # 364
+00A8         ?C0076:
+                                           ; SOURCE LINE # 368
+00A8 900000      R     MOV     DPTR,#TscStatus
+00AB E0                MOVX    A,@DPTR
+00AC FF                MOV     R7,A
+00AD 6401              XRL     A,#01H
+00AF 600F              JZ      ?C0082
+00B1 EF                MOV     A,R7
+00B2 6402              XRL     A,#02H
+00B4 600A              JZ      ?C0082
+00B6 EF                MOV     A,R7
+00B7 6404              XRL     A,#04H
+00B9 6005              JZ      ?C0082
+00BB EF                MOV     A,R7
+00BC 6440              XRL     A,#040H
+00BE 702C              JNZ     ?C0080
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 21  
+
+00C0         ?C0082:
+                                           ; SOURCE LINE # 371
+00C0 900000      R     MOV     DPTR,#TscStatus
+00C3 E0                MOVX    A,@DPTR
+00C4 B40413            CJNE    A,#04H,?C0083
+                                           ; SOURCE LINE # 372
+00C7 120000      E     LCALL   MenuGetLevel
+00CA EF                MOV     A,R7
+00CB 6401              XRL     A,#01H
+00CD 6006              JZ      ?C0085
+00CF 120000      E     LCALL   MenuIsSystemPage
+00D2 EF                MOV     A,R7
+00D3 6005              JZ      ?C0083
+00D5         ?C0085:
+                                           ; SOURCE LINE # 375
+00D5 120000      E     LCALL   MenuTouchCalibStart
+                                           ; SOURCE LINE # 376
+                                           ; SOURCE LINE # 377
+00D8 800D              SJMP    ?C0132
+                                           ; SOURCE LINE # 378
+                                           ; SOURCE LINE # 379
+00DA         ?C0083:
+                                           ; SOURCE LINE # 381
+00DA 900000      R     MOV     DPTR,#TscStatus
+00DD E0                MOVX    A,@DPTR
+00DE B44003            CJNE    A,#040H,?C0086
+                                           ; SOURCE LINE # 382
+00E1 7401              MOV     A,#01H
+00E3 F0                MOVX    @DPTR,A
+00E4         ?C0086:
+                                           ; SOURCE LINE # 384
+00E4 120000      R     LCALL   L?0142
+                                           ; SOURCE LINE # 385
+00E7         ?C0132:
+00E7 E4                CLR     A
+00E8 FF                MOV     R7,A
+00E9 020000      E     LJMP    _SetTouchStatus
+                                           ; SOURCE LINE # 386
+                                           ; SOURCE LINE # 387
+00EC         ?C0080:
+                                           ; SOURCE LINE # 388
+00EC 7BFF              MOV     R3,#0FFH
+00EE 7A00        R     MOV     R2,#HIGH ?SC_184
+00F0 7900        R     MOV     R1,#LOW ?SC_184
+00F2 900000      R     MOV     DPTR,#TscStatus
+00F5 E0                MOVX    A,@DPTR
+00F6 900000      E     MOV     DPTR,#?_ePrintf?BYTE+03H
+00F9 F0                MOVX    @DPTR,A
+00FA 120000      E     LCALL   _ePrintf
+                                           ; SOURCE LINE # 390
+00FD 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 391
+00FF         ?C0067:
+00FF 22                RET     
+0100         L?0142:
+0100 900000      R     MOV     DPTR,#TscStatus
+0103 E0                MOVX    A,@DPTR
+0104 FF                MOV     R7,A
+0105 A3                INC     DPTR
+0106 E0                MOVX    A,@DPTR
+0107 FC                MOV     R4,A
+0108 A3                INC     DPTR
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 22  
+
+0109 E0                MOVX    A,@DPTR
+010A FD                MOV     R5,A
+010B A3                INC     DPTR
+010C E0                MOVX    A,@DPTR
+010D FA                MOV     R2,A
+010E A3                INC     DPTR
+010F E0                MOVX    A,@DPTR
+0110 FB                MOV     R3,A
+0111 120000      E     LCALL   _MenuCheckTouchInput
+0114 22                RET     
+             ; FUNCTION ActionTouch (END)
+
+             ; FUNCTION CheckKeyIn (BEGIN)
+                                           ; SOURCE LINE # 400
+                                           ; SOURCE LINE # 401
+                                           ; SOURCE LINE # 410
+0000 7F01              MOV     R7,#01H
+0002 120000      E     LCALL   _GetKey
+0005 900000      R     MOV     DPTR,#key
+0008 EF                MOV     A,R7
+0009 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 411
+000A 7019              JNZ     ?C0087
+                                           ; SOURCE LINE # 413
+000C 900000      E     MOV     DPTR,#SW_key
+000F E0                MOVX    A,@DPTR
+0010 FF                MOV     R7,A
+0011 6009              JZ      ?C0088
+                                           ; SOURCE LINE # 414
+0013 900000      R     MOV     DPTR,#key
+0016 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 415
+0017 E4                CLR     A
+0018 900000      E     MOV     DPTR,#SW_key
+001B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 416
+001C         ?C0088:
+                                           ; SOURCE LINE # 417
+001C 900000      R     MOV     DPTR,#key
+001F E0                MOVX    A,@DPTR
+0020 7003              JNZ     $ + 5H
+0022 020000      R     LJMP    ?C0090
+0025         ?C0089:
+                                           ; SOURCE LINE # 419
+0025         ?C0087:
+                                           ; SOURCE LINE # 421
+0025 120000      E     LCALL   UpdateOsdTimerClock
+                                           ; SOURCE LINE # 426
+0028 120000      E     LCALL   TaskGetGrid
+002B EF                MOV     A,R7
+002C 602D              JZ      ?C0091
+                                           ; SOURCE LINE # 427
+002E 900000      R     MOV     DPTR,#key
+0031 E0                MOVX    A,@DPTR
+0032 24FE              ADD     A,#0FEH
+0034 6014              JZ      ?C0094
+0036 14                DEC     A
+0037 601D              JZ      ?C0098
+0039 14                DEC     A
+003A 6016              JZ      ?C0096
+003C 14                DEC     A
+003D 600F              JZ      ?C0095
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 23  
+
+003F 14                DEC     A
+0040 6014              JZ      ?C0098
+0042 2405              ADD     A,#05H
+0044 706F              JNZ     ?C0090
+                                           ; SOURCE LINE # 428
+0046         ?C0093:
+                                           ; SOURCE LINE # 429
+0046 7F05              MOV     R7,#05H
+                                           ; SOURCE LINE # 430
+0048 800E              SJMP    ?C0136
+                                           ; SOURCE LINE # 431
+004A         ?C0094:
+                                           ; SOURCE LINE # 432
+004A 7F02              MOV     R7,#02H
+004C         ?C0133:
+                                           ; SOURCE LINE # 433
+004C 800A              SJMP    ?C0136
+                                           ; SOURCE LINE # 434
+004E         ?C0095:
+                                           ; SOURCE LINE # 435
+004E 7F04              MOV     R7,#04H
+0050         ?C0134:
+                                           ; SOURCE LINE # 436
+0050 8006              SJMP    ?C0136
+                                           ; SOURCE LINE # 437
+0052         ?C0096:
+                                           ; SOURCE LINE # 438
+0052 7F03              MOV     R7,#03H
+0054         ?C0135:
+                                           ; SOURCE LINE # 439
+0054 8002              SJMP    ?C0136
+                                           ; SOURCE LINE # 440
+                                           ; SOURCE LINE # 441
+0056         ?C0098:
+                                           ; SOURCE LINE # 442
+0056 7F01              MOV     R7,#01H
+0058         ?C0136:
+0058 020000      E     LJMP    _TaskSetGridCmd
+                                           ; SOURCE LINE # 443
+                                           ; SOURCE LINE # 444
+                                           ; SOURCE LINE # 446
+005B         ?C0091:
+                                           ; SOURCE LINE # 449
+005B 900000      R     MOV     DPTR,#key
+005E E0                MOVX    A,@DPTR
+005F 24FE              ADD     A,#0FEH
+0061 601A              JZ      ?C0102
+0063 14                DEC     A
+0064 6021              JZ      ?C0104
+0066 14                DEC     A
+0067 6035              JZ      ?C0109
+0069 14                DEC     A
+006A 6028              JZ      ?C0107
+006C 14                DEC     A
+006D 603A              JZ      ?C0111
+006F 2405              ADD     A,#05H
+0071 7042              JNZ     ?C0090
+                                           ; SOURCE LINE # 450
+0073         ?C0100:
+                                           ; SOURCE LINE # 465
+0073 120000      E     LCALL   MenuGetLevel
+0076 EF                MOV     A,R7
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 24  
+
+0077 603C              JZ      ?C0090
+                                           ; SOURCE LINE # 466
+0079 7F05              MOV     R7,#05H
+                                           ; SOURCE LINE # 468
+007B 8029              SJMP    ?C0140
+                                           ; SOURCE LINE # 470
+007D         ?C0102:
+                                           ; SOURCE LINE # 478
+007D 120000      E     LCALL   MenuGetLevel
+0080 EF                MOV     A,R7
+0081 6032              JZ      ?C0090
+                                           ; SOURCE LINE # 479
+0083 7F02              MOV     R7,#02H
+0085         ?C0137:
+                                           ; SOURCE LINE # 481
+0085 801F              SJMP    ?C0140
+                                           ; SOURCE LINE # 483
+0087         ?C0104:
+                                           ; SOURCE LINE # 499
+0087 120000      E     LCALL   MenuGetLevel
+008A EF                MOV     A,R7
+008B 7003              JNZ     ?C0105
+                                           ; SOURCE LINE # 500
+008D 020000      E     LJMP    MenuStart
+0090         ?C0105:
+                                           ; SOURCE LINE # 502
+0090 7F01              MOV     R7,#01H
+0092         ?C0138:
+                                           ; SOURCE LINE # 504
+0092 8012              SJMP    ?C0140
+                                           ; SOURCE LINE # 506
+0094         ?C0107:
+                                           ; SOURCE LINE # 521
+0094 120000      E     LCALL   MenuGetLevel
+0097 EF                MOV     A,R7
+0098 601B              JZ      ?C0090
+                                           ; SOURCE LINE # 522
+009A 7F04              MOV     R7,#04H
+009C         ?C0139:
+                                           ; SOURCE LINE # 524
+009C 8008              SJMP    ?C0140
+                                           ; SOURCE LINE # 526
+009E         ?C0109:
+                                           ; SOURCE LINE # 534
+009E 120000      E     LCALL   MenuGetLevel
+00A1 EF                MOV     A,R7
+00A2 6011              JZ      ?C0090
+                                           ; SOURCE LINE # 535
+00A4 7F03              MOV     R7,#03H
+00A6         ?C0140:
+00A6 020000      E     LJMP    _MenuKeyInput
+                                           ; SOURCE LINE # 537
+                                           ; SOURCE LINE # 539
+00A9         ?C0111:
+                                           ; SOURCE LINE # 543
+00A9 120000      E     LCALL   MenuGetLevel
+00AC EF                MOV     A,R7
+00AD 6003              JZ      ?C0112
+                                           ; SOURCE LINE # 544
+00AF 020000      E     LJMP    MenuEnd
+00B2         ?C0112:
+                                           ; SOURCE LINE # 546
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 25  
+
+00B2 120000      E     LCALL   InputModeNext
+                                           ; SOURCE LINE # 547
+                                           ; SOURCE LINE # 548
+                                           ; SOURCE LINE # 549
+00B5         ?C0090:
+00B5 22                RET     
+             ; FUNCTION CheckKeyIn (END)
+
+             ; FUNCTION _CheckHumanInputs (BEGIN)
+                                           ; SOURCE LINE # 564
+;---- Variable 'skip_tsc' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 565
+                                           ; SOURCE LINE # 577
+0000 7800        E     MOV     R0,#LOW RemoDataReady
+0002 E6                MOV     A,@R0
+0003 6003              JZ      ?C0114
+                                           ; SOURCE LINE # 578
+0005 7F01              MOV     R7,#01H
+0007 22                RET     
+0008         ?C0114:
+                                           ; SOURCE LINE # 594
+0008 EF                MOV     A,R7
+0009 7021              JNZ     ?C0116
+                                           ; SOURCE LINE # 595
+000B 200006      E     JB      CpuTouchPressed,?C0118
+000E 900000      E     MOV     DPTR,#CpuTouchChanged
+0011 E0                MOVX    A,@DPTR
+0012 6018              JZ      ?C0116
+0014         ?C0118:
+                                           ; SOURCE LINE # 596
+0014 7BFF              MOV     R3,#0FFH
+0016 7A00        R     MOV     R2,#HIGH ?SC_208
+0018 7900        R     MOV     R1,#LOW ?SC_208
+001A A200        E     MOV     C,CpuTouchPressed
+001C 9200              MOV     ?_dPrintf?BIT,C
+001E 900000      E     MOV     DPTR,#CpuTouchChanged
+0021 E0                MOVX    A,@DPTR
+0022 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+0025 F0                MOVX    @DPTR,A
+0026 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 597
+0029 7F03              MOV     R7,#03H
+002B 22                RET     
+                                           ; SOURCE LINE # 598
+                                           ; SOURCE LINE # 599
+002C         ?C0116:
+                                           ; SOURCE LINE # 605
+002C 120000      E     LCALL   RS_ready
+002F EF                MOV     A,R7
+0030 600C              JZ      ?C0119
+                                           ; SOURCE LINE # 606
+0032 7BFF              MOV     R3,#0FFH
+0034 7A00        R     MOV     R2,#HIGH ?SC_260
+0036 7900        R     MOV     R1,#LOW ?SC_260
+0038 120000      E     LCALL   _dPuts
+                                           ; SOURCE LINE # 607
+003B 7F04              MOV     R7,#04H
+003D 22                RET     
+                                           ; SOURCE LINE # 608
+003E         ?C0119:
+                                           ; SOURCE LINE # 613
+003E 7F00              MOV     R7,#00H
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 26  
+
+                                           ; SOURCE LINE # 614
+0040         ?C0115:
+0040 22                RET     
+             ; FUNCTION _CheckHumanInputs (END)
+
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 27  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+UpdateOsdTimerClock. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+RemoDataReady. . . . . . . . . . . . .  EXTERN   IDATA  U_CHAR   -----  1
+PosX . . . . . . . . . . . . . . . . .  EXTERN   XDATA  U_INT    -----  2
+CpuTouchPressed. . . . . . . . . . . .  EXTERN   DATA   BIT      -----  1
+PosY . . . . . . . . . . . . . . . . .  EXTERN   XDATA  U_INT    -----  2
+MenuTouchCalibStart. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+TouchStatus. . . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
+menu_fitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+_dPuts . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_MenuCheckTouchInput . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+InputMode. . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0000H  1
+InputMain. . . . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
+menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 28  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+RS_ready . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+menu_sitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+SaveInput. . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0001H  1
+OnPIP. . . . . . . . . . . . . . . . .  PUBLIC   DATA   BIT      0000H  1
+MenuStart. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
+  ram. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  zoom . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  ch_space_low . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  color. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  alpha_value. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  alpha_color_index. . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  reserved9. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  reserved10 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  reserved11 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+MenuEnd. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+LoadNum. . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0002H  1
+MenuGetLevel . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 29  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+InputModeNext. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_SetTouchStatus. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+menu_image_header_t. . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+TaskGetGrid. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MenuIsTouchCalibMode . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SaveNum. . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0003H  1
+CheckKeyIn . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  key. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+_GetKey. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+_FOsdWinToggleEnable . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 30  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+SW_key . . . . . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
+_MenuKeyInput. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_FOsdCopyMsgBuff2Osdram. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+_dPrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_ePrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
+MenuIsSystemPage . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+CpuTouchChanged. . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
+CaptureMode. . . . . . . . . . . . . .  PUBLIC   DATA   BIT      0001H  1
+_TaskSetGridCmd. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_CalibTouch. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+WaitTouchButtonUp. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_CheckHumanInputs. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  skip_tsc . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+image_info_s . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+ActionTouch. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  TscStatus. . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 31  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  xpos . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0001H  2
+  ypos . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0003H  2
+image_info_t . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+TaskNoSignal_getCmd. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+proc_menu_list_return. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_ActionRemo. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  _RemoDataCode. . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  AutoKey. . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+image_item_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+SavePIP. . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0004H  1
+image_item_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    941    ----
+   CONSTANT SIZE    =    277    ----
+   XDATA SIZE       =      5       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,1249 @@
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.02
+OBJECT MODULE PLACED IN .\Output\i2c.OBJ
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE .\Output\i2c.src PR(.\i2c.ls1) EP DEBUG
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ; .\Output\i2c.SRC generated from: i2c.c
+                       2     ; COMPILER INVOKED BY:
+                       3     ;        C:\Keil\C51\BIN\C51.EXE i2c.c LARGE OPTIMIZE(9,SPEED) BROWSE MODDP2 DEFINE(EVB_20,
+                             nullFn=//) DEBUG OBJECTEXTEND SRC(.\Output\i2c.SRC)
+                       4     
+                       5     $nomod51 
+                       6     
+                       7     NAME    I2C
+                       8     
+  00C3                 9     TB18    BIT     0C0H.3
+  0080                10     P0      DATA    080H
+  0090                11     P1      DATA    090H
+  00C7                12     SM10    BIT     0C0H.7
+  00A0                13     P2      DATA    0A0H
+  00C6                14     SM11    BIT     0C0H.6
+  00B0                15     P3      DATA    0B0H
+  00D6                16     AC      BIT     0D0H.6
+  00B4                17     T0      BIT     0B0H.4
+  00C5                18     SM12    BIT     0C0H.5
+  00B5                19     T1      BIT     0B0H.5
+  00AF                20     EA      BIT     0A8H.7
+  0090                21     T2      BIT     090H.0
+  00FB                22     E2IE    DATA    0FBH
+  00FA                23     E2IF    DATA    0FAH
+  00FD                24     E2IM    DATA    0FDH
+  00A8                25     IE      DATA    0A8H
+  0080                26     P0_0    BIT     080H.0
+  0090                27     P1_0    BIT     090H.0
+  0081                28     P0_1    BIT     080H.1
+  00FC                29     E2IP    DATA    0FCH
+  00A0                30     P2_0    BIT     0A0H.0
+  0091                31     P1_1    BIT     090H.1
+  0082                32     P0_2    BIT     080H.2
+  009B                33     SPICONTROL      DATA    09BH
+  00B0                34     P3_0    BIT     0B0H.0
+  00A1                35     P2_1    BIT     0A0H.1
+  0092                36     P1_2    BIT     090H.2
+  0083                37     P0_3    BIT     080H.3
+  00B1                38     P3_1    BIT     0B0H.1
+  00A2                39     P2_2    BIT     0A0H.2
+  0093                40     P1_3    BIT     090H.3
+  0084                41     P0_4    BIT     080H.4
+  00B2                42     P3_2    BIT     0B0H.2
+  00A3                43     P2_3    BIT     0A0H.3
+  0094                44     P1_4    BIT     090H.4
+  0085                45     P0_5    BIT     080H.5
+  00FE                46     E2IT    DATA    0FEH
+  00EB                47     TA      DATA    0EBH
+  00B7                48     RD      BIT     0B0H.7
+  00B3                49     P3_3    BIT     0B0H.3
+  00A4                50     P2_4    BIT     0A0H.4
+  0095                51     P1_5    BIT     090H.5
+  0086                52     P0_6    BIT     080H.6
+  00C9                53     T2IF    DATA    0C9H
+  00B4                54     P3_4    BIT     0B0H.4
+  00A5                55     P2_5    BIT     0A0H.5
+  00C4                56     REN1    BIT     0C0H.4
+  0096                57     P1_6    BIT     090H.6
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     2
+
+  0087                58     P0_7    BIT     080H.7
+  00B5                59     P3_5    BIT     0B0H.5
+  00AC                60     ES      BIT     0A8H.4
+  00A6                61     P2_6    BIT     0A0H.6
+  0097                62     P1_7    BIT     090H.7
+  00B6                63     P3_6    BIT     0B0H.6
+  00A7                64     P2_7    BIT     0A0H.7
+  00B8                65     IP      DATA    0B8H
+  00B7                66     P3_7    BIT     0B0H.7
+  0098                67     RI      BIT     098H.0
+  00D7                68     CY      BIT     0D0H.7
+  00B2                69     INT0    BIT     0B0H.2
+  00B3                70     INT1    BIT     0B0H.3
+  0099                71     TI      BIT     098H.1
+  0095                72     DPX1    DATA    095H
+  00CB                73     CRCH    DATA    0CBH
+  00BC                74     PS      BIT     0B8H.4
+  0081                75     SP      DATA    081H
+  0091                76     T2EX    BIT     090H.1
+  00D2                77     OV      BIT     0D0H.2
+  00CA                78     CRCL    DATA    0CAH
+  009C                79     T0HIGH  DATA    09CH
+  009E                80     T1HIGH  DATA    09EH
+  0095                81     T2HIGH  DATA    095H
+  00B6                82     WR      BIT     0B0H.6
+  00ED                83     EWDI    BIT     0E8H.5
+  00DB                84     WDIF    BIT     0D8H.3
+  0091                85     EXIF    DATA    091H
+  0099                86     SBUF    DATA    099H
+  0087                87     PCON    DATA    087H
+  0098                88     SCON    DATA    098H
+  00FD                89     PWDI    BIT     0F8H.5
+  0089                90     TMOD    DATA    089H
+  0088                91     TCON    DATA    088H
+  00BF                92     CHPCON  DATA    0BFH
+  0089                93     IE0     BIT     088H.1
+  008B                94     IE1     BIT     088H.3
+  00F0                95     B       DATA    0F0H
+  00F6                96     CHPENR  DATA    0F6H
+  00E2                97     SFR_E2  DATA    0E2H
+  00DA                98     WTRF    BIT     0D8H.2
+  00E0                99     ACC     DATA    0E0H
+  009A               100     TWBASE  DATA    09AH
+  00A9               101     ET0     BIT     0A8H.1
+  00AE               102     ES1     BIT     0A8H.6
+  009B               103     CACHE_EN        DATA    09BH
+  00AB               104     ET1     BIT     0A8H.3
+  008D               105     TF0     BIT     088H.5
+  00AD               106     ET2     BIT     0A8H.5
+  008F               107     TF1     BIT     088H.7
+  00C0               108     RI1     BIT     0C0H.0
+  009A               109     RB8     BIT     098H.2
+  008C               110     TH0     DATA    08CH
+  00A8               111     EX0     BIT     0A8H.0
+  0088               112     IT0     BIT     088H.0
+  008D               113     TH1     DATA    08DH
+  00AA               114     EX1     BIT     0A8H.2
+  00C1               115     TI1     BIT     0C0H.1
+  009B               116     TB8     BIT     098H.3
+  008A               117     IT1     BIT     088H.2
+  00CD               118     TH2     DATA    0CDH
+  00D0               119     P       BIT     0D0H.0
+  009F               120     SM0     BIT     098H.7
+  008A               121     TL0     DATA    08AH
+  009E               122     SM1     BIT     098H.6
+  008B               123     TL1     DATA    08BH
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     3
+
+  009D               124     SM2     BIT     098H.5
+  00CC               125     TL2     DATA    0CCH
+  00E8               126     EIE     DATA    0E8H
+  00BE               127     PS1     BIT     0B8H.6
+  00B9               128     PT0     BIT     0B8H.1
+  00D3               129     RS0     BIT     0D0H.3
+  00BB               130     PT1     BIT     0B8H.3
+  00E2               131     CACHE   DATA    0E2H
+  00D4               132     RS1     BIT     0D0H.4
+  00BD               133     PT2     BIT     0B8H.5
+  008C               134     TR0     BIT     088H.4
+  008E               135     TR1     BIT     088H.6
+  00B8               136     PX0     BIT     0B8H.0
+  00BA               137     PX1     BIT     0B8H.2
+  0083               138     DPH     DATA    083H
+  00F8               139     EIP     DATA    0F8H
+  0082               140     DPL     DATA    082H
+  00C1               141     SBUF1   DATA    0C1H
+  00E8               142     EINT2   BIT     0E8H.0
+  00E9               143     EINT3   BIT     0E8H.1
+  00EA               144     EINT4   BIT     0E8H.2
+  009C               145     REN     BIT     098H.4
+  00C0               146     SCON1   DATA    0C0H
+  00EB               147     EINT5   BIT     0E8H.3
+  00EC               148     EINT6   BIT     0E8H.4
+  00C8               149     T2CON   DATA    0C8H
+  0093               150     DPX     DATA    093H
+  00F8               151     PINT2   BIT     0F8H.0
+  00B0               152     RXD     BIT     0B0H.0
+  00F9               153     PINT3   BIT     0F8H.1
+  008E               154     CKCON   DATA    08EH
+  00FA               155     PINT4   BIT     0F8H.2
+  00D9               156     EWT     BIT     0D8H.1
+  00B1               157     TXD     BIT     0B0H.1
+  00FB               158     PINT5   BIT     0F8H.3
+  00FC               159     PINT6   BIT     0F8H.4
+  00D5               160     F0      BIT     0D0H.5
+  00C5               161     SFRAH   DATA    0C5H
+  00C6               162     SFRFD   DATA    0C6H
+  009D               163     T0LOW   DATA    09DH
+  009F               164     T1LOW   DATA    09FH
+  0096               165     T2LOW   DATA    096H
+  00C4               166     SFRAL   DATA    0C4H
+  00D0               167     PSW     DATA    0D0H
+  009A               168     BANKREG DATA    09AH
+  00D8               169     WDCON   DATA    0D8H
+  00D8               170     RWT     BIT     0D8H.0
+  00C2               171     RB18    BIT     0C0H.2
+  00C7               172     SFRCN   DATA    0C7H
+                     173     ?PR?ddH?I2C          SEGMENT CODE 
+                     174     ?PR?ddH0?I2C         SEGMENT CODE 
+                     175     ?PR?I2CStartH?I2C    SEGMENT CODE 
+                     176     ?PR?I2CStopH?I2C     SEGMENT CODE 
+                     177     ?PR?_I2CWriteDataH?I2C                   SEGMENT CODE 
+                     178     ?PR?I2CReadDataH?I2C SEGMENT CODE 
+                     179     ?PR?_ReadI2C?I2C     SEGMENT CODE 
+                     180     ?XD?_ReadI2C?I2C     SEGMENT XDATA OVERLAYABLE 
+                     181     ?PR?_WriteI2C?I2C    SEGMENT CODE 
+                     182     ?XD?_WriteI2C?I2C    SEGMENT XDATA OVERLAYABLE 
+                     183     ?PR?_I2CDeviceInitialize?I2C             SEGMENT CODE 
+                     184     ?XD?_I2CDeviceInitialize?I2C             SEGMENT XDATA OVERLAYABLE 
+                     185     ?PR?I2C              SEGMENT CODE 
+                     186             EXTRN   CODE (_delay1ms)
+                     187             EXTRN   DATA (regTW88)
+                     188             EXTRN   CODE (?C?CLDPTR)
+                     189             EXTRN   CODE (?C?CLDOPTR)
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     4
+
+                     190             EXTRN   CODE (?C?IILDX)
+                     191             PUBLIC  I2CD
+                     192             PUBLIC  _I2CDeviceInitialize
+                     193             PUBLIC  _WriteI2C
+                     194             PUBLIC  _ReadI2C
+                     195             PUBLIC  I2CReadDataH
+                     196             PUBLIC  _I2CWriteDataH
+                     197             PUBLIC  I2CStopH
+                     198             PUBLIC  I2CStartH
+                     199             PUBLIC  ddH0
+                     200             PUBLIC  ddH
+                     201     
+----                 202             DSEG  AT  020H
+0020                 203                I2CD:   DS   1
+                     204     
+----                 205             RSEG  ?XD?_I2CDeviceInitialize?I2C
+0000                 206     ?_I2CDeviceInitialize?BYTE:
+0000                 207          RegSet?848:   DS   3
+0003                 208             ORG  3
+0003                 209           delay?849:   DS   1
+0004                 210             ORG  4
+0004                 211            addr?851:   DS   1
+                     212     
+----                 213             RSEG  ?XD?_ReadI2C?I2C
+0000                 214     ?_ReadI2C?BYTE:
+0000                 215            addr?643:   DS   1
+0001                 216             ORG  1
+0001                 217           index?644:   DS   1
+                     218     
+----                 219             RSEG  ?XD?_WriteI2C?I2C
+0000                 220     ?_WriteI2C?BYTE:
+0000                 221           index?746:   DS   1
+0001                 222             ORG  1
+0001                 223             val?747:   DS   1
+                     224     ; /*
+                     225     ;  *  i2c.c - a device driver for the iic-bus interface 
+                     226     ;  *
+                     227     ;  *  Copyright (C) 2011 Intersil Corporation
+                     228     ;  *
+                     229     ;  */
+                     230     ; //*****************************************************************************
+                     231     ; //
+                     232     ; //                                                                    I2C.c
+                     233     ; //
+                     234     ; //*****************************************************************************
+                     235     ; //
+                     236     ; //
+                     237     ; #include "Config.h"
+                     238     ; #include "reg.h"
+                     239     ; #include "typedefs.h"
+                     240     ; #include "TW8835.h"
+                     241     ; 
+                     242     ; #include "I2C.h"
+                     243     ; #include "printf.h"
+                     244     ; #include "CPU.h"
+                     245     ; #include "OSD.h"
+                     246     ; 
+                     247     ; DATA BYTE I2CD        _at_ 0x20;
+                     248     ; 
+                     249     ; #define I2CD0 00h
+                     250     ; #define I2CD1 01h
+                     251     ; #define I2CD2 02h
+                     252     ; #define I2CD3 03h
+                     253     ; #define I2CD4 04h
+                     254     ; #define I2CD5 05h
+                     255     ; #define I2CD6 06h
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     5
+
+                     256     ; #define I2CD7 07h
+                     257     ; 
+                     258     ; //=============================================================================
+                     259     ; //                                                                           
+                     260     ; //=============================================================================
+                     261     ; 
+                     262     
+----                 263             RSEG  ?PR?I2C
+0000                 264     Com0017:
+0000                 265     L?0024:
+                     266             USING   0
+0000 E0              267             MOVX    A,@DPTR
+0001 2500     F      268             ADD     A,regTW88+01H
+0003 F582            269             MOV     DPL,A
+0005 E4              270             CLR     A
+0006 3500     F      271             ADDC    A,regTW88
+0008 F583            272             MOV     DPH,A
+000A 22              273             RET     
+000B                 274     L?0025:
+                     275             USING   0
+000B                 276     L?0026:
+000B 900001          277             MOV     DPTR,#01H
+000E 020000   F      278             LJMP    ?C?CLDOPTR
+                     279     ; END OF Com0017
+                     280     
+                     281     ; void ddH(void)
+                     282     
+----                 283             RSEG  ?PR?ddH?I2C
+0000                 284     ddH:
+                     285             USING   0
+                     286                             ; SOURCE LINE # 39
+                     287     ; {
+                     288                             ; SOURCE LINE # 40
+                     289     ;       BYTE i;
+                     290     ;       for ( i=0; i<30; i++ ) ;
+                     291                             ; SOURCE LINE # 42
+                     292     ;---- Variable 'i?040' assigned to Register 'R7' ----
+0000 E4              293             CLR     A
+0001 FF              294             MOV     R7,A
+0002                 295     ?C0001:
+0002 0F              296             INC     R7
+0003 EF              297             MOV     A,R7
+0004 B41EFB          298             CJNE    A,#01EH,?C0001
+                     299     ; }
+                     300                             ; SOURCE LINE # 43
+0007                 301     ?C0004:
+0007 22              302             RET     
+                     303     ; END OF ddH
+                     304     
+                     305     ; void ddH0(void)
+                     306     
+----                 307             RSEG  ?PR?ddH0?I2C
+0000                 308     ddH0:
+                     309             USING   0
+                     310                             ; SOURCE LINE # 44
+                     311     ; {
+                     312                             ; SOURCE LINE # 45
+                     313     ;       BYTE i;
+                     314     ;       for ( i=0; i<30; i++ ) ;
+                     315                             ; SOURCE LINE # 47
+                     316     ;---- Variable 'i?141' assigned to Register 'R7' ----
+0000 E4              317             CLR     A
+0001 FF              318             MOV     R7,A
+0002                 319     ?C0005:
+0002 0F              320             INC     R7
+0003 EF              321             MOV     A,R7
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     6
+
+0004 B41EFB          322             CJNE    A,#01EH,?C0005
+                     323     ; }
+                     324                             ; SOURCE LINE # 48
+0007                 325     ?C0008:
+0007 22              326             RET     
+                     327     ; END OF ddH0
+                     328     
+                     329     ; 
+                     330     ; //#define ddH0()
+                     331     ; 
+                     332     ; void I2CStartH()
+                     333     
+----                 334             RSEG  ?PR?I2CStartH?I2C
+0000                 335     I2CStartH:
+                     336             USING   0
+                     337                             ; SOURCE LINE # 52
+                     338     ; {
+                     339                             ; SOURCE LINE # 53
+                     340     ;       I2C_SDA = 1;    ddH();
+                     341                             ; SOURCE LINE # 54
+0000 D291            342             SETB    P1_1
+0002 120000   F      343             LCALL   ddH
+                     344     ;       I2C_SCL = 1;    ddH();
+                     345                             ; SOURCE LINE # 55
+0005 D290            346             SETB    P1_0
+0007 120000   F      347             LCALL   ddH
+                     348     ;       I2C_SDA = 0;    ddH();
+                     349                             ; SOURCE LINE # 56
+000A C291            350             CLR     P1_1
+000C 120000   F      351             LCALL   ddH
+                     352     ;       I2C_SCL = 0;
+                     353                             ; SOURCE LINE # 57
+000F C290            354             CLR     P1_0
+                     355     ; }
+                     356                             ; SOURCE LINE # 58
+0011 22              357             RET     
+                     358     ; END OF I2CStartH
+                     359     
+                     360     ; 
+                     361     ; void I2CStopH()
+                     362     
+----                 363             RSEG  ?PR?I2CStopH?I2C
+0000                 364     I2CStopH:
+                     365             USING   0
+                     366                             ; SOURCE LINE # 60
+                     367     ; {
+                     368                             ; SOURCE LINE # 61
+                     369     ;       I2C_SDA = 0;    ddH();
+                     370                             ; SOURCE LINE # 62
+0000 C291            371             CLR     P1_1
+0002 120000   F      372             LCALL   ddH
+                     373     ;       I2C_SCL = 1;    ddH();
+                     374                             ; SOURCE LINE # 63
+0005 D290            375             SETB    P1_0
+0007 120000   F      376             LCALL   ddH
+                     377     ;       I2C_SDA = 1;
+                     378                             ; SOURCE LINE # 64
+000A D291            379             SETB    P1_1
+                     380     ; }
+                     381                             ; SOURCE LINE # 65
+000C 22              382             RET     
+                     383     ; END OF I2CStopH
+                     384     
+                     385     ; 
+                     386     ; void I2CWriteDataH(BYTE value)
+                     387     
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     7
+
+----                 388             RSEG  ?PR?_I2CWriteDataH?I2C
+0000                 389     _I2CWriteDataH:
+                     390             USING   0
+                     391                             ; SOURCE LINE # 67
+                     392     ;---- Variable 'value?442' assigned to Register 'R7' ----
+                     393     ; {
+                     394                             ; SOURCE LINE # 68
+                     395     ;       I2CD = value;
+                     396                             ; SOURCE LINE # 69
+0000 8F20            397             MOV     I2CD,R7
+                     398     ; 
+                     399     ; #pragma asm
+                     400     ; 
+                     401               
+                     402     ; ;     clr EA
+                     403               ;     clr EA
+                     404     ; 
+                     405               
+                     406     ;       clr     I2C_SCL
+0002 C290            407               clr   P1_0
+                     408     ;       mov     c, I2CD7
+0004 A207            409               mov   c, 07h
+                     410     ;       mov I2C_SDA, c
+0006 9291            411               mov P1_1, c
+                     412     ;       lcall ddH0      ;;;
+0008 120000   F      413               lcall ddH0    ;;;
+                     414     ;       setb I2C_SCL
+000B D290            415               setb P1_0
+                     416     ;       lcall ddH
+000D 120000   F      417               lcall ddH
+                     418     ; 
+                     419               
+                     420     ;       clr     I2C_SCL
+0010 C290            421               clr   P1_0
+                     422     ;       mov     c, I2CD6
+0012 A206            423               mov   c, 06h
+                     424     ;       mov I2C_SDA, c
+0014 9291            425               mov P1_1, c
+                     426     ;       lcall ddH0      ;;;
+0016 120000   F      427               lcall ddH0    ;;;
+                     428     ;       setb I2C_SCL
+0019 D290            429               setb P1_0
+                     430     ;       lcall ddH
+001B 120000   F      431               lcall ddH
+                     432     ; 
+                     433               
+                     434     ;       clr     I2C_SCL
+001E C290            435               clr   P1_0
+                     436     ;       mov     c, I2CD5
+0020 A205            437               mov   c, 05h
+                     438     ;       mov I2C_SDA, c
+0022 9291            439               mov P1_1, c
+                     440     ;       lcall ddH0      ;;;
+0024 120000   F      441               lcall ddH0    ;;;
+                     442     ;       setb I2C_SCL
+0027 D290            443               setb P1_0
+                     444     ;       lcall ddH
+0029 120000   F      445               lcall ddH
+                     446     ; 
+                     447               
+                     448     ;       clr     I2C_SCL
+002C C290            449               clr   P1_0
+                     450     ;       mov     c, I2CD4
+002E A204            451               mov   c, 04h
+                     452     ;       mov I2C_SDA, c
+0030 9291            453               mov P1_1, c
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     8
+
+                     454     ;       lcall ddH0      ;;;
+0032 120000   F      455               lcall ddH0    ;;;
+                     456     ;       setb I2C_SCL
+0035 D290            457               setb P1_0
+                     458     ;       lcall ddH
+0037 120000   F      459               lcall ddH
+                     460     ; 
+                     461               
+                     462     ;       clr     I2C_SCL
+003A C290            463               clr   P1_0
+                     464     ;       mov     c, I2CD3
+003C A203            465               mov   c, 03h
+                     466     ;       mov I2C_SDA, c
+003E 9291            467               mov P1_1, c
+                     468     ;       lcall ddH0      ;;;
+0040 120000   F      469               lcall ddH0    ;;;
+                     470     ;       setb I2C_SCL
+0043 D290            471               setb P1_0
+                     472     ;       lcall ddH
+0045 120000   F      473               lcall ddH
+                     474     ; 
+                     475               
+                     476     ;       clr     I2C_SCL
+0048 C290            477               clr   P1_0
+                     478     ;       mov     c, I2CD2
+004A A202            479               mov   c, 02h
+                     480     ;       mov I2C_SDA, c
+004C 9291            481               mov P1_1, c
+                     482     ;       lcall ddH0      ;;;
+004E 120000   F      483               lcall ddH0    ;;;
+                     484     ;       setb I2C_SCL
+0051 D290            485               setb P1_0
+                     486     ;       lcall ddH
+0053 120000   F      487               lcall ddH
+                     488     ; 
+                     489               
+                     490     ;       clr     I2C_SCL
+0056 C290            491               clr   P1_0
+                     492     ;       mov     c, I2CD1
+0058 A201            493               mov   c, 01h
+                     494     ;       mov I2C_SDA, c
+005A 9291            495               mov P1_1, c
+                     496     ;       lcall ddH0      ;;;
+005C 120000   F      497               lcall ddH0    ;;;
+                     498     ;       setb I2C_SCL
+005F D290            499               setb P1_0
+                     500     ;       lcall ddH
+0061 120000   F      501               lcall ddH
+                     502     ; 
+                     503               
+                     504     ;       clr     I2C_SCL
+0064 C290            505               clr   P1_0
+                     506     ;       mov     c, I2CD0
+0066 A200            507               mov   c, 00h
+                     508     ;       mov I2C_SDA, c
+0068 9291            509               mov P1_1, c
+                     510     ;       lcall ddH0      ;;;
+006A 120000   F      511               lcall ddH0    ;;;
+                     512     ;       setb I2C_SCL
+006D D290            513               setb P1_0
+                     514     ;       lcall ddH
+006F 120000   F      515               lcall ddH
+                     516     ; 
+                     517               
+                     518     ; ;     setb EA
+                     519               ;     setb EA
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE     9
+
+                     520     ; 
+                     521               
+                     522     ; #pragma endasm
+                     523     ; 
+                     524     ;       I2C_SCL=0;      ddH();
+                     525                             ; SOURCE LINE # 135
+0072 C290            526             CLR     P1_0
+0074 120000   F      527             LCALL   ddH
+                     528     ;       I2C_SDA = 1;
+                     529                             ; SOURCE LINE # 136
+0077 D291            530             SETB    P1_1
+                     531     ; 
+                     532     ;       I2C_SCL=1;      ddH();
+                     533                             ; SOURCE LINE # 138
+0079 D290            534             SETB    P1_0
+007B 120000   F      535             LCALL   ddH
+                     536     ;       I2C_SCL=0;
+                     537                             ; SOURCE LINE # 139
+007E C290            538             CLR     P1_0
+                     539     ; }
+                     540                             ; SOURCE LINE # 140
+0080 22              541             RET     
+                     542     ; END OF _I2CWriteDataH
+                     543     
+                     544     ; 
+                     545     ; void I2CReadDataH()
+                     546     
+----                 547             RSEG  ?PR?I2CReadDataH?I2C
+0000                 548     I2CReadDataH:
+                     549             USING   0
+                     550                             ; SOURCE LINE # 142
+                     551     ; {
+                     552                             ; SOURCE LINE # 143
+                     553     ;       I2C_SDA = 1;
+                     554                             ; SOURCE LINE # 144
+0000 D291            555             SETB    P1_1
+                     556     ; 
+                     557     ; #pragma asm
+                     558     ; 
+                     559               
+                     560     ; ;     clr             EA
+                     561               ;     clr             EA
+                     562     ; 
+                     563               
+                     564     ;       clr             I2C_SCL
+0002 C290            565               clr           P1_0
+                     566     ;       lcall   ddH
+0004 120000   F      567               lcall ddH
+                     568     ;       setb    I2C_SCL
+0007 D290            569               setb  P1_0
+                     570     ;       lcall   ddH
+0009 120000   F      571               lcall ddH
+                     572     ;       mov             c, I2C_SDA
+000C A291            573               mov           c, P1_1
+                     574     ;       mov             I2CD7, c
+000E 9207            575               mov           07h, c
+                     576     ; 
+                     577               
+                     578     ;       clr             I2C_SCL
+0010 C290            579               clr           P1_0
+                     580     ;       lcall   ddH
+0012 120000   F      581               lcall ddH
+                     582     ;       setb    I2C_SCL
+0015 D290            583               setb  P1_0
+                     584     ;       lcall   ddH
+0017 120000   F      585               lcall ddH
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    10
+
+                     586     ;       mov             c, I2C_SDA
+001A A291            587               mov           c, P1_1
+                     588     ;       mov             I2CD6, c
+001C 9206            589               mov           06h, c
+                     590     ; 
+                     591               
+                     592     ;       clr             I2C_SCL
+001E C290            593               clr           P1_0
+                     594     ;       lcall   ddH
+0020 120000   F      595               lcall ddH
+                     596     ;       setb    I2C_SCL
+0023 D290            597               setb  P1_0
+                     598     ;       lcall   ddH
+0025 120000   F      599               lcall ddH
+                     600     ;       mov             c, I2C_SDA
+0028 A291            601               mov           c, P1_1
+                     602     ;       mov             I2CD5, c
+002A 9205            603               mov           05h, c
+                     604     ; 
+                     605               
+                     606     ;       clr             I2C_SCL
+002C C290            607               clr           P1_0
+                     608     ;       lcall   ddH
+002E 120000   F      609               lcall ddH
+                     610     ;       setb    I2C_SCL
+0031 D290            611               setb  P1_0
+                     612     ;       lcall   ddH
+0033 120000   F      613               lcall ddH
+                     614     ;       mov             c, I2C_SDA
+0036 A291            615               mov           c, P1_1
+                     616     ;       mov             I2CD4, c
+0038 9204            617               mov           04h, c
+                     618     ; 
+                     619               
+                     620     ;       clr             I2C_SCL
+003A C290            621               clr           P1_0
+                     622     ;       lcall   ddH
+003C 120000   F      623               lcall ddH
+                     624     ;       setb    I2C_SCL
+003F D290            625               setb  P1_0
+                     626     ;       lcall   ddH
+0041 120000   F      627               lcall ddH
+                     628     ;       mov             c, I2C_SDA
+0044 A291            629               mov           c, P1_1
+                     630     ;       mov             I2CD3, c
+0046 9203            631               mov           03h, c
+                     632     ; 
+                     633               
+                     634     ;       clr             I2C_SCL
+0048 C290            635               clr           P1_0
+                     636     ;       lcall   ddH
+004A 120000   F      637               lcall ddH
+                     638     ;       setb    I2C_SCL
+004D D290            639               setb  P1_0
+                     640     ;       lcall   ddH
+004F 120000   F      641               lcall ddH
+                     642     ;       mov             c, I2C_SDA
+0052 A291            643               mov           c, P1_1
+                     644     ;       mov             I2CD2, c
+0054 9202            645               mov           02h, c
+                     646     ; 
+                     647               
+                     648     ;       clr             I2C_SCL
+0056 C290            649               clr           P1_0
+                     650     ;       lcall   ddH
+0058 120000   F      651               lcall ddH
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    11
+
+                     652     ;       setb    I2C_SCL
+005B D290            653               setb  P1_0
+                     654     ;       lcall   ddH
+005D 120000   F      655               lcall ddH
+                     656     ;       mov             c, I2C_SDA
+0060 A291            657               mov           c, P1_1
+                     658     ;       mov             I2CD1, c
+0062 9201            659               mov           01h, c
+                     660     ; 
+                     661               
+                     662     ;       clr             I2C_SCL
+0064 C290            663               clr           P1_0
+                     664     ;       lcall   ddH
+0066 120000   F      665               lcall ddH
+                     666     ;       setb    I2C_SCL
+0069 D290            667               setb  P1_0
+                     668     ;       lcall   ddH
+006B 120000   F      669               lcall ddH
+                     670     ;       mov             c, I2C_SDA
+006E A291            671               mov           c, P1_1
+                     672     ;       mov             I2CD0, c
+0070 9200            673               mov           00h, c
+                     674     ; 
+                     675               
+                     676     ; ;     setb    EA
+                     677               ;     setb    EA
+                     678     ; 
+                     679               
+                     680     ; #pragma endasm
+                     681     ; 
+                     682     ;       I2C_SCL=1;      ddH();
+                     683                             ; SOURCE LINE # 210
+0072 D290            684             SETB    P1_0
+0074 120000   F      685             LCALL   ddH
+                     686     ;       I2C_SCL=0;
+                     687                             ; SOURCE LINE # 211
+0077 C290            688             CLR     P1_0
+                     689     ; 
+                     690     ;       //return I2CD;
+                     691     ; }
+                     692                             ; SOURCE LINE # 214
+0079 22              693             RET     
+                     694     ; END OF I2CReadDataH
+                     695     
+                     696     ; //=============================================================================
+                     697     ; //                                                                           
+                     698     ; //=============================================================================
+                     699     ; BYTE ReadI2C(BYTE addr, BYTE index)
+                     700     
+----                 701             RSEG  ?PR?_ReadI2C?I2C
+0000                 702     _ReadI2C:
+                     703             USING   0
+                     704                             ; SOURCE LINE # 218
+0000 900000   F      705             MOV     DPTR,#index?644
+0003 ED              706             MOV     A,R5
+0004 F0              707             MOVX    @DPTR,A
+0005 900000   F      708             MOV     DPTR,#addr?643
+0008 EF              709             MOV     A,R7
+0009 F0              710             MOVX    @DPTR,A
+                     711     ; {
+                     712                             ; SOURCE LINE # 219
+                     713     ; //    BYTE val;
+                     714     ; 
+                     715     ;       if ( addr == 0 ) return (ReadTW88(index));
+                     716                             ; SOURCE LINE # 222
+000A 7007            717             JNZ     ?C0013
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    12
+
+000C A3              718             INC     DPTR
+000D 120000   F      719             LCALL   L?0024
+0010 E0              720             MOVX    A,@DPTR
+0011 FF              721             MOV     R7,A
+0012 22              722             RET     
+0013                 723     ?C0013:
+                     724     ; EA=0;
+                     725                             ; SOURCE LINE # 223
+0013 C2AF            726             CLR     EA
+                     727     ;       I2CStartH();
+                     728                             ; SOURCE LINE # 224
+0015 120000   F      729             LCALL   I2CStartH
+                     730     ;       I2CWriteDataH(addr);
+                     731                             ; SOURCE LINE # 225
+0018 900000   F      732             MOV     DPTR,#addr?643
+001B E0              733             MOVX    A,@DPTR
+001C FF              734             MOV     R7,A
+001D 120000   F      735             LCALL   _I2CWriteDataH
+                     736     ;       I2CWriteDataH(index);
+                     737                             ; SOURCE LINE # 226
+0020 900000   F      738             MOV     DPTR,#index?644
+0023 E0              739             MOVX    A,@DPTR
+0024 FF              740             MOV     R7,A
+0025 120000   F      741             LCALL   _I2CWriteDataH
+                     742     ;       I2CStartH();
+                     743                             ; SOURCE LINE # 227
+0028 120000   F      744             LCALL   I2CStartH
+                     745     ;       I2CWriteDataH(addr | 0x01);
+                     746                             ; SOURCE LINE # 228
+002B 900000   F      747             MOV     DPTR,#addr?643
+002E E0              748             MOVX    A,@DPTR
+002F 4401            749             ORL     A,#01H
+0031 FF              750             MOV     R7,A
+0032 120000   F      751             LCALL   _I2CWriteDataH
+                     752     ;       I2CReadDataH();
+                     753                             ; SOURCE LINE # 229
+0035 120000   F      754             LCALL   I2CReadDataH
+                     755     ;       I2CStopH();
+                     756                             ; SOURCE LINE # 230
+0038 120000   F      757             LCALL   I2CStopH
+                     758     ; EA=1;
+                     759                             ; SOURCE LINE # 231
+003B D2AF            760             SETB    EA
+                     761     ;       return I2CD;
+                     762                             ; SOURCE LINE # 232
+003D AF20            763             MOV     R7,I2CD
+                     764     ; }
+                     765                             ; SOURCE LINE # 233
+003F                 766     ?C0014:
+003F 22              767             RET     
+                     768     ; END OF _ReadI2C
+                     769     
+                     770     ; 
+                     771     ; 
+                     772     ; void WriteI2C(BYTE addr, BYTE index, BYTE val)
+                     773     
+----                 774             RSEG  ?PR?_WriteI2C?I2C
+0000                 775     _WriteI2C:
+                     776             USING   0
+                     777                             ; SOURCE LINE # 236
+0000 900000   F      778             MOV     DPTR,#index?746
+0003 ED              779             MOV     A,R5
+0004 F0              780             MOVX    @DPTR,A
+0005 A3              781             INC     DPTR
+0006 EB              782             MOV     A,R3
+0007 F0              783             MOVX    @DPTR,A
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    13
+
+                     784     ;---- Variable 'addr?745' assigned to Register 'R6' ----
+0008 AE07            785             MOV     R6,AR7
+                     786     ; {
+                     787                             ; SOURCE LINE # 237
+                     788     ;       if ( addr == 0 ) {
+                     789                             ; SOURCE LINE # 238
+000A EE              790             MOV     A,R6
+000B 700B            791             JNZ     ?C0015
+                     792     ;               WriteTW88(index, val);
+                     793                             ; SOURCE LINE # 239
+000D E0              794             MOVX    A,@DPTR
+000E FF              795             MOV     R7,A
+000F 900000   F      796             MOV     DPTR,#index?746
+0012 120000   F      797             LCALL   L?0024
+0015 EF              798             MOV     A,R7
+0016 F0              799             MOVX    @DPTR,A
+0017 22              800             RET     
+                     801     ;               return;
+                     802     ;       }
+                     803                             ; SOURCE LINE # 241
+0018                 804     ?C0015:
+                     805     ; EA=0;
+                     806                             ; SOURCE LINE # 242
+0018 C2AF            807             CLR     EA
+                     808     ;       I2CStartH();
+                     809                             ; SOURCE LINE # 243
+001A 120000   F      810             LCALL   I2CStartH
+                     811     ;       I2CWriteDataH(addr);
+                     812                             ; SOURCE LINE # 244
+001D AF06            813             MOV     R7,AR6
+001F 120000   F      814             LCALL   _I2CWriteDataH
+                     815     ;       I2CWriteDataH(index);
+                     816                             ; SOURCE LINE # 245
+0022 900000   F      817             MOV     DPTR,#index?746
+0025 E0              818             MOVX    A,@DPTR
+0026 FF              819             MOV     R7,A
+0027 120000   F      820             LCALL   _I2CWriteDataH
+                     821     ;       I2CWriteDataH(val);
+                     822                             ; SOURCE LINE # 246
+002A 900000   F      823             MOV     DPTR,#val?747
+002D E0              824             MOVX    A,@DPTR
+002E FF              825             MOV     R7,A
+002F 120000   F      826             LCALL   _I2CWriteDataH
+                     827     ;       I2CStopH();
+                     828                             ; SOURCE LINE # 247
+0032 120000   F      829             LCALL   I2CStopH
+                     830     ; EA=1;
+                     831                             ; SOURCE LINE # 248
+0035 D2AF            832             SETB    EA
+                     833     ; }
+                     834                             ; SOURCE LINE # 249
+0037                 835     ?C0016:
+0037 22              836             RET     
+                     837     ; END OF _WriteI2C
+                     838     
+                     839     ; 
+                     840     ; #if 0
+                     841     ; void WriteI2CArray(BYTE addr, BYTE *RegSet)
+                     842     ; {
+                     843     ;       BYTE index, val;
+                     844     ; 
+                     845     ;       while (( RegSet[0] != 0xFF ) || ( RegSet[1]!= 0xFF )) {                 // 0xff, 0x
+                             ff is end of data
+                     846     ;               index = *RegSet;
+                     847     ;               val = *(RegSet+1);
+                     848     ;               WriteI2C(addr, index, val);
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    14
+
+                     849     ; 
+                     850     ;               RegSet+=2;
+                     851     ;       }
+                     852     ; }
+                     853     ; #endif
+                     854     ; //=============================================================================
+                     855     ; //                                                                           
+                     856     ; //=============================================================================
+                     857     ; void I2CDeviceInitialize(BYTE *RegSet, BYTE delay)
+                     858     
+----                 859             RSEG  ?PR?_I2CDeviceInitialize?I2C
+0000                 860     _I2CDeviceInitialize:
+                     861             USING   0
+                     862                             ; SOURCE LINE # 268
+0000 900000   F      863             MOV     DPTR,#delay?849
+0003 ED              864             MOV     A,R5
+0004 F0              865             MOVX    @DPTR,A
+0005 900000   F      866             MOV     DPTR,#RegSet?848
+0008 EB              867             MOV     A,R3
+0009 F0              868             MOVX    @DPTR,A
+000A A3              869             INC     DPTR
+000B EA              870             MOV     A,R2
+000C F0              871             MOVX    @DPTR,A
+000D A3              872             INC     DPTR
+000E E9              873             MOV     A,R1
+000F F0              874             MOVX    @DPTR,A
+                     875     ; {
+                     876                             ; SOURCE LINE # 269
+                     877     ;       int     cnt=0;
+                     878                             ; SOURCE LINE # 270
+                     879     ;---- Variable 'cnt?850' assigned to Register 'R6/R7' ----
+                     880     ;       BYTE addr, index, val;
+                     881     ; 
+                     882     ;       addr = *RegSet;
+                     883                             ; SOURCE LINE # 273
+0010 120000   F      884             LCALL   ?C?CLDPTR
+0013 900000   F      885             MOV     DPTR,#addr?851
+0016 F0              886             MOVX    @DPTR,A
+                     887     ; //    #ifdef DEBUG_TW88
+                     888     ; //    dPrintf("\nI2C address : %02bx", addr);
+                     889     ; //    #endif
+                     890     ;       cnt = *(RegSet+1);
+                     891                             ; SOURCE LINE # 277
+0017 120000   F      892             LCALL   L?0025
+                     893     ;       RegSet+=2;
+                     894                             ; SOURCE LINE # 278
+001A 8036            895             SJMP    ?C0022
+001C                 896     ?C0017:
+                     897     ; 
+                     898     ;       while (( RegSet[0] != 0xFF ) || ( RegSet[1]!= 0xFF )) {                 // 0xff, 0x
+                             ff is end of data
+                     899                             ; SOURCE LINE # 280
+001C 900000   F      900             MOV     DPTR,#RegSet?848
+001F E0              901             MOVX    A,@DPTR
+0020 FB              902             MOV     R3,A
+0021 A3              903             INC     DPTR
+0022 E0              904             MOVX    A,@DPTR
+0023 FA              905             MOV     R2,A
+0024 A3              906             INC     DPTR
+0025 E0              907             MOVX    A,@DPTR
+0026 F9              908             MOV     R1,A
+0027 120000   F      909             LCALL   ?C?CLDPTR
+002A FF              910             MOV     R7,A
+002B B4FF06          911             CJNE    A,#0FFH,?C0019
+002E 120000   F      912             LCALL   L?0025
+0031 F4              913             CPL     A
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    15
+
+0032 602A            914             JZ      ?C0021
+0034                 915     ?C0019:
+                     916     ;               index = *RegSet;
+                     917                             ; SOURCE LINE # 281
+                     918     ;---- Variable 'index?852' assigned to Register 'R6' ----
+0034 AE07            919             MOV     R6,AR7
+                     920     ;               val = *(RegSet+1);
+                     921                             ; SOURCE LINE # 282
+0036 120000   F      922             LCALL   L?0026
+                     923     ;---- Variable 'val?853' assigned to Register 'R4' ----
+0039 FC              924             MOV     R4,A
+                     925     ;               WriteI2C(addr, index, val);
+                     926                             ; SOURCE LINE # 283
+003A 900000   F      927             MOV     DPTR,#addr?851
+003D E0              928             MOVX    A,@DPTR
+003E FF              929             MOV     R7,A
+003F AD06            930             MOV     R5,AR6
+0041 AB04            931             MOV     R3,AR4
+0043 120000   F      932             LCALL   _WriteI2C
+                     933     ; 
+                     934     ;               if(delay)
+                     935                             ; SOURCE LINE # 285
+0046 900000   F      936             MOV     DPTR,#delay?849
+0049 E0              937             MOVX    A,@DPTR
+004A FF              938             MOV     R7,A
+004B 6005            939             JZ      ?C0020
+                     940     ;                       delay1ms(delay);
+                     941                             ; SOURCE LINE # 286
+004D 7E00            942             MOV     R6,#00H
+004F 120000   F      943             LCALL   _delay1ms
+0052                 944     ?C0020:
+                     945     ;               //#ifdef DEBUG_TW88
+                     946     ;               //dPrintf("\n    addr=%02x  index=%02x   val=%02x", (WORD)addr, (WORD)index
+                             , (WORD)val );
+                     947     ;               //#endif
+                     948     ; 
+                     949     ;               RegSet+=2;
+                     950                             ; SOURCE LINE # 291
+0052                 951     ?C0022:
+0052 900000   F      952             MOV     DPTR,#RegSet?848+01H
+0055 E4              953             CLR     A
+0056 75F002          954             MOV     B,#02H
+0059 120000   F      955             LCALL   ?C?IILDX
+                     956     ;       }
+                     957                             ; SOURCE LINE # 292
+005C 80BE            958             SJMP    ?C0017
+                     959     ; }
+                     960                             ; SOURCE LINE # 293
+005E                 961     ?C0021:
+005E 22              962             RET     
+                     963     ; END OF _I2CDeviceInitialize
+                     964     
+                     965             END
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    16
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E                       T Y P E  V A L U E   ATTRIBUTES
+
+?C0001 . . . . . . . . . . .  C ADDR   0002H   R   SEG=?PR?DDH?I2C
+?C0004 . . . . . . . . . . .  C ADDR   0007H   R   SEG=?PR?DDH?I2C
+?C0005 . . . . . . . . . . .  C ADDR   0002H   R   SEG=?PR?DDH0?I2C
+?C0008 . . . . . . . . . . .  C ADDR   0007H   R   SEG=?PR?DDH0?I2C
+?C0013 . . . . . . . . . . .  C ADDR   0013H   R   SEG=?PR?_READI2C?I2C
+?C0014 . . . . . . . . . . .  C ADDR   003FH   R   SEG=?PR?_READI2C?I2C
+?C0015 . . . . . . . . . . .  C ADDR   0018H   R   SEG=?PR?_WRITEI2C?I2C
+?C0016 . . . . . . . . . . .  C ADDR   0037H   R   SEG=?PR?_WRITEI2C?I2C
+?C0017 . . . . . . . . . . .  C ADDR   001CH   R   SEG=?PR?_I2CDEVICEINITIALIZE?I2C
+?C0019 . . . . . . . . . . .  C ADDR   0034H   R   SEG=?PR?_I2CDEVICEINITIALIZE?I2C
+?C0020 . . . . . . . . . . .  C ADDR   0052H   R   SEG=?PR?_I2CDEVICEINITIALIZE?I2C
+?C0021 . . . . . . . . . . .  C ADDR   005EH   R   SEG=?PR?_I2CDEVICEINITIALIZE?I2C
+?C0022 . . . . . . . . . . .  C ADDR   0052H   R   SEG=?PR?_I2CDEVICEINITIALIZE?I2C
+?C?CLDOPTR . . . . . . . . .  C ADDR   -----       EXT
+?C?CLDPTR. . . . . . . . . .  C ADDR   -----       EXT
+?C?IILDX . . . . . . . . . .  C ADDR   -----       EXT
+?PR?DDH0?I2C . . . . . . . .  C SEG    0008H       REL=UNIT
+?PR?DDH?I2C. . . . . . . . .  C SEG    0008H       REL=UNIT
+?PR?I2C. . . . . . . . . . .  C SEG    0011H       REL=UNIT
+?PR?I2CREADDATAH?I2C . . . .  C SEG    007AH       REL=UNIT
+?PR?I2CSTARTH?I2C. . . . . .  C SEG    0012H       REL=UNIT
+?PR?I2CSTOPH?I2C . . . . . .  C SEG    000DH       REL=UNIT
+?PR?_I2CDEVICEINITIALIZE?I2C  C SEG    005FH       REL=UNIT
+?PR?_I2CWRITEDATAH?I2C . . .  C SEG    0081H       REL=UNIT
+?PR?_READI2C?I2C . . . . . .  C SEG    0040H       REL=UNIT
+?PR?_WRITEI2C?I2C. . . . . .  C SEG    0038H       REL=UNIT
+?XD?_I2CDEVICEINITIALIZE?I2C  X SEG    0005H       REL=UNIT
+?XD?_READI2C?I2C . . . . . .  X SEG    0002H       REL=UNIT
+?XD?_WRITEI2C?I2C. . . . . .  X SEG    0002H       REL=UNIT
+?_I2CDEVICEINITIALIZE?BYTE .  X ADDR   0000H   R   SEG=?XD?_I2CDEVICEINITIALIZE?I2C
+?_READI2C?BYTE . . . . . . .  X ADDR   0000H   R   SEG=?XD?_READI2C?I2C
+?_WRITEI2C?BYTE. . . . . . .  X ADDR   0000H   R   SEG=?XD?_WRITEI2C?I2C
+AC . . . . . . . . . . . . .  B ADDR   00D0H.6 A   
+ACC. . . . . . . . . . . . .  D ADDR   00E0H   A   
+ADDR?643 . . . . . . . . . .  X ADDR   0000H   R   SEG=?XD?_READI2C?I2C
+ADDR?851 . . . . . . . . . .  X ADDR   0004H   R   SEG=?XD?_I2CDEVICEINITIALIZE?I2C
+AR4. . . . . . . . . . . . .  D ADDR   0004H   A   
+AR6. . . . . . . . . . . . .  D ADDR   0006H   A   
+AR7. . . . . . . . . . . . .  D ADDR   0007H   A   
+B. . . . . . . . . . . . . .  D ADDR   00F0H   A   
+BANKREG. . . . . . . . . . .  D ADDR   009AH   A   
+CACHE. . . . . . . . . . . .  D ADDR   00E2H   A   
+CACHE_EN . . . . . . . . . .  D ADDR   009BH   A   
+CHPCON . . . . . . . . . . .  D ADDR   00BFH   A   
+CHPENR . . . . . . . . . . .  D ADDR   00F6H   A   
+CKCON. . . . . . . . . . . .  D ADDR   008EH   A   
+COM0017. . . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?I2C
+CRCH . . . . . . . . . . . .  D ADDR   00CBH   A   
+CRCL . . . . . . . . . . . .  D ADDR   00CAH   A   
+CY . . . . . . . . . . . . .  B ADDR   00D0H.7 A   
+DDH. . . . . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?DDH?I2C
+DDH0 . . . . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?DDH0?I2C
+DELAY?849. . . . . . . . . .  X ADDR   0003H   R   SEG=?XD?_I2CDEVICEINITIALIZE?I2C
+DPH. . . . . . . . . . . . .  D ADDR   0083H   A   
+DPL. . . . . . . . . . . . .  D ADDR   0082H   A   
+DPX. . . . . . . . . . . . .  D ADDR   0093H   A   
+DPX1 . . . . . . . . . . . .  D ADDR   0095H   A   
+E2IE . . . . . . . . . . . .  D ADDR   00FBH   A   
+E2IF . . . . . . . . . . . .  D ADDR   00FAH   A   
+E2IM . . . . . . . . . . . .  D ADDR   00FDH   A   
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    17
+
+E2IP . . . . . . . . . . . .  D ADDR   00FCH   A   
+E2IT . . . . . . . . . . . .  D ADDR   00FEH   A   
+EA . . . . . . . . . . . . .  B ADDR   00A8H.7 A   
+EIE. . . . . . . . . . . . .  D ADDR   00E8H   A   
+EINT2. . . . . . . . . . . .  B ADDR   00E8H.0 A   
+EINT3. . . . . . . . . . . .  B ADDR   00E8H.1 A   
+EINT4. . . . . . . . . . . .  B ADDR   00E8H.2 A   
+EINT5. . . . . . . . . . . .  B ADDR   00E8H.3 A   
+EINT6. . . . . . . . . . . .  B ADDR   00E8H.4 A   
+EIP. . . . . . . . . . . . .  D ADDR   00F8H   A   
+ES . . . . . . . . . . . . .  B ADDR   00A8H.4 A   
+ES1. . . . . . . . . . . . .  B ADDR   00A8H.6 A   
+ET0. . . . . . . . . . . . .  B ADDR   00A8H.1 A   
+ET1. . . . . . . . . . . . .  B ADDR   00A8H.3 A   
+ET2. . . . . . . . . . . . .  B ADDR   00A8H.5 A   
+EWDI . . . . . . . . . . . .  B ADDR   00E8H.5 A   
+EWT. . . . . . . . . . . . .  B ADDR   00D8H.1 A   
+EX0. . . . . . . . . . . . .  B ADDR   00A8H.0 A   
+EX1. . . . . . . . . . . . .  B ADDR   00A8H.2 A   
+EXIF . . . . . . . . . . . .  D ADDR   0091H   A   
+F0 . . . . . . . . . . . . .  B ADDR   00D0H.5 A   
+I2C. . . . . . . . . . . . .  N NUMB   -----       
+I2CD . . . . . . . . . . . .  D ADDR   0020H   A   
+I2CREADDATAH . . . . . . . .  C ADDR   0000H   R   SEG=?PR?I2CREADDATAH?I2C
+I2CSTARTH. . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?I2CSTARTH?I2C
+I2CSTOPH . . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?I2CSTOPH?I2C
+IE . . . . . . . . . . . . .  D ADDR   00A8H   A   
+IE0. . . . . . . . . . . . .  B ADDR   0088H.1 A   
+IE1. . . . . . . . . . . . .  B ADDR   0088H.3 A   
+INDEX?644. . . . . . . . . .  X ADDR   0001H   R   SEG=?XD?_READI2C?I2C
+INDEX?746. . . . . . . . . .  X ADDR   0000H   R   SEG=?XD?_WRITEI2C?I2C
+INT0 . . . . . . . . . . . .  B ADDR   00B0H.2 A   
+INT1 . . . . . . . . . . . .  B ADDR   00B0H.3 A   
+IP . . . . . . . . . . . . .  D ADDR   00B8H   A   
+IT0. . . . . . . . . . . . .  B ADDR   0088H.0 A   
+IT1. . . . . . . . . . . . .  B ADDR   0088H.2 A   
+L?0024 . . . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?I2C
+L?0025 . . . . . . . . . . .  C ADDR   000BH   R   SEG=?PR?I2C
+L?0026 . . . . . . . . . . .  C ADDR   000BH   R   SEG=?PR?I2C
+OV . . . . . . . . . . . . .  B ADDR   00D0H.2 A   
+P. . . . . . . . . . . . . .  B ADDR   00D0H.0 A   
+P0 . . . . . . . . . . . . .  D ADDR   0080H   A   
+P0_0 . . . . . . . . . . . .  B ADDR   0080H.0 A   
+P0_1 . . . . . . . . . . . .  B ADDR   0080H.1 A   
+P0_2 . . . . . . . . . . . .  B ADDR   0080H.2 A   
+P0_3 . . . . . . . . . . . .  B ADDR   0080H.3 A   
+P0_4 . . . . . . . . . . . .  B ADDR   0080H.4 A   
+P0_5 . . . . . . . . . . . .  B ADDR   0080H.5 A   
+P0_6 . . . . . . . . . . . .  B ADDR   0080H.6 A   
+P0_7 . . . . . . . . . . . .  B ADDR   0080H.7 A   
+P1 . . . . . . . . . . . . .  D ADDR   0090H   A   
+P1_0 . . . . . . . . . . . .  B ADDR   0090H.0 A   
+P1_1 . . . . . . . . . . . .  B ADDR   0090H.1 A   
+P1_2 . . . . . . . . . . . .  B ADDR   0090H.2 A   
+P1_3 . . . . . . . . . . . .  B ADDR   0090H.3 A   
+P1_4 . . . . . . . . . . . .  B ADDR   0090H.4 A   
+P1_5 . . . . . . . . . . . .  B ADDR   0090H.5 A   
+P1_6 . . . . . . . . . . . .  B ADDR   0090H.6 A   
+P1_7 . . . . . . . . . . . .  B ADDR   0090H.7 A   
+P2 . . . . . . . . . . . . .  D ADDR   00A0H   A   
+P2_0 . . . . . . . . . . . .  B ADDR   00A0H.0 A   
+P2_1 . . . . . . . . . . . .  B ADDR   00A0H.1 A   
+P2_2 . . . . . . . . . . . .  B ADDR   00A0H.2 A   
+P2_3 . . . . . . . . . . . .  B ADDR   00A0H.3 A   
+P2_4 . . . . . . . . . . . .  B ADDR   00A0H.4 A   
+P2_5 . . . . . . . . . . . .  B ADDR   00A0H.5 A   
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    18
+
+P2_6 . . . . . . . . . . . .  B ADDR   00A0H.6 A   
+P2_7 . . . . . . . . . . . .  B ADDR   00A0H.7 A   
+P3 . . . . . . . . . . . . .  D ADDR   00B0H   A   
+P3_0 . . . . . . . . . . . .  B ADDR   00B0H.0 A   
+P3_1 . . . . . . . . . . . .  B ADDR   00B0H.1 A   
+P3_2 . . . . . . . . . . . .  B ADDR   00B0H.2 A   
+P3_3 . . . . . . . . . . . .  B ADDR   00B0H.3 A   
+P3_4 . . . . . . . . . . . .  B ADDR   00B0H.4 A   
+P3_5 . . . . . . . . . . . .  B ADDR   00B0H.5 A   
+P3_6 . . . . . . . . . . . .  B ADDR   00B0H.6 A   
+P3_7 . . . . . . . . . . . .  B ADDR   00B0H.7 A   
+PCON . . . . . . . . . . . .  D ADDR   0087H   A   
+PINT2. . . . . . . . . . . .  B ADDR   00F8H.0 A   
+PINT3. . . . . . . . . . . .  B ADDR   00F8H.1 A   
+PINT4. . . . . . . . . . . .  B ADDR   00F8H.2 A   
+PINT5. . . . . . . . . . . .  B ADDR   00F8H.3 A   
+PINT6. . . . . . . . . . . .  B ADDR   00F8H.4 A   
+PS . . . . . . . . . . . . .  B ADDR   00B8H.4 A   
+PS1. . . . . . . . . . . . .  B ADDR   00B8H.6 A   
+PSW. . . . . . . . . . . . .  D ADDR   00D0H   A   
+PT0. . . . . . . . . . . . .  B ADDR   00B8H.1 A   
+PT1. . . . . . . . . . . . .  B ADDR   00B8H.3 A   
+PT2. . . . . . . . . . . . .  B ADDR   00B8H.5 A   
+PWDI . . . . . . . . . . . .  B ADDR   00F8H.5 A   
+PX0. . . . . . . . . . . . .  B ADDR   00B8H.0 A   
+PX1. . . . . . . . . . . . .  B ADDR   00B8H.2 A   
+RB18 . . . . . . . . . . . .  B ADDR   00C0H.2 A   
+RB8. . . . . . . . . . . . .  B ADDR   0098H.2 A   
+RD . . . . . . . . . . . . .  B ADDR   00B0H.7 A   
+REGSET?848 . . . . . . . . .  X ADDR   0000H   R   SEG=?XD?_I2CDEVICEINITIALIZE?I2C
+REGTW88. . . . . . . . . . .  D ADDR   -----       EXT
+REN. . . . . . . . . . . . .  B ADDR   0098H.4 A   
+REN1 . . . . . . . . . . . .  B ADDR   00C0H.4 A   
+RI . . . . . . . . . . . . .  B ADDR   0098H.0 A   
+RI1. . . . . . . . . . . . .  B ADDR   00C0H.0 A   
+RS0. . . . . . . . . . . . .  B ADDR   00D0H.3 A   
+RS1. . . . . . . . . . . . .  B ADDR   00D0H.4 A   
+RWT. . . . . . . . . . . . .  B ADDR   00D8H.0 A   
+RXD. . . . . . . . . . . . .  B ADDR   00B0H.0 A   
+SBUF . . . . . . . . . . . .  D ADDR   0099H   A   
+SBUF1. . . . . . . . . . . .  D ADDR   00C1H   A   
+SCON . . . . . . . . . . . .  D ADDR   0098H   A   
+SCON1. . . . . . . . . . . .  D ADDR   00C0H   A   
+SFRAH. . . . . . . . . . . .  D ADDR   00C5H   A   
+SFRAL. . . . . . . . . . . .  D ADDR   00C4H   A   
+SFRCN. . . . . . . . . . . .  D ADDR   00C7H   A   
+SFRFD. . . . . . . . . . . .  D ADDR   00C6H   A   
+SFR_E2 . . . . . . . . . . .  D ADDR   00E2H   A   
+SM0. . . . . . . . . . . . .  B ADDR   0098H.7 A   
+SM1. . . . . . . . . . . . .  B ADDR   0098H.6 A   
+SM10 . . . . . . . . . . . .  B ADDR   00C0H.7 A   
+SM11 . . . . . . . . . . . .  B ADDR   00C0H.6 A   
+SM12 . . . . . . . . . . . .  B ADDR   00C0H.5 A   
+SM2. . . . . . . . . . . . .  B ADDR   0098H.5 A   
+SP . . . . . . . . . . . . .  D ADDR   0081H   A   
+SPICONTROL . . . . . . . . .  D ADDR   009BH   A   
+T0 . . . . . . . . . . . . .  B ADDR   00B0H.4 A   
+T0HIGH . . . . . . . . . . .  D ADDR   009CH   A   
+T0LOW. . . . . . . . . . . .  D ADDR   009DH   A   
+T1 . . . . . . . . . . . . .  B ADDR   00B0H.5 A   
+T1HIGH . . . . . . . . . . .  D ADDR   009EH   A   
+T1LOW. . . . . . . . . . . .  D ADDR   009FH   A   
+T2 . . . . . . . . . . . . .  B ADDR   0090H.0 A   
+T2CON. . . . . . . . . . . .  D ADDR   00C8H   A   
+T2EX . . . . . . . . . . . .  B ADDR   0090H.1 A   
+T2HIGH . . . . . . . . . . .  D ADDR   0095H   A   
+A51 MACRO ASSEMBLER  I2C                                                                  10/18/2011 17:17:56 PAGE    19
+
+T2IF . . . . . . . . . . . .  D ADDR   00C9H   A   
+T2LOW. . . . . . . . . . . .  D ADDR   0096H   A   
+TA . . . . . . . . . . . . .  D ADDR   00EBH   A   
+TB18 . . . . . . . . . . . .  B ADDR   00C0H.3 A   
+TB8. . . . . . . . . . . . .  B ADDR   0098H.3 A   
+TCON . . . . . . . . . . . .  D ADDR   0088H   A   
+TF0. . . . . . . . . . . . .  B ADDR   0088H.5 A   
+TF1. . . . . . . . . . . . .  B ADDR   0088H.7 A   
+TH0. . . . . . . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . . . . . . .  D ADDR   008DH   A   
+TH2. . . . . . . . . . . . .  D ADDR   00CDH   A   
+TI . . . . . . . . . . . . .  B ADDR   0098H.1 A   
+TI1. . . . . . . . . . . . .  B ADDR   00C0H.1 A   
+TL0. . . . . . . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . . . . . . .  D ADDR   008BH   A   
+TL2. . . . . . . . . . . . .  D ADDR   00CCH   A   
+TMOD . . . . . . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . . . . . . .  B ADDR   0088H.6 A   
+TWBASE . . . . . . . . . . .  D ADDR   009AH   A   
+TXD. . . . . . . . . . . . .  B ADDR   00B0H.1 A   
+VAL?747. . . . . . . . . . .  X ADDR   0001H   R   SEG=?XD?_WRITEI2C?I2C
+WDCON. . . . . . . . . . . .  D ADDR   00D8H   A   
+WDIF . . . . . . . . . . . .  B ADDR   00D8H.3 A   
+WR . . . . . . . . . . . . .  B ADDR   00B0H.6 A   
+WTRF . . . . . . . . . . . .  B ADDR   00D8H.2 A   
+_DELAY1MS. . . . . . . . . .  C ADDR   -----       EXT
+_I2CDEVICEINITIALIZE . . . .  C ADDR   0000H   R   SEG=?PR?_I2CDEVICEINITIALIZE?I2C
+_I2CWRITEDATAH . . . . . . .  C ADDR   0000H   R   SEG=?PR?_I2CWRITEDATAH?I2C
+_READI2C . . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?_READI2C?I2C
+_WRITEI2C. . . . . . . . . .  C ADDR   0000H   R   SEG=?PR?_WRITEI2C?I2C
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

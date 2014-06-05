@@ -1,0 +1,1032 @@
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE DECODER
+OBJECT MODULE PLACED IN .\Output\Decoder.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Decoder.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
+                    - MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Decoder.lst) OBJECT(.\Output\Decode
+                    -r.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * DECODER.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      Internal Decoder module 
+  10           ******************************************************************************
+  11           */
+  12          #include "Config.h"
+  13          #include "reg.h"
+  14          #include "typedefs.h"
+  15          #include "TW8835.h"
+  16          #include "Global.h"
+  17          
+  18          #include "main.h"
+  19          #include "Printf.h"
+  20          #include "Monitor.h"
+  21          #include "I2C.h"
+  22          #include "CPU.h"
+  23          #include "Scaler.h"
+  24          #include "InputCtrl.h"
+  25          
+  26          //-----------------------------------------------------------------------------
+  27          /**
+  28          * check Video Loss
+  29          *
+  30          * register
+  31          *       R101[0]
+  32          *
+  33          * oldname: CheckDecoderVDLOSS().
+  34          *
+  35          * @param n: wait counter
+  36          * @return
+  37          *       0:Video detected
+  38          *       1:Video not present. Video Loss
+  39          */ 
+  40          BYTE DecoderCheckVDLOSS( BYTE n )
+  41          {
+  42   1              volatile BYTE   mode;
+  43   1              BYTE start;
+  44   1      
+  45   1              dPrintf("\nDecoderCheckVDLOSS(%d) start",(WORD)n);
+  46   1              start = n;
+  47   1      
+  48   1              WriteTW88Page(PAGE1_DECODER );
+  49   1              while (n--) {
+  50   2                      mode = ReadTW88(REG101);                //read Chip Status
+  51   2                      if (( mode & 0x80 ) == 0 ) {
+  52   3                              dPrintf("->end%bd",start - n);
+  53   3                              return ( 0 );                           //check video detect flag
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 2   
+
+  54   3                      }
+  55   2                      delay1ms(10);
+  56   2              }
+  57   1              ePrintf("\nDecoderCheckVDLOSS->fail");
+  58   1              return ( 1 );                                           //fail. We loss the Video
+  59   1      }
+  60          
+  61          #ifdef SUPPORT_FOSD_MENU
+              //-----------------------------------------------------------------------------
+              /**
+              * Is it a video Loss State
+              *
+              * @return
+              *       - 1:If no Input
+              *       - 0:Found Input
+              */
+              BYTE DecoderIsNoInput(void)
+              {
+                      DECLARE_LOCAL_page
+                      BYTE ret;
+                      
+                      ReadTW88Page(page);
+                      WriteTW88Page(PAGE1_DECODER);
+                      ret = TW8835_R101;      
+                      WriteTW88Page(page);
+                      
+                      if(ret & 0x80)
+                              return 1;       //No Input
+                      return 0;               //found Input
+              }
+              #endif
+  85          
+  86          //-----------------------------------------------------------------------------
+  87          /**
+  88          * set input mux format
+  89          *
+  90          * register
+  91          *       R102 - input format.
+  92          *       R105.
+  93          *       R106.
+  94          * @param InputMode
+  95          */
+  96          void InMuxSetInput(BYTE InputMode)
+  97          {
+  98   1              BYTE r102, r105, r106;
+  99   1              WriteTW88Page(PAGE1_DECODER );
+ 100   1      
+ 101   1              r105 = ReadTW88(REG105) & 0xF0;
+ 102   1              r106 = ReadTW88(REG106) & ~0x03;        //Do not change Y.
+ 103   1      
+ 104   1              switch(InputMode) {
+ 105   2              case INPUT_CVBS:
+ 106   2                      r102 = 0x40;            // 0x40 - FC27:27MHz, IFSEL:Composite, YSEL:YIN0 
+ 107   2                      r105 |= 0x0F;           //decoder mode
+ 108   2                      r106 |= 0x03;           // C,V adc in Power Down.
+ 109   2                      break;
+ 110   2              case INPUT_SVIDEO:
+ 111   2                      r102 = 0x54;            // 0x54 - FC27:27MHz, IFSEL:S-Video, YSEL:YIN1, CSEL:CIN0 
+ 112   2                      r105 |= 0x0F;           //decoder mode
+ 113   2                      r106 |= 0x01;           // V in PowerDown
+ 114   2                      break;
+ 115   2              case INPUT_COMP:        //target r102:4A,r105:04 r016:00
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 3   
+
+ 116   2                                                      //     ->     4A      00      00                  
+ 117   2      
+ 118   2                      r102 = 0x4A ;           // 0x4A -       FC27:27MHz, 
+ 119   2                                                              //                      IFSEL:Composite, We are using aRGB. So composite is a correct value 
+ 120   2                                                              //                      YSEL:YIN2, CSEL:CIN1, VSEL:VIN0
+ 121   2                      //r105 |= 0x04;         //??? ? someone overwrite as 00. R105[2]=0b is a correct
+ 122   2                      //r106                          //C & V adc in normal(not Power Down)
+ 123   2      
+ 124   2                      break;
+ 125   2              case INPUT_PC:  //target r102:4A r105:04 r106:00
+ 126   2                      r102 = 0x4A;            // 0x4A -       FC27:27MHz, 
+ 127   2                                                              //                      IFSEL:Composite, We are using aRGB. So composite is a correct value 
+ 128   2                                                              //                      YSEL:YIN2, CSEL:CIN1, VSEL:VIN0
+ 129   2      
+ 130   2                      //r105 =                        //RGB mode
+ 131   2                                                              //?? I think R105[2] have to be 0. not 1b.
+ 132   2                      //r106                          //C & V adc in normal(not Power Down)
+ 133   2                      break;
+ 134   2              case INPUT_DVI:                 //target ? don't care
+ 135   2              case INPUT_HDMIPC:
+ 136   2              case INPUT_HDMITV:
+ 137   2              case INPUT_BT656:
+ 138   2                      //digital. don't care.
+ 139   2                      r102 = 0x00;
+ 140   2                      break;
+ 141   2              }
+ 142   1              if(r102) {      //need update?
+ 143   2                      WriteTW88(REG102, r102 );
+ 144   2                      WriteTW88(REG105, r105 );
+ 145   2                      WriteTW88(REG106, r106 );
+ 146   2              }
+ 147   1      }
+ 148          
+ 149          //---------------------------------------------
+ 150          //description
+ 151          //      input data format selection
+ 152          //      if input is PC(aRGB),DVI,HDMI, you have to set.
+ 153          //parameter
+ 154          //      0:YCbCr 1:RGB
+ 155          //
+ 156          //CVBS:0x40
+ 157          //SVIDEO:0x54. IFSET:SVIDEO, YSEL:YIN1
+ 158          #if 0
+              void DecoderSetPath(BYTE path)
+              {
+                      WriteTW88Page(PAGE1_DECODER );  
+                      WriteTW88(REG102, path );               
+              }
+              #endif
+ 165          
+ 166          //R104 HSYNC Delay Control
+ 167          
+ 168          
+ 169          //
+ 170          //parameter
+ 171          //      input_mode      0:RGB mode, 1:decoder mode
+ 172          //register
+ 173          //      R105
+ 174          #if 0
+              void DecoderSetAFE(BYTE input_mode)
+              {
+                      WriteTW88Page(PAGE1_DECODER );  
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 4   
+
+                      if(input_mode==0) {
+                              WriteTW88(REG105, (ReadTW88(REG105) & 0xF0) | 0x04);    //? C is for decoder, not RGB   
+                      }
+                      else {
+                              WriteTW88(REG105, (ReadTW88(REG105) | 0x0F));   
+                      }
+              }
+              #endif
+ 186          
+ 187          #ifdef UNCALLED_SEGMENT
+              //-----------------------------------------------------------------------------
+              //register
+              //      R106[2]
+              //      R106[1]
+              //      R106[0]
+              void DecoderPowerDown(BYTE fOn)
+              {
+                      WriteTW88Page(PAGE1_DECODER)
+                      if(fOn) WriteTW88(REG106, ReadTW88(REG106) | 0x07);
+                      else    WriteTW88(REG106, ReadTW88(REG106) & ~0x07);
+              }
+              #endif
+ 200          
+ 201          //-----------------------------------------------------------------------------
+ 202          //desc: set/get vertical delay
+ 203          //@param        
+ 204          //output
+ 205          //
+ 206          //register
+ 207          //      R107[7:6]R108[7:0]
+ 208          #ifdef UNCALLED_SEGMENT
+              void DecoderSetVDelay(WORD delay)
+              {
+                      WriteTW88Page(PAGE1_DECODER );          // get VDelay from Decoder
+                      WriteTW88(REG107, (ReadTW88(REG107 ) & 0x3F) | ( (delay & 0x0300) >> 2)); 
+                      WriteTW88(REG108, (BYTE)delay );
+              }
+              #endif
+ 216          //-----------------------------------------------------------------------------
+ 217          /**
+ 218          * get decoder vertical delay value
+ 219          */
+ 220          WORD DecoderGetVDelay(void)
+ 221          {
+ 222   1              WORD vDelay;
+ 223   1      
+ 224   1              WriteTW88Page(PAGE1_DECODER );          // get VDelay from Decoder
+ 225   1              vDelay = ReadTW88(REG107 ) & 0xC0; 
+ 226   1              vDelay <<= 2;
+ 227   1              vDelay |= ReadTW88(REG108 );
+ 228   1      
+ 229   1              return vDelay;
+ 230   1      }
+ 231          
+ 232          //-----------------------------------------------------------------------------
+ 233          /**
+ 234          * set decoder vertical active length
+ 235          *
+ 236          *       register
+ 237          *       R107[5:4]R109[7:0]
+ 238          */
+ 239          void DecoderSetVActive(WORD length)
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 5   
+
+ 240          {
+ 241   1              WriteTW88Page(PAGE1_DECODER );          
+ 242   1              WriteTW88(REG107, (ReadTW88(REG107) & 0xCF) | ( (length & 0x0300) >> 4)); 
+ 243   1              WriteTW88(REG109, (BYTE)length );
+ 244   1      }
+ 245          #ifdef UNCALLED_SEGMENT
+              //-----------------------------------------------------------------------------
+              WORD DecoderGetVActive(void)
+              {
+                      WORD vActive;
+              
+                      WriteTW88Page(PAGE1_DECODER );
+                      vActive = ReadTW88(REG107 ) & 0x30; 
+                      vActive <<= 4;
+                      vActive |= ReadTW88(REG109 );
+              
+                      return vActive;
+              }
+              #endif
+ 259          
+ 260          //-----------------------------------------------------------------------------
+ 261          //desc:set/get Horizontal delay
+ 262          //register
+ 263          //      R107[3:2]R10A[7:0]
+ 264          #ifdef UNCALLED_SEGMENT
+              void DecoderSetHDelay(WORD delay)
+              {
+                      WriteTW88Page(PAGE1_DECODER );          // get VDelay from Decoder
+                      WriteTW88(REG107, (ReadTW88(REG107 ) & 0xF3) | ( (delay & 0x0300) >> 6)); 
+                      WriteTW88(REG10A, (BYTE)delay );
+              }
+              WORD DecoderGetHDelay(void)
+              {
+                      WORD hDelay;
+              
+                      WriteTW88Page(PAGE1_DECODER );          // get VDelay from Decoder
+                      hDelay = ReadTW88(REG107 ) & 0x0C; 
+                      hDelay <<= 6;
+                      hDelay |= ReadTW88(REG10A );
+              
+                      return hDelay;
+              }
+              #endif
+ 283          
+ 284          //-----------------------------------------------------------------------------
+ 285          //desc: set/get Horizontal active
+ 286          //register
+ 287          //      R107[1:0]R10B[7:0]
+ 288          #ifdef UNCALLED_SEGMENT
+              void DecoderSetHActive(WORD length)
+              {
+                      WriteTW88Page(PAGE1_DECODER );          // get VDelay from Decoder
+                      WriteTW88(REG107, (ReadTW88(REG107 ) & 0xFC) | ( (length & 0x0300) >> 8)); 
+                      WriteTW88(REG10B, (BYTE)length );
+              }
+              WORD DecoderGetHActive(void)
+              {
+                      WORD hActive;
+              
+                      WriteTW88Page(PAGE1_DECODER );          // get VDelay from Decoder
+                      hActive = ReadTW88(REG107 ) & 0x03; 
+                      hActive <<= 8;
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 6   
+
+                      hActive |= ReadTW88(REG10B );
+              
+                      return hActive;
+              }
+              #endif
+ 307          
+ 308          //-----------------------------------------------------------------------------
+ 309          /**
+ 310          * read detected decoder mode
+ 311          *
+ 312          *       register
+ 313          *       R11C[7]         0:idle, 1:detection in progress
+ 314          *       R11C[6:4]       000: NTSC
+ 315          *                               001: PAL
+ 316          *                               ...
+ 317          *                       111:N/A
+ 318          */
+ 319          BYTE DecoderReadDetectedMode(void)
+ 320          {
+ 321   1              BYTE mode;
+ 322   1              WriteTW88Page(PAGE1_DECODER);
+ 323   1              mode = ReadTW88(REG11C);
+ 324   1              mode >>= 4;
+ 325   1              return mode;
+ 326   1      }
+ 327          
+ 328          
+ 329          #ifdef SUPPORT_FOSD_MENU
+              //-----------------------------------------------------------------------------
+              /**
+              * read video input standard
+              *
+              * BKTODO120201 Pls, remove this
+              */
+              BYTE DecoderReadVInputSTD(void)
+              {
+                      DECLARE_LOCAL_page
+                      BYTE std, ret;
+              
+                      ReadTW88Page(page);
+                      
+                      if( DecoderIsNoInput() ) ret = 1; // Noinput!!  BUGBUG
+              
+              
+                      std = DecoderReadDetectedMode();
+                      if(std & 0x08) 
+                              ret = 0xff;     // Detection in progress..
+                      else
+                              ret = std + 1;
+              
+                      WriteTW88Page(page );
+                      return (ret);
+              }
+              #endif
+ 356          
+ 357          //-----------------------------------------------------------------------------
+ 358          /**
+ 359          * check detected decoder video input standard
+ 360          *
+ 361          *       To get a stable the correct REG11C[6:4] value,
+ 362          *               read REG101[6] and REG130[7:5] also.
+ 363          *       I saw the following values(BK110303)
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 7   
+
+ 364          *               E7 E7 67 67 87 87 87 87 ..... 87 87 87 87 87 87 87 87 87 07 07 07 .... 
+ 365          *               B7 B7 B7 37 37 87 87 87 ..... 87 87 87 87 87 87 87 87 87 07 07 07 07 07 07 07
+ 366          *
+ 367          * oldname: CheckDecoderSTD
+ 368          *
+ 369          * register
+ 370          *       R11C[6:4].
+ 371          *       R101[6].
+ 372          *       R130[7:5].
+ 373          * @return
+ 374          *       0x80: filed.
+ 375          *       other: detected standard value.
+ 376          */
+ 377          BYTE DecoderCheckSTD( BYTE n )
+ 378          {
+ 379   1              volatile BYTE   r11c,r101,r130;
+ 380   1              BYTE start=n;
+ 381   1              BYTE count;
+ 382   1              ePrintf("\nDecoderCheckSTD(%d) start",(WORD)n);
+ 383   1              WriteTW88Page(PAGE1_DECODER );          // set Decoder page
+ 384   1              
+ 385   1              count=0;
+ 386   1              while (n--) {
+ 387   2                      r11c = ReadTW88(REG11C);
+ 388   2                      if (( r11c & 0x80 ) == 0 ) {
+ 389   3                              r101 = ReadTW88(REG101);
+ 390   3                              r130 = ReadTW88(REG130);
+ 391   3                              dPrintf("\n%02bx:%02bx-%02bx-%02bx ",start-n, r11c, r101,r130);
+ 392   3                              if((r101 & 0x40) && ((r130 & 0xE0)==0)) {
+ 393   4                                      ePrintf("->success:%d",(WORD)start-n);
+ 394   4                                      if(count > 4)
+ 395   4                                              return (r11c);
+ 396   4                                      count++;
+ 397   4                              }
+ 398   3                      }
+ 399   2                      delay1ms(5);
+ 400   2              }
+ 401   1              ePrintf("->fail");
+ 402   1              return ( 0x80 );
+ 403   1      }
+ 404          
+ 405          //-----------------------------------------------------------------------------
+ 406          /**
+ 407          * set decoder freerun mode
+ 408          *
+ 409          * example
+ 410          *   DecoderFreerun(DECODER_FREERUN_60HZ);
+ 411          *
+ 412          * R133[7:6]
+ 413          * @param
+ 414          *       mode    0:AutoMode
+ 415          *                       1:AutoMode
+ 416          *                       2:60Hz
+ 417          *                       3:50Hz
+ 418          */
+ 419          void DecoderFreerun(BYTE mode)
+ 420          {
+ 421   1              WriteTW88Page(PAGE1_DECODER );
+ 422   1              WriteTW88(REG133, (ReadTW88(REG133) & 0x3F) | (mode<<6));
+ 423   1      }
+ 424          
+ 425          
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 8   
+
+ 426          
+ 427          
+ 428          
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 9   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com001B (BEGIN)
+0000         L?0028:
+0000 FF                MOV     R7,A
+0001         L?0029:
+0001 E500        E     MOV     A,regTW88+01H
+0003 2407              ADD     A,#07H
+0005         L?0030:
+0005 F582              MOV     DPL,A
+0007 E500        E     MOV     A,regTW88
+0009 3401              ADDC    A,#01H
+000B F583              MOV     DPH,A
+000D 22                RET     
+             ; FUNCTION Com001B (END)
+
+             ; FUNCTION _DecoderCheckVDLOSS (BEGIN)
+                                           ; SOURCE LINE # 40
+0000 900000      R     MOV     DPTR,#n
+0003 EF                MOV     A,R7
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 41
+                                           ; SOURCE LINE # 45
+0005 7BFF              MOV     R3,#0FFH
+0007 7A00        R     MOV     R2,#HIGH ?SC_0
+0009 7900        R     MOV     R1,#LOW ?SC_0
+000B 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+000E E4                CLR     A
+000F F0                MOVX    @DPTR,A
+0010 A3                INC     DPTR
+0011 EF                MOV     A,R7
+0012 F0                MOVX    @DPTR,A
+0013 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 46
+0016 900000      R     MOV     DPTR,#n
+0019 E0                MOVX    A,@DPTR
+001A 900000      R     MOV     DPTR,#start
+001D F0                MOVX    @DPTR,A
+001E         ?C0001:
+                                           ; SOURCE LINE # 49
+001E 900000      R     MOV     DPTR,#n
+0021 E0                MOVX    A,@DPTR
+0022 FF                MOV     R7,A
+0023 14                DEC     A
+0024 F0                MOVX    @DPTR,A
+0025 EF                MOV     A,R7
+0026 6034              JZ      ?C0002
+                                           ; SOURCE LINE # 50
+0028 E500        E     MOV     A,regTW88+01H
+002A 2401              ADD     A,#01H
+002C 120000      R     LCALL   L?0030
+002F E0                MOVX    A,@DPTR
+0030 900000      R     MOV     DPTR,#mode
+0033 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 51
+0034 E0                MOVX    A,@DPTR
+0035 20E71B            JB      ACC.7,?C0003
+                                           ; SOURCE LINE # 52
+0038 7BFF              MOV     R3,#0FFH
+003A 7A00        R     MOV     R2,#HIGH ?SC_30
+003C 7900        R     MOV     R1,#LOW ?SC_30
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 10  
+
+003E 900000      R     MOV     DPTR,#n
+0041 E0                MOVX    A,@DPTR
+0042 FF                MOV     R7,A
+0043 900000      R     MOV     DPTR,#start
+0046 E0                MOVX    A,@DPTR
+0047 C3                CLR     C
+0048 9F                SUBB    A,R7
+0049 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+004C F0                MOVX    @DPTR,A
+004D 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 53
+0050 7F00              MOV     R7,#00H
+0052 22                RET     
+                                           ; SOURCE LINE # 54
+0053         ?C0003:
+                                           ; SOURCE LINE # 55
+0053 7F0A              MOV     R7,#0AH
+0055 7E00              MOV     R6,#00H
+0057 120000      E     LCALL   _delay1ms
+                                           ; SOURCE LINE # 56
+005A 80C2              SJMP    ?C0001
+005C         ?C0002:
+                                           ; SOURCE LINE # 57
+005C 7BFF              MOV     R3,#0FFH
+005E 7A00        R     MOV     R2,#HIGH ?SC_39
+0060 7900        R     MOV     R1,#LOW ?SC_39
+0062 120000      E     LCALL   _ePrintf
+                                           ; SOURCE LINE # 58
+0065 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 59
+0067         ?C0004:
+0067 22                RET     
+             ; FUNCTION _DecoderCheckVDLOSS (END)
+
+             ; FUNCTION _InMuxSetInput (BEGIN)
+                                           ; SOURCE LINE # 96
+;---- Variable 'r102' assigned to Register 'R6' ----
+;---- Variable 'InputMode' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 97
+                                           ; SOURCE LINE # 101
+0000 E500        E     MOV     A,regTW88+01H
+0002 2405              ADD     A,#05H
+0004 120000      R     LCALL   L?0030
+0007 E0                MOVX    A,@DPTR
+0008 54F0              ANL     A,#0F0H
+;---- Variable 'r105' assigned to Register 'R1' ----
+000A F9                MOV     R1,A
+                                           ; SOURCE LINE # 102
+000B E500        E     MOV     A,regTW88+01H
+000D 2406              ADD     A,#06H
+000F 120000      R     LCALL   L?0030
+0012 E0                MOVX    A,@DPTR
+0013 54FC              ANL     A,#0FCH
+0015 FD                MOV     R5,A
+;---- Variable 'r106' assigned to Register 'R5' ----
+                                           ; SOURCE LINE # 104
+0016 EF                MOV     A,R7
+0017 14                DEC     A
+0018 601A              JZ      ?C0007
+001A 14                DEC     A
+001B 6023              JZ      ?C0008
+001D 14                DEC     A
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 11  
+
+001E 6020              JZ      ?C0008
+0020 24FB              ADD     A,#0FBH
+0022 5020              JNC     ?C0013
+0024 2408              ADD     A,#08H
+0026 701E              JNZ     ?C0005
+                                           ; SOURCE LINE # 105
+0028         ?C0006:
+                                           ; SOURCE LINE # 106
+0028 7E40              MOV     R6,#040H
+                                           ; SOURCE LINE # 107
+002A E9                MOV     A,R1
+002B 440F              ORL     A,#0FH
+002D F9                MOV     R1,A
+                                           ; SOURCE LINE # 108
+002E ED                MOV     A,R5
+002F 4403              ORL     A,#03H
+0031 FD                MOV     R5,A
+                                           ; SOURCE LINE # 109
+0032 8012              SJMP    ?C0005
+                                           ; SOURCE LINE # 110
+0034         ?C0007:
+                                           ; SOURCE LINE # 111
+0034 7E54              MOV     R6,#054H
+                                           ; SOURCE LINE # 112
+0036 E9                MOV     A,R1
+0037 440F              ORL     A,#0FH
+0039 F9                MOV     R1,A
+                                           ; SOURCE LINE # 113
+003A ED                MOV     A,R5
+003B 4401              ORL     A,#01H
+003D FD                MOV     R5,A
+                                           ; SOURCE LINE # 114
+003E 8006              SJMP    ?C0005
+                                           ; SOURCE LINE # 115
+0040         ?C0008:
+                                           ; SOURCE LINE # 118
+0040 7E4A              MOV     R6,#04AH
+                                           ; SOURCE LINE # 124
+0042 8002              SJMP    ?C0005
+                                           ; SOURCE LINE # 125
+                                           ; SOURCE LINE # 134
+                                           ; SOURCE LINE # 135
+                                           ; SOURCE LINE # 136
+                                           ; SOURCE LINE # 137
+0044         ?C0013:
+                                           ; SOURCE LINE # 139
+0044 E4                CLR     A
+0045 FE                MOV     R6,A
+                                           ; SOURCE LINE # 140
+                                           ; SOURCE LINE # 141
+0046         ?C0005:
+                                           ; SOURCE LINE # 142
+0046 EE                MOV     A,R6
+0047 601B              JZ      ?C0015
+                                           ; SOURCE LINE # 143
+0049 E500        E     MOV     A,regTW88+01H
+004B 2402              ADD     A,#02H
+004D 120000      R     LCALL   L?0030
+0050 EE                MOV     A,R6
+0051 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 144
+0052 E500        E     MOV     A,regTW88+01H
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 12  
+
+0054 2405              ADD     A,#05H
+0056 120000      R     LCALL   L?0030
+0059 E9                MOV     A,R1
+005A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 145
+005B E500        E     MOV     A,regTW88+01H
+005D 2406              ADD     A,#06H
+005F 120000      R     LCALL   L?0030
+0062 ED                MOV     A,R5
+0063 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 146
+                                           ; SOURCE LINE # 147
+0064         ?C0015:
+0064 22                RET     
+             ; FUNCTION _InMuxSetInput (END)
+
+             ; FUNCTION DecoderGetVDelay (BEGIN)
+                                           ; SOURCE LINE # 220
+                                           ; SOURCE LINE # 221
+                                           ; SOURCE LINE # 225
+0000 120000      R     LCALL   L?0029
+0003 E0                MOVX    A,@DPTR
+0004 54C0              ANL     A,#0C0H
+0006 FF                MOV     R7,A
+0007 7E00              MOV     R6,#00H
+;---- Variable 'vDelay' assigned to Register 'R6/R7' ----
+                                           ; SOURCE LINE # 226
+0009 7802              MOV     R0,#02H
+000B         ?C0026:
+000B C3                CLR     C
+000C 33                RLC     A
+000D CE                XCH     A,R6
+000E 33                RLC     A
+000F CE                XCH     A,R6
+0010 D8F9              DJNZ    R0,?C0026
+0012 FF                MOV     R7,A
+                                           ; SOURCE LINE # 227
+0013 E500        E     MOV     A,regTW88+01H
+0015 2408              ADD     A,#08H
+0017 120000      R     LCALL   L?0030
+001A E0                MOVX    A,@DPTR
+001B FD                MOV     R5,A
+001C EF                MOV     A,R7
+001D 4D                ORL     A,R5
+001E FF                MOV     R7,A
+                                           ; SOURCE LINE # 229
+                                           ; SOURCE LINE # 230
+001F         ?C0016:
+001F 22                RET     
+             ; FUNCTION DecoderGetVDelay (END)
+
+             ; FUNCTION _DecoderSetVActive (BEGIN)
+                                           ; SOURCE LINE # 239
+;---- Variable 'length' assigned to Register 'R4/R5' ----
+0000 AD07              MOV     R5,AR7
+0002 AC06              MOV     R4,AR6
+                                           ; SOURCE LINE # 240
+                                           ; SOURCE LINE # 242
+0004 EC                MOV     A,R4
+0005 5403              ANL     A,#03H
+0007 C4                SWAP    A
+0008 F8                MOV     R0,A
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 13  
+
+0009 54F0              ANL     A,#0F0H
+000B C8                XCH     A,R0
+000C E4                CLR     A
+000D C4                SWAP    A
+000E 540F              ANL     A,#0FH
+0010 48                ORL     A,R0
+0011 120000      R     LCALL   L?0028
+0014 E0                MOVX    A,@DPTR
+0015 54CF              ANL     A,#0CFH
+0017 4F                ORL     A,R7
+0018 120000      R     LCALL   L?0028
+001B EF                MOV     A,R7
+001C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 243
+001D E500        E     MOV     A,regTW88+01H
+001F 2409              ADD     A,#09H
+0021 120000      R     LCALL   L?0030
+0024 ED                MOV     A,R5
+0025 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 244
+0026 22                RET     
+             ; FUNCTION _DecoderSetVActive (END)
+
+             ; FUNCTION DecoderReadDetectedMode (BEGIN)
+                                           ; SOURCE LINE # 319
+                                           ; SOURCE LINE # 320
+                                           ; SOURCE LINE # 323
+0000 E500        E     MOV     A,regTW88+01H
+0002 241C              ADD     A,#01CH
+0004 120000      R     LCALL   L?0030
+0007 E0                MOVX    A,@DPTR
+;---- Variable 'mode' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 324
+0008 C4                SWAP    A
+0009 540F              ANL     A,#0FH
+000B FF                MOV     R7,A
+                                           ; SOURCE LINE # 325
+                                           ; SOURCE LINE # 326
+000C         ?C0018:
+000C 22                RET     
+             ; FUNCTION DecoderReadDetectedMode (END)
+
+             ; FUNCTION _DecoderCheckSTD (BEGIN)
+                                           ; SOURCE LINE # 377
+0000 900000      R     MOV     DPTR,#n
+0003 EF                MOV     A,R7
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 378
+                                           ; SOURCE LINE # 380
+0005 900000      R     MOV     DPTR,#start
+0008 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 382
+0009 7BFF              MOV     R3,#0FFH
+000B 7A00        R     MOV     R2,#HIGH ?SC_65
+000D 7900        R     MOV     R1,#LOW ?SC_65
+000F 900000      E     MOV     DPTR,#?_ePrintf?BYTE+03H
+0012 E4                CLR     A
+0013 F0                MOVX    @DPTR,A
+0014 A3                INC     DPTR
+0015 EF                MOV     A,R7
+0016 F0                MOVX    @DPTR,A
+0017 120000      E     LCALL   _ePrintf
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 14  
+
+                                           ; SOURCE LINE # 385
+001A E4                CLR     A
+001B 900000      R     MOV     DPTR,#count
+001E F0                MOVX    @DPTR,A
+001F         ?C0019:
+                                           ; SOURCE LINE # 386
+001F 900000      R     MOV     DPTR,#n
+0022 E0                MOVX    A,@DPTR
+0023 FF                MOV     R7,A
+0024 14                DEC     A
+0025 F0                MOVX    @DPTR,A
+0026 EF                MOV     A,R7
+0027 7003              JNZ     $ + 5H
+0029 020000      R     LJMP    ?C0020
+                                           ; SOURCE LINE # 387
+002C E500        E     MOV     A,regTW88+01H
+002E 241C              ADD     A,#01CH
+0030 120000      R     LCALL   L?0030
+0033 E0                MOVX    A,@DPTR
+0034 900000      R     MOV     DPTR,#r11c
+0037 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 388
+0038 E0                MOVX    A,@DPTR
+0039 30E703            JNB     ACC.7,$ + 6H
+003C 020000      R     LJMP    ?C0021
+                                           ; SOURCE LINE # 389
+003F E500        E     MOV     A,regTW88+01H
+0041 2401              ADD     A,#01H
+0043 120000      R     LCALL   L?0030
+0046 E0                MOVX    A,@DPTR
+0047 900000      R     MOV     DPTR,#r101
+004A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 390
+004B E500        E     MOV     A,regTW88+01H
+004D 2430              ADD     A,#030H
+004F 120000      R     LCALL   L?0030
+0052 E0                MOVX    A,@DPTR
+0053 900000      R     MOV     DPTR,#r130
+0056 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 391
+0057 7BFF              MOV     R3,#0FFH
+0059 7A00        R     MOV     R2,#HIGH ?SC_92
+005B 7900        R     MOV     R1,#LOW ?SC_92
+005D 900000      R     MOV     DPTR,#n
+0060 E0                MOVX    A,@DPTR
+0061 FF                MOV     R7,A
+0062 900000      R     MOV     DPTR,#start
+0065 E0                MOVX    A,@DPTR
+0066 C3                CLR     C
+0067 9F                SUBB    A,R7
+0068 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
+006B F0                MOVX    @DPTR,A
+006C 900000      R     MOV     DPTR,#r11c
+006F E0                MOVX    A,@DPTR
+0070 900000      E     MOV     DPTR,#?_dPrintf?BYTE+04H
+0073 F0                MOVX    @DPTR,A
+0074 900000      R     MOV     DPTR,#r101
+0077 E0                MOVX    A,@DPTR
+0078 900000      E     MOV     DPTR,#?_dPrintf?BYTE+05H
+007B F0                MOVX    @DPTR,A
+007C 900000      R     MOV     DPTR,#r130
+007F E0                MOVX    A,@DPTR
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 15  
+
+0080 900000      E     MOV     DPTR,#?_dPrintf?BYTE+06H
+0083 F0                MOVX    @DPTR,A
+0084 120000      E     LCALL   _dPrintf
+                                           ; SOURCE LINE # 392
+0087 900000      R     MOV     DPTR,#r101
+008A E0                MOVX    A,@DPTR
+008B 30E63A            JNB     ACC.6,?C0021
+008E A3                INC     DPTR
+008F E0                MOVX    A,@DPTR
+0090 54E0              ANL     A,#0E0H
+0092 7034              JNZ     ?C0021
+                                           ; SOURCE LINE # 393
+0094 7BFF              MOV     R3,#0FFH
+0096 7A00        R     MOV     R2,#HIGH ?SC_118
+0098 7900        R     MOV     R1,#LOW ?SC_118
+009A A3                INC     DPTR
+009B E0                MOVX    A,@DPTR
+009C FF                MOV     R7,A
+009D 900000      R     MOV     DPTR,#n
+00A0 E0                MOVX    A,@DPTR
+00A1 FD                MOV     R5,A
+00A2 C3                CLR     C
+00A3 EF                MOV     A,R7
+00A4 9D                SUBB    A,R5
+00A5 FE                MOV     R6,A
+00A6 E4                CLR     A
+00A7 9400              SUBB    A,#00H
+00A9 900000      E     MOV     DPTR,#?_ePrintf?BYTE+03H
+00AC F0                MOVX    @DPTR,A
+00AD A3                INC     DPTR
+00AE CE                XCH     A,R6
+00AF F0                MOVX    @DPTR,A
+00B0 120000      E     LCALL   _ePrintf
+                                           ; SOURCE LINE # 394
+00B3 900000      R     MOV     DPTR,#count
+00B6 E0                MOVX    A,@DPTR
+00B7 D3                SETB    C
+00B8 9404              SUBB    A,#04H
+00BA 4006              JC      ?C0023
+                                           ; SOURCE LINE # 395
+00BC 900000      R     MOV     DPTR,#r11c
+00BF E0                MOVX    A,@DPTR
+00C0 FF                MOV     R7,A
+00C1 22                RET     
+00C2         ?C0023:
+                                           ; SOURCE LINE # 396
+00C2 900000      R     MOV     DPTR,#count
+00C5 E0                MOVX    A,@DPTR
+00C6 04                INC     A
+00C7 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 397
+                                           ; SOURCE LINE # 398
+00C8         ?C0021:
+                                           ; SOURCE LINE # 399
+00C8 7F05              MOV     R7,#05H
+00CA 7E00              MOV     R6,#00H
+00CC 120000      E     LCALL   _delay1ms
+                                           ; SOURCE LINE # 400
+00CF 020000      R     LJMP    ?C0019
+00D2         ?C0020:
+                                           ; SOURCE LINE # 401
+00D2 7BFF              MOV     R3,#0FFH
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 16  
+
+00D4 7A00        R     MOV     R2,#HIGH ?SC_131
+00D6 7900        R     MOV     R1,#LOW ?SC_131
+00D8 120000      E     LCALL   _ePrintf
+                                           ; SOURCE LINE # 402
+00DB 7F80              MOV     R7,#080H
+                                           ; SOURCE LINE # 403
+00DD         ?C0024:
+00DD 22                RET     
+             ; FUNCTION _DecoderCheckSTD (END)
+
+             ; FUNCTION _DecoderFreerun (BEGIN)
+                                           ; SOURCE LINE # 419
+;---- Variable 'mode' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 420
+                                           ; SOURCE LINE # 422
+0000 E500        E     MOV     A,regTW88+01H
+0002 2433              ADD     A,#033H
+0004 120000      R     LCALL   L?0030
+0007 E0                MOVX    A,@DPTR
+0008 543F              ANL     A,#03FH
+000A FE                MOV     R6,A
+000B EF                MOV     A,R7
+000C C4                SWAP    A
+000D 33                RLC     A
+000E 33                RLC     A
+000F 54C0              ANL     A,#0C0H
+0011 4E                ORL     A,R6
+0012 FF                MOV     R7,A
+0013 E500        E     MOV     A,regTW88+01H
+0015 2433              ADD     A,#033H
+0017 120000      R     LCALL   L?0030
+001A EF                MOV     A,R7
+001B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 423
+001C 22                RET     
+             ; FUNCTION _DecoderFreerun (END)
+
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 17  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+_DecoderCheckSTD . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  n. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  r11c . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  r101 . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
+  r130 . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0003H  1
+  start. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0004H  1
+  count. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
+_DecoderFreerun. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  mode . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+_DecoderSetVActive . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  length . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0004H  2
+_delay1ms. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+DecoderGetVDelay . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  vDelay . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_InMuxSetInput . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  InputMode. . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  r102 . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0006H  1
+  r105 . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
+  r106 . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+_dPrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_ePrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
+DecoderReadDetectedMode. . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 18  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  mode . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+_DecoderCheckVDLOSS. . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  n. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  mode . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  start. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    554    ----
+   CONSTANT SIZE    =    138    ----
+   XDATA SIZE       =   ----       9
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

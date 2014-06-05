@@ -1,0 +1,2802 @@
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MONITOR_MENU
+OBJECT MODULE PLACED IN .\Output\monitor_menu.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE monitor_menu.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) B
+                    -ROWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\monitor_menu.lst) OBJECT(.\Out
+                    -put\monitor_menu.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * Monitor_MENU.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      Interface between TW_Terminal2 and Firmware.
+  10          */
+  11          //*****************************************************************************
+  12          //
+  13          //                                                              Monitor_Menu.c
+  14          //
+  15          //*****************************************************************************
+  16          //
+  17          //
+  18          #include "Config.h"
+  19          #include "reg.h"
+  20          #include "typedefs.h"
+  21          #include "TW8835.h"
+  22          
+  23          #include "Global.h"
+  24          #include "CPU.h"
+  25          #include "printf.h"
+  26          #include "util.h"
+  27          #include "monitor_MENU.h"
+  28          #include "reg_debug.h"
+  29          
+  30          #include "i2c.h"
+  31          //#include "menu8835.h"
+  32          #include "Remo.h"
+  33          
+  34          #include "SOsd.h"
+  35          #include "FOsd.h"
+  36          #include "SOsdMenu.h"
+  37          
+  38          #include "Demo.h"
+  39          #include "SpiFlashMap.h"
+  40          
+  41          #ifdef SUPPORT_FOSD_MENU
+              #include "FOsdMenu.h"
+              #endif
+  44          
+  45          //temp..please move to .h file and remove it
+  46          extern          void MenuCheckTouchInput(BYTE TscStatus,int x,int y);
+  47          extern          void proc_home_menu_start(void);
+  48          
+  49          extern void DumpFontOsdPalette(void);
+  50          extern void Test16x32FontSet(void);
+  51          extern void TestUpper256Char(void);
+  52          extern void TestMultiBPP4(void);
+  53          extern void TestNum1BPP3BPP(void);
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 2   
+
+  54          
+  55          extern void TaskSetGridCmd(BYTE cmd);
+  56          extern BYTE TaskGetGrid(void);
+  57          
+  58          
+  59          //extern XDATA BYTE Task_Grid_on;
+  60          extern void MenuKeyInput(BYTE key);
+  61          
+  62          //extern TestMainMenuImage(BYTE type);
+  63          
+  64          
+  65          
+  66          //=============================================================================
+  67          //
+  68          //=============================================================================
+  69          void MonitorMenu(void)
+  70          {
+  71   1      //      int x, y;
+  72   1      
+  73   1              if(argc != 3)   {
+  74   2                      //Puts("\nmenu x y");
+  75   2      
+  76   2                      if(TaskGetGrid()) {
+  77   3                              if(!stricmp( argv[1], "up")) {
+  78   4                                      TaskSetGridCmd(NAVI_KEY_UP);
+  79   4                              }
+  80   3                              else if(!stricmp( argv[1], "down")) {
+  81   4                                      TaskSetGridCmd(NAVI_KEY_DOWN);
+  82   4                              }
+  83   3                              else if(!stricmp( argv[1], "left")) {
+  84   4                                      TaskSetGridCmd(NAVI_KEY_LEFT);
+  85   4                              }
+  86   3                              else if(!stricmp( argv[1], "right")) {
+  87   4                                      TaskSetGridCmd(NAVI_KEY_RIGHT);
+  88   4                              }
+  89   3                              else if(!stricmp( argv[1], "enter")) {
+  90   4                                      TaskSetGridCmd(NAVI_KEY_ENTER);
+  91   4                              }
+  92   3                              return;
+  93   3                      }
+  94   2                      if(MenuGetLevel()) {
+  95   3                              if(!stricmp( argv[1], "up")) {
+  96   4                                      MenuKeyInput(NAVI_KEY_UP);
+  97   4                              }
+  98   3                              else if(!stricmp( argv[1], "down")) {
+  99   4                                      MenuKeyInput(NAVI_KEY_DOWN);
+ 100   4                              }
+ 101   3                              else if(!stricmp( argv[1], "left")) {
+ 102   4                                      MenuKeyInput(NAVI_KEY_LEFT);
+ 103   4                              }
+ 104   3                              else if(!stricmp( argv[1], "right")) {
+ 105   4                                      MenuKeyInput(NAVI_KEY_RIGHT);
+ 106   4                              }
+ 107   3                              else if(!stricmp( argv[1], "enter")) {
+ 108   4                                      MenuKeyInput(NAVI_KEY_ENTER);
+ 109   4                              }
+ 110   3                      }
+ 111   2      
+ 112   2      
+ 113   2                      if(!stricmp( argv[1], "start" ))  {
+ 114   3                              Printf("\ncall MenuStart");
+ 115   3                              //proc_home_menu_start();
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 3   
+
+ 116   3                              MenuStart();
+ 117   3                      }
+ 118   2                      else if(!stricmp( argv[1], "exit" ))  {
+ 119   3                              Printf("\ncall MenuEnd");
+ 120   3                              MenuEnd();
+ 121   3                      }
+ 122   2                      else if(!stricmp( argv[1], "test1")) {
+ 123   3                              DumpFontOsdPalette();
+ 124   3                      }
+ 125   2                      else if(!stricmp( argv[1], "test2")) {
+ 126   3                              Test16x32FontSet();
+ 127   3                      }
+ 128   2                      else if(!stricmp( argv[1], "test3")) {
+ 129   3                              TestUpper256Char();
+ 130   3                      }
+ 131   2                      else if(!stricmp( argv[1], "test4")) {
+ 132   3                              TestMultiBPP4();
+ 133   3                      }
+ 134   2                      else if(!stricmp( argv[1], "test5")) {
+ 135   3                              TestNum1BPP3BPP();
+ 136   3                      }
+ 137   2                      else if(!stricmp( argv[1], "main1")) {
+ 138   3                              TestMainMenuImage(1);
+ 139   3                      }
+ 140   2                      else if(!stricmp( argv[1], "main2")) {
+ 141   3                              TestMainMenuImage(2);
+ 142   3                      }
+ 143   2                      else if(!stricmp( argv[1], "main3")) {
+ 144   3                              TestMainMenuImage(3);
+ 145   3                      }
+ 146   2      
+ 147   2      
+ 148   2                      return;
+ 149   2              }
+ 150   1      //      x=a2h(argv[1]);
+ 151   1      //      y=a2h(argv[2]);
+ 152   1      //      Printf("\n ECHO: menu x:%d y:%d", x,y);
+ 153   1      //      MenuCheckTouchInput(x,y);
+ 154   1      }
+ 155          
+ 156          //=============================================================================
+ 157          //
+ 158          //=============================================================================
+ 159          //FONT OSD
+ 160          void MonitorFOsd(void)
+ 161          {
+ 162   1              DECLARE_LOCAL_page
+ 163   1      
+ 164   1              if(!stricmp( argv[1], "?")) {
+ 165   2                      Puts("\n  === Help for FOSD command ===");
+ 166   2                      Puts("\nFOSD BPP3                       ;calculate 3BPP alpha order");
+ 167   2                      Puts("\nFOSD BPP2       [winno] ;draw 2BPP intersil icon");
+ 168   2                      Puts("\nFOSD lutd                       ;dump 64 lut value");
+ 169   2                      Puts("\nFOSD lutw       dat             ;overwrite all 64 LUT with value");
+ 170   2                      Puts("\nFOSD dnlut  [0|1|2]     ;download LUT");
+ 171   2                      Puts("\nFOSD info                       ;");
+ 172   2                      Puts("\nFOSD dnfont     [n]             ;download font");
+ 173   2                      Puts("\nFOSD fontd                      ;dump downloaded font");
+ 174   2              }
+ 175   1              //=============================================
+ 176   1              // font
+ 177   1              //      font info
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 4   
+
+ 178   1              //      download font
+ 179   1              //      dump font
+ 180   1              // 
+ 181   1              //palette
+ 182   1              //      palette dump
+ 183   1              //      download palette
+ 184   1              //
+ 185   1              //osdram
+ 186   1              //      
+ 187   1              //
+ 188   1      
+ 189   1              //-----------------------------------------------------
+ 190   1              // print Font information
+ 191   1              else if(!stricmp( argv[1], "info" )) {
+ 192   2                      extern void FontInfoByNum(BYTE FontMode);
+ 193   2                      
+ 194   2                      //FOsdMon_info();
+ 195   2                      Printf("\nFont");
+ 196   2                      Printf("\n\t0: default_font 12x18");
+ 197   2                      Printf("\n\t1: consolas 16x26");
+ 198   2                      Printf("\n\t2: consolas graynum 16x26");
+ 199   2                      Printf("\n\t3: con+graynum 16x26");
+ 200   2                      Printf("\n\t4: def+kor 16x26");
+ 201   2                      FontInfoByNum(0);
+ 202   2                      FontInfoByNum(1);
+ 203   2                      FontInfoByNum(2);
+ 204   2                      FontInfoByNum(3);
+ 205   2              }
+ 206   1              //-----------------------------------------------------
+ 207   1              // download font
+ 208   1              else if(!stricmp( argv[1], "dnfont" )) {
+ 209   2                      BYTE num;
+ 210   2                      WORD loc;
+ 211   2                      if(argc < 3) {
+ 212   3                              num = 0;
+ 213   3                              loc = 0;
+ 214   3                      }
+ 215   2                      else {
+ 216   3                              num = a2h(argv[2]);
+ 217   3                              if(argc < 4) {
+ 218   4                                      loc = 0;
+ 219   4                              }
+ 220   3                              else {
+ 221   4                                      loc = a2h(argv[3]);
+ 222   4                              }
+ 223   3                      }
+ 224   2                      InitFontRamByNum(num, loc);
+ 225   2              }
+ 226   1              //-----------------------------------------------------
+ 227   1              // dump font.
+ 228   1              else if(!stricmp( argv[1], "fontd" )) {
+ 229   2                      extern void DumpFont(void);
+ 230   2                      DumpFont();
+ 231   2              }
+ 232   1              //-----------------------------------------------------
+ 233   1              // dump palette.
+ 234   1              else if(!stricmp( argv[1], "lutd")) {
+ 235   2                      //dump palette table
+ 236   2                      BYTE winno;
+ 237   2      
+ 238   2                      winno=3;
+ 239   2                      if(argc == 3) {
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 5   
+
+ 240   3                              winno = a2h(argv[2]);
+ 241   3                              if(winno > 3)
+ 242   3                                      winno=3;
+ 243   3                      }
+ 244   2                      ReadTW88Page(page);
+ 245   2                      FOsdDumpPalette(winno);
+ 246   2                      WriteTW88Page(page);
+ 247   2              }
+ 248   1              else if(!stricmp( argv[1], "lutw")) {
+ 249   2                      //fosd lutw 0 ffff  0
+ 250   2                      BYTE loc;
+ 251   2                      WORD color;
+ 252   2                      if ( argc < 3 ) {
+ 253   3                              Printf("\nflutw need a WORDSIZE value");
+ 254   3                      }
+ 255   2                      else {
+ 256   3                              loc = a2h(argv[2]);
+ 257   3                              color = a2h(argv[3]);
+ 258   3                              FOsdSetPaletteColor(loc, color, 1, 0);
+ 259   3                      }
+ 260   2              }
+ 261   1              else if(!stricmp( argv[1], "dnlut")) {
+ 262   2                      //download palette table
+ 263   2                      BYTE lut_num;
+ 264   2      
+ 265   2                      lut_num = 0;
+ 266   2                      if(argc == 3) {
+ 267   3                              lut_num = a2h(argv[2]);
+ 268   3                      }
+ 269   2                      FOsdSetDefPaletteColor(lut_num);
+ 270   2      
+ 271   2      
+ 272   2              }
+ 273   1              else if(!stricmp( argv[1], "cpwin" )) {
+ 274   2      #ifdef MODEL_TW8836
+                              /*
+                              TW8836 has 8 FontOsdWindow. FW uses 4 windows for MENU.
+                              To test WIN5,6,7,8 copy WIN1,2,3,4 register to WIN5,6,7,8 
+                              and then adjust start x, start y.
+                              */
+                              BYTE src,dest,i;
+              
+                              if(argc >=4) {  
+                                      src = a2h(argv[2]);
+                                      dest = a2h(argv[3]);
+                                      if(src >=8 || dest >=8)
+                                              return;
+                                      WriteTW88Page(3);
+                                      for(i=0; i < 0x10; i++) {
+                                              WriteTW88(REG310+dest*0x10+i, ReadTW88(REG310+src*0x10+i));
+                                      }
+                              }
+              #endif
+ 293   2              }
+ 294   1              else if ( !stricmp( argv[1], "test1" )) {
+ 295   2                      //extern void FOsdDisplayInput(void);
+ 296   2                      //FOsdDisplayInput();
+ 297   2                      extern void FOsdTest_1(BYTE mode);
+ 298   2                      FOsdTest_1(0);
+ 299   2              }
+ 300   1              else if ( !stricmp( argv[1], "test2" )) {
+ 301   2                      extern void FOsdTest_1(BYTE mode);
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 6   
+
+ 302   2                      FOsdTest_1(1);
+ 303   2              }
+ 304   1              else if ( !stricmp( argv[1], "test3" )) {
+ 305   2      #ifdef SUPPORT_FOSD_MENU
+              //              extern void FOsdMenuOpen(void);
+              
+                              ReadTW88Page(page);
+                              //InitFontRam(0, &default_font,"def");
+                              InitFontRamByNum(FONT_NUM_DEF12X18, 0);
+                              FOsdRamSetFifo(ON, 1);
+                              FOsdMenuOpen();
+                              WriteTW88Page(page);
+              #endif
+ 315   2              }
+ 316   1              else if ( !stricmp( argv[1], "test4" )) {
+ 317   2      #ifdef SUPPORT_FOSD_MENU
+                              //extern void FOsdDisplayInput(void);
+                              //FOsdDisplayInput();
+              
+                              extern void FOsdDisplayInput(void);
+              //              extern BYTE CloseOSDMenu(void);
+                              extern void WriteStringToAddr(WORD addr, BYTE *str, BYTE cnt);
+              //              extern void OSDSelect(void);
+                              extern void DisplayPCInfo(BYTE CODE *ptr);
+              //              extern void OSDCursorMove(BYTE flag );
+              
+              
+              
+              //              CloseOSDMenu();
+                              FOsdDisplayInput();
+                              WriteStringToAddr(0, "test", 4);
+              //              OSDSelect();
+                              DisplayPCInfo("CHECK 656 signal");
+              //              OSDCursorMove(0);
+              #endif
+ 337   2      
+ 338   2      
+ 339   2              }
+ 340   1              else if(!stricmp( argv[1], "BPP3")) {
+ 341   2                      FOsdInitBpp3AlphaTable(1);
+ 342   2              }
+ 343   1              else if(!stricmp( argv[1], "BPP2")) {
+ 344   2                      BYTE winno;
+ 345   2      
+ 346   2                      winno=3;
+ 347   2                      if(argc == 3) {
+ 348   3                              winno = a2h(argv[2]);
+ 349   3                              if(winno > 3)
+ 350   3                                      winno=3;
+ 351   3                      }
+ 352   2      //              FOsdIntersil(winno);
+ 353   2              }
+ 354   1              else
+ 355   1                      Printf("\nInvalid command..."); 
+ 356   1      }
+ 357          
+ 358          //=============================================================================
+ 359          //
+ 360          //=============================================================================
+ 361          //SPI OSD
+ 362          void MonitorSOsd(void)
+ 363          {
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 7   
+
+ 364   1              if(!stricmp( argv[1], "?")) {
+ 365   2                      Puts("\n=== Help for SOSD command ===");
+ 366   2                      Puts("\n\ton/off                ;SOSD on/off");
+ 367   2                      Puts("\n\t [rose|pigeon]");
+ 368   2                      Puts("\n\t ??");
+ 369   2                      Puts("\n\t lut img_n lut_n");
+ 370   2                      Puts("\n\t img img_n lut_n win_n");
+ 371   2                      Puts("\nAdd Your Test Function                  ;add comment");
+ 372   2              }
+ 373   1              //-------<<on>>-----------------------------
+ 374   1              else if(!stricmp( argv[1], "on")) {
+ 375   2                      SpiOsdEnable(ON);
+ 376   2              }
+ 377   1              //-------<<off>>-----------------------------
+ 378   1              else if(!stricmp( argv[1], "off")) {
+ 379   2                      SpiOsdEnable(OFF);
+ 380   2              }
+ 381   1              //-------<<rose>>-----------------------------
+ 382   1              else if(!stricmp( argv[1], "rose")) {
+ 383   2                      if(argc >= 3) {
+ 384   3                              if(!stricmp( argv[2], "info")) {
+ 385   4                                      Printf("\nimg loc:%lx size:%lx lut loc:%lx size:%lx 400x400x10",ROSE_START,ROSE_LEN, ROSE_LUT_LOC,PIGE
+             -ON_ROSE_LUT_LEN);
+ 386   4                              }
+ 387   3                              else
+ 388   3                                      Printf("\nInvalid command..."); 
+ 389   3                      }
+ 390   2                      RoseDemo();
+ 391   2              }
+ 392   1              //-------<<pigeon>>-----------------------------
+ 393   1              else if(!stricmp( argv[1], "pigeon")) {
+ 394   2                      if(argc >= 3) {
+ 395   3                              if(!stricmp( argv[2], "info")) {
+ 396   4                                      Printf("\nimg loc:%lx size:%lx lut loc:%lx size:%lx 400x400x10",PIGEON_START,PIGEON_LEN, PIGEON_LUT_LO
+             -C,PIGEON_ROSE_LUT_LEN);
+ 397   4                              }
+ 398   3                              else
+ 399   3                                      Printf("\nInvalid command..."); 
+ 400   3                      }
+ 401   2                      PigeonDemo();
+ 402   2              }
+ 403   1              //-------<<?? test image information>>-----------------------------
+ 404   1              else if(!stricmp( argv[1], "??")) {
+ 405   2                      MonSOsdImgInfo();
+ 406   2              }
+ 407   1              //-------<<lut offset# addr#>>-----------------------------
+ 408   1              else if(!stricmp( argv[1], "lut")) {
+ 409   2                      BYTE img_n;
+ 410   2                      WORD lut;
+ 411   2                      if(argc < 4)
+ 412   2                              Printf("\nInvalid command...");          
+ 413   2                      else {
+ 414   3                              img_n=a2i(argv[2]);
+ 415   3                              lut  =a2i(argv[3]);
+ 416   3                              MonOsdLutLoad(img_n,3, lut); //I don't know winno. so tempolary assign 3.
+ 417   3                      }       
+ 418   2              }
+ 419   1              //-------<<img0 win# lut#>>-----------------------------
+ 420   1              else if(!stricmp( argv[1], "img")) {
+ 421   2                      BYTE img_n,winno;
+ 422   2                      WORD lut;
+ 423   2                      if(argc < 5)
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 8   
+
+ 424   2                              Printf("\nInvalid command...");          
+ 425   2                      else {
+ 426   3                              img_n=a2i(argv[2]);
+ 427   3                              lut  =a2i(argv[3]);
+ 428   3                              winno = a2i(argv[4]);
+ 429   3                              MonOsdImgLoad(img_n,winno,lut);
+ 430   3                      }       
+ 431   2              }
+ 432   1              //-------<<img1 win# lut#>>-----------------------------
+ 433   1              else if(!stricmp( argv[1], "dnitem")) {
+ 434   2                      BYTE img_n,winno;
+ 435   2                      WORD lut;
+ 436   2                      if(argc < 4) 
+ 437   2                              Printf("\nInvalid command...");
+ 438   2                      else {
+ 439   3                              if(!stricmp( argv[3], "lut")) {
+ 440   4                                      img_n = a2i(argv[2]);
+ 441   4                                      winno = ReadTW88(REG009) >> 5;
+ 442   4                                      winno++;        
+ 443   4                                      lut = ReadTW88(REG009) & 0x1F;
+ 444   4                                      lut <<= 4;
+ 445   4                                      MonOsdLutLoad(img_n,winno, lut);
+ 446   4                              } 
+ 447   3                              else if(!stricmp( argv[3], "img")) {
+ 448   4                                      img_n = a2i(argv[2]);
+ 449   4                                      winno = ReadTW88(REG009) >> 5;
+ 450   4                                      winno++;        
+ 451   4                                      lut = ReadTW88(REG009) & 0x1F;
+ 452   4                                      lut <<= 4;
+ 453   4                                      MonOsdImgLoad(img_n,winno,lut);
+ 454   4                              }
+ 455   3                              else
+ 456   3                                      Printf("\nInvalid command..."); 
+ 457   3                      }
+ 458   2              }
+ 459   1              //-------<<sosd download lut>>-----------------------------
+ 460   1              else if(!stricmp( argv[1], "dnlut")) {
+ 461   2                      //download palette table
+ 462   2                      //format: sosd dnlut lut_offset image_address
+ 463   2                      //step: read header     & download lut
+ 464   2                      extern menu_image_header_t header_table;
+ 465   2                      extern BYTE MenuReadRleHeader(DWORD spi_loc,struct RLE2_HEADER *header);
+ 466   2                      extern void rle2_to_header(struct RLE2_HEADER *rle_header);
+ 467   2                      #define MRLE_INFO_SIZE          0x10
+ 468   2                      WORD lut_loc;
+ 469   2                      BYTE lut_type;
+ 470   2                      WORD nColor;
+ 471   2                      DWORD image_loc;
+ 472   2                      BYTE winno;             //TW8836 need.
+ 473   2                      menu_image_header_t *header = &header_table;
+ 474   2                      struct RLE2_HEADER rle_header;
+ 475   2      
+ 476   2      
+ 477   2                      if(argc < 3) {
+ 478   3                              Puts("\nuse: sosd dnlut ?");
+ 479   3                              return;
+ 480   3                      }
+ 481   2                      else {
+ 482   3                              if(argv[2][0]=='?') {
+ 483   4                                      Puts("\nFormat: sosd dnlut winno lut_type(0 or 1) lut_offset flash_addr");
+ 484   4                                      Puts("\n      : sosd dnlut winno lut_type(2 or 3) lut_offset flash_addr [nColor].");
+ 485   4                                      Puts("\n\twinno 0~8. TW8836 needs winno");
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 9   
+
+ 486   4                                      Puts("\n\tlut_type 0: TW8832 style. 256 color.");
+ 487   4                                      Puts("\n\t         1: TW8835 menu style. image has a header+palette+data.");
+ 488   4                                      Puts("\n\t         2: LUT type(BBB...GGG..RRR...AAA...).");
+ 489   4                                      Puts("\n\t         3: LUTS type(BGRA BGRA BGRA...).");
+ 490   4                                      Puts("\n\tlut_offset 0~511 (TW8836 win1~win2:0~255, win3~win8 and win0:0~511)");
+ 491   4                                      Puts("\n\tflash_addr:flash address. if lut_type is 1, it has a header location");
+ 492   4                                      Puts("\n\tnColor:number of color. default:256");
+ 493   4                                      Puts("\nexample:");
+ 494   4                                      Puts("\n\t sosd dnlut 1 1 0 41e071      ; menu background");
+ 495   4                                      Puts("\n\t sosd dnlut 1 3 0 41e081 128  ; menu background");
+ 496   4                                      Puts("\n\t sosd dnlut 8 1 256 4336a7    ; menu video icon");
+ 497   4                                      return;
+ 498   4                              }
+ 499   3                              if(argc < 6) {
+ 500   4                                      Puts("\nuse: sosd dnlut ?");
+ 501   4                                      return;
+ 502   4                              }
+ 503   3                              winno = a2h(argv[2]);
+ 504   3                              lut_type = a2h(argv[3]);
+ 505   3                              lut_loc = a2i(argv[4]);
+ 506   3                              image_loc = a2h(argv[5]);
+ 507   3                              if(lut_type == 2 || lut_type == 3) {
+ 508   4                                      if(argc < 7) 
+ 509   4                                              nColor = 256;
+ 510   4                                      else
+ 511   4                                              nColor = a2i(argv[6]);
+ 512   4                              }
+ 513   3                      }
+ 514   2                      
+ 515   2              
+ 516   2                      //MenuPrepareImageHeader(image);        //update header_table
+ 517   2                      if(lut_type==0) { //TW8832 style. only LUT. size 256*4. group style.
+ 518   3                              header->lut_type = 0;
+ 519   3                              header->lut_size = 0x400;
+ 520   3                              header->lut_loc = image_loc;
+ 521   3                      }
+ 522   2                      else if(lut_type==1) { //TW8835 menu style
+ 523   3                              MenuReadRleHeader(image_loc,&rle_header);               
+ 524   3                              rle2_to_header(&rle_header);
+ 525   3                              header->lut_loc = image_loc + MRLE_INFO_SIZE;
+ 526   3                              header->image_loc = image_loc + header->lut_size + MRLE_INFO_SIZE;
+ 527   3                      } 
+ 528   2                      else if(lut_type==2) {
+ 529   3                              header->lut_type = 0;
+ 530   3                              header->lut_size = nColor*4;
+ 531   3                              header->lut_loc = image_loc;
+ 532   3                      }
+ 533   2                      else if(lut_type==3) {
+ 534   3                              header->lut_type = 1;
+ 535   3                              header->lut_size = nColor*4;
+ 536   3                              header->lut_loc = image_loc;
+ 537   3                      }
+ 538   2                      else {
+ 539   3                              Printf("\nInvalid command..."); 
+ 540   3                              return;
+ 541   3                      }       
+ 542   2                      WaitVBlank(1);
+ 543   2                      SpiOsdLoadLUT(winno, header->lut_type, lut_loc, header->lut_size, header->lut_loc);
+ 544   2      
+ 545   2              }
+ 546   1              //-------<<img4 win# lut#>>-----------------------------
+ 547   1              else if(!stricmp( argv[1], "??")) {
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 10  
+
+ 548   2              }
+ 549   1              //-------<<img5 win# lut#>>-----------------------------
+ 550   1              else if(!stricmp( argv[1], "??")) {
+ 551   2              }
+ 552   1              //-------<<img6 win# lut#>>-----------------------------
+ 553   1              else if(!stricmp( argv[1], "??")) {
+ 554   2              }
+ 555   1              //-------<<img7 win# lut#>>-----------------------------
+ 556   1              else if(!stricmp( argv[1], "??")) {
+ 557   2              }
+ 558   1              //-------<<??>>-----------------------------
+ 559   1              else if(!stricmp( argv[1], "??")) {
+ 560   2              }
+ 561   1              else
+ 562   1                      Printf("\nInvalid command..."); 
+ 563   1      }
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 11  
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com00AF (BEGIN)
+0000         L?0176:
+0000         L?0177:
+0000 900000      E     MOV     DPTR,#?_stricmp?BYTE+03H
+0003 74FF              MOV     A,#0FFH
+0005 F0                MOVX    @DPTR,A
+0006 A3                INC     DPTR
+0007 7400        R     MOV     A,#HIGH ?SC_886
+0009 F0                MOVX    @DPTR,A
+000A 7400        R     MOV     A,#LOW ?SC_886
+000C         L?0178:
+000C A3                INC     DPTR
+000D         L?0179:
+000D F0                MOVX    @DPTR,A
+000E 900000      E     MOV     DPTR,#argv+03H
+0011         L?0180:
+0011 E0                MOVX    A,@DPTR
+0012 FB                MOV     R3,A
+0013         L?0181:
+0013 A3                INC     DPTR
+0014 E0                MOVX    A,@DPTR
+0015 FA                MOV     R2,A
+0016 A3                INC     DPTR
+0017 E0                MOVX    A,@DPTR
+0018 F9                MOV     R1,A
+0019 22                RET     
+001A         L?0182:
+001A         L?0183:
+001A 900000      E     MOV     DPTR,#?_stricmp?BYTE+03H
+001D 74FF              MOV     A,#0FFH
+001F F0                MOVX    @DPTR,A
+0020 A3                INC     DPTR
+0021 22                RET     
+0022         L?0189:
+0022         L?0190:
+0022 900000      R     MOV     DPTR,#image_loc
+0025 E0                MOVX    A,@DPTR
+0026 FC                MOV     R4,A
+0027 A3                INC     DPTR
+0028 E0                MOVX    A,@DPTR
+0029 FD                MOV     R5,A
+002A A3                INC     DPTR
+002B E0                MOVX    A,@DPTR
+002C FE                MOV     R6,A
+002D A3                INC     DPTR
+002E E0                MOVX    A,@DPTR
+002F 22                RET     
+0030         L?0193:
+0030         L?0194:
+0030 900000      E     MOV     DPTR,#argc
+0033 E0                MOVX    A,@DPTR
+0034 C3                CLR     C
+0035 9403              SUBB    A,#03H
+0037 22                RET     
+0038         L?0195:
+0038 2410              ADD     A,#010H
+003A FF                MOV     R7,A
+003B E4                CLR     A
+003C 3E                ADDC    A,R6
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 12  
+
+003D FE                MOV     R6,A
+003E E4                CLR     A
+003F 3D                ADDC    A,R5
+0040 FD                MOV     R5,A
+0041 E4                CLR     A
+0042 3C                ADDC    A,R4
+0043 FC                MOV     R4,A
+0044 900000      R     MOV     DPTR,#header
+0047 22                RET     
+0048         L?0196:
+0048 900008            MOV     DPTR,#08H
+004B 120000      E     LCALL   ?C?CSTOPTR
+004E 900000      R     MOV     DPTR,#nColor
+0051 E0                MOVX    A,@DPTR
+0052 FE                MOV     R6,A
+0053 A3                INC     DPTR
+0054 E0                MOVX    A,@DPTR
+0055 7802              MOV     R0,#02H
+0057 22                RET     
+0058         L?0199:
+0058         L?0200:
+0058 900000      E     MOV     DPTR,#argc
+005B E0                MOVX    A,@DPTR
+005C C3                CLR     C
+005D 9404              SUBB    A,#04H
+005F 22                RET     
+0060         L?0203:
+0060 900000      R     MOV     DPTR,#winno
+0063 7403              MOV     A,#03H
+0065 F0                MOVX    @DPTR,A
+0066 900000      E     MOV     DPTR,#argc
+0069 E0                MOVX    A,@DPTR
+006A 22                RET     
+006B         L?0204:
+006B 7400        R     MOV     A,#HIGH ?SC_434
+006D F0                MOVX    @DPTR,A
+006E A3                INC     DPTR
+006F 7400        R     MOV     A,#LOW ?SC_434
+0071 F0                MOVX    @DPTR,A
+0072 900000      E     MOV     DPTR,#argv+06H
+0075 22                RET     
+0076         L?0205:
+0076 900000      E     MOV     DPTR,#?_Printf?BYTE+0FH
+0079 7410              MOV     A,#010H
+007B F0                MOVX    @DPTR,A
+007C A3                INC     DPTR
+007D E4                CLR     A
+007E F0                MOVX    @DPTR,A
+007F 22                RET     
+             ; FUNCTION Com00AF (END)
+
+             ; FUNCTION MonitorMenu (BEGIN)
+                                           ; SOURCE LINE # 69
+                                           ; SOURCE LINE # 70
+                                           ; SOURCE LINE # 73
+0000 900000      E     MOV     DPTR,#argc
+0003 E0                MOVX    A,@DPTR
+0004 6403              XRL     A,#03H
+0006 7003              JNZ     $ + 5H
+0008 020000      R     LJMP    ?C0012
+                                           ; SOURCE LINE # 76
+000B 120000      E     LCALL   TaskGetGrid
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 13  
+
+000E EF                MOV     A,R7
+000F 6077              JZ      ?C0002
+                                           ; SOURCE LINE # 77
+0011 120000      R     LCALL   L?0182
+0014 7400        R     MOV     A,#HIGH ?SC_0
+0016 F0                MOVX    @DPTR,A
+0017 7400        R     MOV     A,#LOW ?SC_0
+0019 120000      R     LCALL   L?0178
+001C 120000      E     LCALL   _stricmp
+001F EF                MOV     A,R7
+0020 4E                ORL     A,R6
+0021 7005              JNZ     ?C0003
+                                           ; SOURCE LINE # 78
+0023 7F02              MOV     R7,#02H
+                                           ; SOURCE LINE # 79
+0025 020000      R     LJMP    ?C0150
+0028         ?C0003:
+                                           ; SOURCE LINE # 80
+0028 120000      R     LCALL   L?0182
+002B 7400        R     MOV     A,#HIGH ?SC_3
+002D F0                MOVX    @DPTR,A
+002E A3                INC     DPTR
+002F 7400        R     MOV     A,#LOW ?SC_3
+0031 120000      R     LCALL   L?0179
+0034 120000      E     LCALL   _stricmp
+0037 EF                MOV     A,R7
+0038 4E                ORL     A,R6
+0039 7004              JNZ     ?C0005
+                                           ; SOURCE LINE # 81
+003B 7F03              MOV     R7,#03H
+003D         ?C0147:
+                                           ; SOURCE LINE # 82
+003D 8046              SJMP    ?C0150
+003F         ?C0005:
+                                           ; SOURCE LINE # 83
+003F 120000      R     LCALL   L?0183
+0042 7400        R     MOV     A,#HIGH ?SC_8
+0044 F0                MOVX    @DPTR,A
+0045 A3                INC     DPTR
+0046 7400        R     MOV     A,#LOW ?SC_8
+0048 120000      R     LCALL   L?0179
+004B 120000      E     LCALL   _stricmp
+004E EF                MOV     A,R7
+004F 4E                ORL     A,R6
+0050 7004              JNZ     ?C0007
+                                           ; SOURCE LINE # 84
+0052 7F04              MOV     R7,#04H
+0054         ?C0148:
+                                           ; SOURCE LINE # 85
+0054 802F              SJMP    ?C0150
+0056         ?C0007:
+                                           ; SOURCE LINE # 86
+0056 120000      R     LCALL   L?0183
+0059 7400        R     MOV     A,#HIGH ?SC_13
+005B F0                MOVX    @DPTR,A
+005C A3                INC     DPTR
+005D 7400        R     MOV     A,#LOW ?SC_13
+005F 120000      R     LCALL   L?0179
+0062 120000      E     LCALL   _stricmp
+0065 EF                MOV     A,R7
+0066 4E                ORL     A,R6
+0067 7004              JNZ     ?C0009
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 14  
+
+                                           ; SOURCE LINE # 87
+0069 7F05              MOV     R7,#05H
+006B         ?C0149:
+                                           ; SOURCE LINE # 88
+006B 8018              SJMP    ?C0150
+006D         ?C0009:
+                                           ; SOURCE LINE # 89
+006D 120000      R     LCALL   L?0183
+0070 7400        R     MOV     A,#HIGH ?SC_19
+0072 F0                MOVX    @DPTR,A
+0073 A3                INC     DPTR
+0074 7400        R     MOV     A,#LOW ?SC_19
+0076 120000      R     LCALL   L?0179
+0079 120000      E     LCALL   _stricmp
+007C EF                MOV     A,R7
+007D 4E                ORL     A,R6
+007E 6003              JZ      $ + 5H
+0080 020000      R     LJMP    ?C0012
+                                           ; SOURCE LINE # 90
+0083 7F01              MOV     R7,#01H
+0085         ?C0150:
+0085 020000      E     LJMP    _TaskSetGridCmd
+                                           ; SOURCE LINE # 91
+                                           ; SOURCE LINE # 93
+0088         ?C0002:
+                                           ; SOURCE LINE # 94
+0088 120000      E     LCALL   MenuGetLevel
+008B EF                MOV     A,R7
+008C 6075              JZ      ?C0013
+                                           ; SOURCE LINE # 95
+008E 120000      R     LCALL   L?0183
+0091 7400        R     MOV     A,#HIGH ?SC_0
+0093 F0                MOVX    @DPTR,A
+0094 A3                INC     DPTR
+0095 7400        R     MOV     A,#LOW ?SC_0
+0097 120000      R     LCALL   L?0179
+009A 120000      E     LCALL   _stricmp
+009D EF                MOV     A,R7
+009E 4E                ORL     A,R6
+009F 7005              JNZ     ?C0014
+                                           ; SOURCE LINE # 96
+00A1 7F02              MOV     R7,#02H
+                                           ; SOURCE LINE # 97
+00A3 020000      R     LJMP    ?C0154
+00A6         ?C0014:
+                                           ; SOURCE LINE # 98
+00A6 120000      R     LCALL   L?0183
+00A9 7400        R     MOV     A,#HIGH ?SC_3
+00AB F0                MOVX    @DPTR,A
+00AC A3                INC     DPTR
+00AD 7400        R     MOV     A,#LOW ?SC_3
+00AF 120000      R     LCALL   L?0179
+00B2 120000      E     LCALL   _stricmp
+00B5 EF                MOV     A,R7
+00B6 4E                ORL     A,R6
+00B7 7004              JNZ     ?C0016
+                                           ; SOURCE LINE # 99
+00B9 7F03              MOV     R7,#03H
+00BB         ?C0151:
+                                           ; SOURCE LINE # 100
+00BB 8043              SJMP    ?C0154
+00BD         ?C0016:
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 15  
+
+                                           ; SOURCE LINE # 101
+00BD 120000      R     LCALL   L?0183
+00C0 7400        R     MOV     A,#HIGH ?SC_8
+00C2 F0                MOVX    @DPTR,A
+00C3 A3                INC     DPTR
+00C4 7400        R     MOV     A,#LOW ?SC_8
+00C6 120000      R     LCALL   L?0179
+00C9 120000      E     LCALL   _stricmp
+00CC EF                MOV     A,R7
+00CD 4E                ORL     A,R6
+00CE 7004              JNZ     ?C0018
+                                           ; SOURCE LINE # 102
+00D0 7F04              MOV     R7,#04H
+00D2         ?C0152:
+                                           ; SOURCE LINE # 103
+00D2 802C              SJMP    ?C0154
+00D4         ?C0018:
+                                           ; SOURCE LINE # 104
+00D4 120000      R     LCALL   L?0183
+00D7 7400        R     MOV     A,#HIGH ?SC_13
+00D9 F0                MOVX    @DPTR,A
+00DA A3                INC     DPTR
+00DB 7400        R     MOV     A,#LOW ?SC_13
+00DD 120000      R     LCALL   L?0179
+00E0 120000      E     LCALL   _stricmp
+00E3 EF                MOV     A,R7
+00E4 4E                ORL     A,R6
+00E5 7004              JNZ     ?C0020
+                                           ; SOURCE LINE # 105
+00E7 7F05              MOV     R7,#05H
+00E9         ?C0153:
+                                           ; SOURCE LINE # 106
+00E9 8015              SJMP    ?C0154
+00EB         ?C0020:
+                                           ; SOURCE LINE # 107
+00EB 120000      R     LCALL   L?0183
+00EE 7400        R     MOV     A,#HIGH ?SC_19
+00F0 F0                MOVX    @DPTR,A
+00F1 A3                INC     DPTR
+00F2 7400        R     MOV     A,#LOW ?SC_19
+00F4 120000      R     LCALL   L?0179
+00F7 120000      E     LCALL   _stricmp
+00FA EF                MOV     A,R7
+00FB 4E                ORL     A,R6
+00FC 7005              JNZ     ?C0013
+                                           ; SOURCE LINE # 108
+00FE 7F01              MOV     R7,#01H
+0100         ?C0154:
+0100 120000      E     LCALL   _MenuKeyInput
+                                           ; SOURCE LINE # 109
+                                           ; SOURCE LINE # 110
+0103         ?C0013:
+                                           ; SOURCE LINE # 113
+0103 120000      R     LCALL   L?0183
+0106 7400        R     MOV     A,#HIGH ?SC_25
+0108 F0                MOVX    @DPTR,A
+0109 A3                INC     DPTR
+010A 7400        R     MOV     A,#LOW ?SC_25
+010C 120000      R     LCALL   L?0179
+010F 120000      E     LCALL   _stricmp
+0112 EF                MOV     A,R7
+0113 4E                ORL     A,R6
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 16  
+
+0114 700C              JNZ     ?C0023
+                                           ; SOURCE LINE # 114
+0116 7BFF              MOV     R3,#0FFH
+0118 7A00        R     MOV     R2,#HIGH ?SC_31
+011A 7900        R     MOV     R1,#LOW ?SC_31
+011C 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 116
+011F 020000      E     LJMP    MenuStart
+                                           ; SOURCE LINE # 117
+0122         ?C0023:
+                                           ; SOURCE LINE # 118
+0122 120000      R     LCALL   L?0183
+0125 7400        R     MOV     A,#HIGH ?SC_47
+0127 F0                MOVX    @DPTR,A
+0128 A3                INC     DPTR
+0129 7400        R     MOV     A,#LOW ?SC_47
+012B 120000      R     LCALL   L?0179
+012E 120000      E     LCALL   _stricmp
+0131 EF                MOV     A,R7
+0132 4E                ORL     A,R6
+0133 700C              JNZ     ?C0025
+                                           ; SOURCE LINE # 119
+0135 7BFF              MOV     R3,#0FFH
+0137 7A00        R     MOV     R2,#HIGH ?SC_52
+0139 7900        R     MOV     R1,#LOW ?SC_52
+013B 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 120
+013E 020000      E     LJMP    MenuEnd
+                                           ; SOURCE LINE # 121
+0141         ?C0025:
+                                           ; SOURCE LINE # 122
+0141 120000      R     LCALL   L?0183
+0144 7400        R     MOV     A,#HIGH ?SC_66
+0146 F0                MOVX    @DPTR,A
+0147 A3                INC     DPTR
+0148 7400        R     MOV     A,#LOW ?SC_66
+014A 120000      R     LCALL   L?0179
+014D 120000      E     LCALL   _stricmp
+0150 EF                MOV     A,R7
+0151 4E                ORL     A,R6
+0152 7003              JNZ     ?C0027
+                                           ; SOURCE LINE # 123
+0154 020000      E     LJMP    DumpFontOsdPalette
+                                           ; SOURCE LINE # 124
+0157         ?C0027:
+                                           ; SOURCE LINE # 125
+0157 120000      R     LCALL   L?0183
+015A 7400        R     MOV     A,#HIGH ?SC_72
+015C F0                MOVX    @DPTR,A
+015D A3                INC     DPTR
+015E 7400        R     MOV     A,#LOW ?SC_72
+0160 120000      R     LCALL   L?0179
+0163 120000      E     LCALL   _stricmp
+0166 EF                MOV     A,R7
+0167 4E                ORL     A,R6
+0168 7003              JNZ     ?C0029
+                                           ; SOURCE LINE # 126
+016A 020000      E     LJMP    Test16x32FontSet
+                                           ; SOURCE LINE # 127
+016D         ?C0029:
+                                           ; SOURCE LINE # 128
+016D 120000      R     LCALL   L?0183
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 17  
+
+0170 7400        R     MOV     A,#HIGH ?SC_78
+0172 F0                MOVX    @DPTR,A
+0173 A3                INC     DPTR
+0174 7400        R     MOV     A,#LOW ?SC_78
+0176 120000      R     LCALL   L?0179
+0179 120000      E     LCALL   _stricmp
+017C EF                MOV     A,R7
+017D 4E                ORL     A,R6
+017E 7003              JNZ     ?C0031
+                                           ; SOURCE LINE # 129
+0180 020000      E     LJMP    TestUpper256Char
+                                           ; SOURCE LINE # 130
+0183         ?C0031:
+                                           ; SOURCE LINE # 131
+0183 120000      R     LCALL   L?0183
+0186 7400        R     MOV     A,#HIGH ?SC_84
+0188 F0                MOVX    @DPTR,A
+0189 A3                INC     DPTR
+018A 7400        R     MOV     A,#LOW ?SC_84
+018C 120000      R     LCALL   L?0179
+018F 120000      E     LCALL   _stricmp
+0192 EF                MOV     A,R7
+0193 4E                ORL     A,R6
+0194 7003              JNZ     ?C0033
+                                           ; SOURCE LINE # 132
+0196 020000      E     LJMP    TestMultiBPP4
+                                           ; SOURCE LINE # 133
+0199         ?C0033:
+                                           ; SOURCE LINE # 134
+0199 120000      R     LCALL   L?0183
+019C 7400        R     MOV     A,#HIGH ?SC_90
+019E F0                MOVX    @DPTR,A
+019F A3                INC     DPTR
+01A0 7400        R     MOV     A,#LOW ?SC_90
+01A2 120000      R     LCALL   L?0179
+01A5 120000      E     LCALL   _stricmp
+01A8 EF                MOV     A,R7
+01A9 4E                ORL     A,R6
+01AA 7003              JNZ     ?C0035
+                                           ; SOURCE LINE # 135
+01AC 020000      E     LJMP    TestNum1BPP3BPP
+                                           ; SOURCE LINE # 136
+01AF         ?C0035:
+                                           ; SOURCE LINE # 137
+01AF 120000      R     LCALL   L?0183
+01B2 7400        R     MOV     A,#HIGH ?SC_96
+01B4 F0                MOVX    @DPTR,A
+01B5 A3                INC     DPTR
+01B6 7400        R     MOV     A,#LOW ?SC_96
+01B8 120000      R     LCALL   L?0179
+01BB 120000      E     LCALL   _stricmp
+01BE EF                MOV     A,R7
+01BF 4E                ORL     A,R6
+01C0 7004              JNZ     ?C0037
+                                           ; SOURCE LINE # 138
+01C2 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 139
+01C4 802C              SJMP    ?C0156
+01C6         ?C0037:
+                                           ; SOURCE LINE # 140
+01C6 120000      R     LCALL   L?0183
+01C9 7400        R     MOV     A,#HIGH ?SC_102
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 18  
+
+01CB F0                MOVX    @DPTR,A
+01CC A3                INC     DPTR
+01CD 7400        R     MOV     A,#LOW ?SC_102
+01CF 120000      R     LCALL   L?0179
+01D2 120000      E     LCALL   _stricmp
+01D5 EF                MOV     A,R7
+01D6 4E                ORL     A,R6
+01D7 7004              JNZ     ?C0039
+                                           ; SOURCE LINE # 141
+01D9 7F02              MOV     R7,#02H
+01DB         ?C0155:
+                                           ; SOURCE LINE # 142
+01DB 8015              SJMP    ?C0156
+01DD         ?C0039:
+                                           ; SOURCE LINE # 143
+01DD 120000      R     LCALL   L?0183
+01E0 7400        R     MOV     A,#HIGH ?SC_108
+01E2 F0                MOVX    @DPTR,A
+01E3 A3                INC     DPTR
+01E4 7400        R     MOV     A,#LOW ?SC_108
+01E6 120000      R     LCALL   L?0179
+01E9 120000      E     LCALL   _stricmp
+01EC EF                MOV     A,R7
+01ED 4E                ORL     A,R6
+01EE 7005              JNZ     ?C0012
+                                           ; SOURCE LINE # 144
+01F0 7F03              MOV     R7,#03H
+01F2         ?C0156:
+01F2 120000      E     LCALL   _TestMainMenuImage
+                                           ; SOURCE LINE # 145
+                                           ; SOURCE LINE # 149
+                                           ; SOURCE LINE # 154
+01F5         ?C0012:
+01F5 22                RET     
+             ; FUNCTION MonitorMenu (END)
+
+             ; FUNCTION MonitorFOsd (BEGIN)
+                                           ; SOURCE LINE # 160
+                                           ; SOURCE LINE # 161
+                                           ; SOURCE LINE # 164
+0000 120000      R     LCALL   L?0183
+0003 7400        R     MOV     A,#HIGH ?SC_114
+0005 F0                MOVX    @DPTR,A
+0006 A3                INC     DPTR
+0007 7400        R     MOV     A,#LOW ?SC_114
+0009 120000      R     LCALL   L?0179
+000C 120000      E     LCALL   _stricmp
+000F EF                MOV     A,R7
+0010 4E                ORL     A,R6
+0011 7041              JNZ     ?C0042
+                                           ; SOURCE LINE # 165
+0013 7A00        R     MOV     R2,#HIGH ?SC_116
+0015 7900        R     MOV     R1,#LOW ?SC_116
+                                           ; SOURCE LINE # 166
+0017 120000      R     LCALL   L?0188
+001A 7A00        R     MOV     R2,#HIGH ?SC_149
+001C 7900        R     MOV     R1,#LOW ?SC_149
+001E 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 167
+0021 7A00        R     MOV     R2,#HIGH ?SC_190
+0023 7900        R     MOV     R1,#LOW ?SC_190
+                                           ; SOURCE LINE # 168
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 19  
+
+0025 120000      R     LCALL   L?0188
+0028 7A00        R     MOV     R2,#HIGH ?SC_234
+002A 7900        R     MOV     R1,#LOW ?SC_234
+002C 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 169
+002F 7A00        R     MOV     R2,#HIGH ?SC_266
+0031 7900        R     MOV     R1,#LOW ?SC_266
+                                           ; SOURCE LINE # 170
+0033 120000      R     LCALL   L?0201
+0036 7A00        R     MOV     R2,#HIGH ?SC_315
+0038 7900        R     MOV     R1,#LOW ?SC_315
+003A 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 171
+003D 7A00        R     MOV     R2,#HIGH ?SC_350
+003F 7900        R     MOV     R1,#LOW ?SC_350
+                                           ; SOURCE LINE # 172
+0041 120000      R     LCALL   L?0201
+0044 7A00        R     MOV     R2,#HIGH ?SC_365
+0046 7900        R     MOV     R1,#LOW ?SC_365
+0048 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 173
+004B 7BFF              MOV     R3,#0FFH
+004D 7A00        R     MOV     R2,#HIGH ?SC_398
+004F 7900        R     MOV     R1,#LOW ?SC_398
+0051 020000      E     LJMP    _Puts
+                                           ; SOURCE LINE # 174
+0054         ?C0042:
+                                           ; SOURCE LINE # 191
+0054 120000      R     LCALL   L?0183
+0057 7400        R     MOV     A,#HIGH ?SC_434
+0059 F0                MOVX    @DPTR,A
+005A A3                INC     DPTR
+005B 7400        R     MOV     A,#LOW ?SC_434
+005D 120000      R     LCALL   L?0179
+0060 120000      E     LCALL   _stricmp
+0063 EF                MOV     A,R7
+0064 4E                ORL     A,R6
+0065 7042              JNZ     ?C0044
+                                           ; SOURCE LINE # 195
+0067 7A00        R     MOV     R2,#HIGH ?SC_439
+0069 7900        R     MOV     R1,#LOW ?SC_439
+                                           ; SOURCE LINE # 196
+006B 120000      R     LCALL   L?0197
+006E 7A00        R     MOV     R2,#HIGH ?SC_445
+0070 7900        R     MOV     R1,#LOW ?SC_445
+0072 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 197
+0075 7A00        R     MOV     R2,#HIGH ?SC_469
+0077 7900        R     MOV     R1,#LOW ?SC_469
+                                           ; SOURCE LINE # 198
+0079 120000      R     LCALL   L?0197
+007C 7A00        R     MOV     R2,#HIGH ?SC_489
+007E 7900        R     MOV     R1,#LOW ?SC_489
+0080 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 199
+0083 7BFF              MOV     R3,#0FFH
+0085 7A00        R     MOV     R2,#HIGH ?SC_517
+0087 7900        R     MOV     R1,#LOW ?SC_517
+0089 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 200
+008C 7BFF              MOV     R3,#0FFH
+008E 7A00        R     MOV     R2,#HIGH ?SC_540
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 20  
+
+0090 7900        R     MOV     R1,#LOW ?SC_540
+0092 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 201
+0095 E4                CLR     A
+0096 FF                MOV     R7,A
+0097 120000      E     LCALL   _FontInfoByNum
+                                           ; SOURCE LINE # 202
+009A 7F01              MOV     R7,#01H
+009C 120000      E     LCALL   _FontInfoByNum
+                                           ; SOURCE LINE # 203
+009F 7F02              MOV     R7,#02H
+00A1 120000      E     LCALL   _FontInfoByNum
+                                           ; SOURCE LINE # 204
+00A4 7F03              MOV     R7,#03H
+00A6 020000      E     LJMP    _FontInfoByNum
+                                           ; SOURCE LINE # 205
+00A9         ?C0044:
+                                           ; SOURCE LINE # 208
+00A9 120000      R     LCALL   L?0183
+00AC 7400        R     MOV     A,#HIGH ?SC_559
+00AE F0                MOVX    @DPTR,A
+00AF A3                INC     DPTR
+00B0 7400        R     MOV     A,#LOW ?SC_559
+00B2 120000      R     LCALL   L?0179
+00B5 120000      E     LCALL   _stricmp
+00B8 EF                MOV     A,R7
+00B9 4E                ORL     A,R6
+00BA 7043              JNZ     ?C0046
+                                           ; SOURCE LINE # 211
+00BC 120000      R     LCALL   L?0193
+00BF 5008              JNC     ?C0047
+                                           ; SOURCE LINE # 212
+00C1 E4                CLR     A
+00C2 900000      R     MOV     DPTR,#num
+00C5 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 213
+00C6 A3                INC     DPTR
+                                           ; SOURCE LINE # 214
+00C7 8012              SJMP    ?C0157
+00C9         ?C0047:
+                                           ; SOURCE LINE # 215
+                                           ; SOURCE LINE # 216
+00C9 900000      E     MOV     DPTR,#argv+06H
+00CC 120000      R     LCALL   L?0180
+00CF 120000      R     LCALL   L?0191
+                                           ; SOURCE LINE # 217
+00D2 120000      R     LCALL   L?0199
+00D5 5009              JNC     ?C0049
+                                           ; SOURCE LINE # 218
+00D7 E4                CLR     A
+00D8 900000      R     MOV     DPTR,#loc
+00DB         ?C0157:
+00DB F0                MOVX    @DPTR,A
+00DC A3                INC     DPTR
+00DD F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 219
+00DE 8011              SJMP    ?C0048
+00E0         ?C0049:
+                                           ; SOURCE LINE # 220
+                                           ; SOURCE LINE # 221
+00E0 900000      E     MOV     DPTR,#argv+09H
+00E3 120000      R     LCALL   L?0180
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 21  
+
+00E6 120000      E     LCALL   _a2h
+00E9 900000      R     MOV     DPTR,#loc
+00EC EE                MOV     A,R6
+00ED F0                MOVX    @DPTR,A
+00EE A3                INC     DPTR
+00EF EF                MOV     A,R7
+00F0 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 222
+                                           ; SOURCE LINE # 223
+00F1         ?C0048:
+                                           ; SOURCE LINE # 224
+00F1 900000      R     MOV     DPTR,#num
+00F4 E0                MOVX    A,@DPTR
+00F5 FF                MOV     R7,A
+00F6 A3                INC     DPTR
+00F7 E0                MOVX    A,@DPTR
+00F8 FC                MOV     R4,A
+00F9 A3                INC     DPTR
+00FA E0                MOVX    A,@DPTR
+00FB FD                MOV     R5,A
+00FC 020000      E     LJMP    _InitFontRamByNum
+                                           ; SOURCE LINE # 225
+00FF         ?C0046:
+                                           ; SOURCE LINE # 228
+00FF 120000      R     LCALL   L?0183
+0102 7400        R     MOV     A,#HIGH ?SC_566
+0104 F0                MOVX    @DPTR,A
+0105 A3                INC     DPTR
+0106 7400        R     MOV     A,#LOW ?SC_566
+0108 120000      R     LCALL   L?0179
+010B 120000      E     LCALL   _stricmp
+010E EF                MOV     A,R7
+010F 4E                ORL     A,R6
+0110 7003              JNZ     ?C0052
+                                           ; SOURCE LINE # 230
+0112 020000      E     LJMP    DumpFont
+                                           ; SOURCE LINE # 231
+0115         ?C0052:
+                                           ; SOURCE LINE # 234
+0115 120000      R     LCALL   L?0183
+0118 7400        R     MOV     A,#HIGH ?SC_572
+011A F0                MOVX    @DPTR,A
+011B A3                INC     DPTR
+011C 7400        R     MOV     A,#LOW ?SC_572
+011E 120000      R     LCALL   L?0179
+0121 120000      E     LCALL   _stricmp
+0124 EF                MOV     A,R7
+0125 4E                ORL     A,R6
+0126 701F              JNZ     ?C0054
+                                           ; SOURCE LINE # 238
+                                           ; SOURCE LINE # 239
+0128 120000      R     LCALL   L?0203
+012B B40311            CJNE    A,#03H,?C0055
+                                           ; SOURCE LINE # 240
+012E 900000      E     MOV     DPTR,#argv+06H
+0131 120000      R     LCALL   L?0180
+0134 120000      R     LCALL   L?0191
+                                           ; SOURCE LINE # 241
+0137 D3                SETB    C
+0138 9403              SUBB    A,#03H
+013A 4003              JC      ?C0055
+                                           ; SOURCE LINE # 242
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 22  
+
+013C 7403              MOV     A,#03H
+013E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 243
+013F         ?C0055:
+                                           ; SOURCE LINE # 245
+013F 900000      R     MOV     DPTR,#winno
+0142 E0                MOVX    A,@DPTR
+0143 FF                MOV     R7,A
+0144 020000      E     LJMP    _FOsdDumpPalette
+                                           ; SOURCE LINE # 247
+0147         ?C0054:
+                                           ; SOURCE LINE # 248
+0147 120000      R     LCALL   L?0183
+014A 7400        R     MOV     A,#HIGH ?SC_577
+014C F0                MOVX    @DPTR,A
+014D A3                INC     DPTR
+014E 7400        R     MOV     A,#LOW ?SC_577
+0150 120000      R     LCALL   L?0179
+0153 120000      E     LCALL   _stricmp
+0156 EF                MOV     A,R7
+0157 4E                ORL     A,R6
+0158 7039              JNZ     ?C0058
+                                           ; SOURCE LINE # 252
+015A 120000      R     LCALL   L?0193
+015D 5009              JNC     ?C0059
+                                           ; SOURCE LINE # 253
+015F 7BFF              MOV     R3,#0FFH
+0161 7A00        R     MOV     R2,#HIGH ?SC_582
+0163 7900        R     MOV     R1,#LOW ?SC_582
+                                           ; SOURCE LINE # 254
+0165 020000      R     LJMP    ?C0158
+0168         ?C0059:
+                                           ; SOURCE LINE # 255
+                                           ; SOURCE LINE # 256
+0168 900000      E     MOV     DPTR,#argv+06H
+016B 120000      R     LCALL   L?0180
+016E 120000      R     LCALL   L?0198
+                                           ; SOURCE LINE # 257
+0171 900000      E     MOV     DPTR,#argv+09H
+0174 120000      R     LCALL   L?0180
+0177 120000      E     LCALL   _a2h
+017A 900000      R     MOV     DPTR,#color
+017D EE                MOV     A,R6
+017E F0                MOVX    @DPTR,A
+017F FC                MOV     R4,A
+0180 A3                INC     DPTR
+0181 EF                MOV     A,R7
+0182 F0                MOVX    @DPTR,A
+0183 FD                MOV     R5,A
+                                           ; SOURCE LINE # 258
+0184 900000      R     MOV     DPTR,#loc
+0187 E0                MOVX    A,@DPTR
+0188 FF                MOV     R7,A
+0189 E4                CLR     A
+018A 900000      E     MOV     DPTR,#?_FOsdSetPaletteColor?BYTE+04H
+018D F0                MOVX    @DPTR,A
+018E 7B01              MOV     R3,#01H
+0190 020000      E     LJMP    _FOsdSetPaletteColor
+                                           ; SOURCE LINE # 259
+                                           ; SOURCE LINE # 260
+0193         ?C0058:
+                                           ; SOURCE LINE # 261
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 23  
+
+0193 120000      R     LCALL   L?0183
+0196 7400        R     MOV     A,#HIGH ?SC_611
+0198 F0                MOVX    @DPTR,A
+0199 A3                INC     DPTR
+019A 7400        R     MOV     A,#LOW ?SC_611
+019C 120000      R     LCALL   L?0179
+019F 120000      E     LCALL   _stricmp
+01A2 EF                MOV     A,R7
+01A3 4E                ORL     A,R6
+01A4 701C              JNZ     ?C0062
+                                           ; SOURCE LINE # 265
+01A6 900000      R     MOV     DPTR,#lut_num
+01A9 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 266
+01AA 900000      E     MOV     DPTR,#argc
+01AD E0                MOVX    A,@DPTR
+01AE B40309            CJNE    A,#03H,?C0063
+                                           ; SOURCE LINE # 267
+01B1 900000      E     MOV     DPTR,#argv+06H
+01B4 120000      R     LCALL   L?0180
+01B7 120000      R     LCALL   L?0198
+                                           ; SOURCE LINE # 268
+01BA         ?C0063:
+                                           ; SOURCE LINE # 269
+01BA 900000      R     MOV     DPTR,#lut_num
+01BD E0                MOVX    A,@DPTR
+01BE FF                MOV     R7,A
+01BF 020000      E     LJMP    _FOsdSetDefPaletteColor
+                                           ; SOURCE LINE # 272
+01C2         ?C0062:
+                                           ; SOURCE LINE # 273
+01C2 120000      R     LCALL   L?0183
+01C5 7400        R     MOV     A,#HIGH ?SC_617
+01C7 F0                MOVX    @DPTR,A
+01C8 A3                INC     DPTR
+01C9 7400        R     MOV     A,#LOW ?SC_617
+01CB 120000      R     LCALL   L?0179
+01CE 120000      E     LCALL   _stricmp
+01D1 EF                MOV     A,R7
+01D2 4E                ORL     A,R6
+01D3 7003              JNZ     $ + 5H
+01D5 020000      R     LJMP    ?C0081
+                                           ; SOURCE LINE # 293
+01D8         ?C0065:
+                                           ; SOURCE LINE # 294
+01D8 120000      R     LCALL   L?0183
+01DB 7400        R     MOV     A,#HIGH ?SC_66
+01DD F0                MOVX    @DPTR,A
+01DE A3                INC     DPTR
+01DF 7400        R     MOV     A,#LOW ?SC_66
+01E1 120000      R     LCALL   L?0179
+01E4 120000      E     LCALL   _stricmp
+01E7 EF                MOV     A,R7
+01E8 4E                ORL     A,R6
+01E9 7003              JNZ     ?C0067
+                                           ; SOURCE LINE # 298
+01EB FF                MOV     R7,A
+                                           ; SOURCE LINE # 299
+01EC 8015              SJMP    ?C0159
+01EE         ?C0067:
+                                           ; SOURCE LINE # 300
+01EE 120000      R     LCALL   L?0183
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 24  
+
+01F1 7400        R     MOV     A,#HIGH ?SC_72
+01F3 F0                MOVX    @DPTR,A
+01F4 A3                INC     DPTR
+01F5 7400        R     MOV     A,#LOW ?SC_72
+01F7 120000      R     LCALL   L?0179
+01FA 120000      E     LCALL   _stricmp
+01FD EF                MOV     A,R7
+01FE 4E                ORL     A,R6
+01FF 7005              JNZ     ?C0069
+                                           ; SOURCE LINE # 302
+0201 7F01              MOV     R7,#01H
+0203         ?C0159:
+0203 020000      E     LJMP    _FOsdTest_1
+                                           ; SOURCE LINE # 303
+0206         ?C0069:
+                                           ; SOURCE LINE # 304
+0206 120000      R     LCALL   L?0183
+0209 7400        R     MOV     A,#HIGH ?SC_78
+020B F0                MOVX    @DPTR,A
+020C A3                INC     DPTR
+020D 7400        R     MOV     A,#LOW ?SC_78
+020F 120000      R     LCALL   L?0179
+0212 120000      E     LCALL   _stricmp
+0215 EF                MOV     A,R7
+0216 4E                ORL     A,R6
+0217 6064              JZ      ?C0081
+                                           ; SOURCE LINE # 315
+0219         ?C0071:
+                                           ; SOURCE LINE # 316
+0219 120000      R     LCALL   L?0183
+021C 7400        R     MOV     A,#HIGH ?SC_84
+021E F0                MOVX    @DPTR,A
+021F A3                INC     DPTR
+0220 7400        R     MOV     A,#LOW ?SC_84
+0222 120000      R     LCALL   L?0179
+0225 120000      E     LCALL   _stricmp
+0228 EF                MOV     A,R7
+0229 4E                ORL     A,R6
+022A 6051              JZ      ?C0081
+                                           ; SOURCE LINE # 339
+022C         ?C0073:
+                                           ; SOURCE LINE # 340
+022C 120000      R     LCALL   L?0183
+022F 7400        R     MOV     A,#HIGH ?SC_623
+0231 F0                MOVX    @DPTR,A
+0232 A3                INC     DPTR
+0233 7400        R     MOV     A,#LOW ?SC_623
+0235 120000      R     LCALL   L?0179
+0238 120000      E     LCALL   _stricmp
+023B EF                MOV     A,R7
+023C 4E                ORL     A,R6
+023D 7005              JNZ     ?C0075
+                                           ; SOURCE LINE # 341
+023F 7F01              MOV     R7,#01H
+0241 020000      E     LJMP    _FOsdInitBpp3AlphaTable
+                                           ; SOURCE LINE # 342
+0244         ?C0075:
+                                           ; SOURCE LINE # 343
+0244 120000      R     LCALL   L?0183
+0247 7400        R     MOV     A,#HIGH ?SC_628
+0249 F0                MOVX    @DPTR,A
+024A A3                INC     DPTR
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 25  
+
+024B 7400        R     MOV     A,#LOW ?SC_628
+024D 120000      R     LCALL   L?0179
+0250 120000      E     LCALL   _stricmp
+0253 EF                MOV     A,R7
+0254 4E                ORL     A,R6
+0255 701D              JNZ     ?C0077
+                                           ; SOURCE LINE # 346
+                                           ; SOURCE LINE # 347
+0257 120000      R     LCALL   L?0203
+025A B40320            CJNE    A,#03H,?C0081
+                                           ; SOURCE LINE # 348
+025D 900000      E     MOV     DPTR,#argv+06H
+0260 120000      R     LCALL   L?0180
+0263 120000      E     LCALL   _a2h
+0266 900000      R     MOV     DPTR,#winno
+0269 EF                MOV     A,R7
+026A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 349
+026B D3                SETB    C
+026C 9403              SUBB    A,#03H
+026E 400D              JC      ?C0081
+                                           ; SOURCE LINE # 350
+0270 7403              MOV     A,#03H
+0272 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 351
+                                           ; SOURCE LINE # 353
+0273 22                RET     
+0274         ?C0077:
+                                           ; SOURCE LINE # 355
+0274 7BFF              MOV     R3,#0FFH
+0276 7A00        R     MOV     R2,#HIGH ?SC_633
+0278 7900        R     MOV     R1,#LOW ?SC_633
+027A         ?C0158:
+027A 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 356
+027D         ?C0081:
+027D 22                RET     
+027E         L?0188:
+027E 7BFF              MOV     R3,#0FFH
+0280 120000      E     LCALL   _Puts
+0283 7BFF              MOV     R3,#0FFH
+0285 22                RET     
+0286         L?0191:
+0286 120000      E     LCALL   _a2h
+0289 900000      R     MOV     DPTR,#num
+028C EF                MOV     A,R7
+028D F0                MOVX    @DPTR,A
+028E 22                RET     
+028F         L?0197:
+028F 7BFF              MOV     R3,#0FFH
+0291 120000      E     LCALL   _Printf
+0294 7BFF              MOV     R3,#0FFH
+0296 22                RET     
+0297         L?0198:
+0297 120000      E     LCALL   _a2h
+029A 900000      R     MOV     DPTR,#loc
+029D EF                MOV     A,R7
+029E F0                MOVX    @DPTR,A
+029F 22                RET     
+02A0         L?0201:
+02A0 7BFF              MOV     R3,#0FFH
+02A2 120000      E     LCALL   _Puts
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 26  
+
+02A5 7BFF              MOV     R3,#0FFH
+02A7 22                RET     
+             ; FUNCTION MonitorFOsd (END)
+
+             ; FUNCTION MonitorSOsd (BEGIN)
+                                           ; SOURCE LINE # 362
+                                           ; SOURCE LINE # 363
+                                           ; SOURCE LINE # 364
+0000 120000      R     LCALL   L?0183
+0003 7400        R     MOV     A,#HIGH ?SC_114
+0005 F0                MOVX    @DPTR,A
+0006 A3                INC     DPTR
+0007 7400        R     MOV     A,#LOW ?SC_114
+0009 120000      R     LCALL   L?0179
+000C 120000      E     LCALL   _stricmp
+000F EF                MOV     A,R7
+0010 4E                ORL     A,R6
+0011 7033              JNZ     ?C0082
+                                           ; SOURCE LINE # 365
+0013 7A00        R     MOV     R2,#HIGH ?SC_653
+0015 7900        R     MOV     R1,#LOW ?SC_653
+                                           ; SOURCE LINE # 366
+0017 120000      R     LCALL   L?0185
+001A 7A00        R     MOV     R2,#HIGH ?SC_684
+001C 7900        R     MOV     R1,#LOW ?SC_684
+001E 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 367
+0021 7A00        R     MOV     R2,#HIGH ?SC_707
+0023 7900        R     MOV     R1,#LOW ?SC_707
+                                           ; SOURCE LINE # 368
+0025 120000      R     LCALL   L?0185
+0028 7A00        R     MOV     R2,#HIGH ?SC_724
+002A 7900        R     MOV     R1,#LOW ?SC_724
+002C 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 369
+002F 7A00        R     MOV     R2,#HIGH ?SC_730
+0031 7900        R     MOV     R1,#LOW ?SC_730
+                                           ; SOURCE LINE # 370
+0033 120000      R     LCALL   L?0186
+0036 7A00        R     MOV     R2,#HIGH ?SC_749
+0038 7900        R     MOV     R1,#LOW ?SC_749
+003A 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 371
+003D 7BFF              MOV     R3,#0FFH
+003F 7A00        R     MOV     R2,#HIGH ?SC_774
+0041 7900        R     MOV     R1,#LOW ?SC_774
+                                           ; SOURCE LINE # 372
+0043 020000      R     LJMP    ?C0171
+0046         ?C0082:
+                                           ; SOURCE LINE # 374
+0046 120000      R     LCALL   L?0183
+0049 7400        R     MOV     A,#HIGH ?SC_813
+004B F0                MOVX    @DPTR,A
+004C A3                INC     DPTR
+004D 7400        R     MOV     A,#LOW ?SC_813
+004F 120000      R     LCALL   L?0179
+0052 120000      E     LCALL   _stricmp
+0055 EF                MOV     A,R7
+0056 4E                ORL     A,R6
+0057 7004              JNZ     ?C0084
+                                           ; SOURCE LINE # 375
+0059 7F01              MOV     R7,#01H
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 27  
+
+                                           ; SOURCE LINE # 376
+005B 8014              SJMP    ?C0161
+005D         ?C0084:
+                                           ; SOURCE LINE # 378
+005D 120000      R     LCALL   L?0183
+0060 7400        R     MOV     A,#HIGH ?SC_816
+0062 F0                MOVX    @DPTR,A
+0063 A3                INC     DPTR
+0064 7400        R     MOV     A,#LOW ?SC_816
+0066 120000      R     LCALL   L?0179
+0069 120000      E     LCALL   _stricmp
+006C EF                MOV     A,R7
+006D 4E                ORL     A,R6
+006E 7004              JNZ     ?C0086
+                                           ; SOURCE LINE # 379
+0070 FF                MOV     R7,A
+0071         ?C0161:
+0071 020000      E     LJMP    _SpiOsdEnable
+                                           ; SOURCE LINE # 380
+0074         ?C0086:
+                                           ; SOURCE LINE # 382
+0074 120000      R     LCALL   L?0183
+0077 7400        R     MOV     A,#HIGH ?SC_820
+0079 F0                MOVX    @DPTR,A
+007A A3                INC     DPTR
+007B 7400        R     MOV     A,#LOW ?SC_820
+007D 120000      R     LCALL   L?0179
+0080 120000      E     LCALL   _stricmp
+0083 EF                MOV     A,R7
+0084 4E                ORL     A,R6
+0085 7048              JNZ     ?C0088
+                                           ; SOURCE LINE # 383
+0087 120000      R     LCALL   L?0194
+008A 4040              JC      ?C0089
+                                           ; SOURCE LINE # 384
+008C 120000      R     LCALL   L?0183
+008F 120000      R     LCALL   L?0204
+0092 120000      R     LCALL   L?0180
+0095 120000      E     LCALL   _stricmp
+0098 EF                MOV     A,R7
+0099 4E                ORL     A,R6
+009A 7BFF              MOV     R3,#0FFH
+009C 7027              JNZ     ?C0090
+                                           ; SOURCE LINE # 385
+009E 7A00        R     MOV     R2,#HIGH ?SC_825
+00A0 7900        R     MOV     R1,#LOW ?SC_825
+00A2 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+00A5 120000      E     LCALL   ?C?LSTKXDATA
+00A8 00                DB      00H
+00A9 19                DB      019H
+00AA 0D                DB      0DH
+00AB 00                DB      00H
+00AC 900000      E     MOV     DPTR,#?_Printf?BYTE+07H
+00AF 120000      E     LCALL   ?C?LSTKXDATA
+00B2 00                DB      00H
+00B3 18                DB      018H
+00B4 6A                DB      06AH
+00B5 00                DB      00H
+00B6 900000      E     MOV     DPTR,#?_Printf?BYTE+0BH
+00B9 120000      E     LCALL   ?C?LSTKXDATA
+00BC 00                DB      00H
+00BD 31                DB      031H
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 28  
+
+00BE 77                DB      077H
+00BF 00                DB      00H
+00C0 120000      R     LCALL   L?0205
+                                           ; SOURCE LINE # 386
+00C3 8004              SJMP    ?C0162
+00C5         ?C0090:
+                                           ; SOURCE LINE # 388
+00C5 7A00        R     MOV     R2,#HIGH ?SC_633
+00C7 7900        R     MOV     R1,#LOW ?SC_633
+00C9         ?C0162:
+00C9 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 389
+00CC         ?C0089:
+                                           ; SOURCE LINE # 390
+00CC 020000      E     LJMP    RoseDemo
+                                           ; SOURCE LINE # 391
+00CF         ?C0088:
+                                           ; SOURCE LINE # 393
+00CF 120000      R     LCALL   L?0183
+00D2 7400        R     MOV     A,#HIGH ?SC_879
+00D4 F0                MOVX    @DPTR,A
+00D5 A3                INC     DPTR
+00D6 7400        R     MOV     A,#LOW ?SC_879
+00D8 120000      R     LCALL   L?0179
+00DB 120000      E     LCALL   _stricmp
+00DE EF                MOV     A,R7
+00DF 4E                ORL     A,R6
+00E0 7048              JNZ     ?C0093
+                                           ; SOURCE LINE # 394
+00E2 120000      R     LCALL   L?0194
+00E5 4040              JC      ?C0094
+                                           ; SOURCE LINE # 395
+00E7 120000      R     LCALL   L?0183
+00EA 120000      R     LCALL   L?0204
+00ED 120000      R     LCALL   L?0180
+00F0 120000      E     LCALL   _stricmp
+00F3 EF                MOV     A,R7
+00F4 4E                ORL     A,R6
+00F5 7BFF              MOV     R3,#0FFH
+00F7 7027              JNZ     ?C0095
+                                           ; SOURCE LINE # 396
+00F9 7A00        R     MOV     R2,#HIGH ?SC_825
+00FB 7900        R     MOV     R1,#LOW ?SC_825
+00FD 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
+0100 120000      E     LCALL   ?C?LSTKXDATA
+0103 00                DB      00H
+0104 17                DB      017H
+0105 00                DB      00H
+0106 00                DB      00H
+0107 900000      E     MOV     DPTR,#?_Printf?BYTE+07H
+010A 120000      E     LCALL   ?C?LSTKXDATA
+010D 00                DB      00H
+010E 02                DB      02H
+010F 0D                DB      0DH
+0110 00                DB      00H
+0111 900000      E     MOV     DPTR,#?_Printf?BYTE+0BH
+0114 120000      E     LCALL   ?C?LSTKXDATA
+0117 00                DB      00H
+0118 31                DB      031H
+0119 77                DB      077H
+011A 00                DB      00H
+011B 120000      R     LCALL   L?0205
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 29  
+
+                                           ; SOURCE LINE # 397
+011E 8004              SJMP    ?C0163
+0120         ?C0095:
+                                           ; SOURCE LINE # 399
+0120 7A00        R     MOV     R2,#HIGH ?SC_633
+0122 7900        R     MOV     R1,#LOW ?SC_633
+0124         ?C0163:
+0124 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 400
+0127         ?C0094:
+                                           ; SOURCE LINE # 401
+0127 020000      E     LJMP    PigeonDemo
+                                           ; SOURCE LINE # 402
+012A         ?C0093:
+                                           ; SOURCE LINE # 404
+012A 120000      R     LCALL   L?0176
+012D 120000      E     LCALL   _stricmp
+0130 EF                MOV     A,R7
+0131 4E                ORL     A,R6
+0132 7003              JNZ     ?C0098
+                                           ; SOURCE LINE # 405
+0134 020000      E     LJMP    MonSOsdImgInfo
+                                           ; SOURCE LINE # 406
+0137         ?C0098:
+                                           ; SOURCE LINE # 408
+0137 120000      R     LCALL   L?0183
+013A 7400        R     MOV     A,#HIGH ?SC_889
+013C F0                MOVX    @DPTR,A
+013D A3                INC     DPTR
+013E 7400        R     MOV     A,#LOW ?SC_889
+0140 120000      R     LCALL   L?0179
+0143 120000      E     LCALL   _stricmp
+0146 EF                MOV     A,R7
+0147 4E                ORL     A,R6
+0148 702B              JNZ     ?C0100
+                                           ; SOURCE LINE # 411
+014A 120000      R     LCALL   L?0199
+014D 5003              JNC     ?C0101
+                                           ; SOURCE LINE # 412
+014F 020000      R     LJMP    ?C0174
+0152         ?C0101:
+                                           ; SOURCE LINE # 413
+                                           ; SOURCE LINE # 414
+0152 900000      E     MOV     DPTR,#argv+06H
+0155 120000      R     LCALL   L?0180
+                                           ; SOURCE LINE # 415
+0158 120000      R     LCALL   L?0202
+015B 120000      R     LCALL   L?0180
+015E 120000      E     LCALL   _a2i
+0161 900000      R     MOV     DPTR,#lut
+0164 EE                MOV     A,R6
+0165 F0                MOVX    @DPTR,A
+0166 FA                MOV     R2,A
+0167 A3                INC     DPTR
+0168 EF                MOV     A,R7
+0169 F0                MOVX    @DPTR,A
+016A FB                MOV     R3,A
+                                           ; SOURCE LINE # 416
+016B 900000      R     MOV     DPTR,#img_n
+016E E0                MOVX    A,@DPTR
+016F FF                MOV     R7,A
+0170 7D03              MOV     R5,#03H
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 30  
+
+                                           ; SOURCE LINE # 417
+                                           ; SOURCE LINE # 418
+0172 020000      R     LJMP    ?C0165
+0175         ?C0100:
+                                           ; SOURCE LINE # 420
+0175 120000      R     LCALL   L?0183
+0178 7400        R     MOV     A,#HIGH ?SC_893
+017A F0                MOVX    @DPTR,A
+017B A3                INC     DPTR
+017C 7400        R     MOV     A,#LOW ?SC_893
+017E 120000      R     LCALL   L?0179
+0181 120000      E     LCALL   _stricmp
+0184 EF                MOV     A,R7
+0185 4E                ORL     A,R6
+0186 7042              JNZ     ?C0104
+                                           ; SOURCE LINE # 423
+0188 900000      E     MOV     DPTR,#argc
+018B E0                MOVX    A,@DPTR
+018C C3                CLR     C
+018D 9405              SUBB    A,#05H
+018F 5003              JNC     ?C0105
+                                           ; SOURCE LINE # 424
+0191         ?C0164:
+0191 020000      R     LJMP    ?C0174
+0194         ?C0105:
+                                           ; SOURCE LINE # 425
+                                           ; SOURCE LINE # 426
+0194 900000      E     MOV     DPTR,#argv+06H
+0197 120000      R     LCALL   L?0180
+                                           ; SOURCE LINE # 427
+019A 120000      R     LCALL   L?0202
+019D 120000      R     LCALL   L?0180
+01A0 120000      E     LCALL   _a2i
+01A3 900000      R     MOV     DPTR,#lut
+01A6 EE                MOV     A,R6
+01A7 F0                MOVX    @DPTR,A
+01A8 A3                INC     DPTR
+01A9 EF                MOV     A,R7
+01AA F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 428
+01AB 900000      E     MOV     DPTR,#argv+0CH
+01AE 120000      R     LCALL   L?0180
+01B1 120000      E     LCALL   _a2i
+01B4 900000      R     MOV     DPTR,#winno
+01B7 EF                MOV     A,R7
+01B8 F0                MOVX    @DPTR,A
+01B9 FD                MOV     R5,A
+                                           ; SOURCE LINE # 429
+01BA 900000      R     MOV     DPTR,#img_n
+01BD E0                MOVX    A,@DPTR
+01BE FF                MOV     R7,A
+01BF 900000      R     MOV     DPTR,#lut
+01C2 E0                MOVX    A,@DPTR
+01C3 FA                MOV     R2,A
+01C4 A3                INC     DPTR
+01C5 E0                MOVX    A,@DPTR
+01C6 FB                MOV     R3,A
+                                           ; SOURCE LINE # 430
+                                           ; SOURCE LINE # 431
+01C7 020000      R     LJMP    ?C0167
+01CA         ?C0104:
+                                           ; SOURCE LINE # 433
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 31  
+
+01CA 120000      R     LCALL   L?0183
+01CD 7400        R     MOV     A,#HIGH ?SC_897
+01CF F0                MOVX    @DPTR,A
+01D0 A3                INC     DPTR
+01D1 7400        R     MOV     A,#LOW ?SC_897
+01D3 120000      R     LCALL   L?0179
+01D6 120000      E     LCALL   _stricmp
+01D9 EF                MOV     A,R7
+01DA 4E                ORL     A,R6
+01DB 7051              JNZ     ?C0108
+                                           ; SOURCE LINE # 436
+01DD 120000      R     LCALL   L?0200
+01E0 5003              JNC     ?C0109
+                                           ; SOURCE LINE # 437
+01E2         ?C0166:
+01E2 020000      R     LJMP    ?C0174
+01E5         ?C0109:
+                                           ; SOURCE LINE # 438
+                                           ; SOURCE LINE # 439
+01E5 120000      R     LCALL   L?0183
+01E8 7400        R     MOV     A,#HIGH ?SC_889
+01EA F0                MOVX    @DPTR,A
+01EB A3                INC     DPTR
+01EC 7400        R     MOV     A,#LOW ?SC_889
+01EE F0                MOVX    @DPTR,A
+01EF 900000      E     MOV     DPTR,#argv+09H
+01F2 120000      R     LCALL   L?0180
+01F5 120000      E     LCALL   _stricmp
+01F8 EF                MOV     A,R7
+01F9 4E                ORL     A,R6
+01FA 700C              JNZ     ?C0111
+                                           ; SOURCE LINE # 440
+01FC 900000      E     MOV     DPTR,#argv+06H
+01FF 120000      R     LCALL   L?0180
+                                           ; SOURCE LINE # 441
+                                           ; SOURCE LINE # 442
+                                           ; SOURCE LINE # 443
+                                           ; SOURCE LINE # 444
+                                           ; SOURCE LINE # 445
+0202 120000      R     LCALL   L?0184
+0205         ?C0165:
+0205 020000      E     LJMP    _MonOsdLutLoad
+                                           ; SOURCE LINE # 446
+0208         ?C0111:
+                                           ; SOURCE LINE # 447
+0208 120000      R     LCALL   L?0183
+020B 7400        R     MOV     A,#HIGH ?SC_893
+020D F0                MOVX    @DPTR,A
+020E A3                INC     DPTR
+020F 7400        R     MOV     A,#LOW ?SC_893
+0211 F0                MOVX    @DPTR,A
+0212 900000      E     MOV     DPTR,#argv+09H
+0215 120000      R     LCALL   L?0180
+0218 120000      E     LCALL   _stricmp
+021B EF                MOV     A,R7
+021C 4E                ORL     A,R6
+021D 700C              JNZ     ?C0113
+                                           ; SOURCE LINE # 448
+021F 900000      E     MOV     DPTR,#argv+06H
+0222 120000      R     LCALL   L?0180
+                                           ; SOURCE LINE # 449
+                                           ; SOURCE LINE # 450
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 32  
+
+                                           ; SOURCE LINE # 451
+                                           ; SOURCE LINE # 452
+                                           ; SOURCE LINE # 453
+0225 120000      R     LCALL   L?0184
+0228         ?C0167:
+0228 020000      E     LJMP    _MonOsdImgLoad
+                                           ; SOURCE LINE # 454
+022B         ?C0113:
+                                           ; SOURCE LINE # 456
+022B         ?C0168:
+                                           ; SOURCE LINE # 457
+                                           ; SOURCE LINE # 458
+022B 020000      R     LJMP    ?C0174
+022E         ?C0108:
+                                           ; SOURCE LINE # 460
+022E 120000      R     LCALL   L?0183
+0231 7400        R     MOV     A,#HIGH ?SC_611
+0233 F0                MOVX    @DPTR,A
+0234 A3                INC     DPTR
+0235 7400        R     MOV     A,#LOW ?SC_611
+0237 120000      R     LCALL   L?0179
+023A 120000      E     LCALL   _stricmp
+023D EF                MOV     A,R7
+023E 4E                ORL     A,R6
+023F 6003              JZ      $ + 5H
+0241 020000      R     LJMP    ?C0116
+                                           ; SOURCE LINE # 473
+0244 900000      R     MOV     DPTR,#header
+0247 04                INC     A
+0248 F0                MOVX    @DPTR,A
+0249 A3                INC     DPTR
+024A 7400        E     MOV     A,#HIGH header_table
+024C F0                MOVX    @DPTR,A
+024D A3                INC     DPTR
+024E 7400        E     MOV     A,#LOW header_table
+0250 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 477
+0251 900000      E     MOV     DPTR,#argc
+0254 E0                MOVX    A,@DPTR
+0255 FE                MOV     R6,A
+0256 C3                CLR     C
+0257 9403              SUBB    A,#03H
+0259 5009              JNC     ?C0117
+                                           ; SOURCE LINE # 478
+025B 7BFF              MOV     R3,#0FFH
+025D 7A00        R     MOV     R2,#HIGH ?SC_904
+025F 7900        R     MOV     R1,#LOW ?SC_904
+0261         ?C0160:
+0261 020000      R     LJMP    ?C0171
+                                           ; SOURCE LINE # 480
+0264         ?C0117:
+                                           ; SOURCE LINE # 481
+                                           ; SOURCE LINE # 482
+0264 900000      E     MOV     DPTR,#argv+06H
+0267 120000      R     LCALL   L?0180
+026A 120000      E     LCALL   ?C?CLDPTR
+026D 643F              XRL     A,#03FH
+026F 7069              JNZ     ?C0120
+                                           ; SOURCE LINE # 483
+0271 7A00        R     MOV     R2,#HIGH ?SC_923
+0273 7900        R     MOV     R1,#LOW ?SC_923
+                                           ; SOURCE LINE # 484
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 33  
+
+0275 120000      R     LCALL   L?0186
+0278 7A00        R     MOV     R2,#HIGH ?SC_988
+027A 7900        R     MOV     R1,#LOW ?SC_988
+027C 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 485
+027F 7A00        R     MOV     R2,#HIGH ?SC_1063
+0281 7900        R     MOV     R1,#LOW ?SC_1063
+                                           ; SOURCE LINE # 486
+0283 120000      R     LCALL   L?0187
+0286 7A00        R     MOV     R2,#HIGH ?SC_1095
+0288 7900        R     MOV     R1,#LOW ?SC_1095
+028A 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 487
+028D 7A00        R     MOV     R2,#HIGH ?SC_1134
+028F 7900        R     MOV     R1,#LOW ?SC_1134
+                                           ; SOURCE LINE # 488
+0291 120000      R     LCALL   L?0187
+0294 7A00        R     MOV     R2,#HIGH ?SC_1200
+0296 7900        R     MOV     R1,#LOW ?SC_1200
+0298 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 489
+029B 7A00        R     MOV     R2,#HIGH ?SC_1249
+029D 7900        R     MOV     R1,#LOW ?SC_1249
+                                           ; SOURCE LINE # 490
+029F 120000      R     LCALL   L?0192
+02A2 7A00        R     MOV     R2,#HIGH ?SC_1293
+02A4 7900        R     MOV     R1,#LOW ?SC_1293
+02A6 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 491
+02A9 7A00        R     MOV     R2,#HIGH ?SC_1363
+02AB 7900        R     MOV     R1,#LOW ?SC_1363
+                                           ; SOURCE LINE # 492
+02AD 120000      R     LCALL   L?0192
+02B0 7A00        R     MOV     R2,#HIGH ?SC_1434
+02B2 7900        R     MOV     R1,#LOW ?SC_1434
+02B4 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 493
+02B7 7BFF              MOV     R3,#0FFH
+02B9 7A00        R     MOV     R2,#HIGH ?SC_1472
+02BB 7900        R     MOV     R1,#LOW ?SC_1472
+02BD 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 494
+02C0 7BFF              MOV     R3,#0FFH
+02C2 7A00        R     MOV     R2,#HIGH ?SC_1482
+02C4 7900        R     MOV     R1,#LOW ?SC_1482
+02C6 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 495
+02C9 7BFF              MOV     R3,#0FFH
+02CB 7A00        R     MOV     R2,#HIGH ?SC_1532
+02CD 7900        R     MOV     R1,#LOW ?SC_1532
+02CF 120000      E     LCALL   _Puts
+                                           ; SOURCE LINE # 496
+02D2 7BFF              MOV     R3,#0FFH
+02D4 7A00        R     MOV     R2,#HIGH ?SC_1582
+02D6 7900        R     MOV     R1,#LOW ?SC_1582
+02D8         ?C0170:
+02D8 800C              SJMP    ?C0171
+                                           ; SOURCE LINE # 498
+02DA         ?C0120:
+                                           ; SOURCE LINE # 499
+02DA EE                MOV     A,R6
+02DB C3                CLR     C
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 34  
+
+02DC 9406              SUBB    A,#06H
+02DE 5009              JNC     ?C0121
+                                           ; SOURCE LINE # 500
+02E0 7BFF              MOV     R3,#0FFH
+02E2 7A00        R     MOV     R2,#HIGH ?SC_904
+02E4 7900        R     MOV     R1,#LOW ?SC_904
+02E6         ?C0171:
+02E6 020000      E     LJMP    _Puts
+                                           ; SOURCE LINE # 502
+02E9         ?C0121:
+                                           ; SOURCE LINE # 503
+02E9 900000      E     MOV     DPTR,#argv+06H
+02EC 120000      R     LCALL   L?0180
+02EF 120000      E     LCALL   _a2h
+02F2 900000      R     MOV     DPTR,#winno
+02F5 EF                MOV     A,R7
+02F6 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 504
+02F7 900000      E     MOV     DPTR,#argv+09H
+02FA 120000      R     LCALL   L?0180
+02FD 120000      E     LCALL   _a2h
+0300 900000      R     MOV     DPTR,#lut_type
+0303 EF                MOV     A,R7
+0304 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 505
+0305 900000      E     MOV     DPTR,#argv+0CH
+0308 120000      R     LCALL   L?0180
+030B 120000      E     LCALL   _a2i
+030E 900000      R     MOV     DPTR,#lut_loc
+0311 EE                MOV     A,R6
+0312 F0                MOVX    @DPTR,A
+0313 A3                INC     DPTR
+0314 EF                MOV     A,R7
+0315 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 506
+0316 900000      E     MOV     DPTR,#argv+0FH
+0319 120000      R     LCALL   L?0180
+031C 120000      E     LCALL   _a2h
+031F 900000      R     MOV     DPTR,#image_loc
+0322 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 507
+0325 900000      R     MOV     DPTR,#lut_type
+0328 E0                MOVX    A,@DPTR
+0329 FF                MOV     R7,A
+032A 6402              XRL     A,#02H
+032C 6004              JZ      ?C0123
+032E EF                MOV     A,R7
+032F B40325            CJNE    A,#03H,?C0119
+0332         ?C0123:
+                                           ; SOURCE LINE # 508
+0332 900000      E     MOV     DPTR,#argc
+0335 E0                MOVX    A,@DPTR
+0336 C3                CLR     C
+0337 9407              SUBB    A,#07H
+0339 500B              JNC     ?C0124
+                                           ; SOURCE LINE # 509
+033B 900000      R     MOV     DPTR,#nColor
+033E 7401              MOV     A,#01H
+0340 F0                MOVX    @DPTR,A
+0341 A3                INC     DPTR
+0342 E4                CLR     A
+0343 F0                MOVX    @DPTR,A
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 35  
+
+0344 8011              SJMP    ?C0119
+0346         ?C0124:
+                                           ; SOURCE LINE # 511
+0346 900000      E     MOV     DPTR,#argv+012H
+0349 120000      R     LCALL   L?0180
+034C 120000      E     LCALL   _a2i
+034F 900000      R     MOV     DPTR,#nColor
+0352 EE                MOV     A,R6
+0353 F0                MOVX    @DPTR,A
+0354 A3                INC     DPTR
+0355 EF                MOV     A,R7
+0356 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 512
+                                           ; SOURCE LINE # 513
+0357         ?C0119:
+                                           ; SOURCE LINE # 517
+0357 900000      R     MOV     DPTR,#lut_type
+035A E0                MOVX    A,@DPTR
+035B 7018              JNZ     ?C0126
+                                           ; SOURCE LINE # 518
+035D 900000      R     MOV     DPTR,#header
+0360 120000      R     LCALL   L?0180
+0363 900008            MOV     DPTR,#08H
+0366 E4                CLR     A
+0367 120000      E     LCALL   ?C?CSTOPTR
+                                           ; SOURCE LINE # 519
+036A 90000F            MOV     DPTR,#0FH
+036D 7404              MOV     A,#04H
+036F 75F000            MOV     B,#00H
+                                           ; SOURCE LINE # 520
+                                           ; SOURCE LINE # 521
+0372 020000      R     LJMP    ?C0173
+0375         ?C0126:
+                                           ; SOURCE LINE # 522
+0375 900000      R     MOV     DPTR,#lut_type
+0378 E0                MOVX    A,@DPTR
+0379 6401              XRL     A,#01H
+037B 705A              JNZ     ?C0128
+                                           ; SOURCE LINE # 523
+037D 120000      R     LCALL   L?0189
+0380 FF                MOV     R7,A
+0381 7B01              MOV     R3,#01H
+0383 7A00        R     MOV     R2,#HIGH rle_header
+0385 7900        R     MOV     R1,#LOW rle_header
+0387 120000      E     LCALL   _MenuReadRleHeader
+                                           ; SOURCE LINE # 524
+038A 7B01              MOV     R3,#01H
+038C 7A00        R     MOV     R2,#HIGH rle_header
+038E 7900        R     MOV     R1,#LOW rle_header
+0390 120000      E     LCALL   _rle2_to_header
+                                           ; SOURCE LINE # 525
+0393 120000      R     LCALL   L?0189
+0396 120000      R     LCALL   L?0195
+0399 120000      R     LCALL   L?0180
+039C 120000      E     LCALL   ?C?LSTPTR
+                                           ; SOURCE LINE # 526
+039F 900000      R     MOV     DPTR,#header
+03A2 120000      R     LCALL   L?0180
+03A5 90000F            MOV     DPTR,#0FH
+03A8 120000      E     LCALL   ?C?ILDOPTR
+03AB FF                MOV     R7,A
+03AC E4                CLR     A
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 36  
+
+03AD FC                MOV     R4,A
+03AE FD                MOV     R5,A
+03AF 900000      R     MOV     DPTR,#image_loc
+03B2 E0                MOVX    A,@DPTR
+03B3 F8                MOV     R0,A
+03B4 A3                INC     DPTR
+03B5 E0                MOVX    A,@DPTR
+03B6 F9                MOV     R1,A
+03B7 A3                INC     DPTR
+03B8 E0                MOVX    A,@DPTR
+03B9 FA                MOV     R2,A
+03BA A3                INC     DPTR
+03BB E0                MOVX    A,@DPTR
+03BC 2F                ADD     A,R7
+03BD FF                MOV     R7,A
+03BE EA                MOV     A,R2
+03BF 35F0              ADDC    A,B
+03C1 FE                MOV     R6,A
+03C2 ED                MOV     A,R5
+03C3 39                ADDC    A,R1
+03C4 FD                MOV     R5,A
+03C5 EC                MOV     A,R4
+03C6 38                ADDC    A,R0
+03C7 FC                MOV     R4,A
+03C8 EF                MOV     A,R7
+03C9 120000      R     LCALL   L?0195
+03CC 120000      R     LCALL   L?0181
+03CF 900004            MOV     DPTR,#04H
+03D2 120000      E     LCALL   ?C?LSTOPTR
+                                           ; SOURCE LINE # 527
+03D5 8050              SJMP    ?C0127
+03D7         ?C0128:
+                                           ; SOURCE LINE # 528
+03D7 900000      R     MOV     DPTR,#lut_type
+03DA E0                MOVX    A,@DPTR
+03DB B4021A            CJNE    A,#02H,?C0130
+                                           ; SOURCE LINE # 529
+03DE 900000      R     MOV     DPTR,#header
+03E1 120000      R     LCALL   L?0180
+03E4 E4                CLR     A
+                                           ; SOURCE LINE # 530
+03E5 120000      R     LCALL   L?0196
+03E8         ?C0145:
+03E8 C3                CLR     C
+03E9 33                RLC     A
+03EA CE                XCH     A,R6
+03EB 33                RLC     A
+03EC CE                XCH     A,R6
+03ED D8F9              DJNZ    R0,?C0145
+03EF FF                MOV     R7,A
+03F0 90000F            MOV     DPTR,#0FH
+03F3 EE                MOV     A,R6
+03F4 8FF0              MOV     B,R7
+03F6         ?C0172:
+                                           ; SOURCE LINE # 531
+                                           ; SOURCE LINE # 532
+03F6 8020              SJMP    ?C0173
+03F8         ?C0130:
+                                           ; SOURCE LINE # 533
+03F8 900000      R     MOV     DPTR,#lut_type
+03FB E0                MOVX    A,@DPTR
+03FC B40325            CJNE    A,#03H,?C0132
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 37  
+
+                                           ; SOURCE LINE # 534
+03FF 900000      R     MOV     DPTR,#header
+0402 120000      R     LCALL   L?0180
+0405 7401              MOV     A,#01H
+                                           ; SOURCE LINE # 535
+0407 120000      R     LCALL   L?0196
+040A         ?C0146:
+040A C3                CLR     C
+040B 33                RLC     A
+040C CE                XCH     A,R6
+040D 33                RLC     A
+040E CE                XCH     A,R6
+040F D8F9              DJNZ    R0,?C0146
+0411 FF                MOV     R7,A
+0412 90000F            MOV     DPTR,#0FH
+0415 EE                MOV     A,R6
+0416 8FF0              MOV     B,R7
+0418         ?C0173:
+0418 120000      E     LCALL   ?C?ISTOPTR
+                                           ; SOURCE LINE # 536
+041B 120000      R     LCALL   L?0190
+041E FF                MOV     R7,A
+041F 120000      E     LCALL   ?C?LSTPTR
+                                           ; SOURCE LINE # 537
+0422 8003              SJMP    ?C0127
+0424         ?C0132:
+                                           ; SOURCE LINE # 538
+                                           ; SOURCE LINE # 539
+0424         ?C0169:
+0424 020000      R     LJMP    ?C0174
+                                           ; SOURCE LINE # 541
+0427         ?C0127:
+                                           ; SOURCE LINE # 542
+0427 7F01              MOV     R7,#01H
+0429 120000      E     LCALL   _WaitVBlank
+                                           ; SOURCE LINE # 543
+042C 900000      R     MOV     DPTR,#header
+042F 120000      R     LCALL   L?0180
+0432 900008            MOV     DPTR,#08H
+0435 120000      E     LCALL   ?C?CLDOPTR
+0438 FD                MOV     R5,A
+0439 C005              PUSH    AR5
+043B 90000F            MOV     DPTR,#0FH
+043E 120000      E     LCALL   ?C?ILDOPTR
+0441 FF                MOV     R7,A
+0442 900000      E     MOV     DPTR,#?_SpiOsdLoadLUT?BYTE+04H
+0445 E5F0              MOV     A,B
+0447 F0                MOVX    @DPTR,A
+0448 A3                INC     DPTR
+0449 EF                MOV     A,R7
+044A F0                MOVX    @DPTR,A
+044B 120000      E     LCALL   ?C?LLDPTR
+044E 900000      E     MOV     DPTR,#?_SpiOsdLoadLUT?BYTE+06H
+0451 120000      E     LCALL   ?C?LSTXDATA
+0454 900000      R     MOV     DPTR,#lut_loc
+0457 E0                MOVX    A,@DPTR
+0458 FA                MOV     R2,A
+0459 A3                INC     DPTR
+045A E0                MOVX    A,@DPTR
+045B FB                MOV     R3,A
+045C 900000      R     MOV     DPTR,#winno
+045F E0                MOVX    A,@DPTR
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 38  
+
+0460 FF                MOV     R7,A
+0461 D005              POP     AR5
+0463 020000      E     LJMP    _SpiOsdLoadLUT
+                                           ; SOURCE LINE # 545
+0466         ?C0116:
+                                           ; SOURCE LINE # 547
+0466 120000      R     LCALL   L?0176
+0469 120000      E     LCALL   _stricmp
+046C EF                MOV     A,R7
+046D 4E                ORL     A,R6
+046E 6031              JZ      ?C0118
+                                           ; SOURCE LINE # 548
+0470         ?C0135:
+                                           ; SOURCE LINE # 550
+0470 120000      R     LCALL   L?0177
+0473 120000      E     LCALL   _stricmp
+0476 EF                MOV     A,R7
+0477 4E                ORL     A,R6
+0478 6027              JZ      ?C0118
+                                           ; SOURCE LINE # 551
+047A         ?C0137:
+                                           ; SOURCE LINE # 553
+047A 120000      R     LCALL   L?0177
+047D 120000      E     LCALL   _stricmp
+0480 EF                MOV     A,R7
+0481 4E                ORL     A,R6
+0482 601D              JZ      ?C0118
+                                           ; SOURCE LINE # 554
+0484         ?C0139:
+                                           ; SOURCE LINE # 556
+0484 120000      R     LCALL   L?0177
+0487 120000      E     LCALL   _stricmp
+048A EF                MOV     A,R7
+048B 4E                ORL     A,R6
+048C 6013              JZ      ?C0118
+                                           ; SOURCE LINE # 557
+048E         ?C0141:
+                                           ; SOURCE LINE # 559
+048E 120000      R     LCALL   L?0177
+0491 120000      E     LCALL   _stricmp
+0494 EF                MOV     A,R7
+0495 4E                ORL     A,R6
+0496 6009              JZ      ?C0118
+                                           ; SOURCE LINE # 560
+0498         ?C0143:
+                                           ; SOURCE LINE # 562
+0498         ?C0174:
+0498 7BFF              MOV     R3,#0FFH
+049A 7A00        R     MOV     R2,#HIGH ?SC_633
+049C 7900        R     MOV     R1,#LOW ?SC_633
+049E 120000      E     LCALL   _Printf
+                                           ; SOURCE LINE # 563
+04A1         ?C0118:
+04A1 22                RET     
+04A2         L?0184:
+04A2 120000      E     LCALL   _a2i
+04A5 900000      R     MOV     DPTR,#img_n
+04A8 EF                MOV     A,R7
+04A9 F0                MOVX    @DPTR,A
+04AA FD                MOV     R5,A
+04AB E500        E     MOV     A,regTW88+01H
+04AD 2409              ADD     A,#09H
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 39  
+
+04AF F582              MOV     DPL,A
+04B1 E4                CLR     A
+04B2 3500        E     ADDC    A,regTW88
+04B4 F583              MOV     DPH,A
+04B6 E0                MOVX    A,@DPTR
+04B7 FF                MOV     R7,A
+04B8 C4                SWAP    A
+04B9 13                RRC     A
+04BA 5407              ANL     A,#07H
+04BC 900000      R     MOV     DPTR,#winno
+04BF F0                MOVX    @DPTR,A
+04C0 E0                MOVX    A,@DPTR
+04C1 04                INC     A
+04C2 F0                MOVX    @DPTR,A
+04C3 EF                MOV     A,R7
+04C4 541F              ANL     A,#01FH
+04C6 FF                MOV     R7,A
+04C7 A3                INC     DPTR
+04C8 E4                CLR     A
+04C9 F0                MOVX    @DPTR,A
+04CA A3                INC     DPTR
+04CB EF                MOV     A,R7
+04CC F0                MOVX    @DPTR,A
+04CD E0                MOVX    A,@DPTR
+04CE C4                SWAP    A
+04CF F8                MOV     R0,A
+04D0 540F              ANL     A,#0FH
+04D2 C8                XCH     A,R0
+04D3 68                XRL     A,R0
+04D4 FF                MOV     R7,A
+04D5 900000      R     MOV     DPTR,#lut
+04D8 E0                MOVX    A,@DPTR
+04D9 C4                SWAP    A
+04DA 54F0              ANL     A,#0F0H
+04DC 48                ORL     A,R0
+04DD FE                MOV     R6,A
+04DE F0                MOVX    @DPTR,A
+04DF FA                MOV     R2,A
+04E0 A3                INC     DPTR
+04E1 EF                MOV     A,R7
+04E2 F0                MOVX    @DPTR,A
+04E3 FB                MOV     R3,A
+04E4 AF05              MOV     R7,AR5
+04E6 900000      R     MOV     DPTR,#winno
+04E9 E0                MOVX    A,@DPTR
+04EA FD                MOV     R5,A
+04EB 22                RET     
+04EC         L?0185:
+04EC 7BFF              MOV     R3,#0FFH
+04EE 120000      E     LCALL   _Puts
+04F1 7BFF              MOV     R3,#0FFH
+04F3 22                RET     
+04F4         L?0186:
+04F4 7BFF              MOV     R3,#0FFH
+04F6 120000      E     LCALL   _Puts
+04F9 7BFF              MOV     R3,#0FFH
+04FB 22                RET     
+04FC         L?0187:
+04FC 7BFF              MOV     R3,#0FFH
+04FE 120000      E     LCALL   _Puts
+0501 7BFF              MOV     R3,#0FFH
+0503 22                RET     
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 40  
+
+0504         L?0192:
+0504 7BFF              MOV     R3,#0FFH
+0506 120000      E     LCALL   _Puts
+0509 7BFF              MOV     R3,#0FFH
+050B 22                RET     
+050C         L?0202:
+050C 120000      E     LCALL   _a2i
+050F 900000      R     MOV     DPTR,#img_n
+0512 EF                MOV     A,R7
+0513 F0                MOVX    @DPTR,A
+0514 900000      E     MOV     DPTR,#argv+09H
+0517 22                RET     
+             ; FUNCTION MonitorSOsd (END)
+
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 41  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+TestNum1BPP3BPP. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+_FOsdSetDefPaletteColor. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MonitorMenu. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+_stricmp . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_rle2_to_header. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_MenuReadRleHeader . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_MonOsdLutLoad . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+menu_fitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
+  winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  zoom_h . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  zoom_v . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+_FontInfoByNum . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 42  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+  items. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
+argc . . . . . . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
+menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+menu_sitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  23
+  osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  align. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  image. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0009H  3
+  image1 . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+  image_type . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
+  lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
+  up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  down . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0016H  1
+_SpiOsdEnable. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_FOsdTest_1. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+RLE2_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  16
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  op_bmpbits . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  rledata_cnt. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  LUT_format . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  LUT_colors . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000DH  1
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000EH  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
+RoseDemo . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MenuStart. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_TestMainMenuImage . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
+  ram. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  zoom . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  ch_space_low . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 43  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  color. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  alpha_value. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  alpha_color_index. . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  reserved9. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  reserved10 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  reserved11 . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+_Puts. . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+DumpFontOsdPalette . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MenuEnd. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+Test16x32FontSet . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+DumpFont . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_FOsdInitBpp3AlphaTable. . . . . . . .  EXTERN   CODE   PROC     -----  -----
+argv . . . . . . . . . . . . . . . . .  EXTERN   XDATA  ARRAY    -----  -----
+MenuGetLevel . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+TaskGetGrid. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+menu_image_header_t. . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  17
+  lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  image_loc. . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+  bpp. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0009H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
+_InitFontRamByNum. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+TestMultiBPP4. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_SpiOsdLoadLUT . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 44  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+TestUpper256Char . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+MonSOsdImgInfo . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_MenuKeyInput. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+header_table . . . . . . . . . . . . .  EXTERN   XDATA  STRUCT   -----  17
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+_WaitVBlank. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+_FOsdDumpPalette . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MonitorFOsd. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  num. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0001H  2
+  winno. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  color. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0001H  2
+  lut_num. . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  winno. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
+MY_SLIDEIMAGE. . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  10
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0006H  4
+_TaskSetGridCmd. . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+image_info_s . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 45  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+MonitorSOsd. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  img_n. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  lut. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0001H  2
+  img_n. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  winno. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  lut. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0002H  2
+  img_n. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  winno. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  lut. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0002H  2
+  lut_loc. . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0000H  2
+  lut_type . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
+  nColor . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0003H  2
+  image_loc. . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0005H  4
+  winno. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0009H  1
+  header . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      000AH  3
+  rle_header . . . . . . . . . . . . .  AUTO     XDATA  STRUCT   000DH  16
+image_info_t . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  6
+  lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+PigeonDemo . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_FOsdSetPaletteColor . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_MonOsdImgLoad . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_Printf. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+MY_RLE_INFO. . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  5
+  rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+image_item_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+image_item_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  9
+  type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0001H  4
+  info . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0005H  3
+  alpha. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
+_a2h . . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+C51 COMPILER V9.00   MONITOR_MENU                                                          05/31/2013 20:18:34 PAGE 46  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+_a2i . . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2614    ----
+   CONSTANT SIZE    =   1632    ----
+   XDATA SIZE       =   ----      32
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

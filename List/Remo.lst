@@ -1,0 +1,678 @@
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE REMO
+OBJECT MODULE PLACED IN .\Output\Remo.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Remo.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
+                    -DDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Remo.lst) OBJECT(.\Output\Remo.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * remo.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      remote controller
+  10           *  Default function for Key Input and Remocon Input
+  11          */
+  12          #include "config.h"
+  13          #include "reg.h"
+  14          #include "typedefs.h"
+  15          #include "TW8835.h"
+  16          
+  17          #include "global.h"
+  18          #include "CPU.h"
+  19          #include "printf.h"
+  20          
+  21          #include "I2C.h"
+  22          #include "Remo.h"
+  23          #include "TouchKey.h"
+  24          
+  25          
+  26          #define REMO_PAGE       0xbad
+  27          
+  28          
+  29          
+  30          //=============================================================================
+  31          // REMOCON
+  32          //=============================================================================
+  33          
+  34          
+  35          extern BYTE     InputMode;
+  36          extern bit              OnPIP;
+  37          extern bit              CaptureMode;
+  38          extern BYTE     SavePIP;                // PIP_CVBS - start mode
+  39          extern BYTE     SaveInput;      // 0(CVBS) or 1(SVGA60) for demo
+  40          extern BYTE     SaveNum;
+  41          extern BYTE     LoadNum;
+  42          //#define CAPTURE_MAX           10
+  43          
+  44          
+  45          
+  46          //=============================================================================
+  47          //=============================================================================
+  48          
+  49          
+  50          
+  51          
+  52          
+  53          //=============================================================================
+  54          //              CheckRemo
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 2   
+
+  55          //=============================================================================
+  56          
+  57          //#define               REMO_CUSTOM                     0
+  58          
+  59          #ifdef DEBUG_REMO
+              extern BYTE RemoCapture0[];
+              extern BYTE RemoCapture1[];
+              extern BYTE RemoCapture2[];
+              #endif
+  64          
+  65          #ifdef REMO_RC5
+  66          /**
+  67          * check remocon ready
+  68          * 
+  69          * NOTE: Use Call by Reference. USE only ON the Current BANK.
+  70          */
+  71          BYTE IsRemoDataReady(BYTE *DataCode, BYTE *AutoKey)
+  72          {
+  73   1              BYTE    togglebit;
+  74   1              static BYTE     LastToggle=0;
+  75   1              static BYTE AutoWait=0;
+  76   1              static DWORD    LastTime = 0;
+  77   1      #ifdef DEBUG_REMO
+                      BYTE i,j;
+              #endif
+  80   1              BYTE _RemoSystemCode;
+  81   1              BYTE _RemoDataCode;
+  82   1      
+  83   1              if( !RemoDataReady ) return 0;
+  84   1      
+  85   1              _RemoSystemCode = RemoSystemCode;
+  86   1              _RemoDataCode = RemoDataCode;
+  87   1      
+  88   1              if ( ( RemoReceivedTime - LastTime ) > 100 ) LastToggle = 0;            // time out means newkey
+  89   1              LastTime = RemoReceivedTime;
+  90   1      
+  91   1              ClearRemoTimer();                       
+  92   1              EnableRemoInt();
+  93   1              //
+  94   1              //BKFYI: DO NOT USE RemoDataReady,RemoDataCode,RemoSystemCode after here.
+  95   1              //
+  96   1      
+  97   1      #ifdef DEBUG_KEYREMO
+                      dPrintf("\r\n(CheckRemo)R-S:%02bx, R-D:%02bx", _RemoSystemCode, _RemoDataCode);
+              #endif
+ 100   1      
+ 101   1              //check start1 & start2 and 5BIT ADDRESS
+ 102   1              if( (_RemoSystemCode & 0xc0) != 0xc0 )                  return 0;
+ 103   1              if( (_RemoSystemCode & 0x1f) != REMO_CUSTOM )   return 0;
+ 104   1      
+ 105   1              //check toggle
+ 106   1              togglebit = LastToggle;
+ 107   1              LastToggle = _RemoSystemCode & 0xE0;
+ 108   1              /*
+ 109   1              if( _RemoSystemCode & 0x20 ) LastToggle = 1;
+ 110   1              else LastToggle = 0;
+ 111   1              */
+ 112   1      
+ 113   1              *AutoKey = 0;
+ 114   1              if( LastToggle != togglebit ) {                 // new key
+ 115   2                      AutoWait =  0;
+ 116   2              }
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 3   
+
+ 117   1              else {                                                          // auto key
+ 118   2                      if(AutoWait < 4) {                              // wait 4 auto key
+ 119   3                              AutoWait++;
+ 120   3      #ifdef DEBUG_KEYREMO
+                                      dPrintf("  autowait:%bd",AutoWait);
+              #endif
+ 123   3                              return 0;
+ 124   3                      }
+ 125   2                      //max AutoWait will be 4.
+ 126   2                      *AutoKey = 1;
+ 127   2              }       
+ 128   1      
+ 129   1              //6BIT COMMAND.
+ 130   1              *DataCode = _RemoDataCode;
+ 131   1      
+ 132   1      #ifdef DEBUG_KEYREMO
+                      dPrintf("\n':%02bx Data:%02bx Auto:%02bx ", _RemoSystemCode, _RemoDataCode, *AutoKey);
+              #endif
+ 135   1      #ifdef DEBUG_REMO
+                      dPrintf(" RemoDataReady:%bd RemoCaptureDisable:%bd",RemoDataReady,RemoCaptureDisable);
+                      //dPrintf("\nSample:");
+                      //if(RemoCaptureDisable > 3)
+                      //      RemoCaptureDisable = 3;
+                      if(RemoCaptureDisable >= 1) {
+                              dPrintf("\nRemo0 Sys:%02bx Data:%02bx Auto:%02bx ", RemoSystemCode0, RemoDataCode0);
+                              for(i=0; i < 14;i++) {
+                                      if(i==0) dPuts("\nstart:");
+                                      if(i==2) dPuts(" toggle:");
+                                      if(i==3) dPuts("\nADDR:");
+                                      if(i==8) dPuts("\nCMD:");
+                                      for(j=0; j < 8; j++) {
+                                              if(RemoCapture0[i] & (1 << (j))) dPrintf("1");
+                                              else                          dPrintf("0");
+                                      }
+                                      RemoCapture0[i]=0;
+                                      dPrintf(" ");
+                              }
+                      }
+              
+                      if(RemoCaptureDisable >= 2) {
+                              dPrintf("\nRemo1 Sys:%02bx Data:%02bx Auto:%02bx ", RemoSystemCode1, RemoDataCode1);
+                              //dPuts("\n");
+                              for(i=0; i < 14;i++) {
+                                      if(i==0) dPuts("\nstart:");
+                                      if(i==2) dPuts(" toggle:");
+                                      if(i==3) dPuts("\nADDR:");
+                                      if(i==8) dPuts("\nCMD:");
+                                      for(j=0; j < 8; j++) {
+                                              if(RemoCapture1[i] & (1 << (j))) dPrintf("1");
+                                              else                          dPrintf("0");
+                                      }
+                                      RemoCapture1[i]=0;
+                                      dPrintf(" ");
+                              }
+                      }
+              
+                      if(RemoCaptureDisable >= 3) {
+                              dPrintf("\nRemo2 Sys:%02bx Data:%02bx Auto:%02bx ", RemoSystemCode2, RemoDataCode2);
+                              //dPuts("\n");
+                              for(i=0; i < 14;i++) {
+                                      if(i==0) dPuts("\nstart:");
+                                      if(i==2) dPuts(" toggle:");
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 4   
+
+                                      if(i==3) dPuts("\nADDR:");
+                                      if(i==8) dPuts("\nCMD:");
+                                      for(j=0; j < 8; j++) {
+                                              if(RemoCapture2[i] & (1 << (j))) dPrintf("1");
+                                              else                          dPrintf("0");
+                                      }
+                                      RemoCapture2[i]=0;
+                                      dPrintf(" ");
+                              }
+                      }
+                      dPuts("\n");
+              
+                      RemoCaptureDisable = 0;
+              #endif
+ 193   1      
+ 194   1              return 1;
+ 195   1      }
+ 196          #endif //..REMO_RC5
+ 197          
+ 198          #ifdef REMO_NEC
+              extern DATA             BYTE     RemoData[4];
+              
+              #ifdef DEBUG_REMO_NEC
+              extern DATA BYTE        DebugRemoStep;
+              extern  DATA BYTE       DebugRemoHcnt;
+              extern  DATA BYTE   DebugRemoLcnt;
+              extern  DATA BYTE   DebugRemoNum;
+              extern  DATA BYTE   DebugRemoBit;
+              extern  DATA BYTE   DebugRemoPhase;
+              extern  DATA BYTE   DebugRemoDataReady;
+              #endif
+              
+              /**
+              * check remocon is ready
+              *
+              * extern 
+              *       RemoData[4]
+              *       RemoDataReady
+              * @return
+              *       -1:success, return valid DataCode and AutoKey
+              *       -0:fail. invalid
+              */
+              BYTE IsRemoDataReady(BYTE *DataCode, BYTE *AutoKey)
+              {
+                      static BYTE AutoWait=0;
+                      static IDATA BYTE LastDataCode=0xff;
+                      static IDATA BYTE repeatcnt=0;
+              
+              #ifdef DEBUG_REMO_NEC
+                      if(DebugRemoStep) { 
+                              dPrintf("\r\nNEC Remo Debug Step:%02bx Hcnt:%02bx Lcnt:%02bx Num:%02bx Bit:%02bx Phase:%02bx", 
+                                      DebugRemoStep, DebugRemoHcnt, DebugRemoLcnt, DebugRemoNum,DebugRemoBit, DebugRemoPhase);
+                              DebugRemoStep = 0;
+                      }
+              #endif
+              
+              
+                      if(     !RemoDataReady )        {
+                              return 0;
+                      }
+              
+                      if(     RemoDataReady == 1) {
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 5   
+
+                              #ifdef DEBUG_KEYREMO
+                              dPrintf("\r\nNEC RemoData = %02bx %02bx %02bx %02bx", RemoData[0], RemoData[1], RemoData[2], RemoData[3]
+             - );
+                              #endif
+              
+                              if((RemoData[0] != REMO_CUSTOM1)
+                              || (RemoData[1] != REMO_CUSTOM2)
+                              || ((RemoData[2]+RemoData[3]) != 0xff) ) {
+                                      //unknown address or invalid invert.
+              
+                                      LastDataCode = 0xff;    //reset LastDataCode
+              
+                                      EnableRemoInt();
+                                      return 0;
+                              }
+                              //we have a valid NEC code.
+              
+                              LastDataCode = RemoData[2];     //assume no 0xFF on RemoData[2].
+                              AutoWait = 0;
+                              repeatcnt = 0;
+              
+                              *AutoKey = 0;
+                              *DataCode = LastDataCode;
+              
+                      }
+                      else if( RemoDataReady == 2) {
+                              // we have a repeat key.
+                              
+                              if( LastDataCode==0xff ) {
+                                      wPrintf("\r\nWARNING:NEC Auto without LastDataCode");
+                                      EnableRemoInt();
+                                      return 0;
+                              }
+              
+                              AutoWait++;
+              
+                              if(AutoWait < 6) {
+                                      #ifdef DEBUG_REMO_NEC
+                                      wPrintf("\r\nNEC AutoWait:%02bd", AutoWait);
+                                      #endif
+                                      EnableRemoInt();                //
+                                      return 0;
+                              }
+              
+                              //Q:Why we need AutoWait and repeatcnt ?. One of them can be removed.
+                              //1~5 : ignore.
+                              //6~10: pass every second time.
+                              //more then 10: pass every time.
+              
+                              repeatcnt++;
+                              if( repeatcnt>=5 )
+                                      AutoWait = 5;
+                              else
+                                      AutoWait = 4;
+              
+                              *AutoKey = 1;
+                              *DataCode = LastDataCode;
+                      
+                      } else {
+                              wPrintf("BUG:invalid RemoDataReady:%bd", RemoDataReady);
+                      }
+                      
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 6   
+
+              
+                      EnableRemoInt();
+              
+              
+              #ifdef DEBUG_KEYREMO
+                      dPrintf("\nRemo Data:%02bx Auto:%02bx ", *DataCode, *AutoKey);
+                      if(*AutoKey) {
+                              dPrintf(" AutoWait:%bd repeatcnt:%bd ", AutoWait, repeatcnt);
+                      }
+              #endif
+              
+                      return 1;
+              }
+              
+              #endif //..REMO_NEC
+ 317          
+ 318          /**
+ 319          * check remocon input
+ 320          */
+ 321          BYTE CheckRemo(void)
+ 322          {
+ 323   1              BYTE AutoKey,  _RemoDataCode;
+ 324   1              BYTE ret=0;
+ 325   1      
+ 326   1              if( IsRemoDataReady(&_RemoDataCode, &AutoKey) ) {
+ 327   2                      ret = ActionRemo( _RemoDataCode, (BYTE)AutoKey) ;
+ 328   2      
+ 329   2      #ifdef DEBUG_KEYREMO
+                              //dPrintf("\n**** Remo: %02bx, %02bx ", _RemoDataCode, (BYTE)AutoKey);
+                              //dPrintf("\n%02bx,%02bx ", _RemoDataCode, AutoKey);
+              #endif
+ 333   2              }
+ 334   1      
+ 335   1              return ret;
+ 336   1      }
+ 337          
+ 338          
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 7   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com000B (BEGIN)
+0000         L?0012:
+0000 900000      R     MOV     DPTR,#AutoKey
+0003         L?0013:
+0003 E0                MOVX    A,@DPTR
+0004 FB                MOV     R3,A
+0005 A3                INC     DPTR
+0006 E0                MOVX    A,@DPTR
+0007 FA                MOV     R2,A
+0008 A3                INC     DPTR
+0009 E0                MOVX    A,@DPTR
+000A F9                MOV     R1,A
+000B 22                RET     
+             ; FUNCTION Com000B (END)
+
+             ; FUNCTION _IsRemoDataReady (BEGIN)
+                                           ; SOURCE LINE # 71
+0000 900000      R     MOV     DPTR,#DataCode
+0003 EB                MOV     A,R3
+0004 F0                MOVX    @DPTR,A
+0005 A3                INC     DPTR
+0006 EA                MOV     A,R2
+0007 F0                MOVX    @DPTR,A
+0008 A3                INC     DPTR
+0009 E9                MOV     A,R1
+000A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 72
+                                           ; SOURCE LINE # 83
+000B 7800        E     MOV     R0,#LOW RemoDataReady
+000D E6                MOV     A,@R0
+000E 7002              JNZ     ?C0001
+0010 FF                MOV     R7,A
+0011 22                RET     
+0012         ?C0001:
+                                           ; SOURCE LINE # 85
+0012 7800        E     MOV     R0,#LOW RemoSystemCode
+0014 E6                MOV     A,@R0
+0015 900000      R     MOV     DPTR,#_RemoSystemCode
+0018 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 86
+0019 7800        E     MOV     R0,#LOW RemoDataCode
+001B E6                MOV     A,@R0
+001C A3                INC     DPTR
+001D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 88
+001E 900000      R     MOV     DPTR,#LastTime
+0021 E0                MOVX    A,@DPTR
+0022 F8                MOV     R0,A
+0023 A3                INC     DPTR
+0024 E0                MOVX    A,@DPTR
+0025 F9                MOV     R1,A
+0026 A3                INC     DPTR
+0027 E0                MOVX    A,@DPTR
+0028 FA                MOV     R2,A
+0029 A3                INC     DPTR
+002A E0                MOVX    A,@DPTR
+002B FB                MOV     R3,A
+002C C000              PUSH    AR0
+002E 7800        E     MOV     R0,#LOW RemoReceivedTime
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 8   
+
+0030 120000      E     LCALL   ?C?LLDIDATA
+0033 D000              POP     AR0
+0035 C3                CLR     C
+0036 EF                MOV     A,R7
+0037 9B                SUBB    A,R3
+0038 FF                MOV     R7,A
+0039 EE                MOV     A,R6
+003A 9A                SUBB    A,R2
+003B FE                MOV     R6,A
+003C ED                MOV     A,R5
+003D 99                SUBB    A,R1
+003E FD                MOV     R5,A
+003F EC                MOV     A,R4
+0040 98                SUBB    A,R0
+0041 FC                MOV     R4,A
+0042 E4                CLR     A
+0043 7B64              MOV     R3,#064H
+0045 FA                MOV     R2,A
+0046 F9                MOV     R1,A
+0047 F8                MOV     R0,A
+0048 C3                CLR     C
+0049 120000      E     LCALL   ?C?ULCMP
+004C 5005              JNC     ?C0003
+004E E4                CLR     A
+004F 900000      R     MOV     DPTR,#LastToggle
+0052 F0                MOVX    @DPTR,A
+0053         ?C0003:
+                                           ; SOURCE LINE # 89
+0053 7800        E     MOV     R0,#LOW RemoReceivedTime
+0055 120000      E     LCALL   ?C?LLDIDATA
+0058 900000      R     MOV     DPTR,#LastTime
+005B 120000      E     LCALL   ?C?LSTXDATA
+                                           ; SOURCE LINE # 91
+005E E4                CLR     A
+005F F5C8              MOV     SFR_T2CON,A
+                                           ; SOURCE LINE # 92
+0061 7800        E     MOV     R0,#LOW RemoDataReady
+0063 F6                MOV     @R0,A
+0064 43FB04            ORL     SFR_E2IE,#04H
+                                           ; SOURCE LINE # 102
+0067 900000      R     MOV     DPTR,#_RemoSystemCode
+006A E0                MOVX    A,@DPTR
+006B FE                MOV     R6,A
+006C 54C0              ANL     A,#0C0H
+006E 64C0              XRL     A,#0C0H
+0070 6003              JZ      ?C0004
+0072 7F00              MOV     R7,#00H
+0074 22                RET     
+0075         ?C0004:
+                                           ; SOURCE LINE # 103
+0075 EE                MOV     A,R6
+0076 541F              ANL     A,#01FH
+0078 6003              JZ      ?C0005
+007A 7F00              MOV     R7,#00H
+007C 22                RET     
+007D         ?C0005:
+                                           ; SOURCE LINE # 106
+007D 900000      R     MOV     DPTR,#LastToggle
+0080 E0                MOVX    A,@DPTR
+0081 FF                MOV     R7,A
+;---- Variable 'togglebit' assigned to Register 'R7' ----
+                                           ; SOURCE LINE # 107
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 9   
+
+0082 900000      R     MOV     DPTR,#_RemoSystemCode
+0085 E0                MOVX    A,@DPTR
+0086 54E0              ANL     A,#0E0H
+0088 FE                MOV     R6,A
+0089 900000      R     MOV     DPTR,#LastToggle
+008C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 113
+008D 120000      R     LCALL   L?0012
+0090 E4                CLR     A
+0091 120000      E     LCALL   ?C?CSTPTR
+                                           ; SOURCE LINE # 114
+0094 EE                MOV     A,R6
+0095 6F                XRL     A,R7
+0096 6007              JZ      ?C0006
+                                           ; SOURCE LINE # 115
+0098 E4                CLR     A
+0099 900000      R     MOV     DPTR,#AutoWait
+009C F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 116
+009D 8017              SJMP    ?C0007
+009F         ?C0006:
+                                           ; SOURCE LINE # 117
+                                           ; SOURCE LINE # 118
+009F 900000      R     MOV     DPTR,#AutoWait
+00A2 E0                MOVX    A,@DPTR
+00A3 C3                CLR     C
+00A4 9404              SUBB    A,#04H
+00A6 5006              JNC     ?C0008
+                                           ; SOURCE LINE # 119
+00A8 E0                MOVX    A,@DPTR
+00A9 04                INC     A
+00AA F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 123
+00AB 7F00              MOV     R7,#00H
+00AD 22                RET     
+                                           ; SOURCE LINE # 124
+00AE         ?C0008:
+                                           ; SOURCE LINE # 126
+00AE 120000      R     LCALL   L?0012
+00B1 7401              MOV     A,#01H
+00B3 120000      E     LCALL   ?C?CSTPTR
+                                           ; SOURCE LINE # 127
+00B6         ?C0007:
+                                           ; SOURCE LINE # 130
+00B6 900000      R     MOV     DPTR,#_RemoDataCode
+00B9 E0                MOVX    A,@DPTR
+00BA FF                MOV     R7,A
+00BB 900000      R     MOV     DPTR,#DataCode
+00BE 120000      R     LCALL   L?0013
+00C1 EF                MOV     A,R7
+00C2 120000      E     LCALL   ?C?CSTPTR
+                                           ; SOURCE LINE # 194
+00C5 7F01              MOV     R7,#01H
+                                           ; SOURCE LINE # 195
+00C7         ?C0002:
+00C7 22                RET     
+             ; FUNCTION _IsRemoDataReady (END)
+
+             ; FUNCTION CheckRemo (BEGIN)
+                                           ; SOURCE LINE # 321
+                                           ; SOURCE LINE # 322
+                                           ; SOURCE LINE # 324
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 10  
+
+0000 E4                CLR     A
+0001 900000      R     MOV     DPTR,#ret
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 326
+0005 7B01              MOV     R3,#01H
+0007 900000      R     MOV     DPTR,#?_IsRemoDataReady?BYTE+03H
+000A 04                INC     A
+000B F0                MOVX    @DPTR,A
+000C A3                INC     DPTR
+000D 7400        R     MOV     A,#HIGH AutoKey
+000F F0                MOVX    @DPTR,A
+0010 A3                INC     DPTR
+0011 7400        R     MOV     A,#LOW AutoKey
+0013 F0                MOVX    @DPTR,A
+0014 7A00        R     MOV     R2,#HIGH _RemoDataCode
+0016 7900        R     MOV     R1,#LOW _RemoDataCode
+0018 120000      R     LCALL   _IsRemoDataReady
+001B EF                MOV     A,R7
+001C 6012              JZ      ?C0009
+                                           ; SOURCE LINE # 327
+001E 900000      R     MOV     DPTR,#_RemoDataCode
+0021 E0                MOVX    A,@DPTR
+0022 FF                MOV     R7,A
+0023 900000      R     MOV     DPTR,#AutoKey
+0026 E0                MOVX    A,@DPTR
+0027 FD                MOV     R5,A
+0028 120000      E     LCALL   _ActionRemo
+002B 900000      R     MOV     DPTR,#ret
+002E EF                MOV     A,R7
+002F F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 333
+0030         ?C0009:
+                                           ; SOURCE LINE # 335
+0030 900000      R     MOV     DPTR,#ret
+0033 E0                MOVX    A,@DPTR
+0034 FF                MOV     R7,A
+                                           ; SOURCE LINE # 336
+0035         ?C0010:
+0035 22                RET     
+             ; FUNCTION CheckRemo (END)
+
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 11  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+RemoDataReady. . . . . . . . . . . . .  EXTERN   IDATA  U_CHAR   -----  1
+RemoDataCode . . . . . . . . . . . . .  EXTERN   IDATA  U_CHAR   -----  1
+RemoSystemCode . . . . . . . . . . . .  EXTERN   IDATA  U_CHAR   -----  1
+SFR_T2CON. . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C8H  1
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+_IsRemoDataReady . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  DataCode . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0000H  3
+  AutoKey. . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0003H  3
+  togglebit. . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
+  LastToggle . . . . . . . . . . . . .  STATIC   XDATA  U_CHAR   0000H  1
+  AutoWait . . . . . . . . . . . . . .  STATIC   XDATA  U_CHAR   0001H  1
+  LastTime . . . . . . . . . . . . . .  STATIC   XDATA  U_LONG   0002H  4
+  _RemoSystemCode. . . . . . . . . . .  AUTO     XDATA  U_CHAR   0006H  1
+  _RemoDataCode. . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0007H  1
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+SFR_E2IE . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00FBH  1
+RemoReceivedTime . . . . . . . . . . .  EXTERN   IDATA  U_LONG   -----  4
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+CheckRemo. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  AutoKey. . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  _RemoDataCode. . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
+  ret. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
+C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 12  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+_ActionRemo. . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    266    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      6      11
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

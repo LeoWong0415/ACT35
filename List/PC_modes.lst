@@ -1,0 +1,716 @@
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE PC_MODES
+OBJECT MODULE PLACED IN .\Output\PC_modes.obj
+COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE PC_modes.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
+                    -E MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\PC_modes.lst) OBJECT(.\Output\PC_m
+                    -odes.obj)
+
+line level    source
+
+   1          /**
+   2           * @file
+   3           * PC_modes.c 
+   4           * @author Brian Kang
+   5           * @version 1.0
+   6           * @section LICENSE
+   7           *      Copyright (C) 2011~2012 Intersil Corporation
+   8           * @section DESCRIPTION
+   9           *      Video timimg table
+  10          */
+  11          
+  12          #include "Config.h"
+  13          #include "reg.h"
+  14          #include "typedefs.h"
+  15          #include "TW8835.h"
+  16          
+  17          #include "global.h"
+  18          #include "printf.h"
+  19          #include "util.h"
+  20          
+  21          #include "PC_modes.h"
+  22          #include "InputCtrl.h"
+  23          #include "SOsd.h"
+  24          #include "FOSD.h"
+  25          
+  26          //BKTODO: 
+  27          //      Prepare WVGA panel.
+  28          //      Add DTV input mode
+  29          
+  30          
+  31          #if /*defined( SUPPORT_COMPONENT ) || */ defined( SUPPORT_PC ) || defined (SUPPORT_DVI)
+  32          //CONST struct _PCMODEDATA PCMDATA[] = {
+  33          code struct _PCMODEDATA PCMDATA[] = {
+  34          //========================================================================================================
+             -===
+  35          //                       PC mode Table for XGA Panel    17-July, 2002
+  36          //========================================================================================================
+             -===
+  37          // Support
+  38          //      0:NotSupport. 1:PC 2:Component 3:DTV
+  39          // han          horizontal addressable size, resolution
+  40          // van          vertical addressable size, resolution
+  41          // vfreq        vertical frequency
+  42          // htotal       horizontal total pixels. horizontal period use it to set PLL with (htotal-1)
+  43          // vtotal       vertical total lines. vertical period
+  44          // hsyncpol we don't need it.
+  45          // vsyncpol we don't need it.
+  46          // hstart       horizontal addressable start(not active start). It will be HsyncWidth+HBackPorch+HLeftBorder.
+  47          // vstart       vertical addressable start(not active start). It will be VsyncWidth+VBackPorch+VTopBorder.
+  48          // offseth      Offset from hstart for scaler hstart input
+  49          // offsetv  Offset from vstart for scaler vstart input
+  50          // dummy0       - for VAN adjust. removed
+  51          // dummy1       - for VDE. removed
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 2   
+
+  52          // IHF      - input HFreq based 100Hz
+  53          // IPF          - input pixel clock based 10KHz
+  54          
+  55          
+  56          // HS = HSYNC Polarity, VS = VSYNC Polarity, 0 = Negative, 1 = Positive
+  57          //
+  58          //                                                                                                                                                                      Dummy1=VScaleOffset             
+  59          //                                                                  Offset              Dummy0  Dummy1  Dummy2  Dummy3
+  60          
+  61          //      SUPPORT  HAN,VAN,VFREQ          H&V TOTAL  HSP &VSP     Hst,Vst         OffsetH V       Dummy0  Dummy1  Dummy2  Dummy3
+  62          //                   IVF        CLOCK+1             HST,VST                                     
+  63          
+  64          
+  65          /* 00*/ {  0,   0,      0,      0,              0,      0,              0,0,    0,      0,              0,      0,              0,              0,              0,              0 },            // unknown
+  66          
+  67          /* 01*/ {  0,   720,400,70,             900,0xbad,      0,0,    283,780,        10,     2,              0,              0,              0,              0 },            //  0: DOS mode
+  68                       
+  69          /* 02*/ {  0,   640,350,85,             832,445,        1,0,    96,     60,             0,      0,              0,              0,              0,              0 },            // 640x350x85
+  70          /* 03*/ {  0,   640,400,85,             832,445,        0,1,    96,     41,             0,      0,              0,              0,              0,              0 },            // 640x400x85
+  71          /* 04*/ {  0,   720,400,85,             936,446,        0,1,    108,42,         0,      0,              0,              0,              0,              0 },            // 720x400x85
+  72          
+  73          #ifdef MODEL_TW8835FPGA
+              //              {  1,   640,480,60,             800,525,        0,0,    141,    36,             5,              1,              1,              2,              0,              0 },            // 640x480x60
+              /*05*/  {  1,   640,480,60,             800,525,        0,0,    144-1,  35+1,   5,              1,              1,              2,              315,    0 },            // 640x480x60
+              /*06*/  {  1,   640,480,72,             832,520,        0,0,    166,    32,             5,              1,              1,              2,              377,    0 },            // 640x480x72
+              #else
+  78          /*>05*/ {  1,   640,480,60,             800,525,        0,0,    40,25,          5,-3,           1,              2,              315,    0 },            // 640x480x60
+  79          /* 06*/ {  1,   640,480,72,             832,520,        0,0,    157,32,         5,1,            1,              2,              377,    0 },            // 640x480x72
+  80          #endif
+  81          /* 07*/ {  1,   640,480,75,             840,500,        0,0,    171,20,         5,-8,           4,              6,              375,    0 },            // 640x480x75
+  82          /* 08*/ {  0,   640,480,85,             832,509,        0,0,    127,29,         5,-6,           3,              4,              433,    0 },            // 640x480x85
+  83          
+  84          /* 09*/ {  1,   800,600,56,             1024,625,       1,1,    128,22,         5,      -2,             1,              1,              351,    0 },            // 800x600x56
+  85          #ifdef MODEL_TW8835FPGA
+              /*10*/  {  1,   800,600,60,             1056,628,       1,1,    216-1,  27+1,   4+1,    3-1,    1,              2,              379,    0 },            // 800x600x60
+              #else
+  88          /*>10*/ {  1,   800,600,60,             1056,628,       1,1,    88,     23,             5,      -4,             1,              2,              0,              0 },            // 800x600x60
+  89          #endif
+  90          /* 11*/ {  1,   800,600,70,             1040,625,       1,0,    111,25,         5,      -5,             1,              3,              0,              0 },            // 800x600x70
+  91          /* 12*/ {  1,   800,600,72,             1040,666,       1,1,    64,     23,             5,      -6,             1,              2,              481,    0 },            // 800x600x72
+  92          /* 13*/ {  1,   800,600,75,             1056,625,       1,1,    160,21,         5,      -3,             1,              1,              469,    0 },            // 800x600x75
+  93          /* 14*/ {  0,   800,600,85,             1048,631,       1,1,    152,27,         5,      -3,             1,              1,              537,    0 },            // 800x600x85
+  94          /* 15*/ {  0,   800,600,120,    960,636,        1,0,    80,     29,             0,      0,              0,              0,              0,              0 },            // 800x600x120  REDUCED
+  95          
+  96          /* 16*/ {  1,   848,480,60,             1088,517,       1,1,    112,23,         0,      0,              0,              0,              0,              0 },            // 848x480x60
+  97          
+  98          /* 17*/ {  1,   960,600,60,             1232,622,       1,0,    120,23,         5,      -6,             0,              0,              0,              0 },            // 800x600x60
+  99          
+ 100          #ifdef MODEL_TW8835FPGA
+              //              {  1,   1024,768,60,    1344,806,       0,0,    294,    36,             5,              1,              2,              1,              0,              0 },            // 1024x768x60
+              /*18*/  {  1,   1024,768,60,    1344,806,       0,0,    296-2,  35+1,   5,              1,              2,              1,              484,    0 },            // 1024x768x60
+              #else
+ 104          /*>18*/ {  1,   1024,768,60,    1344,806,       0,0,    160,29,         4,      -6,             2,              1,              0,              0 },            // 1024x768x60
+ 105          #endif
+ 106          /*19*/  {  1,   1024,768,70,    1328,806,       0,0,    144,29,         5,      -9,             4,              3,              565,    0 },            // 1024x768x70
+ 107          /*20*/  {  1,   1024,768,75,    1312,800,       1,1,    176,28,         5,      -7,             4,              3,              600,    0 },            // 1024x768x75
+ 108          /*21*/  {  0,   1024,768,85,    1376,808,       0,0,    208,36,         0,      0,              0,              0,              683,    0 },            // 1024x768x85
+ 109          /*22*/  {  0,   1024,768,120,   1184,813,       1,0,    80, 38,         0,      0,              0,              0,              0,              0 },            // 1024x768x120 REDUCED
+ 110                                                       
+ 111          /*23*/  {  1,   1152,864,75,    1600,900,       1,1,    256,32,         5,      -6,             0,              0,              0,              0 },            // 1152x864x75
+ 112          
+ 113          /*24*/  {  1,   1280,720,60,    1664,746,       1,0,    192,26,         5,      -7,     0,              0,              0,              0 },            // 1280x720x60           // 
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 3   
+
+ 114          
+ 115          /*25*/  {  1,   1280,768,60,    1440,790,       1,0,    80, 12,         5,      -8,     2,              2,              0,              0 },            // 1280x768x60  REDUCED
+ 116          /*26*/  {  1,   1280,768,60,    1664,798,       0,1,    192,20,         5,      -10,    0,              0,              0,              0 },            // 1280x768x60           // It cann
+             -ot display !!!!
+ 117          /*27*/  {  1,   1280,768,60,    1688,802,       0,1,    232,34,         5,      -7,     0,              0,              0,              0 },            // 1280x768x60           // Windows7
+             - mode
+ 118          /*28*/  {  1,   1280,768,75,    1696,805,       0,1,    208,27,         5,      -10,    0,              0,              0,              0 },            // 1280x768x75
+ 119          /*29*/  {  0,   1280,768,85,    1712,809,       0,1,    216,31,         0,      0,      0,              0,              0,              0 },            // 1280x768x85
+ 120          /*30*/  {  0,   1280,768,120,   1440,813,       1,0,    80, 35,         0,      0,      0,              0,              0,              0 },            // 1280x768x120 REDUCED
+ 121          
+ 122          /*31*/  {  1,   1280,800,60,    1440,823,       1,0,    80, 14,         5,      -8,             0,              0,              0,              0 },            // 1280x800x60  REDUCED
+ 123          /*32*/  {  1,   1280,800,60,    1680,831,       0,1,    200,22,         5,      -7,             0,              0,              0,              0 },            // 1280x800x60
+ 124          /*33*/  {  1,   1280,800,75,    1696,838,       0,1,    208,29,         5,      -7,             0,              0,              0,              0 },            // 1280x800x75
+ 125          /*34*/  {  0,   1280,800,85,    1712,843,       0,1,    216,34,         0,      0,              0,              0,              0,              0 },            // 1280x800x85
+ 126          /*35*/  {  0,   1280,800,120,   1440,813,       1,0,    80, 38,         0,      0,              0,              0,              0,              0 },            // 1280x800x120 REDUCED
+ 127          
+ 128          /*36*/  {  1,   1280,960,60,    1800,1000,      1,1,    312,36,         5,      -7,             0,              0,              0,              0 },            // 1280x960x60
+ 129          /*37*/  {  0,   1280,960,85,    1728,1011,      1,1,    224,47,         0,      0,              0,              0,              0,              0 },            // 1280x960x85
+ 130          /*38*/  {  0,   1280,960,120,   1440,813,       1,0,    80, 50,         0,      0,              0,              0,              0,              0 },            // 1280x960x120 REDUCED
+ 131          
+ 132          /*39*/  {  1,   1280,1024,60,   1688,1066,      1,1,    248,38,         5,      -6,             0,              0,              640,    0 },            // 1280x1024x60
+ 133          /*40*/  {  0,   1280,1024,75,   1688,1066,      1,1,    248,38,         0,      0,              0,              0,              800,    0 },            // 1280x1024x75
+ 134          /*41*/  {  0,   1280,1024,85,   1728,1072,      1,1,    224,44,         0,      0,              0,              0,              911,    0 },            // 1280x1024x85
+ 135          
+ 136          /*42*/  {  1,   1360,768,60,    1792,795,       1,1,    256,18,         5,      -8,             0,              0,              0,              0 },            // 1360x768x60
+ 137          
+ 138          /*43*/  {  1,   1400,1050,60,   1560,1080,      1,0,    80, 23,         5,      -7,             0,              0,              0,              0 },            // 1400x1050x60 REDUCED
+ 139          /*44*/  {  1,   1400,1050,60,   1864,1089,      0,1,    232,32,         5,      -6,             0,              0,              0,              0 },            // 1400x1050x60                 // It can
+             -not display
+ 140          
+ 141          /*45*/  {  1,   1440,900,60,    1600,926,       1,0,    80, 17,         5,      -8,             0,              0,              0,              0 },            // 1400x900x60  REDUCED
+ 142          /*46*/  {  1,   1440,900,60,    1904,934,       0,1,    232,25,         5,      -8,             0,              0,              0,              0 },            // 1400x900x60
+ 143          /*47*/  {  0,   1440,900,75,    1936,942,       0,1,    248,33,         0,      0,              0,              0,              0,              0 },            // 1400x900x75
+ 144          
+ 145          /*48*/  {  1,   1680,1050,60,   1840,1080,      1,0,    80, 20,         0,      0,              0,              0,              0,              0 },            // 1680x1440x60 REDUCED
+ 146          /*49*/  {  1,   1920,1080,60,   2200,1124,  0,0,        277,37,         30,     10,             0,              0,              0,              0 },            // EE_RGB_1080P
+ 147          ///============
+ 148                  //if 0x1CC[0] is 0
+ 149          //         SUPPORT  HAN,VAN,VFREQ       H&V TOTAL  HSP &VSP     Hst,Vst         OffsetH,V       Dummy0  Dummy1  Dummy2  Dummy3
+ 150          /*49*/  {  3,   720,240+1,60,   858,262,        0,0,    112,17,         0,      0,              0,              0,              0,              0 },            // 34: EE_RGB_480I               0x3
+             -59,0x359,   0x359,   120, 10,  123, 324, 21
+ 151          /*50*/  {  3,   720,288,50,             864,312,        0,0,    109,22,         0,      0,              0,              0,              0,              0 },            // 35: EE_RGB_576I               0x35
+             -f,0x35f,   0x35f,   134, 10,  131, 324, 16
+ 152          /*51*/  {  3,   720,480,60,             858,525,        0,0,    112,41,         0,      0,              0,              0,              0,              0 },            // 28: EE_RGB_480P               0x35
+             -9,0x359,   0x359,   123, 28,  251, 378, 17
+ 153          /*52*/  {  3,   720,576,50,             864,625,    0,0,        107,48,         0,      0,              0,              0,              0,              0 },            // 36: EE_RGB_576P                       0x35f,0
+             -x35f,   0x35f,   133, 36,  250, 324, 21
+ 154          /*53*/  {  3,   1920,540,60,    2200,562,   0,0,        217,24,         0,      0,              0,              0,              0,              0 },            // 31: EE_RGB_1080I              0
+             -x897,0x897,   0x897,   300, 42,  740, 324, 32
+ 155          /*54*/  {  3,   1280,720,60,    1650,750,   0,0,        277,30,         0,      0,              0,              0,              0,              0 },            // 29: EE_RGB_720P               0
+             -x671,0x671,   0x671,   282, 12,  742, 410, 3 
+ 156          /*55*/  {  3,   1920,1080,60,   2200,1125,  0,0,        217,48,         0,      0,              0,              0,              0,              0 },            // EE_RGB_1080P
+ 157          //      {  3,   1280,720,60,    1980,       },          // 30: EE_RGB_720P50 ???         0x7bb,0x7bb,   0x7bb,   346, 25,  742, 378
+             -, 45
+ 158          //      {  0,   1920,540-40,50, 2640,       },          // 32: EE_RGB_1080I50A           0xa4f,0xa4f,   0xa4f,   300, 41,  740, 
+             -324, 32
+ 159          //      {  0,   1920,540-40,60, 2200,       },          // 33: EE_RGB_1080I50B ???       0x897,0x897,   0x897,   300, 42,  740, 
+             -324, 32
+ 160          /*54*/  {  3,   1280,720,50,    1000,100,   0,0,        277,30,         0,      0,              0,              0,              0,              0 },            // 720P@50
+ 161          /*53*/  {  3,   1920,526,50,    1000,100,   0,0,        356,87,         0,      0,              0,              0,              0,              0 },            // 1080i@50
+ 162          /*55*/  {  3,   1920,1080,50,   1000,100,   0,0,        217,48,         0,      0,              0,              0,              0,              0 },            // 1080P@50
+ 163          //--------------
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 4   
+
+ 164          };
+ 165          #endif  //.. defined( SUPPORT_PC ) || defined (SUPPORT_DVI)
+ 166          
+ 167          
+ 168          
+ 169          //enum EE_PC_OFFSET {
+ 170          //      EE_PC_UNKNOWN=0,
+ 171          //      EE_PC_DOS,      
+ 172          //      EE_PC_640x350_85,
+ 173          //};
+ 174          #if /*defined(SUPPORT_COMPONENT) || */ defined(SUPPORT_PC)
+ 175          /**
+ 176          * get sizeof PCMDATA table.(PC Mode Data Table)
+ 177          */
+ 178          DWORD sizeof_PCMDATA(void)
+ 179          {
+ 180   1              return sizeof(PCMDATA);
+ 181   1      }
+ 182          #endif
+ 183          #if 0
+              DWORD sizeof_DVIMDATA(void)
+              {
+                      return sizeof(DVIMDATA);
+              }
+              #endif
+ 189          
+ 190          #ifdef SUPPORT_PC
+ 191          /**
+ 192          * prepare Info String for PC
+ 193          */
+ 194          void PC_PrepareInfoString(BYTE mode)
+ 195          {
+ 196   1              BYTE itoa_buff[5];                                      
+ 197   1      
+ 198   1              //prepare info. ex: "PC 1024x768 60Hz"
+ 199   1              FOsdSetInputMainString2FOsdMsgBuff();   //GetInputMainString(FOsdMsgBuff);                                                                                      
+ 200   1              TWstrcat(FOsdMsgBuff," ");
+ 201   1              TWitoa(PCMDATA[mode].han, itoa_buff);
+ 202   1              TWstrcat(FOsdMsgBuff,itoa_buff);
+ 203   1              TWstrcat(FOsdMsgBuff,"x");
+ 204   1              TWitoa(PCMDATA[mode].van, itoa_buff);
+ 205   1              TWstrcat(FOsdMsgBuff,itoa_buff);
+ 206   1              TWstrcat(FOsdMsgBuff," ");
+ 207   1              TWitoa(PCMDATA[mode].vfreq, itoa_buff);
+ 208   1              TWstrcat(FOsdMsgBuff,itoa_buff);
+ 209   1              TWstrcat(FOsdMsgBuff,"Hz");
+ 210   1      
+ 211   1      //BK110811      FOsdCopyMsgBuff2Osdram(OFF);
+ 212   1      }
+ 213          #endif
+ 214          
+ 215          //related with YUVCropH[] array.
+ 216          #ifdef SUPPORT_COMPONENT
+ 217          /**
+ 218          * prepare Info String for Component
+ 219          */
+ 220          void YUV_PrepareInfoString(BYTE mode)
+ 221          {
+ 222   1              //prepare info. ex: "Component 1080p 60Hz"
+ 223   1              FOsdSetInputMainString2FOsdMsgBuff();   //GetInputMainString(FOsdMsgBuff);                                                                                      
+ 224   1              TWstrcat(FOsdMsgBuff," ");
+ 225   1              switch(mode) {
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 5   
+
+ 226   2              case 0: TWstrcat(FOsdMsgBuff,"480i");   break;
+ 227   2              case 1: TWstrcat(FOsdMsgBuff,"576i");   break;
+ 228   2              case 2: TWstrcat(FOsdMsgBuff,"480p");   break;
+ 229   2              case 3: TWstrcat(FOsdMsgBuff,"576p");   break;
+ 230   2              case 4: TWstrcat(FOsdMsgBuff,"1080i 50Hz");     break;
+ 231   2              case 5: TWstrcat(FOsdMsgBuff,"1080i 60Hz");     break;
+ 232   2              case 6: TWstrcat(FOsdMsgBuff,"720p 50Hz");      break;
+ 233   2              case 7: TWstrcat(FOsdMsgBuff,"720p 60Hz");      break;
+ 234   2              case 8: TWstrcat(FOsdMsgBuff,"1080p 50Hz");     break;
+ 235   2              case 9: TWstrcat(FOsdMsgBuff,"1080p 60Hz");     break;
+ 236   2              default:TWstrcat(FOsdMsgBuff,"Unknown");        break;
+ 237   2              }
+ 238   1      //BK110811      FOsdCopyMsgBuff2Osdram(OFF);
+ 239   1      }
+ 240          #endif
+ 241          
+ 242          #ifdef SUPPORT_DVI
+              /**
+              * prepare Info String for DVI
+              */
+              void DVI_PrepareInfoString(WORD han, WORD van, BYTE vfreq)
+              {
+                      BYTE itoa_buff[5];                                      
+              
+                      //prepare info. ex: "DVI 1024x768 60Hz"
+                      FOsdSetInputMainString2FOsdMsgBuff();   //GetInputMainString(FOsdMsgBuff);                                                                                      
+                      TWstrcat(FOsdMsgBuff," ");
+                      TWitoa(han, itoa_buff);
+                      TWstrcat(FOsdMsgBuff,itoa_buff);
+                      TWstrcat(FOsdMsgBuff,"x");
+                      TWitoa(van, itoa_buff);
+                      TWstrcat(FOsdMsgBuff,itoa_buff);
+                      if(vfreq) {
+                              TWstrcat(FOsdMsgBuff," ");
+                              TWitoa(vfreq, itoa_buff);
+                              TWstrcat(FOsdMsgBuff,itoa_buff);
+                              TWstrcat(FOsdMsgBuff,"Hz");
+                      }
+              //BK110811      FOsdCopyMsgBuff2Osdram(OFF);
+              }
+              #endif
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 6   
+
+ASSEMBLY LISTING OF GENERATED OBJECT CODE
+
+
+             ; FUNCTION Com001D (BEGIN)
+0000         L?0030:
+0000         L?0031:
+0000 900000      E     MOV     DPTR,#?_TWstrcat?BYTE+03H
+0003 74FF              MOV     A,#0FFH
+0005 F0                MOVX    @DPTR,A
+0006 A3                INC     DPTR
+0007 22                RET     
+0008         L?0032:
+0008         L?0033:
+0008 7400        R     MOV     A,#HIGH ?SC_0
+000A F0                MOVX    @DPTR,A
+000B 7400        R     MOV     A,#LOW ?SC_0
+000D         L?0034:
+000D A3                INC     DPTR
+000E         L?0035:
+000E F0                MOVX    @DPTR,A
+000F 7B01              MOV     R3,#01H
+0011 7A00        E     MOV     R2,#HIGH FOsdMsgBuff
+0013 7900        E     MOV     R1,#LOW FOsdMsgBuff
+0015 22                RET     
+             ; FUNCTION Com001D (END)
+
+             ; FUNCTION sizeof_PCMDATA (BEGIN)
+                                           ; SOURCE LINE # 178
+                                           ; SOURCE LINE # 179
+                                           ; SOURCE LINE # 180
+0000 E4                CLR     A
+0001 7FDC              MOV     R7,#0DCH
+0003 7E05              MOV     R6,#05H
+0005 FD                MOV     R5,A
+0006 FC                MOV     R4,A
+                                           ; SOURCE LINE # 181
+0007         ?C0001:
+0007 22                RET     
+             ; FUNCTION sizeof_PCMDATA (END)
+
+             ; FUNCTION _PC_PrepareInfoString (BEGIN)
+                                           ; SOURCE LINE # 194
+0000 900000      R     MOV     DPTR,#mode
+0003 EF                MOV     A,R7
+0004 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 195
+                                           ; SOURCE LINE # 199
+0005 120000      E     LCALL   FOsdSetInputMainString2FOsdMsgBuff
+                                           ; SOURCE LINE # 200
+0008 120000      R     LCALL   L?0030
+000B 120000      R     LCALL   L?0032
+                                           ; SOURCE LINE # 201
+000E 120000      R     LCALL   L?0036
+0011 2400        R     ADD     A,#LOW PCMDATA+01H
+0013 F582              MOV     DPL,A
+0015 E5F0              MOV     A,B
+0017 3400        R     ADDC    A,#HIGH PCMDATA+01H
+                                           ; SOURCE LINE # 202
+0019 120000      R     LCALL   L?0028
+                                           ; SOURCE LINE # 203
+001C 120000      R     LCALL   L?0030
+001F 7400        R     MOV     A,#HIGH ?SC_2
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 7   
+
+0021 F0                MOVX    @DPTR,A
+0022 7400        R     MOV     A,#LOW ?SC_2
+0024 120000      R     LCALL   L?0034
+                                           ; SOURCE LINE # 204
+0027 120000      R     LCALL   L?0036
+002A 2400        R     ADD     A,#LOW PCMDATA+03H
+002C F582              MOV     DPL,A
+002E E5F0              MOV     A,B
+0030 3400        R     ADDC    A,#HIGH PCMDATA+03H
+                                           ; SOURCE LINE # 205
+0032 120000      R     LCALL   L?0028
+                                           ; SOURCE LINE # 206
+0035 120000      R     LCALL   L?0031
+0038 120000      R     LCALL   L?0032
+003B 120000      E     LCALL   _TWstrcat
+                                           ; SOURCE LINE # 207
+003E 900000      R     MOV     DPTR,#mode
+0041 E0                MOVX    A,@DPTR
+0042 75F019            MOV     B,#019H
+0045 A4                MUL     AB
+0046 2400        R     ADD     A,#LOW PCMDATA+05H
+0048 F582              MOV     DPL,A
+004A E5F0              MOV     A,B
+004C 3400        R     ADDC    A,#HIGH PCMDATA+05H
+004E F583              MOV     DPH,A
+0050 E4                CLR     A
+0051 93                MOVC    A,@A+DPTR
+0052 FF                MOV     R7,A
+0053 7E00              MOV     R6,#00H
+0055 7B01              MOV     R3,#01H
+0057 7A00        R     MOV     R2,#HIGH itoa_buff
+0059 7900        R     MOV     R1,#LOW itoa_buff
+005B 120000      E     LCALL   _TWitoa
+                                           ; SOURCE LINE # 208
+005E 900000      E     MOV     DPTR,#?_TWstrcat?BYTE+03H
+0061 7401              MOV     A,#01H
+0063 F0                MOVX    @DPTR,A
+0064 A3                INC     DPTR
+0065 7400        R     MOV     A,#HIGH itoa_buff
+0067 F0                MOVX    @DPTR,A
+0068 A3                INC     DPTR
+0069 7400        R     MOV     A,#LOW itoa_buff
+006B 120000      R     LCALL   L?0035
+006E 120000      E     LCALL   _TWstrcat
+                                           ; SOURCE LINE # 209
+0071 120000      R     LCALL   L?0031
+0074 7400        R     MOV     A,#HIGH ?SC_4
+0076 F0                MOVX    @DPTR,A
+0077 A3                INC     DPTR
+0078 7400        R     MOV     A,#LOW ?SC_4
+007A 120000      R     LCALL   L?0035
+007D 020000      E     LJMP    _TWstrcat
+                                           ; SOURCE LINE # 212
+0080         L?0028:
+0080 F583              MOV     DPH,A
+0082 E4                CLR     A
+0083 93                MOVC    A,@A+DPTR
+0084 FE                MOV     R6,A
+0085 7401              MOV     A,#01H
+0087 93                MOVC    A,@A+DPTR
+0088 FF                MOV     R7,A
+0089 7B01              MOV     R3,#01H
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 8   
+
+008B 7A00        R     MOV     R2,#HIGH itoa_buff
+008D 7900        R     MOV     R1,#LOW itoa_buff
+008F 120000      E     LCALL   _TWitoa
+0092 900000      E     MOV     DPTR,#?_TWstrcat?BYTE+03H
+0095 7401              MOV     A,#01H
+0097 F0                MOVX    @DPTR,A
+0098 A3                INC     DPTR
+0099 7400        R     MOV     A,#HIGH itoa_buff
+009B F0                MOVX    @DPTR,A
+009C A3                INC     DPTR
+009D 7400        R     MOV     A,#LOW itoa_buff
+009F F0                MOVX    @DPTR,A
+00A0 7B01              MOV     R3,#01H
+00A2 7A00        E     MOV     R2,#HIGH FOsdMsgBuff
+00A4 7900        E     MOV     R1,#LOW FOsdMsgBuff
+00A6 120000      E     LCALL   _TWstrcat
+00A9 22                RET     
+00AA         L?0036:
+00AA 120000      E     LCALL   _TWstrcat
+00AD 900000      R     MOV     DPTR,#mode
+00B0 E0                MOVX    A,@DPTR
+00B1 75F019            MOV     B,#019H
+00B4 A4                MUL     AB
+00B5 22                RET     
+             ; FUNCTION _PC_PrepareInfoString (END)
+
+             ; FUNCTION _YUV_PrepareInfoString (BEGIN)
+                                           ; SOURCE LINE # 220
+;---- Variable 'mode' assigned to Register 'R5' ----
+0000 AD07              MOV     R5,AR7
+                                           ; SOURCE LINE # 221
+                                           ; SOURCE LINE # 223
+0002 120000      E     LCALL   FOsdSetInputMainString2FOsdMsgBuff
+                                           ; SOURCE LINE # 224
+0005 120000      R     LCALL   L?0031
+0008 120000      R     LCALL   L?0033
+000B 120000      E     LCALL   _TWstrcat
+                                           ; SOURCE LINE # 225
+000E ED                MOV     A,R5
+000F B40A00            CJNE    A,#0AH,?C0016
+0012         ?C0016:
+0012 4003              JC      $ + 5H
+0014 020000      R     LJMP    ?C0014
+0017 900000      R     MOV     DPTR,#?C0017
+001A F8                MOV     R0,A
+001B 28                ADD     A,R0
+001C 28                ADD     A,R0
+001D 73                JMP     @A+DPTR
+001E         ?C0017:
+001E 020000      R     LJMP    ?C0004
+0021 020000      R     LJMP    ?C0005
+0024 020000      R     LJMP    ?C0006
+0027 020000      R     LJMP    ?C0007
+002A 020000      R     LJMP    ?C0008
+002D 020000      R     LJMP    ?C0009
+0030 020000      R     LJMP    ?C0010
+0033 020000      R     LJMP    ?C0011
+0036 020000      R     LJMP    ?C0012
+0039 020000      R     LJMP    ?C0013
+                                           ; SOURCE LINE # 226
+003C         ?C0004:
+003C 120000      R     LCALL   L?0031
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 9   
+
+003F 7400        R     MOV     A,#HIGH ?SC_7
+0041 F0                MOVX    @DPTR,A
+0042 A3                INC     DPTR
+0043 7400        R     MOV     A,#LOW ?SC_7
+0045 020000      R     LJMP    ?C0027
+                                           ; SOURCE LINE # 227
+0048         ?C0005:
+0048 120000      R     LCALL   L?0031
+004B 7400        R     MOV     A,#HIGH ?SC_12
+004D F0                MOVX    @DPTR,A
+004E A3                INC     DPTR
+004F 7400        R     MOV     A,#LOW ?SC_12
+0051         ?C0018:
+0051 020000      R     LJMP    ?C0027
+                                           ; SOURCE LINE # 228
+0054         ?C0006:
+0054 120000      R     LCALL   L?0031
+0057 7400        R     MOV     A,#HIGH ?SC_17
+0059 F0                MOVX    @DPTR,A
+005A A3                INC     DPTR
+005B 7400        R     MOV     A,#LOW ?SC_17
+005D         ?C0019:
+005D 8056              SJMP    ?C0027
+                                           ; SOURCE LINE # 229
+005F         ?C0007:
+005F 120000      R     LCALL   L?0031
+0062 7400        R     MOV     A,#HIGH ?SC_22
+0064 F0                MOVX    @DPTR,A
+0065 A3                INC     DPTR
+0066 7400        R     MOV     A,#LOW ?SC_22
+0068         ?C0020:
+0068 804B              SJMP    ?C0027
+                                           ; SOURCE LINE # 230
+006A         ?C0008:
+006A 120000      R     LCALL   L?0031
+006D 7400        R     MOV     A,#HIGH ?SC_27
+006F F0                MOVX    @DPTR,A
+0070 A3                INC     DPTR
+0071 7400        R     MOV     A,#LOW ?SC_27
+0073         ?C0021:
+0073 8040              SJMP    ?C0027
+                                           ; SOURCE LINE # 231
+0075         ?C0009:
+0075 120000      R     LCALL   L?0031
+0078 7400        R     MOV     A,#HIGH ?SC_38
+007A F0                MOVX    @DPTR,A
+007B A3                INC     DPTR
+007C 7400        R     MOV     A,#LOW ?SC_38
+007E         ?C0022:
+007E 8035              SJMP    ?C0027
+                                           ; SOURCE LINE # 232
+0080         ?C0010:
+0080 120000      R     LCALL   L?0031
+0083 7400        R     MOV     A,#HIGH ?SC_49
+0085 F0                MOVX    @DPTR,A
+0086 A3                INC     DPTR
+0087 7400        R     MOV     A,#LOW ?SC_49
+0089         ?C0023:
+0089 802A              SJMP    ?C0027
+                                           ; SOURCE LINE # 233
+008B         ?C0011:
+008B 120000      R     LCALL   L?0031
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 10  
+
+008E 7400        R     MOV     A,#HIGH ?SC_59
+0090 F0                MOVX    @DPTR,A
+0091 A3                INC     DPTR
+0092 7400        R     MOV     A,#LOW ?SC_59
+0094         ?C0024:
+0094 801F              SJMP    ?C0027
+                                           ; SOURCE LINE # 234
+0096         ?C0012:
+0096 120000      R     LCALL   L?0031
+0099 7400        R     MOV     A,#HIGH ?SC_69
+009B F0                MOVX    @DPTR,A
+009C A3                INC     DPTR
+009D 7400        R     MOV     A,#LOW ?SC_69
+009F         ?C0025:
+009F 8014              SJMP    ?C0027
+                                           ; SOURCE LINE # 235
+00A1         ?C0013:
+00A1 120000      R     LCALL   L?0031
+00A4 7400        R     MOV     A,#HIGH ?SC_80
+00A6 F0                MOVX    @DPTR,A
+00A7 A3                INC     DPTR
+00A8 7400        R     MOV     A,#LOW ?SC_80
+00AA         ?C0026:
+00AA 8009              SJMP    ?C0027
+                                           ; SOURCE LINE # 236
+00AC         ?C0014:
+00AC 120000      R     LCALL   L?0031
+00AF 7400        R     MOV     A,#HIGH ?SC_91
+00B1 F0                MOVX    @DPTR,A
+00B2 A3                INC     DPTR
+00B3 7400        R     MOV     A,#LOW ?SC_91
+00B5         ?C0027:
+00B5 120000      R     LCALL   L?0035
+00B8 120000      E     LCALL   _TWstrcat
+                                           ; SOURCE LINE # 237
+                                           ; SOURCE LINE # 239
+00BB         ?C0015:
+00BB 22                RET     
+             ; FUNCTION _YUV_PrepareInfoString (END)
+
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 11  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+DWORD. . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_LONG   -----  4
+FOsdSetInputMainString2FOsdMsgBuff . .  EXTERN   CODE   PROC     -----  -----
+st_animation . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  53
+  active . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  current. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
+  speed. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  vcnt . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
+  srcx . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    000DH  20
+  srcy . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0021H  20
+FOsdMsgBuff. . . . . . . . . . . . . .  EXTERN   XDATA  ARRAY    -----  40
+BYTE . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_CHAR   -----  1
+_PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
+  han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
+  van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
+  vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
+  htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  vtotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
+  vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
+  hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  vstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
+  offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
+  dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
+  dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
+  dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
+  dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
+WORD . . . . . . . . . . . . . . . . .  TYPEDEF  -----  U_INT    -----  2
+_TWstrcat. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+_YUV_PrepareInfoString . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  mode . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
+_RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
+  id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
+  c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
+  cp . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
+  w. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  h. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0008H  4
+  bmp. . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      000CH  3
+_PC_PrepareInfoString. . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+  mode . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
+  itoa_buff. . . . . . . . . . . . . .  AUTO     XDATA  ARRAY    0001H  5
+SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+  left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
+  start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 12  
+
+NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
+====                                    =====   ======  ====    ======  ====
+
+
+  length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
+RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
+_TWitoa. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
+FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
+  loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
+  size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+  width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
+  height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
+  bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
+  bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
+  bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
+  max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
+  palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
+  palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
+  palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
+LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
+  Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
+  Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
+  Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
+sizeof_PCMDATA . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
+PCMDATA. . . . . . . . . . . . . . . .  PUBLIC   CODE   ARRAY    0063H  1500
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    400    ----
+   CONSTANT SIZE    =   1599    ----
+   XDATA SIZE       =   ----       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
