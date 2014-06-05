@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 1   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MONITOR
 OBJECT MODULE PLACED IN .\Output\monitor.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE monitor.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE monitor.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
                     - MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\monitor.lst) OBJECT(.\Output\monito
                     -r.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          #include "ImageCtrl.h"
   52          #include "OutputCtrl.h"
   53          #include "TouchKey.h"
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 2   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 2   
 
   54          #include "measure.h"
   55          #include "HDMI_EP9351.h"
@@ -126,7 +126,7 @@ line level    source
                               } while ((SystemClock - StartTime) < (step*100)); //step*1sec
                       }
                       else if(init==2) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 3   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 3   
 
                               do {
                                       volatile_value=ReadTW88(REG310);        
@@ -190,7 +190,7 @@ line level    source
                       Puts("\nDone");
               #endif
               #if 0
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 4   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 4   
 
                       WORD i,target,/*step,init,*/ value;
                       volatile BYTE test;
@@ -254,7 +254,7 @@ line level    source
                       WORD i;
               
                       i = init; i = step;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 5   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 5   
 
                       for(ii=0; ii<100;ii++) {
                               for(jj=0; jj < 6; jj++) {
@@ -318,7 +318,7 @@ line level    source
                                                       Printf("\nFound ERROR at %x:%02bx w:%bx r:%bx", ii,k, wdata,vdata);
                                                       return;
                                               }
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 6   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 6   
 
                                       }
                               }
@@ -382,7 +382,7 @@ line level    source
                                                       return;
                                       }
               
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 7   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 7   
 
                                       //-------------
                                       //REG281~288
@@ -446,7 +446,7 @@ line level    source
  423          */
  424          void Prompt(void)
  425          {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 8   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 8   
 
  426   1      #ifdef BANKING
                       if ( MonAddress == TW88I2CAddress )
@@ -510,7 +510,7 @@ line level    source
  485   1      #ifndef SUPPORT_8BIT_CHIP_ACCESS
  486   1              WORD MonPage;
  487   1      #endif
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 9   
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 9   
 
  488   1                              
  489   1      #ifdef SUPPORT_8BIT_CHIP_ACCESS
@@ -574,7 +574,7 @@ line level    source
  547   1              if( echo )
  548   1                      Printf("\nRead %02bxh:%02bxh", MonIndex, MonRdata);     
  549   1              
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 10  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 10  
 
  550   1              MonWdata = MonRdata;
  551   1      }
@@ -638,7 +638,7 @@ line level    source
  609          * write
  610          * format: w idx data
  611          */
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 11  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 11  
 
  612          void MonWriteI2CByte(void) 
  613          {
@@ -702,7 +702,7 @@ line level    source
  671   2      #ifdef SUPPORT_8BIT_CHIP_ACCESS
                               Printf("\nWrite %02bxh:%02bxh ", MonIndex, MonWdata);
                               if ( MonAddress == TW88I2CAddress ) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 12  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 12  
 
                                       WriteTW88(MonIndex, MonWdata);
                                       MonRdata = ReadTW88(MonIndex);
@@ -766,7 +766,7 @@ line level    source
  733          //!     Printf("\nWrite %02bxh:%02bxh ", MonIndex, MonWdata);
  734          //!     WriteSlowI2CByte(MonAddress, MonIndex, MonWdata);
  735          //!     //MonRdata = ReadSlowI2CByte(MonAddress, MonIndex);
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 13  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 13  
 
  736          //!     //Printf("==> Read %02bxh:%02bxh", MonIndex, MonRdata);
  737          //!     //if( MonWdata != MonRdata ) Printf(" [%02bx]", MonWdata);
@@ -830,7 +830,7 @@ line level    source
  795   2              }
  796   1      
  797   1              if( echo ) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 14  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 14  
 
  798   2                      Printf("Write %02bxh:%02bxh ", MonIndex, MonWdata);
  799   2                      Printf("==> Read %02bxh:%02bxh", MonIndex, MonRdata);
@@ -894,7 +894,7 @@ line level    source
  857   1              else {
  858   2                      if ( MonAddress == TW88I2CAddress ) {
  859   3      #ifdef SUPPORT_8BIT_CHIP_ACCESS
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 15  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 15  
 
                                       for ( ; cnt > 0; cnt-- ) {
                                               MonRdata = ReadTW88(MonIndex);
@@ -958,7 +958,7 @@ line level    source
  919   1              if( echo )
  920   1                      Printf("\n<R>%02bx[%02bx]=%02bx", Slave, MonIndex, MonRdata);
  921   1              MonWdata = MonRdata;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 16  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 16  
 
  922   1      }
  923          
@@ -1022,7 +1022,7 @@ line level    source
  981   1      
  982   1              if( echo ) {
  983   2                      if ( Slave == TW88I2CAddress ) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 17  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 17  
 
  984   3      #ifdef SUPPORT_8BIT_CHIP_ACCESS
                                       for(i=MonIndex; i<=ToMonIndex; i++) {
@@ -1086,7 +1086,7 @@ line level    source
 1043   1              MonIndex = a2h( argv[2] );
 1044   1              FromBit  =(a2h( argv[3] ) >> 4) & 0x0f;
 1045   1              ToBit    = a2h( argv[3] )  & 0x0f;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 18  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 18  
 
 1046   1              MonMask  = a2h( argv[4] );
 1047   1      
@@ -1150,7 +1150,7 @@ line level    source
 1105   2              }
 1106   1              reg = a2h( argv[1] );
 1107   1              mask = a2h( argv[2] );
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 19  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 19  
 
 1108   1              result = a2h( argv[3] );
 1109   1              max = a2h( argv[4] );
@@ -1214,7 +1214,7 @@ line level    source
 1167          #ifdef SUPPORT_UART1
               void Mon1Help(void)
               {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 20  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 20  
 
                       Puts1("\n=======================================================");
                       Puts1("\n>>>     Welcome to Intersil Monitor1  Rev 1.01       <<<");
@@ -1278,7 +1278,7 @@ line level    source
 1229   3                      }
 1230   2      
 1231   2                      monstr[incnt++] = '\0';
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 21  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 21  
 
 1232   2                      argc=0;
 1233   2      
@@ -1342,7 +1342,7 @@ line level    source
 1291   2              case 0x08:
 1292   2                      if( incnt ) {
 1293   3                              incnt--;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 22  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 22  
 
 1294   3                              Mon_tx(ch);
 1295   3                              Mon_tx(' ');
@@ -1406,7 +1406,7 @@ line level    source
 1353          
 1354          #ifdef SUPPORT_UART1
               /**
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 23  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 23  
 
               * Mon1 GetCommand
               *
@@ -1470,7 +1470,7 @@ line level    source
                                               mon1str[i]='\0';
                                        //Printf("(%s) ",  argv[argc]);
                                               i++;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 24  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 24  
 
                                               while( mon1str[i]==' ' ) i++;
                                               argc1++;
@@ -1534,7 +1534,7 @@ line level    source
                               //      MonIncDecI2C(0);          //BKTODO??
                               break;
               
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 25  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 25  
 
                       case '<':
                               if( incnt1 ) {
@@ -1598,7 +1598,7 @@ line level    source
 1539   1              //XDATA BYTE i;
 1540   1              WORD loop;
 1541   1              volatile BYTE vdata;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 26  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 26  
 
 1542   1      
 1543   1              WriteTW88Page(0);       //WriteI2CByte(0x8a,0xff,0x00);
@@ -1662,7 +1662,7 @@ line level    source
 1601   2                      Puts("\ndump start");
 1602   2                      MonDumpI2C();
 1603   2              }
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 27  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 27  
 
 1604   1              else if( !stricmp( argv[0], "&" ) ) {
 1605   2                      MonNewDumpI2C();
@@ -1726,7 +1726,7 @@ line level    source
 1663   3                              //TEST   delay1ms(15);
 1664   3      //                      PORT_DEBUG = 0;
 1665   3                              WriteTW88Page(4);       //WriteI2CByte(0x8a,0xff, 0x04);
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 28  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 28  
 
 1666   3                              WriteTW88(REG431+0x10*win, xpositionH); //WriteI2CByte(0x8a,0x41, xpositionH);
 1667   3                              WriteTW88(REG432+0x10*win, xpositionL); //WriteI2CByte(0x8a,0x42, xpositionL);
@@ -1790,7 +1790,7 @@ line level    source
 1725   2                      if(argc==3)
 1726   2                              wait=a2i(argv[2]);
 1727   2                      else
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 29  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 29  
 
 1728   2                              wait=2;
 1729   2      
@@ -1854,7 +1854,7 @@ line level    source
                                       ch = RS_rx();
                                       Printf("%02bx ", ch );
                               } while ( ch != 'x' );
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 30  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 30  
 
                       }
               #endif
@@ -1918,7 +1918,7 @@ line level    source
                                       i2c_delay_restart = 2;
                                       i2c_delay_datasetup = 32;
                                       i2c_delay_clockhigh = 32;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 31  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 31  
 
                                       i2c_delay_datahold = 32;
                               }
@@ -1982,7 +1982,7 @@ line level    source
 1910   2                      if(argc < 2) {
 1911   3                              Printf("\nISR status:");
 1912   3                              if(SFR_EX0) Printf("EX0 ");                                             // ext0
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 32  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 32  
 
 1913   3                              if(SFR_ET1) Printf("ET1 ");                                             // timer1 - touch
 1914   3                              if(SFR_ET2) Printf("ET2 ");                                             // timer2 - Remo
@@ -2046,7 +2046,7 @@ line level    source
 1972   4                                      DCDC_StartUP();
 1973   4                                      ScalerSetMuteManual(OFF);
 1974   4                                      LedPowerUp();
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 33  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 33  
 
 1975   4                                      ClkPllSetDividerReg(CLKPLL_DIV_1P5);
 1976   4                                      SpiOsdEnable(ON);
@@ -2110,7 +2110,7 @@ line level    source
 2034   2              }
 2035   1              //-----input select------------------------------------------
 2036   1              else if ( !stricmp( argv[0], "input" ) ) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 34  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 34  
 
 2037   2                      if(argc < 2) {
 2038   3                              Printf("\nInputMain:");
@@ -2174,7 +2174,7 @@ line level    source
 2096   4                                      if(GetHdmiModeEE())  InputMainEE = INPUT_HDMITV;
 2097   4                                      else                             InputMainEE = INPUT_HDMIPC;
 2098   4              
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 35  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 35  
 
 2099   4                                      InputMain = 0xff;                       // start with saved input                                               
 2100   4                                      ChangeInput( InputMainEE );     
@@ -2238,7 +2238,7 @@ line level    source
 2158   1              //---------------- check -------------------------
 2159   1              else if ( !stricmp( argv[0], "check" ) ) {
 2160   2                      if(argc < 2) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 36  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 36  
 
 2161   3                              Puts("\n ? Phase|Color");
 2162   3                      }
@@ -2302,7 +2302,7 @@ line level    source
 2220   3                              Printf("\necho off");
 2221   3                      }
 2222   2                      else {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 37  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 37  
 
 2223   3                              echo = 1;
 2224   3                              Printf("\necho on");
@@ -2366,7 +2366,7 @@ line level    source
                               HdmiDownloadEdid(addr);
                       }
               #endif
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 38  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 38  
 
               #ifdef ON_CHIP_HDCP_ENABLE
                       else if( !stricmp( argv[0], "hdcp" ) ) {
@@ -2430,7 +2430,7 @@ line level    source
                                       dValue = 20;
                               
                               if(dValue==10)          div = CLKPLL_DIV_1P0;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 39  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 39  
 
                               else if(dValue==15) div = CLKPLL_DIV_1P5;
                               else if(dValue==20) div = CLKPLL_DIV_2P0;
@@ -2494,7 +2494,7 @@ line level    source
               //P1_4 = 0;                             
               //                      McuSpiClkRestore();
               //P1_4 = 1;
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 40  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 40  
 
               //                      delay1ms(100);
               //              }
@@ -2558,7 +2558,7 @@ line level    source
 2468   2                      static  BYTE    attr = 0x1a;
 2469   2                      static  BYTE    fdata = 1;
 2470   2      
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 41  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 41  
 
 2471   2                      ReadTW88Page(page);
 2472   2                      WriteTW88Page(PAGE3_FOSD );
@@ -2622,7 +2622,7 @@ line level    source
 2530   2                      static  BYTE    fdata = 1;
 2531   2      
 2532   2                      ReadTW88Page(page);
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 42  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 42  
 
 2533   2                      while ( !RS_ready() ) {
 2534   3                              WriteTW88Page(PAGE3_FOSD );
@@ -2686,7 +2686,7 @@ line level    source
 2592   2                      WriteTW88Page(page );
 2593   2              }
 2594   1      
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 43  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 43  
 
 2595   1              else if ( !stricmp( argv[0], "FT4" )) {
 2596   2                      WORD    OsdRamAddr;
@@ -2750,7 +2750,7 @@ line level    source
 2654   3                              delay1ms(1000);
 2655   3                              for(i=0; i < 16; i++) {
 2656   4                                      WriteTW88(REG307, fdata);
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 44  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 44  
 
 2657   4                                      fdata++;
 2658   4                                      OsdRamAddr++;
@@ -2814,7 +2814,7 @@ line level    source
               
                               WriteTW88Page(3 );
               
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 45  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 45  
 
                               // Win4 enable and OSD RAM set
                               WriteTW88(REG305, 0 );
@@ -2878,7 +2878,7 @@ line level    source
                               WriteTW88Page(3 );
               
                               // download Font
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 46  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 46  
 
                               WriteTW88(REG300, 0x11 );
                               WriteTW88(REG304, 0x0d );
@@ -2942,7 +2942,7 @@ line level    source
                               color = 0;
                               for ( i=0; i<64; i++ ) {
                                       WriteTW88(REG30c, i );
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 47  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 47  
 
                                       WriteTW88(REG30d, color>>8 );
                                       WriteTW88(REG30e, color );
@@ -3006,7 +3006,7 @@ line level    source
                                       color += 0x20;
                                       if ( i%2 ) color += 0x801;
                               }
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 48  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 48  
 
                               WriteTW88Page(page );
                       }
@@ -3070,7 +3070,7 @@ line level    source
 2964   4                              }
 2965   3                              else {
 2966   4                                      SetTouchAuto(0);
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 49  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 49  
 
 2967   4                                      SFR_ET1 = 0;    //BK110531
 2968   4                                      Puts("\r\nTurn OFF Touch Sense");
@@ -3134,7 +3134,7 @@ line level    source
 3026   5                                              atemp[1] = CpuAUX1_Changed;
 3027   5                                      }
 3028   4                                      if ( atemp[2] != CpuAUX2_Changed ) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 50  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 50  
 
 3029   5                                              Printf("\n0x%02bx - AUX[2]: 0x%04x",atemp[i], CpuAUX2);
 3030   5                                              atemp[2] = CpuAUX2_Changed;
@@ -3198,7 +3198,7 @@ line level    source
                       else if( !stricmp( argv[0], "AUO" ) ) {
                               if( argc==1 )   Puts( "\r\nIncorrect commad - AUO r ii or AUO w ii ddd" );
                               else {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 51  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 51  
 
                                       
                                       if( !stricmp( argv[1], "w" ) ) {
@@ -3262,7 +3262,7 @@ line level    source
 *** WARNING C206 IN LINE 3149 OF MONITOR.C: 'DBG_PrintAviInfoFrame': missing function-prototype
 3150   3                      }
 3151   2                      else if( !stricmp( argv[1], "timereg" )) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 52  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 52  
 
 3152   3                              DBG_PrintTimingRegister();
 *** WARNING C206 IN LINE 3152 OF MONITOR.C: 'DBG_PrintTimingRegister': missing function-prototype
@@ -3326,7 +3326,7 @@ line level    source
 3209   2      
 3210   2                      if(argc==3) {
 3211   3                              positionX = a2h(argv[1]);
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 53  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 53  
 
 3212   3                              positionY = a2h(argv[2]);
 3213   3                      }
@@ -3390,7 +3390,7 @@ line level    source
 3271   2      #endif
 3272   2      
 3273   2                      //----------------------
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 54  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 54  
 
 3274   2                      // I2C
 3275   2                      //--------------------
@@ -3454,7 +3454,7 @@ line level    source
 3332   2      #if defined(SUPPORT_COMPONENT) || defined(SUPPORT_PC) || defined(SUPPORT_DVI)
 3333   2                      ScalerCalcVDE();
 3334   2      #endif
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 55  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 55  
 
 3335   2                      //ScalerSetVDEPosHeight(BYTE pos, WORD len)
 3336   2                      //ScalerSetOutputWidthAndHeight(WORD width, WORD height)
@@ -3518,7 +3518,7 @@ line level    source
 3393   2                      //#ifdef SUPPORT_PC     void AutoTunePhase(void)
 3394   2                      //#ifdef SUPPORT_PCvoid AutoTuneColor(void)
 3395   2                      //#ifdef SUPPORT_PC MeasCheckVPulse(void)
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 56  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 56  
 
 3396   2                      CheckMeasure();
 3397   2                      // 
@@ -3582,7 +3582,7 @@ line level    source
               
                       if( !RS1_ready() ) return;
                       ch = RS1_rx();                                  // get data
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 57  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 57  
 
                       RS1_tx(ch);                                             // echo back
                       RS_tx(ch);                                              // doublecheck at UART0
@@ -3646,7 +3646,7 @@ line level    source
                               default:        RemoDataCode = 0;                       break;
                               }
                               if(RemoDataCode) {
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 58  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 58  
 
                                       ActionRemo(RemoDataCode,0);
                                       ProcessFinishMessage();
@@ -3702,7 +3702,7 @@ line level    source
               }
               #endif
 3573          
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 59  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 59  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -3766,7 +3766,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003E E0                MOVX    A,@DPTR
 003F 4F                ORL     A,R7
 0040         L?0656:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 60  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 60  
 
 0040 2500        E     ADD     A,regTW88+01H
 0042         L?0657:
@@ -3830,7 +3830,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008C E0                MOVX    A,@DPTR
 008D 2400        R     ADD     A,#LOW atemp
 008F F582              MOV     DPL,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 61  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 61  
 
 0091 E4                CLR     A
 0092 3400        R     ADDC    A,#HIGH atemp
@@ -3894,7 +3894,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00DE 6480              XRL     A,#080H
 00E0 9480              SUBB    A,#080H
 00E2 22                RET     
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 62  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 62  
 
 00E3         L?0687:
 00E3         L?0688:
@@ -3958,7 +3958,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0122         L?0704:
 0122 900000      E     MOV     DPTR,#InputMain
 0125 74FF              MOV     A,#0FFH
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 63  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 63  
 
 0127 F0                MOVX    @DPTR,A
 0128 22                RET     
@@ -4022,7 +4022,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0172 E0                MOVX    A,@DPTR
 0173 FE                MOV     R6,A
 0174 A3                INC     DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 64  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 64  
 
 0175 E0                MOVX    A,@DPTR
 0176 FF                MOV     R7,A
@@ -4086,7 +4086,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01B8 4401              ORL     A,#01H
 01BA F0                MOVX    @DPTR,A
 01BB E4                CLR     A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 65  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 65  
 
 01BC 900000      R     MOV     DPTR,#i
 01BF F0                MOVX    @DPTR,A
@@ -4150,7 +4150,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 020D 9F                SUBB    A,R7
 020E 22                RET     
 020F         L?0752:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 66  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 66  
 
 020F         L?0753:
 020F E4                CLR     A
@@ -4214,7 +4214,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0254         L?0771:
 0254         L?0772:
 0254 900000      R     MOV     DPTR,#i
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 67  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 67  
 
 0257 E0                MOVX    A,@DPTR
 0258 04                INC     A
@@ -4278,7 +4278,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _Mon_tx (BEGIN)
                                            ; SOURCE LINE # 456
 ;---- Variable 'ch' assigned to Register 'R7' ----
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 68  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 68  
 
                                            ; SOURCE LINE # 457
                                            ; SOURCE LINE # 458
@@ -4342,7 +4342,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002F 120000      R     LCALL   L?0656
 0032 E0                MOVX    A,@DPTR
 0033 900000      R     MOV     DPTR,#MonRdata
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 69  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 69  
 
 0036 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 522
@@ -4406,7 +4406,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008A FD                MOV     R5,A
 008B 120000      E     LCALL   _ReadSlowI2CByte
 008E 900000      R     MOV     DPTR,#MonRdata
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 70  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 70  
 
 0091 EF                MOV     A,R7
 0092 F0                MOVX    @DPTR,A
@@ -4470,7 +4470,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002E 0F                INC     R7
 002F EF                MOV     A,R7
 0030 B405F3            CJNE    A,#05H,?C0020
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 71  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 71  
 
 0033         ?C0021:
                                            ; SOURCE LINE # 657
@@ -4534,7 +4534,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008D A3                INC     DPTR
 008E ED                MOV     A,R5
 008F F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 72  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 72  
 
 0090 A3                INC     DPTR
 0091 EF                MOV     A,R7
@@ -4598,7 +4598,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 697
                                            ; SOURCE LINE # 698
 00E9 120000      R     LCALL   L?0670
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 73  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 73  
 
 00EC 900000      R     MOV     DPTR,#MonWdata
 00EF E0                MOVX    A,@DPTR
@@ -4662,7 +4662,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 013D E0                MOVX    A,@DPTR
 013E FE                MOV     R6,A
 013F 6F                XRL     A,R7
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 74  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 74  
 
 0140 22                RET     
 0141         L?0758:
@@ -4726,7 +4726,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0036 7026              JNZ     ?C0039
                                            ; SOURCE LINE # 787
 0038 120000      R     LCALL   L?0659
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 75  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 75  
 
 003B 7F00              MOV     R7,#00H
 003D FE                MOV     R6,A
@@ -4790,7 +4790,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION MonDumpI2C (BEGIN)
                                            ; SOURCE LINE # 809
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 76  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 76  
 
                                            ; SOURCE LINE # 810
                                            ; SOURCE LINE # 816
@@ -4854,7 +4854,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0057 CF                XCH     A,R7
 0058 2401              ADD     A,#01H
 005A CF                XCH     A,R7
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 77  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 77  
 
 005B 3400              ADDC    A,#00H
 005D 900000      R     MOV     DPTR,#cnt
@@ -4918,7 +4918,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00AE 020000      R     LJMP    ?C0077
                                            ; SOURCE LINE # 842
 00B1 120000      R     LCALL   L?0653
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 78  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 78  
 
 00B4 E0                MOVX    A,@DPTR
 00B5 FF                MOV     R7,A
@@ -4982,7 +4982,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00FC 400C              JC      ?C0068
                                            ; SOURCE LINE # 869
 00FE 120000      R     LCALL   L?0643
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 79  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 79  
 
 0101 120000      E     LCALL   _a2h
 0104 900000      R     MOV     DPTR,#MonPage
@@ -5046,7 +5046,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0152 E0                MOVX    A,@DPTR
 0153 04                INC     A
 0154 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 80  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 80  
 
 0155 900000      R     MOV     DPTR,#cnt+01H
 0158 E0                MOVX    A,@DPTR
@@ -5110,7 +5110,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0043 120000      R     LCALL   L?0672
 0046 120000      E     LCALL   _ReadI2CByte
 0049 900000      R     MOV     DPTR,#MonRdata
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 81  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 81  
 
 004C EF                MOV     A,R7
 004D F0                MOVX    @DPTR,A
@@ -5174,7 +5174,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 951
 003E 120000      R     LCALL   L?0659
 0041 FE                MOV     R6,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 82  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 82  
 
 ;---- Variable 'MonPage' assigned to Register 'R6/R7' ----
                                            ; SOURCE LINE # 952
@@ -5238,7 +5238,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0005 900000      R     MOV     DPTR,#argv+06H
 0008 120000      R     LCALL   L?0644
 000B 120000      E     LCALL   _a2h
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 83  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 83  
 
 000E 900000      R     MOV     DPTR,#MonIndex
 0011 EF                MOV     A,R7
@@ -5302,7 +5302,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0069 120000      R     LCALL   L?0759
                                            ; SOURCE LINE # 1000
 006C 120000      R     LCALL   L?0713
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 84  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 84  
 
 006F F0                MOVX    @DPTR,A
 0070 900000      R     MOV     DPTR,#i
@@ -5366,7 +5366,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00BF 70EF              JNZ     ?C0106
 00C1 120000      R     LCALL   L?0750
 00C4         ?C0547:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 85  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 85  
 
 00C4 80EA              SJMP    ?C0106
                                            ; SOURCE LINE # 1019
@@ -5430,7 +5430,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0028 900000      R     MOV     DPTR,#argv+09H
 002B 120000      R     LCALL   L?0644
 002E 120000      E     LCALL   _a2h
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 86  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 86  
 
 0031 7804              MOV     R0,#04H
 0033 120000      E     LCALL   ?C?ULSHR
@@ -5494,7 +5494,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'i' assigned to Register 'R6' ----
 0089 7E07              MOV     R6,#07H
 008B         ?C0114:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 87  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 87  
 
 008B 900000      R     MOV     DPTR,#FromBit
 008E E0                MOVX    A,@DPTR
@@ -5558,7 +5558,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1077
 00CF 900000      R     MOV     DPTR,#MonIndex
 00D2 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 88  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 88  
 
 00D3 FF                MOV     R7,A
 00D4 120000      R     LCALL   L?0693
@@ -5622,7 +5622,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0128 F0                MOVX    @DPTR,A
 0129 FB                MOV     R3,A
                                            ; SOURCE LINE # 1088
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 89  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 89  
 
 012A 900000      R     MOV     DPTR,#Slave
 012D 120000      R     LCALL   L?0672
@@ -5686,7 +5686,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0034 EF                MOV     A,R7
 0035 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1109
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 90  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 90  
 
 0036 900000      R     MOV     DPTR,#argv+0CH
 0039 120000      R     LCALL   L?0644
@@ -5750,7 +5750,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008F 80BD              SJMP    ?C0125
 0091         ?C0126:
                                            ; SOURCE LINE # 1117
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 91  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 91  
 
 0091 120000      R     LCALL   L?0724
 0094 4026              JC      ?C0124
@@ -5814,7 +5814,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002C 7A00        R     MOV     R2,#HIGH ?SC_631
 002E 7900        R     MOV     R1,#LOW ?SC_631
 0030 120000      E     LCALL   _Puts
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 92  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 92  
 
                                            ; SOURCE LINE # 1134
 0033 7A00        R     MOV     R2,#HIGH ?SC_673
@@ -5878,7 +5878,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0099 22                RET     
 009A         L?0715:
 009A 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 93  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 93  
 
 009C 120000      E     LCALL   _Puts
 009F 7BFF              MOV     R3,#0FFH
@@ -5942,7 +5942,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003F         ?C0569:
 003F 120000      R     LCALL   _Mon_tx
                                            ; SOURCE LINE # 1210
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 94  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 94  
 
 0042 7F00              MOV     R7,#00H
 0044 22                RET     
@@ -6006,7 +6006,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0088 120000      R     LCALL   L?0689
 008B E4                CLR     A
 008C F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 95  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 95  
 
                                            ; SOURCE LINE # 1232
 008D 900000      R     MOV     DPTR,#argc
@@ -6070,7 +6070,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00DA 900000      R     MOV     DPTR,#i
 00DD E0                MOVX    A,@DPTR
 00DE 2400        R     ADD     A,#LOW monstr
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 96  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 96  
 
 00E0 120000      R     LCALL   L?0689
 00E3 E0                MOVX    A,@DPTR
@@ -6134,7 +6134,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 012D F0                MOVX    @DPTR,A
 012E         ?C0157:
 012E 900000      R     MOV     DPTR,#last_argc
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 97  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 97  
 
 0131 E0                MOVX    A,@DPTR
 0132 FF                MOV     R7,A
@@ -6198,7 +6198,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0181 E0                MOVX    A,@DPTR
 0182 04                INC     A
 0183 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 98  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 98  
 
 0184 80BD              SJMP    ?C0160
                                            ; SOURCE LINE # 1286
@@ -6262,7 +6262,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1314
 01BC 801F              SJMP    ?C0578
 01BE         ?C0172:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 99  
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 99  
 
                                            ; SOURCE LINE # 1316
 01BE 7F0A              MOV     R7,#0AH
@@ -6326,7 +6326,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1341
                                            ; SOURCE LINE # 1342
 01F3         ?C0139:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 100 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 100 
 
                                            ; SOURCE LINE # 1344
 01F3 900000      R     MOV     DPTR,#ret
@@ -6390,7 +6390,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001F 94FF              SUBB    A,#0FFH
 0021 40E6              JC      ?C0183
                                            ; SOURCE LINE # 1555
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 101 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 101 
 
 0023 7BFF              MOV     R3,#0FFH
 0025 7A00        R     MOV     R2,#HIGH ?SC_1139
@@ -6454,7 +6454,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0045 7400        R     MOV     A,#LOW ?SC_1155
 0047 120000      R     LCALL   L?0619
 004A 7006              JNZ     ?C0192
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 102 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 102 
 
                                            ; SOURCE LINE # 1587
 004C 120000      R     LCALL   MonWriteI2CByte
@@ -6518,7 +6518,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00A7 120000      R     LCALL   L?0646
 00AA 7400        R     MOV     A,#HIGH ?SC_1177
 00AC F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 103 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 103 
 
 00AD 7400        R     MOV     A,#LOW ?SC_1177
 00AF 120000      R     LCALL   L?0623
@@ -6582,7 +6582,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 010D 7400        R     MOV     A,#LOW ?SC_1206
 010F 120000      R     LCALL   L?0627
 0112 701C              JNZ     ?C0210
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 104 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 104 
 
                                            ; SOURCE LINE # 1623
 0114 120000      R     LCALL   L?0643
@@ -6646,7 +6646,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0177 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1646
 0178 E59B              MOV     A,SFR_CACHE_EN
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 105 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 105 
 
 017A 900000      R     MOV     DPTR,#delay
 017D 6005              JZ      ?C0217
@@ -6710,7 +6710,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01CD 120000      R     LCALL   L?0775
 01D0 120000      R     LCALL   L?0657
 01D3 ED                MOV     A,R5
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 106 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 106 
 
 01D4 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1670
@@ -6774,7 +6774,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0232 900000      R     MOV     DPTR,#wait
 0235 7402              MOV     A,#02H
 0237 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 107 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 107 
 
 0238         ?C0232:
                                            ; SOURCE LINE # 1694
@@ -6838,7 +6838,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 028D 120000      R     LCALL   L?0753
 0290 800B              SJMP    ?C0240
 0292         ?C0238:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 108 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 108 
 
                                            ; SOURCE LINE # 1720
 0292 120000      R     LCALL   L?0755
@@ -6902,7 +6902,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1746
 02E4 80D8              SJMP    ?C0243
                                            ; SOURCE LINE # 1747
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 109 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 109 
 
 02E6         ?C0236:
                                            ; SOURCE LINE # 1748
@@ -6966,7 +6966,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 033B E500        E     MOV     A,regTW88+01H
 033D 2462              ADD     A,#062H
 033F 120000      R     LCALL   L?0728
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 110 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 110 
 
                                            ; SOURCE LINE # 1776
 0342 120000      R     LCALL   L?0729
@@ -7030,7 +7030,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1918
 03A4 30A809            JNB     SFR_EX0,?C0262
 03A7 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 111 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 111 
 
 03A9 7A00        R     MOV     R2,#HIGH ?SC_1291
 03AB 7900        R     MOV     R1,#LOW ?SC_1291
@@ -7094,7 +7094,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1941
                                            ; SOURCE LINE # 1942
                                            ; SOURCE LINE # 1943
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 112 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 112 
 
 03FA 120000      R     LCALL   L?0764
                                            ; SOURCE LINE # 1945
@@ -7158,7 +7158,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0458 7900        R     MOV     R1,#LOW ?SC_1468
 045A 120000      E     LCALL   _Puts
                                            ; SOURCE LINE # 1961
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 113 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 113 
 
 045D 7A00        R     MOV     R2,#HIGH ?SC_1491
 045F 7900        R     MOV     R1,#LOW ?SC_1491
@@ -7222,7 +7222,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 04B8 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1979
 04B9 020000      R     LJMP    ?C0193
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 114 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 114 
 
 04BC         ?C0275:
                                            ; SOURCE LINE # 1980
@@ -7286,7 +7286,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0512 120000      R     LCALL   L?0642
 0515 120000      E     LCALL   _stricmp
 0518 EF                MOV     A,R7
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 115 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 115 
 
 0519 4E                ORL     A,R6
 051A 7006              JNZ     ?C0283
@@ -7350,7 +7350,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 056F 402E              JC      ?C0290
                                            ; SOURCE LINE # 2006
 0571 900000      R     MOV     DPTR,#argv+06H
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 116 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 116 
 
 0574 120000      R     LCALL   L?0644
 0577 120000      E     LCALL   ?C?CLDPTR
@@ -7414,7 +7414,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2017
 05DA 120000      R     LCALL   L?0646
 05DD 7400        R     MOV     A,#HIGH ?SC_1652
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 117 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 117 
 
 05DF F0                MOVX    @DPTR,A
 05E0 A3                INC     DPTR
@@ -7478,7 +7478,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 062E 6003              JZ      $ + 5H
 0630 020000      R     LJMP    ?C0308
                                            ; SOURCE LINE # 2037
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 118 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 118 
 
 0633 120000      R     LCALL   L?0668
 0636 5027              JNC     ?C0309
@@ -7542,7 +7542,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0698 7404              MOV     A,#04H
 069A F0                MOVX    @DPTR,A
 069B 802A              SJMP    ?C0312
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 119 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 119 
 
 069D         ?C0319:
                                            ; SOURCE LINE # 2049
@@ -7606,7 +7606,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 06EB F0                MOVX    @DPTR,A
 06EC 7400        R     MOV     A,#LOW ?SC_1752
 06EE 120000      R     LCALL   L?0639
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 120 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 120 
 
 06F1 6003              JZ      $ + 5H
 06F3 020000      R     LJMP    ?C0329
@@ -7670,7 +7670,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 074B A3                INC     DPTR
 074C 7400        R     MOV     A,#LOW ?SC_1756
 074E 120000      R     LCALL   L?0642
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 121 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 121 
 
 0751 120000      E     LCALL   _stricmp
 0754 EF                MOV     A,R7
@@ -7734,7 +7734,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 07A3 6013              JZ      ?C0348
 07A5 120000      R     LCALL   L?0646
 07A8 7400        R     MOV     A,#HIGH ?SC_1212
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 122 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 122 
 
 07AA F0                MOVX    @DPTR,A
 07AB A3                INC     DPTR
@@ -7798,7 +7798,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 07F7 120000      R     LCALL   L?0642
 07FA 120000      E     LCALL   _stricmp
 07FD EF                MOV     A,R7
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 123 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 123 
 
 07FE 4E                ORL     A,R6
 07FF 7007              JNZ     ?C0354
@@ -7862,7 +7862,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0850 120000      E     LCALL   CheckAndSetDecoderScaler
 0853 8012              SJMP    ?C0602
                                            ; SOURCE LINE # 2124
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 124 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 124 
 
 0855         ?C0363:
 0855 120000      E     LCALL   CheckAndSetComponent
@@ -7926,7 +7926,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 089C 120000      R     LCALL   L?0646
 089F 7400        R     MOV     A,#HIGH ?SC_1807
 08A1 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 125 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 125 
 
 08A2 A3                INC     DPTR
 08A3 7400        R     MOV     A,#LOW ?SC_1807
@@ -7990,7 +7990,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2168
 0903 120000      E     LCALL   AutoTuneColor
                                            ; SOURCE LINE # 2170
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 126 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 126 
 
                                            ; SOURCE LINE # 2171
 0906 020000      R     LJMP    ?C0193
@@ -8054,7 +8054,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0963 7400        R     MOV     A,#HIGH ?SC_1856
 0965 F0                MOVX    @DPTR,A
 0966 A3                INC     DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 127 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 127 
 
 0967 7400        R     MOV     A,#LOW ?SC_1856
 0969 F0                MOVX    @DPTR,A
@@ -8118,7 +8118,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 09CA EF                MOV     A,R7
 09CB 4E                ORL     A,R6
 09CC 7006              JNZ     ?C0391
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 128 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 128 
 
                                            ; SOURCE LINE # 2200
 09CE 120000      E     LCALL   MonitorMCU
@@ -8182,7 +8182,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0A29 B4020B            CJNE    A,#02H,?C0397
                                            ; SOURCE LINE # 2212
 0A2C 120000      R     LCALL   L?0643
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 129 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 129 
 
 0A2F 120000      E     LCALL   _a2h
 0A32 900000      R     MOV     DPTR,#SW_key
@@ -8246,7 +8246,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0A7F F0                MOVX    @DPTR,A
 0A80 A3                INC     DPTR
 0A81 7400        R     MOV     A,#LOW ?SC_1944
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 130 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 130 
 
 0A83 F0                MOVX    @DPTR,A
 0A84 900000      R     MOV     DPTR,#argv
@@ -8310,7 +8310,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0ADB 120000      R     LCALL   L?0668
 0ADE 401C              JC      ?C0408
                                            ; SOURCE LINE # 2244
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 131 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 131 
 
 0AE0 120000      R     LCALL   L?0636
 0AE3 7005              JNZ     ?C0409
@@ -8374,7 +8374,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0B36         ?C0417:
                                            ; SOURCE LINE # 2261
                                            ; SOURCE LINE # 2262
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 132 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 132 
 
 0B36 E4                CLR     A
 0B37 FF                MOV     R7,A
@@ -8438,7 +8438,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0B97 A3                INC     DPTR
 0B98 EF                MOV     A,R7
 0B99 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 133 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 133 
 
                                            ; SOURCE LINE # 2456
 0B9A 120000      E     LCALL   _TestInitFontRam
@@ -8502,7 +8502,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2483
 0BF1 120000      R     LCALL   L?0696
 0BF4 C3                CLR     C
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 134 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 134 
 
 0BF5 9410              SUBB    A,#010H
 0BF7 40C4              JC      ?C0425
@@ -8566,7 +8566,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2516
 0C4A 900000      R     MOV     DPTR,#fdata
                                            ; SOURCE LINE # 2517
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 135 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 135 
 
 0C4D 120000      R     LCALL   L?0696
 0C50 B410EC            CJNE    A,#010H,?C0433
@@ -8630,7 +8630,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0C9F 900000      R     MOV     DPTR,#fdata
                                            ; SOURCE LINE # 2550
 0CA2 120000      R     LCALL   L?0697
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 136 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 136 
 
 0CA5 B410EC            CJNE    A,#010H,?C0441
 0CA8         ?C0442:
@@ -8694,7 +8694,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0CF6 120000      R     LCALL   L?0738
 0CF9         ?C0449:
                                            ; SOURCE LINE # 2583
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 137 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 137 
 
 0CF9 900000      R     MOV     DPTR,#fdata
 0CFC 120000      R     LCALL   L?0721
@@ -8758,7 +8758,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 2606
 0D53 120000      R     LCALL   L?0737
                                            ; SOURCE LINE # 2610
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 138 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 138 
 
 0D56 FF                MOV     R7,A
 0D57 7E01              MOV     R6,#01H
@@ -8822,7 +8822,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0DAA 7400        R     MOV     A,#HIGH ?SC_2088
 0DAC F0                MOVX    @DPTR,A
 0DAD A3                INC     DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 139 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 139 
 
 0DAE 7400        R     MOV     A,#LOW ?SC_2088
 0DB0 F0                MOVX    @DPTR,A
@@ -8886,7 +8886,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0E0A 900000      R     MOV     DPTR,#OsdRamAddr+01H
 0E0D E0                MOVX    A,@DPTR
 0E0E 04                INC     A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 140 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 140 
 
 0E0F F0                MOVX    @DPTR,A
 0E10 7006              JNZ     ?C0555
@@ -8950,7 +8950,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0E5C 900000      R     MOV     DPTR,#argv
 0E5F 120000      R     LCALL   L?0644
 0E62 120000      E     LCALL   _stricmp
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 141 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 141 
 
 0E65 EF                MOV     A,R7
 0E66 4E                ORL     A,R6
@@ -9014,7 +9014,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0EBE F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 2697
 0EBF 900000      R     MOV     DPTR,#fdata
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 142 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 142 
 
 0EC2 E0                MOVX    A,@DPTR
 0EC3 04                INC     A
@@ -9078,7 +9078,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0F11 4E                ORL     A,R6
 0F12 704B              JNZ     ?C0478
                                            ; SOURCE LINE # 2956
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 143 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 143 
 
 0F14 120000      R     LCALL   L?0756
 0F17 7040              JNZ     ?C0479
@@ -9142,7 +9142,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0F5F 120000      R     LCALL   L?0646
 0F62 7400        R     MOV     A,#HIGH ?SC_2152
 0F64 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 144 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 144 
 
 0F65 A3                INC     DPTR
 0F66 7400        R     MOV     A,#LOW ?SC_2152
@@ -9206,7 +9206,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0FBC 7900        R     MOV     R1,#LOW ?SC_2168
 0FBE 120000      E     LCALL   _Puts
                                            ; SOURCE LINE # 2992
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 145 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 145 
 
 0FC1 C2AB              CLR     SFR_ET1
                                            ; SOURCE LINE # 2993
@@ -9270,7 +9270,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1011 E0                MOVX    A,@DPTR
 1012 FF                MOV     R7,A
 1013 900000      E     MOV     DPTR,#CpuTouchChanged
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 146 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 146 
 
 1016 E0                MOVX    A,@DPTR
 1017 6F                XRL     A,R7
@@ -9334,7 +9334,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1070 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 3023
 1071         ?C0501:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 147 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 147 
 
                                            ; SOURCE LINE # 3024
 1071 900000      E     MOV     DPTR,#CpuAUX1_Changed
@@ -9398,7 +9398,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 10D1 120000      R     LCALL   L?0723
                                            ; SOURCE LINE # 3034
 10D4         ?C0616:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 148 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 148 
 
 10D4 900000      E     MOV     DPTR,#CpuAUX3_Changed
 10D7 E0                MOVX    A,@DPTR
@@ -9462,7 +9462,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 3046
 112E 7BFF              MOV     R3,#0FFH
 1130 7A00        R     MOV     R2,#HIGH ?SC_2374
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 149 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 149 
 
 1132 7900        R     MOV     R1,#LOW ?SC_2374
 1134 120000      E     LCALL   _Puts
@@ -9526,7 +9526,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1192 5009              JNC     ?C0516
                                            ; SOURCE LINE # 3140
 1194 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 150 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 150 
 
 1196 7A00        R     MOV     R2,#HIGH ?SC_2393
 1198 7900        R     MOV     R1,#LOW ?SC_2393
@@ -9590,7 +9590,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 11EF 7400        R     MOV     A,#LOW ?SC_2441
 11F1 120000      R     LCALL   L?0642
 11F4 120000      E     LCALL   _stricmp
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 151 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 151 
 
 11F7 EF                MOV     A,R7
 11F8 4E                ORL     A,R6
@@ -9654,7 +9654,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 124F FD                MOV     R5,A
 1250 FC                MOV     R4,A
 1251 120000      E     LCALL   _HdmiDownloadDhcp
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 152 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 152 
 
                                            ; SOURCE LINE # 3165
                                            ; SOURCE LINE # 3167
@@ -9718,7 +9718,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 12AB 900000      R     MOV     DPTR,#positionX
 12AE E0                MOVX    A,@DPTR
 12AF FF                MOV     R7,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 153 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 153 
 
 12B0 A3                INC     DPTR
 12B1 E0                MOVX    A,@DPTR
@@ -9782,7 +9782,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1306 7400        R     MOV     A,#HIGH ?SC_2492
 1308 F0                MOVX    @DPTR,A
 1309 A3                INC     DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 154 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 154 
 
 130A 7400        R     MOV     A,#LOW ?SC_2492
 130C F0                MOVX    @DPTR,A
@@ -9846,7 +9846,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 136D 120000      E     LCALL   ScalerReadXDownReg
                                            ; SOURCE LINE # 3307
 1370 E4                CLR     A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 155 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 155 
 
 1371 FD                MOV     R5,A
 1372 FC                MOV     R4,A
@@ -9910,7 +9910,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 13BB 120000      E     LCALL   ScalerReadVDEReg
                                            ; SOURCE LINE # 3329
 13BE E4                CLR     A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 156 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 156 
 
 13BF FF                MOV     R7,A
 13C0 120000      E     LCALL   _ScalerWriteVDEReg
@@ -9974,7 +9974,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 3377
 1412 120000      E     LCALL   MeasGetVsyncRisePos
                                            ; SOURCE LINE # 3378
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 157 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 157 
 
 1415 7B01              MOV     R3,#01H
 1417 7A00        R     MOV     R2,#HIGH wTemp
@@ -10038,7 +10038,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1465 A3                INC     DPTR
 1466 E0                MOVX    A,@DPTR
 1467 F9                MOV     R1,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 158 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 158 
 
 1468 120000      E     LCALL   _stricmp
 146B EF                MOV     A,R7
@@ -10102,7 +10102,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 14B3         L?0622:
 14B3 900000      E     MOV     DPTR,#?_stricmp?BYTE+03H
 14B6 74FF              MOV     A,#0FFH
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 159 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 159 
 
 14B8 F0                MOVX    @DPTR,A
 14B9 A3                INC     DPTR
@@ -10166,7 +10166,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1504         L?0625:
 1504 A3                INC     DPTR
 1505 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 160 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 160 
 
 1506 900000      R     MOV     DPTR,#argv
 1509 E0                MOVX    A,@DPTR
@@ -10230,7 +10230,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1553 A3                INC     DPTR
 1554 7400        R     MOV     A,#LOW ?SC_1737
 1556 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 161 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 161 
 
 1557 900000      R     MOV     DPTR,#argv+03H
 155A E0                MOVX    A,@DPTR
@@ -10294,7 +10294,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 15A2 E0                MOVX    A,@DPTR
 15A3 FA                MOV     R2,A
 15A4 A3                INC     DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 162 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 162 
 
 15A5 E0                MOVX    A,@DPTR
 15A6 F9                MOV     R1,A
@@ -10358,7 +10358,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 15F3 E0                MOVX    A,@DPTR
 15F4 FA                MOV     R2,A
 15F5 A3                INC     DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 163 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 163 
 
 15F6 E0                MOVX    A,@DPTR
 15F7 F9                MOV     R1,A
@@ -10422,7 +10422,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1641 4E                ORL     A,R6
 1642 22                RET     
 1643         L?0638:
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 164 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 164 
 
 1643 900000      E     MOV     DPTR,#?_stricmp?BYTE+03H
 1646 74FF              MOV     A,#0FFH
@@ -10486,7 +10486,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1698 FE                MOV     R6,A
 1699 A3                INC     DPTR
 169A E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 165 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 165 
 
 169B FF                MOV     R7,A
 169C 120000      E     LCALL   _FOsdRamSetAddress
@@ -10550,7 +10550,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 16ED         L?0682:
 16ED 7BFF              MOV     R3,#0FFH
 16EF 120000      E     LCALL   _Puts
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 166 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 166 
 
 16F2 7BFF              MOV     R3,#0FFH
 16F4 22                RET     
@@ -10614,7 +10614,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 1741 A3                INC     DPTR
 1742 F0                MOVX    @DPTR,A
 1743 120000      R     LCALL   WaitVBlank1
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 167 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 167 
 
 1746 900000      R     MOV     DPTR,#xpositionH
 1749 E0                MOVX    A,@DPTR
@@ -10676,7 +10676,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 179B 22                RET     
              ; FUNCTION Monitor (END)
 
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 168 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 168 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -10739,7 +10739,7 @@ MonGetCommand. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   ch . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
   comment. . . . . . . . . . . . . . .  STATIC   XDATA  U_CHAR   0000H  1
   incnt. . . . . . . . . . . . . . . .  STATIC   XDATA  U_CHAR   0001H  1
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 169 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 169 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -10802,7 +10802,7 @@ menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
 InputMain. . . . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
 MonRdata . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0015H  1
 InitTouch. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 170 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 170 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -10865,7 +10865,7 @@ _ScalerSetMuteAutoManual . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _MeasEnableChangedDetection. . . . . .  EXTERN   CODE   PROC     -----  -----
 InitInputAsDefault . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 171 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 171 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -10928,7 +10928,7 @@ GetHdmiModeEE. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 ScalerReadLineBufferDelay. . . . . . .  EXTERN   CODE   PROC     -----  -----
 _ScalerWriteFreerunHtotal. . . . . . .  EXTERN   CODE   PROC     -----  -----
 _HdmiDownloadEdid. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 172 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 172 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -10991,7 +10991,7 @@ LinkCheckAndSetInput . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 CpuAUX0. . . . . . . . . . . . . . . .  EXTERN   XDATA  U_INT    -----  2
 CpuAUX1. . . . . . . . . . . . . . . .  EXTERN   XDATA  U_INT    -----  2
 _VInput_enableOutput . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 173 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 173 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -11054,7 +11054,7 @@ MonWriteBit. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0006H  1
   FromBit. . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0003H  1
   ToBit. . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0004H  1
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 174 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 174 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -11117,7 +11117,7 @@ FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
   palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
   palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
   palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 175 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 175 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -11180,7 +11180,7 @@ Monitor. . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   i. . . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
   attr . . . . . . . . . . . . . . . .  STATIC   XDATA  U_CHAR   000FH  1
   fdata. . . . . . . . . . . . . . . .  STATIC   XDATA  U_CHAR   0010H  1
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 176 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 176 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -11244,7 +11244,7 @@ _a2h . . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _ReadSlowI2CByte . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _a2i . . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 
-C51 COMPILER V9.00   MONITOR                                                               05/31/2013 20:18:31 PAGE 177 
+C51 COMPILER V9.00   MONITOR                                                               06/05/2014 15:34:56 PAGE 177 
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

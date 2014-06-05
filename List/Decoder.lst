@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 1   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE DECODER
 OBJECT MODULE PLACED IN .\Output\Decoder.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Decoder.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Decoder.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
                     - MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Decoder.lst) OBJECT(.\Output\Decode
                     -r.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51   2                      if (( mode & 0x80 ) == 0 ) {
   52   3                              dPrintf("->end%bd",start - n);
   53   3                              return ( 0 );                           //check video detect flag
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 2   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 2   
 
   54   3                      }
   55   2                      delay1ms(10);
@@ -126,7 +126,7 @@ line level    source
  113   2                      r106 |= 0x01;           // V in PowerDown
  114   2                      break;
  115   2              case INPUT_COMP:        //target r102:4A,r105:04 r016:00
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 3   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 3   
 
  116   2                                                      //     ->     4A      00      00                  
  117   2      
@@ -190,7 +190,7 @@ line level    source
               void DecoderSetAFE(BYTE input_mode)
               {
                       WriteTW88Page(PAGE1_DECODER );  
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 4   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 4   
 
                       if(input_mode==0) {
                               WriteTW88(REG105, (ReadTW88(REG105) & 0xF0) | 0x04);    //? C is for decoder, not RGB   
@@ -254,7 +254,7 @@ line level    source
  237          *       R107[5:4]R109[7:0]
  238          */
  239          void DecoderSetVActive(WORD length)
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 5   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 5   
 
  240          {
  241   1              WriteTW88Page(PAGE1_DECODER );          
@@ -318,7 +318,7 @@ line level    source
                       WriteTW88Page(PAGE1_DECODER );          // get VDelay from Decoder
                       hActive = ReadTW88(REG107 ) & 0x03; 
                       hActive <<= 8;
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 6   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 6   
 
                       hActive |= ReadTW88(REG10B );
               
@@ -382,7 +382,7 @@ line level    source
  361          *       To get a stable the correct REG11C[6:4] value,
  362          *               read REG101[6] and REG130[7:5] also.
  363          *       I saw the following values(BK110303)
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 7   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 7   
 
  364          *               E7 E7 67 67 87 87 87 87 ..... 87 87 87 87 87 87 87 87 87 07 07 07 .... 
  365          *               B7 B7 B7 37 37 87 87 87 ..... 87 87 87 87 87 87 87 87 87 07 07 07 07 07 07 07
@@ -446,12 +446,12 @@ line level    source
  423   1      }
  424          
  425          
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 8   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 8   
 
  426          
  427          
  428          
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 9   
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 9   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -515,7 +515,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0038 7BFF              MOV     R3,#0FFH
 003A 7A00        R     MOV     R2,#HIGH ?SC_30
 003C 7900        R     MOV     R1,#LOW ?SC_30
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 10  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 10  
 
 003E 900000      R     MOV     DPTR,#n
 0041 E0                MOVX    A,@DPTR
@@ -579,7 +579,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001A 14                DEC     A
 001B 6023              JZ      ?C0008
 001D 14                DEC     A
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 11  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 11  
 
 001E 6020              JZ      ?C0008
 0020 24FB              ADD     A,#0FBH
@@ -643,7 +643,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0051 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 144
 0052 E500        E     MOV     A,regTW88+01H
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 12  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 12  
 
 0054 2405              ADD     A,#05H
 0056 120000      R     LCALL   L?0030
@@ -707,7 +707,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0005 5403              ANL     A,#03H
 0007 C4                SWAP    A
 0008 F8                MOV     R0,A
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 13  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 13  
 
 0009 54F0              ANL     A,#0F0H
 000B C8                XCH     A,R0
@@ -771,7 +771,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0015 EF                MOV     A,R7
 0016 F0                MOVX    @DPTR,A
 0017 120000      E     LCALL   _ePrintf
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 14  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 14  
 
                                            ; SOURCE LINE # 385
 001A E4                CLR     A
@@ -835,7 +835,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 007B F0                MOVX    @DPTR,A
 007C 900000      R     MOV     DPTR,#r130
 007F E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 15  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 15  
 
 0080 900000      E     MOV     DPTR,#?_dPrintf?BYTE+06H
 0083 F0                MOVX    @DPTR,A
@@ -899,7 +899,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D2         ?C0020:
                                            ; SOURCE LINE # 401
 00D2 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 16  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 16  
 
 00D4 7A00        R     MOV     R2,#HIGH ?SC_131
 00D6 7900        R     MOV     R1,#LOW ?SC_131
@@ -938,7 +938,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001C 22                RET     
              ; FUNCTION _DecoderFreerun (END)
 
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 17  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 17  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1001,7 +1001,7 @@ _dPrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _ePrintf . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 regTW88. . . . . . . . . . . . . . . .  EXTERN   DATA   PTR      -----  2
 DecoderReadDetectedMode. . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
-C51 COMPILER V9.00   DECODER                                                               05/31/2013 20:18:29 PAGE 18  
+C51 COMPILER V9.00   DECODER                                                               06/05/2014 15:34:49 PAGE 18  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

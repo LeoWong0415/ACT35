@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 1   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MONITOR_MCU
 OBJECT MODULE PLACED IN .\Output\Monitor_MCU.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Monitor_MCU.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Monitor_MCU.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
                     -OWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Monitor_MCU.lst) OBJECT(.\Outpu
                     -t\Monitor_MCU.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51   2                      case 0x8f:      SFR_8fh = dat;  if( echo ) return SFR_8fh; else return 0;
   52   2      
   53   2                      case 0x90:      SFR_90h = dat;  if( echo ) return SFR_90h; else return 0;
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 2   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 2   
 
   54   2                      case 0x91:      SFR_91h = dat;  if( echo ) return SFR_91h; else return 0;
   55   2                      case 0x92:      SFR_92h = dat;  if( echo ) return SFR_92h; else return 0;
@@ -126,7 +126,7 @@ line level    source
  113   2                      case 0xc9:      SFR_c9h = dat;  if( echo ) return SFR_c9h; else return 0;
  114   2                      case 0xca:      SFR_cah = dat;  if( echo ) return SFR_cah; else return 0;
  115   2                      case 0xcb:      SFR_cbh = dat;  if( echo ) return SFR_cbh; else return 0;
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 3   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 3   
 
  116   2                      case 0xcc:      SFR_cch = dat;  if( echo ) return SFR_cch; else return 0;
  117   2                      case 0xcd:      SFR_cdh = dat;  if( echo ) return SFR_cdh; else return 0;
@@ -190,7 +190,7 @@ line level    source
  175   1      }
  176          
  177          //=============================================================================
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 4   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 4   
 
  178          BYTE ReadSFR(BYTE addr)
  179          {
@@ -254,7 +254,7 @@ line level    source
  237   2                      case 0xb5:      return SFR_b5h;
  238   2                      case 0xb6:      return SFR_b6h;
  239   2                      case 0xb7:      return SFR_b7h;
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 5   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 5   
 
  240   2                      case 0xb8:      return SFR_b8h;
  241   2                      case 0xb9:      return SFR_b9h;
@@ -318,7 +318,7 @@ line level    source
  299   2                                        
  300   2                      case 0xf0:      return SFR_f0h;
  301   2                      case 0xf1:      return SFR_f1h;
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 6   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 6   
 
  302   2                      case 0xf2:      return SFR_f2h;
  303   2                      case 0xf3:      return SFR_f3h;
@@ -382,7 +382,7 @@ line level    source
  361   1              //              }
  362   1              //      }
  363   1              //}
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 7   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 7   
 
  364   1      
  365   1              //---------------------- Write SFR -----------------------
@@ -446,7 +446,7 @@ line level    source
  423   2                      argv_num2 = a2h( argv[3] );
  424   2                      
  425   2                      *(BYTE xdata *)(addr) = argv_num2;
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 8   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 8   
 
  426   2                      ret = *(BYTE xdata *)(addr);
  427   2                      
@@ -510,7 +510,7 @@ line level    source
                                       else if( argv[2][0]=='2' ) {
                                               Puts("Watchdog test....");
                                               RestartWatchdog();
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 9   
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 9   
 
                                               Puts("start....");
                                               delay1s(1,__LINE__);
@@ -574,7 +574,7 @@ line level    source
                                       MCU_INT_STATUS = 0;
               #endif
  549   3                              return;
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 10  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 10  
 
  550   3                      }
  551   2                      argv_num1 = a2h( argv[2] );
@@ -611,7 +611,7 @@ line level    source
  582   1      }
  583          
  584          
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 11  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 11  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -675,7 +675,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003F 22                RET     
 0040         L?0618:
 0040         L?0619:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 12  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 12  
 
 0040 900000      E     MOV     DPTR,#argc
 0043 E0                MOVX    A,@DPTR
@@ -739,7 +739,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0054 020000      R     LJMP    ?C0069
 0057 020000      R     LJMP    ?C0072
 005A 020000      R     LJMP    ?C0075
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 13  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 13  
 
 005D 020000      R     LJMP    ?C0078
 0060 020000      R     LJMP    ?C0081
@@ -803,7 +803,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 010E 020000      R     LJMP    ?C0255
 0111 020000      R     LJMP    ?C0258
 0114 020000      R     LJMP    ?C0261
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 14  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 14  
 
 0117 020000      R     LJMP    ?C0264
 011A 020000      R     LJMP    ?C0267
@@ -867,7 +867,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 38
 01A8         ?C0009:
 01A8 8D82              MOV     DPL,R5
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 15  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 15  
 
 01AA 300003      E     JNB     echo,?C0010
 01AD AF82              MOV     R7,DPL
@@ -931,7 +931,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01F4 22                RET     
                                            ; SOURCE LINE # 45
 01F5         ?C0030:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 16  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 16  
 
 01F5 8D89              MOV     SFR_89h,R5
 01F7 300003      E     JNB     echo,?C0031
@@ -995,7 +995,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 023F 7F00              MOV     R7,#00H
 0241 22                RET     
                                            ; SOURCE LINE # 53
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 17  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 17  
 
 0242         ?C0051:
 0242 8D90              MOV     SFR_90h,R5
@@ -1059,7 +1059,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 028C         ?C0070:
 028C 7F00              MOV     R7,#00H
 028E 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 18  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 18  
 
                                            ; SOURCE LINE # 60
 028F         ?C0072:
@@ -1123,7 +1123,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02D8 22                RET     
 02D9         ?C0091:
 02D9 7F00              MOV     R7,#00H
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 19  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 19  
 
 02DB 22                RET     
                                            ; SOURCE LINE # 67
@@ -1187,7 +1187,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0323 AFA4              MOV     R7,SFR_a4h
 0325 22                RET     
 0326         ?C0112:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 20  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 20  
 
 0326 7F00              MOV     R7,#00H
 0328 22                RET     
@@ -1251,7 +1251,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 036D 300003      E     JNB     echo,?C0133
 0370 AFAB              MOV     R7,SFR_abh
 0372 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 21  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 21  
 
 0373         ?C0133:
 0373 7F00              MOV     R7,#00H
@@ -1315,7 +1315,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03B8 8DB2              MOV     SFR_b2h,R5
 03BA 300003      E     JNB     echo,?C0154
 03BD AFB2              MOV     R7,SFR_b2h
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 22  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 22  
 
 03BF 22                RET     
 03C0         ?C0154:
@@ -1379,7 +1379,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0405         ?C0174:
 0405 8DB9              MOV     SFR_b9h,R5
 0407 300003      E     JNB     echo,?C0175
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 23  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 23  
 
 040A AFB9              MOV     R7,SFR_b9h
 040C 22                RET     
@@ -1443,7 +1443,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 104
 0452         ?C0195:
 0452 8DC0              MOV     SFR_c0h,R5
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 24  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 24  
 
 0454 300003      E     JNB     echo,?C0196
 0457 AFC0              MOV     R7,SFR_c0h
@@ -1507,7 +1507,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 049E 22                RET     
                                            ; SOURCE LINE # 111
 049F         ?C0216:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 25  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 25  
 
 049F 8DC7              MOV     SFR_c7h,R5
 04A1 300003      E     JNB     echo,?C0217
@@ -1571,7 +1571,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 04E9 7F00              MOV     R7,#00H
 04EB 22                RET     
                                            ; SOURCE LINE # 118
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 26  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 26  
 
 04EC         ?C0237:
 04EC 8DCE              MOV     SFR_ceh,R5
@@ -1635,7 +1635,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0536         ?C0256:
 0536 7F00              MOV     R7,#00H
 0538 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 27  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 27  
 
                                            ; SOURCE LINE # 126
 0539         ?C0258:
@@ -1699,7 +1699,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0581         ?C0276:
 0581 8DDB              MOV     SFR_dbh,R5
 0583 300003      E     JNB     echo,?C0277
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 28  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 28  
 
 0586 AFDB              MOV     R7,SFR_dbh
 0588 22                RET     
@@ -1763,7 +1763,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 142
 05CC         ?C0297:
 05CC 8DE2              MOV     SFR_e2h,R5
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 29  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 29  
 
 05CE 300003      E     JNB     echo,?C0298
 05D1 AFE2              MOV     R7,SFR_e2h
@@ -1827,7 +1827,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0618 22                RET     
                                            ; SOURCE LINE # 149
 0619         ?C0318:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 30  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 30  
 
 0619 8DE9              MOV     SFR_e9h,R5
 061B 300003      E     JNB     echo,?C0319
@@ -1891,7 +1891,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0663 7F00              MOV     R7,#00H
 0665 22                RET     
                                            ; SOURCE LINE # 157
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 31  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 31  
 
 0666         ?C0339:
 0666 8DF0              MOV     B,R5
@@ -1955,7 +1955,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 06B0         ?C0358:
 06B0 7F00              MOV     R7,#00H
 06B2 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 32  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 32  
 
                                            ; SOURCE LINE # 164
 06B3         ?C0360:
@@ -2019,7 +2019,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 06FC 22                RET     
 06FD         ?C0379:
 06FD 7F00              MOV     R7,#00H
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 33  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 33  
 
 06FF 22                RET     
                                            ; SOURCE LINE # 171
@@ -2083,7 +2083,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003F 020000      R     LJMP    ?C0404
 0042 020000      R     LJMP    ?C0405
 0045 020000      R     LJMP    ?C0406
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 34  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 34  
 
 0048 020000      R     LJMP    ?C0407
 004B 020000      R     LJMP    ?C0408
@@ -2147,7 +2147,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F9 020000      R     LJMP    ?C0466
 00FC 020000      R     LJMP    ?C0467
 00FF 020000      R     LJMP    ?C0468
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 35  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 35  
 
 0102 020000      R     LJMP    ?C0469
 0105 020000      R     LJMP    ?C0470
@@ -2211,7 +2211,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 019A 22                RET     
                                            ; SOURCE LINE # 184
 019B         ?C0392:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 36  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 36  
 
 019B AF83              MOV     R7,DPH
 019D 22                RET     
@@ -2275,7 +2275,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01C8         ?C0407:
 01C8 AF92              MOV     R7,SFR_92h
 01CA 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 37  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 37  
 
                                            ; SOURCE LINE # 201
 01CB         ?C0408:
@@ -2339,7 +2339,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01F7 22                RET     
                                            ; SOURCE LINE # 217
 01F8         ?C0423:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 38  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 38  
 
 01F8 AFA2              MOV     R7,SFR_a2h
 01FA 22                RET     
@@ -2403,7 +2403,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0225         ?C0438:
 0225 AFB1              MOV     R7,SFR_b1h
 0227 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 39  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 39  
 
                                            ; SOURCE LINE # 234
 0228         ?C0439:
@@ -2467,7 +2467,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0254 22                RET     
                                            ; SOURCE LINE # 250
 0255         ?C0454:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 40  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 40  
 
 0255 AFC1              MOV     R7,SFR_c1h
 0257 22                RET     
@@ -2531,7 +2531,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0282         ?C0469:
 0282 AFD0              MOV     R7,SFR_d0h
 0284 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 41  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 41  
 
                                            ; SOURCE LINE # 267
 0285         ?C0470:
@@ -2595,7 +2595,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02B1 22                RET     
                                            ; SOURCE LINE # 283
 02B2         ?C0485:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 42  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 42  
 
 02B2 FF                MOV     R7,A
 02B3 22                RET     
@@ -2659,7 +2659,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02DE         ?C0500:
 02DE AFEF              MOV     R7,SFR_efh
 02E0 22                RET     
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 43  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 43  
 
                                            ; SOURCE LINE # 300
 02E1         ?C0501:
@@ -2723,7 +2723,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 030D 22                RET     
                                            ; SOURCE LINE # 315
 030E         ?C0516:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 44  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 44  
 
 030E AFFF              MOV     R7,SFR_ffh
 0310 22                RET     
@@ -2787,7 +2787,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004D 7A00        R     MOV     R2,#HIGH ?SC_437
 004F 7900        R     MOV     R1,#LOW ?SC_437
 0051 020000      E     LJMP    _Puts
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 45  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 45  
 
                                            ; SOURCE LINE # 344
 0054         L?0608:
@@ -2851,7 +2851,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0047 900000      R     MOV     DPTR,#argv_num2
 004A E0                MOVX    A,@DPTR
 004B 900000      E     MOV     DPTR,#?_Printf?BYTE+04H
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 46  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 46  
 
 004E F0                MOVX    @DPTR,A
 004F 900000      R     MOV     DPTR,#ret
@@ -2915,7 +2915,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00A5 120000      R     LCALL   L?0621
 00A8 900000      R     MOV     DPTR,#ret
 00AB E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 47  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 47  
 
 00AC 900000      E     MOV     DPTR,#?_Printf?BYTE+04H
                                            ; SOURCE LINE # 393
@@ -2979,7 +2979,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0103 C4                SWAP    A
 0104 54F0              ANL     A,#0F0H
 0106 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 48  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 48  
 
                                            ; SOURCE LINE # 406
 0109 120000      R     LCALL   L?0622
@@ -3043,7 +3043,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0162 900000      R     MOV     DPTR,#argv_num2
 0165 EF                MOV     A,R7
 0166 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 49  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 49  
 
                                            ; SOURCE LINE # 425
 0167 A3                INC     DPTR
@@ -3107,7 +3107,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01BD 7900        R     MOV     R1,#LOW ?SC_442
 01BF 020000      R     LJMP    ?C0599
                                            ; SOURCE LINE # 441
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 50  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 50  
 
 01C2         ?C0554:
                                            ; SOURCE LINE # 442
@@ -3171,7 +3171,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0220 F0                MOVX    @DPTR,A
 0221 A3                INC     DPTR
 0222 EF                MOV     A,R7
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 51  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 51  
 
 0223 F0                MOVX    @DPTR,A
 0224         ?C0558:
@@ -3235,7 +3235,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 027A 900000      R     MOV     DPTR,#addr
 027D E0                MOVX    A,@DPTR
 027E 35F0              ADDC    A,B
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 52  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 52  
 
 0280 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
 0283 F0                MOVX    @DPTR,A
@@ -3299,7 +3299,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02D7 120000      E     LCALL   _a2h
 02DA 900000      R     MOV     DPTR,#argv_num1
 02DD EF                MOV     A,R7
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 53  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 53  
 
 02DE F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 524
@@ -3363,7 +3363,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 540
 032F 120000      R     LCALL   L?0607
 0332 7400        R     MOV     A,#HIGH ?SC_834
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 54  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 54  
 
 0334 F0                MOVX    @DPTR,A
 0335 A3                INC     DPTR
@@ -3427,7 +3427,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 038C A3                INC     DPTR
 038D 7400        R     MOV     A,#LOW ?SC_885
 038F 120000      R     LCALL   L?0603
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 55  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 55  
 
 0392 120000      E     LCALL   _stricmp
 0395 EF                MOV     A,R7
@@ -3491,7 +3491,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03DD 6013              JZ      ?C0583
 03DF 120000      R     LCALL   L?0607
 03E2 7400        R     MOV     A,#HIGH ?SC_950
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 56  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 56  
 
 03E4 F0                MOVX    @DPTR,A
 03E5 A3                INC     DPTR
@@ -3555,7 +3555,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0433 EC                MOV     A,R4
 0434 3E                ADDC    A,R6
 0435 8F82              MOV     DPL,R7
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 57  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 57  
 
 0437 F583              MOV     DPH,A
 0439 E0                MOVX    A,@DPTR
@@ -3619,7 +3619,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0490 F0                MOVX    @DPTR,A
 0491 22                RET     
 0492         L?0623:
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 58  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 58  
 
 0492 7BFF              MOV     R3,#0FFH
 0494 7A00        R     MOV     R2,#HIGH ?SC_583
@@ -3628,7 +3628,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 049B 22                RET     
              ; FUNCTION MonitorMCU (END)
 
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 59  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 59  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3691,7 +3691,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
   dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
   dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 60  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 60  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3754,7 +3754,7 @@ SFR_d7h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00D7H  1
 SFR_c8h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00C8H  1
 SFR_b9h. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00B9H  1
 SFR_9bh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   009BH  1
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 61  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 61  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3817,7 +3817,7 @@ SFR_abh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00ABH  1
 SFR_cah. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00CAH  1
 SFR_bbh. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00BBH  1
 SFR_ach. . . . . . . . . . . . . . . .  SFR      DATA   U_CHAR   00ACH  1
-C51 COMPILER V9.00   MONITOR_MCU                                                           05/31/2013 20:18:33 PAGE 62  
+C51 COMPILER V9.00   MONITOR_MCU                                                           06/05/2014 15:34:58 PAGE 62  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

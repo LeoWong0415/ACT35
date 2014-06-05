@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 1   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE FOSDMENU
 OBJECT MODULE PLACED IN .\Output\FOsdMenu.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE FOsdMenu.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE FOsdMenu.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
                     -E MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\FOsdMenu.lst) OBJECT(.\Output\FOsd
                     -Menu.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          void Dummy_FosdMenu_func(void)
   52          {
   53   1              BYTE temp;
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 2   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 2   
 
   54   1              temp = DUMMY_FOSD_MENU_CODE;
   55   1      }
@@ -126,7 +126,7 @@ line level    source
               #define OFFSET_sharpness                4
               #define OFFSET_backlight                5
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 3   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 3   
 
               #define PC_COLOR_DATA   0x80    // StartAddress of EEPROM for PC Color Temperature
               #define PC_USERCOLOR    0x8A
@@ -190,7 +190,7 @@ line level    source
               
                       // perform mapping
                       if ( fromValue <= fromRange->Default ) {
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 4   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 4   
 
                               a = toRange->Default - toRange->Min;
                               b = fromRange->Default - fromRange->Min;
@@ -254,7 +254,7 @@ line level    source
               
               
               //==============================================================
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 5   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 5   
 
               //
               //  OSD Menu Operation Function
@@ -318,7 +318,7 @@ line level    source
                               val = (BYTE)val<<2;
                               y_start = FOsdWinGetY(winno) + val;
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 6   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 6   
 
                               FOsdWinScreenXY(winno, x_start, y_start);
                       }
@@ -382,7 +382,7 @@ line level    source
               //      val
               static void OSDSetRGBContrast( BYTE temp, BYTE val )
               {
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 7   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 7   
 
                       WORD index;
                       BYTE i;
@@ -446,7 +446,7 @@ line level    source
                       OSDItemValue = newval;
                       Mapping1( newval, &UserRange , &toValue, &PCUserColorTempRange);
                       EE_Write( PC_USERCOLOR+color, newval );
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 8   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 8   
 
               
                       newval = EE_Read(0x10) ;
@@ -510,7 +510,7 @@ line level    source
               {
                       int newv, inc;
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 9   
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 9   
 
                       inc = ( flag==FOSD_UP  ? 1  :  -1  );
               
@@ -574,7 +574,7 @@ line level    source
                       if (PcMode >= EE_XGA_60 && PcMode >= EE_XGA_75)
                               scale = (DWORD)PCMDATA[PcMode].HAN-4; //just 1024       for focus issue(1:1).
                       else
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 10  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 10  
 
                               scale = (DWORD)PCMDATA[PcMode].HAN;     
               
@@ -638,7 +638,7 @@ line level    source
                               CODE_P BYTE *WideData;
                               
                               #ifdef SUPPORT_COMPONENT
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 11  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 11  
 
                               if (InputMain== COMPONENT )
                               {
@@ -702,7 +702,7 @@ line level    source
               //      MenuTile[title_item][]...  
               //
               BYTE pushMenu(void)
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 12  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 12  
 
               {
                       #ifdef DEBUG_OSD
@@ -766,7 +766,7 @@ line level    source
                               #endif
                               
                               if ( ( MenuChild[i].Id & 0x0f ) == tid )
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 13  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 13  
 
                                       return i;//break;
                               i = FOsdMenuGetLowerItem(MenuChild, i );
@@ -830,7 +830,7 @@ line level    source
                       dPrintf("\r\nFOsdMenuGetCursorItem(id:%d)", (WORD)id);
               #endif
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 14  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 14  
 
                       switch ( id ) {
                       case FMID_INPUTSELECTION:       
@@ -894,7 +894,7 @@ line level    source
                               x += ICON_CH_SZ;
                       }
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 15  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 15  
 
                       if( DMp->DescColor !=NIL ) {            // Draw Desc.
                               Str = DMp->Desc[OSDLang];
@@ -958,7 +958,7 @@ line level    source
               }
               
               //-------------------------------------------------------------------
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 16  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 16  
 
               // Cursor
               //
@@ -1022,7 +1022,7 @@ line level    source
               //===============================================================================
               
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 17  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 17  
 
               //-------------------------------------------------------------------
               // GetItemValue
@@ -1086,7 +1086,7 @@ line level    source
                       dPrintf(" val:%x", val);
               #endif
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 18  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 18  
 
                       return val;
               }
@@ -1150,7 +1150,7 @@ line level    source
                               if( EE_Read( EEP_VIDEOMODE ) != 3 )  // if not user mode, mask the control.
                                       FOsdRamMemsetAttr(FOSDMENU_SUBADDR+MENU_WIDTH*2, BACK_COLOR, (MENU_HEIGHT-1)*MENU_WIDTH );      
                               else
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 19  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 19  
 
                                       FOsdRamMemsetAttr(FOSDMENU_SUBADDR+MENU_WIDTH*2, DEFAULT_COLOR, (MENU_HEIGHT-1)*MENU_WIDTH );   
                               break;
@@ -1214,7 +1214,7 @@ line level    source
                               if( Bar_str[0] == CH_BAR_000 ) Bar_str[0] = CH_BAR_100; // ...=>|..
                       }
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 20  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 20  
 
                       i = 7;
                       // Number
@@ -1278,7 +1278,7 @@ line level    source
                                       Str += ( TWstrlen(Str) + 1 );
                       }
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 21  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 21  
 
                       if(val){ 
                               for(j=0; j<val; j++)                    
@@ -1342,7 +1342,7 @@ line level    source
                               if(i != NIL) {
                                       FOsdMenuDisplayOneItem(cur_osdwin, &MenuChild[i], x, y, NOTViewflag);
                                       i = FOsdMenuGetLowerItem( MenuChild, i );
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 22  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 22  
 
                               }
                               else {
@@ -1406,7 +1406,7 @@ line level    source
                               popMenu(); 
                               MenuFormat = ( CODE_P struct MenuType *) MenuTitle[title_item].TypeData;
                               MenuChild = MenuTitle[title_item].Child;
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 23  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 23  
 
                               cur_osdwin++;
                       }
@@ -1470,7 +1470,7 @@ line level    source
               }
               
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 24  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 24  
 
               BYTE FOsdMenuDoAction(BYTE id)
               {
@@ -1534,7 +1534,7 @@ line level    source
               
                       switch( flag ) {
                       case FOSD_UP:   new_cursor = FOsdMenuGetUpperItem(  itemno );           break;
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 25  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 25  
 
                       case FOSD_DN:   new_cursor = FOsdMenuGetLowerItem( DMp, itemno );       break;
                       }
@@ -1598,7 +1598,7 @@ line level    source
                       }
               
                       if( OnChangingValue )
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 26  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 26  
 
                               ClearValueWin();
               
@@ -1662,7 +1662,7 @@ line level    source
                       /* case TIME:
                                               //tptr = (CODE_P struct TimeType *)MenuChild[cursor_item].TypeData;
                                               //val = FOsdMenuSetItemValue( (val_index==HOUR ? MenuChild[cursor_item].Id + 1 : MenuChild[cursor_item
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 27  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 27  
 
              -].Id ) , flag);
                                               //if( val_index == HOUR )
@@ -1726,7 +1726,7 @@ line level    source
                       addx = OSDMenuX - OSDMenuXRange.Default;
                       addy = OSDMenuY - OSDMenuYRange.Default;
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 28  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 28  
 
                       #ifdef DEBUG_OSD
                       dPrintf("\r\nOSDMenuX:%d, OSDMenuY:%d", (WORD)OSDMenuX, (WORD)OSDMenuY);
@@ -1790,7 +1790,7 @@ line level    source
               void FOsdMenuInit(void)
               {
                       BYTE i=0;
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 29  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 29  
 
               
                       OSDLang = GetOSDLangEE();
@@ -1854,7 +1854,7 @@ line level    source
                                       BYTE i;
                                       if(OSDLang==OSDLANG_KR) {
                                               //reload font
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 30  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 30  
 
                                               InitFontRamByNum(FONT_NUM_PLUS_RAMFONT, 0);
                                       }
@@ -1918,7 +1918,7 @@ line level    source
                               FOsdMenuGetItemValue(MenuChild[cursor_item].Id);
                               return;
                                                               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 31  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 31  
 
                       case MIT_NUM:   
                               OnChangingValue = 1;
@@ -1982,7 +1982,7 @@ line level    source
               
               BYTE IsAudioMuteOn(void)
               {
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 32  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 32  
 
                       return (BYTE)AudioMuteOn;
               }
@@ -2046,7 +2046,7 @@ line level    source
               {
                       BYTE chg=0;
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 33  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 33  
 
                       if( amount>0 ) {
                               if( ((AudioTreble+amount) <= 100) )     AudioTreble += amount;
@@ -2110,7 +2110,7 @@ line level    source
              -n ); 
               
                       // Display ColorSystem
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 34  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 34  
 
                       #if defined( SUPPORT_PC ) || defined( SUPPORT_DTV )
                       i = InputMain;
@@ -2174,7 +2174,7 @@ line level    source
                       if ( MenuChild[cursor_item].Type==TIME )        return 1;
                       else                                                                            return 0;
               
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 35  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 35  
 
               }
               */
@@ -2184,7 +2184,7 @@ line level    source
 2088          //==========================================
 2089          
 2090          
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 36  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 36  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -2202,7 +2202,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0009 22                RET     
              ; FUNCTION Dummy_FosdMenu_func (END)
 
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 37  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 37  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2265,7 +2265,7 @@ menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
   select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
   item_start . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0003H  1
   item_total . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0004H  1
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 38  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 38  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2328,7 +2328,7 @@ fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
   win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
   alpha_value. . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
   alpha_color_index. . . . . . . . . .  MEMBER   -----  U_CHAR   0008H  1
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 39  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 39  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2391,7 +2391,7 @@ menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
   lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
 menu_image_header_t. . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  17
   lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 40  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 40  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2454,7 +2454,7 @@ FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
   width. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0006H  1
   height . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0007H  1
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 41  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 41  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2518,7 +2518,7 @@ image_item_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  9
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
    CODE SIZE        =     10    ----
-C51 COMPILER V9.00   FOSDMENU                                                              05/31/2013 20:18:35 PAGE 42  
+C51 COMPILER V9.00   FOSDMENU                                                              06/05/2014 15:35:02 PAGE 42  
 
    CONSTANT SIZE    =      1    ----
    XDATA SIZE       =   ----       1

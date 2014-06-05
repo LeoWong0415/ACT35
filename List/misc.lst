@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 1   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MISC
 OBJECT MODULE PLACED IN .\Output\misc.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE misc.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE misc.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
                     -DDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\misc.lst) OBJECT(.\Output\misc.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
               extern void TestUpper256Char(void);
               
               void ChipManualTest_InitPart(void)
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 2   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 2   
 
               {       
                       DCDC_StartUP();
@@ -126,7 +126,7 @@ line level    source
                       if((DebugLevel==0) && (fPowerUpBoot))
                               Printf("\n===> Debugging was OFF (%02bx)", DebugLevel);
                       else 
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 3   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 3   
 
                               ePrintf("\n===> Debugging is ON (%02bx)", DebugLevel);
               
@@ -190,7 +190,7 @@ line level    source
                                       FOsdWinEnable(0, OFF);  //win0, disable..
                       }       
               
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 4   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 4   
 
                       //------------------------
                       // setup eeprom effect
@@ -253,12 +253,12 @@ line level    source
               }
               
               #endif  //..CHIP_MANUAL_TEST
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 5   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 5   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 6   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 6   
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -321,7 +321,7 @@ menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
   osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
   p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
   x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 7   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 7   
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -384,7 +384,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
   dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
   dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 8   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 8   
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -447,7 +447,7 @@ image_info_s . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
   lut_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
   rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
   dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
-C51 COMPILER V9.00   MISC                                                                  05/31/2013 20:18:31 PAGE 9   
+C51 COMPILER V9.00   MISC                                                                  06/05/2014 15:34:56 PAGE 9   
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

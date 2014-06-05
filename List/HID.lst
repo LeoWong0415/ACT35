@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 1   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE HID
 OBJECT MODULE PLACED IN .\Output\HID.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE HID.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE HID.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
                     -DP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\HID.lst) OBJECT(.\Output\HID.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
   52          */
   53          BYTE ActionRemo(BYTE _RemoDataCode, BYTE AutoKey)
   54          {
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 2   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 2   
 
   55   1              DECLARE_LOCAL_page
   56   1              BYTE value;
@@ -126,7 +126,7 @@ line level    source
  114   2                      InputModeNext();
  115   2      //#endif
  116   2                      break;
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 3   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 3   
 
  117   2              case REMO_INFO:
  118   2                      if(MenuGetLevel()==0) {
@@ -190,7 +190,7 @@ line level    source
  176   2                      if(MenuGetLevel())
  177   2                              MenuKeyInput(NAVI_KEY_DOWN);
  178   2      //#endif
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 4   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 4   
 
  179   2                      break;
  180   2              case REMO_VOLUP:
@@ -254,7 +254,7 @@ line level    source
  238   2      //#ifdef SUPPORT_FOSD_MENU
  239   2      //              if(  DisplayedOSD & FOSD_MENU  )                
  240   2      //                      FOsdMenuDoAction(EXITMENU);
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 5   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 5   
 
  241   2      //#else
  242   2                      if(MenuGetLevel() == 1) {
@@ -318,7 +318,7 @@ line level    source
  300          * action for Touch
  301          */
  302          BYTE ActionTouch(void)
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 6   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 6   
 
  303          {
  304   1              BYTE TscStatus;
@@ -382,7 +382,7 @@ line level    source
  362   3                      }
  363   2                      return 0;
  364   2              }
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 7   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 7   
 
  365   1              //else if(TscStatus == TOUCHMOVE) {
  366   1              //      //if lost focus, do something.
@@ -446,7 +446,7 @@ line level    source
  423   1      #ifdef DEBUG_KEYREMO
                       dPrintf("\nGetKey(1):%02bx",key);
               #endif
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 8   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 8   
 
  426   1              if(TaskGetGrid()) {
  427   2                      switch(key) {
@@ -510,7 +510,7 @@ line level    source
                               dPuts("\nMENU pressed!!!");
               #endif
  487   2      #ifdef SUPPORT_FOSD_MENU
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 9   
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 9   
 
                               if(DisplayedOSD & FOSD_MENU)
                                       FOsdHighMenu();
@@ -574,7 +574,7 @@ line level    source
  547   2              break;
  548   2              }
  549   1      }
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 10  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 10  
 
  550          
  551          
@@ -638,14 +638,14 @@ line level    source
  609   1      #else
                       BYTE temp = skip_tsc;
               #endif //DP80390
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 11  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 11  
 
  612   1      
  613   1              return (HINPUT_NO);
  614   1      }
  615          
  616          
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 12  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 12  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -709,7 +709,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002F 8006              SJMP    ?C0123
                                            ; SOURCE LINE # 73
 0031         ?C0007:
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 13  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 13  
 
                                            ; SOURCE LINE # 74
 0031 EE                MOV     A,R6
@@ -773,7 +773,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 007E 3F                DB      03FH
 007F 0000              DW      00H
 0081 0000        R     DW      ?C0013
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 14  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 14  
 
                                            ; SOURCE LINE # 87
 0083         ?C0014:
@@ -837,7 +837,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 133
 00C4         ?C0020:
                                            ; SOURCE LINE # 134
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 15  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 15  
 
 00C4 7F01              MOV     R7,#01H
 00C6 22                RET     
@@ -901,7 +901,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00FB EF                MOV     A,R7
 00FC 7003              JNZ     $ + 5H
 00FE 020000      R     LJMP    ?C0013
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 16  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 16  
 
                                            ; SOURCE LINE # 194
 0101 7F05              MOV     R7,#05H
@@ -965,7 +965,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0146 D3                SETB    C
 0147 9401              SUBB    A,#01H
 0149 4035              JC      ?C0013
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 17  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 17  
 
                                            ; SOURCE LINE # 246
 014B 120000      E     LCALL   proc_menu_list_return
@@ -1029,7 +1029,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 284
                                            ; SOURCE LINE # 286
                                            ; SOURCE LINE # 287
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 18  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 18  
 
                                            ; SOURCE LINE # 289
                                            ; SOURCE LINE # 290
@@ -1093,7 +1093,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 316
 002F 120000      E     LCALL   TaskGetGrid
 0032 EF                MOV     A,R7
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 19  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 19  
 
 0033 6014              JZ      ?C0064
                                            ; SOURCE LINE # 317
@@ -1157,7 +1157,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 334
 0076         ?C0069:
                                            ; SOURCE LINE # 336
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 20  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 20  
 
 0076 7F00              MOV     R7,#00H
 0078 22                RET     
@@ -1221,7 +1221,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00BB EF                MOV     A,R7
 00BC 6440              XRL     A,#040H
 00BE 702C              JNZ     ?C0080
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 21  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 21  
 
 00C0         ?C0082:
                                            ; SOURCE LINE # 371
@@ -1285,7 +1285,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0106 E0                MOVX    A,@DPTR
 0107 FC                MOV     R4,A
 0108 A3                INC     DPTR
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 22  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 22  
 
 0109 E0                MOVX    A,@DPTR
 010A FD                MOV     R5,A
@@ -1349,7 +1349,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003A 6016              JZ      ?C0096
 003C 14                DEC     A
 003D 600F              JZ      ?C0095
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 23  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 23  
 
 003F 14                DEC     A
 0040 6014              JZ      ?C0098
@@ -1413,7 +1413,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 465
 0073 120000      E     LCALL   MenuGetLevel
 0076 EF                MOV     A,R7
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 24  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 24  
 
 0077 603C              JZ      ?C0090
                                            ; SOURCE LINE # 466
@@ -1477,7 +1477,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00AF 020000      E     LJMP    MenuEnd
 00B2         ?C0112:
                                            ; SOURCE LINE # 546
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 25  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 25  
 
 00B2 120000      E     LCALL   InputModeNext
                                            ; SOURCE LINE # 547
@@ -1541,14 +1541,14 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003E         ?C0119:
                                            ; SOURCE LINE # 613
 003E 7F00              MOV     R7,#00H
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 26  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 26  
 
                                            ; SOURCE LINE # 614
 0040         ?C0115:
 0040 22                RET     
              ; FUNCTION _CheckHumanInputs (END)
 
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 27  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 27  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1611,7 +1611,7 @@ menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
 InputMode. . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0000H  1
 InputMain. . . . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
 menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 28  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 28  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1674,7 +1674,7 @@ fosd_menu_item_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  12
 MenuEnd. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 LoadNum. . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_CHAR   0002H  1
 MenuGetLevel . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 29  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 29  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1737,7 +1737,7 @@ _FOsdWinToggleEnable . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
   start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
   length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 30  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 30  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1800,7 +1800,7 @@ FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
 ActionTouch. . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   TscStatus. . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
   ret. . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
-C51 COMPILER V9.00   HID                                                                   05/31/2013 20:18:30 PAGE 31  
+C51 COMPILER V9.00   HID                                                                   06/05/2014 15:34:54 PAGE 31  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

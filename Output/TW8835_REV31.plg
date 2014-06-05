@@ -3,7 +3,177 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-E:\prog\TW8835_E_FW120803B\TW8835_REV31.uvproj
+C:\Users\Administrator\Documents\GitHub\ACT35\TW8835_REV31.uvproj
 Project File Date:  05/30/2013
 
 <h2>Output:</h2>
+Build target 'Target 1'
+compiling CPU.c...
+compiling Util.c...
+compiling Printf.c...
+assembling L51_BANK.A51...
+compiling main.c...
+compiling Host.c...
+compiling SPI.c...
+compiling i2c.c...
+compiling Decoder.c...
+compiling VADC.c...
+compiling measure.c...
+compiling Scaler.c...
+compiling InputCtrl.c...
+compiling ImageCtrl.c...
+compiling OutputCtrl.c...
+compiling Settings.c...
+compiling EEPROM.c...
+compiling Remo.c...
+compiling TouchKey.c...
+compiling HID.c...
+compiling DTV.c...
+compiling PC_modes.c...
+compiling HDMI_EP9351.c...
+compiling HDMI_SIL9127.c...
+compiling misc.c...
+compiling monitor.c...
+MONITOR.C(3149): warning C206: 'DBG_PrintAviInfoFrame': missing function-prototype
+MONITOR.C(3152): warning C206: 'DBG_PrintTimingRegister': missing function-prototype
+MONITOR.C(3155): warning C206: 'DBG_DumpControlRegister': missing function-prototype
+compiling Monitor_MCU.c...
+compiling monitor_SPI.c...
+compiling monitor_menu.c...
+compiling DebugMsg.c...
+compiling OSDFont.c...
+compiling OSDSPI.c...
+compiling FOsdString.c...
+compiling FOsdTable.c...
+compiling FOsdDisplay.c...
+compiling FOsdMenu.c...
+compiling SpiFlashMap.c...
+compiling SOsdMenuMap.c...
+compiling SOsdMenu.c...
+compiling DemoMain.c...
+compiling test_FOSD.c...
+compiling junk.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_READI2C?I2C
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  HDMIINITEP9351CHIP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _HDMIDOWNLOADEDID
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _HDMIDOWNLOADDHCP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  HDMI_SYSTEMINIT_EP9351
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  DBG_PRINTAVIINFOFRAME
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  DBG_PRINTTIMINGREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  DBG_DUMPCONTROLREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  HDMI_SYSTEMINIT_EP9351
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E3DH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  HDMIINITEP9351CHIP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E56H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  DBG_PRINTAVIINFOFRAME
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E6FH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  DBG_PRINTTIMINGREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E88H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  DBG_DUMPCONTROLREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5EA1H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _HDMIDOWNLOADEDID
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5EBEH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _HDMIDOWNLOADDHCP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5EDEH
+*** APPLICATION REQUIRES RE-TRANSLATIONS! ***
+Program Size: data=96.3 xdata=1602 code=126266
+Global register optimization - pass #1
+compiling SpiFlashMap.c...
+compiling SOsdMenu.c...
+compiling DemoMain.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_READI2C?I2C
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  HDMIINITEP9351CHIP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _HDMIDOWNLOADEDID
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _HDMIDOWNLOADDHCP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  HDMI_SYSTEMINIT_EP9351
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  DBG_PRINTAVIINFOFRAME
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  DBG_PRINTTIMINGREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  DBG_DUMPCONTROLREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  HDMI_SYSTEMINIT_EP9351
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E3DH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  HDMIINITEP9351CHIP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E56H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  DBG_PRINTAVIINFOFRAME
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E6FH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  DBG_PRINTTIMINGREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5E88H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  DBG_DUMPCONTROLREGISTER
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5EA1H
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _HDMIDOWNLOADEDID
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5EBEH
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _HDMIDOWNLOADDHCP
+    MODULE:  .\Output\monitor.obj (MONITOR)
+    ADDRESS: 5EDEH
+Program Size: data=96.3 xdata=1602 code=126266
+running oc51 on file ".\Output\TW8835_REV31"...
+BANKED OBJECT FILE CONVERTER  OC51 V3.10
+COPYRIGHT KEIL ELEKTRONIK GmbH 1991 - 2002
+GENERATING STANDARD (UN-BANKED) OBJECT FILES
+  OBJECT FILE FOR BANK 0:  .\OUTPUT\TW8835_REV31.B00
+  OBJECT FILE FOR BANK 1:  .\OUTPUT\TW8835_REV31.B01
+  OBJECT FILE FOR BANK 2:  .\OUTPUT\TW8835_REV31.B02
+  OBJECT FILE FOR BANK 3:  .\OUTPUT\TW8835_REV31.B03
+creating hex file from ".\Output\TW8835_REV31.B00"...
+creating hex file from ".\Output\TW8835_REV31.B01"...
+creating hex file from ".\Output\TW8835_REV31.B02"...
+creating hex file from ".\Output\TW8835_REV31.B03"...
+".\Output\TW8835_REV31" - 0 Error(s), 33 Warning(s).

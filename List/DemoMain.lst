@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 1   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE DEMOMAIN
 OBJECT MODULE PLACED IN .\Output\DemoMain.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE DemoMain.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE DemoMain.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
                     -E MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\DemoMain.lst) OBJECT(.\Output\Demo
                     -Main.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          extern void TaskSetGrid(BYTE onoff);
   52          extern BYTE TaskGetGrid(void);
   53          extern void TaskSetGridCmd(BYTE cmd);   
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 2   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 2   
 
   54          extern BYTE TaskGetGridCmd(void);
   55          
@@ -126,7 +126,7 @@ line level    source
  113          //=============================================================================
  114          //                                 void FontDMA( void )
  115          //=============================================================================
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 3   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 3   
 
  116          #if 0 //move to OSDFont
               void FontDMA( void ) {}
@@ -190,7 +190,7 @@ line level    source
  175   1              SpiOsdWin0ImageOffsetXY( 0, 0 );
  176   1              SpiOsdWinScreen( 0, 200, 40, 400, 400 );
  177   1              SpiOsdWin0Animation( 2/*3*/, 0, 9, 3);
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 4   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 4   
 
  178   1      
  179   1              SpiOsdWinPixelWidth(0, 8);
@@ -254,7 +254,7 @@ line level    source
  237   1              if(WIN_GRID_IMG==0)
  238   1                      SpiOsdWin0Animation( 1, 0, 0, 0);
  239   1              SpiOsdWinPixelAlpha( WIN_GRID_IMG, ON );
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 5   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 5   
 
  240   1              SpiOsdWinPixelWidth(WIN_GRID_IMG, 8);
  241   1              //need RLE
@@ -318,7 +318,7 @@ line level    source
  298          
  299          //=============================================================================
  300          //              void MovingGridLUT( BYTE n )
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 6   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 6   
 
  301          //=============================================================================
  302          void MovingGridLUT( BYTE n )
@@ -382,7 +382,7 @@ line level    source
  360   4                                      WaitVBlank(1);
  361   4                                      SpiOsdWinHWEnable( WIN_GRID_MSG, OFF );
  362   4                                      SpiOsdWinHWEnable( WIN_GRID_IMG, OFF );
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 7   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 7   
 
  363   4                                      SpiOsdEnable(OFF);
  364   4      
@@ -446,7 +446,7 @@ line level    source
  422   2                      //dPrintf("  tic_my:%d Task_Grid_timer:%d", tic_task, Task_Grid_timer);
  423   2                      tic_task = 0;           //reset wait counter.
  424   2      
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 8   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 8   
 
  425   2                      WriteTW88Page(page);
  426   2              }
@@ -488,7 +488,7 @@ line level    source
               void OsdDemoNext(void)  {}
               #endif
  463          
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 9   
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 9   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -552,7 +552,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 E4                CLR     A
 0001 FF                MOV     R7,A
 0002 120000      E     LCALL   _SOsdWinBuffClean
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 10  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 10  
 
                                            ; SOURCE LINE # 148
 0005 900000      E     MOV     DPTR,#?_SpiOsdWinImageLoc?BYTE+01H
@@ -616,7 +616,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005A 0D                INC     R5
 005B E4                CLR     A
 005C FF                MOV     R7,A
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 11  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 11  
 
 005D 120000      E     LCALL   _SpiOsdWinBuffEnable
                                            ; SOURCE LINE # 158
@@ -680,7 +680,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0015 FF                MOV     R7,A
 0016 120000      E     LCALL   _SpiOsdWinImageLoc
                                            ; SOURCE LINE # 174
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 12  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 12  
 
 0019 7B90              MOV     R3,#090H
 001B 7A01              MOV     R2,#01H
@@ -744,7 +744,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 006F 7BFF              MOV     R3,#0FFH
 0071 7A00        R     MOV     R2,#HIGH ?SC_50
 0073 7900        R     MOV     R1,#LOW ?SC_50
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 13  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 13  
 
 0075 120000      E     LCALL   _dPuts
                                            ; SOURCE LINE # 184
@@ -808,7 +808,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 235
 0021         ?C0003:
                                            ; SOURCE LINE # 236
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 14  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 14  
 
 0021 900000      E     MOV     DPTR,#?_SpiOsdWinScreen?BYTE+05H
 0024 7402              MOV     A,#02H
@@ -872,7 +872,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 007D E4                CLR     A
 007E FD                MOV     R5,A
 007F FC                MOV     R4,A
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 15  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 15  
 
 0080 FF                MOV     R7,A
 0081 FE                MOV     R6,A
@@ -936,7 +936,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D3 7F01              MOV     R7,#01H
 00D5 120000      E     LCALL   _WaitVBlank
                                            ; SOURCE LINE # 264
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 16  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 16  
 
 00D8 120000      R     LCALL   L?0039
 00DB A3                INC     DPTR
@@ -1000,7 +1000,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002B E0                MOVX    A,@DPTR
 002C FE                MOV     R6,A
 002D A3                INC     DPTR
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 17  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 17  
 
 002E E0                MOVX    A,@DPTR
 002F FF                MOV     R7,A
@@ -1064,7 +1064,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002E FD                MOV     R5,A
 002F E4                CLR     A
 0030 33                RLC     A
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 18  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 18  
 
 0031 FC                MOV     R4,A
 0032 900000      E     MOV     DPTR,#?_SpiOsdLoadLUT?BYTE+06H
@@ -1128,7 +1128,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0012 120000      E     LCALL   TaskGetGridCmd
 0015 900000      R     MOV     DPTR,#GridCmd
 0018 EF                MOV     A,R7
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 19  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 19  
 
 0019 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 355
@@ -1192,7 +1192,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0066 B40310            CJNE    A,#03H,?C0017
                                            ; SOURCE LINE # 376
 0069 900000      R     MOV     DPTR,#Task_Grid_dt
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 20  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 20  
 
 006C E0                MOVX    A,@DPTR
 006D C3                CLR     C
@@ -1256,7 +1256,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00AA D3                SETB    C
 00AB 940A              SUBB    A,#0AH
 00AD 4005              JC      ?C0024
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 21  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 21  
 
                                            ; SOURCE LINE # 398
 00AF E0                MOVX    A,@DPTR
@@ -1320,7 +1320,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00E9 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 417
 00EA         ?C0031:
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 22  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 22  
 
                                            ; SOURCE LINE # 418
 00EA 900000      R     MOV     DPTR,#Task_Grid_n
@@ -1347,7 +1347,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0104 22                RET     
              ; FUNCTION MovingGridTask (END)
 
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 23  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 23  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1410,7 +1410,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   hsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
   vsyncpol . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
   hstart . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 24  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 24  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1473,7 +1473,7 @@ FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   bpp2 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
   bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
   bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
-C51 COMPILER V9.00   DEMOMAIN                                                              05/31/2013 20:18:44 PAGE 25  
+C51 COMPILER V9.00   DEMOMAIN                                                              06/05/2014 15:35:16 PAGE 25  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

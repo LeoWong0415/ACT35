@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 1   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE REMO
 OBJECT MODULE PLACED IN .\Output\Remo.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Remo.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Remo.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
                     -DDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Remo.lst) OBJECT(.\Output\Remo.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
   52          
   53          //=============================================================================
   54          //              CheckRemo
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 2   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 2   
 
   55          //=============================================================================
   56          
@@ -126,7 +126,7 @@ line level    source
  114   1              if( LastToggle != togglebit ) {                 // new key
  115   2                      AutoWait =  0;
  116   2              }
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 3   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 3   
 
  117   1              else {                                                          // auto key
  118   2                      if(AutoWait < 4) {                              // wait 4 auto key
@@ -190,7 +190,7 @@ line level    source
                               for(i=0; i < 14;i++) {
                                       if(i==0) dPuts("\nstart:");
                                       if(i==2) dPuts(" toggle:");
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 4   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 4   
 
                                       if(i==3) dPuts("\nADDR:");
                                       if(i==8) dPuts("\nCMD:");
@@ -254,7 +254,7 @@ line level    source
                       }
               
                       if(     RemoDataReady == 1) {
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 5   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 5   
 
                               #ifdef DEBUG_KEYREMO
                               dPrintf("\r\nNEC RemoData = %02bx %02bx %02bx %02bx", RemoData[0], RemoData[1], RemoData[2], RemoData[3]
@@ -318,7 +318,7 @@ line level    source
                               wPrintf("BUG:invalid RemoDataReady:%bd", RemoDataReady);
                       }
                       
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 6   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 6   
 
               
                       EnableRemoInt();
@@ -357,7 +357,7 @@ line level    source
  336   1      }
  337          
  338          
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 7   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 7   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -421,7 +421,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002B FB                MOV     R3,A
 002C C000              PUSH    AR0
 002E 7800        E     MOV     R0,#LOW RemoReceivedTime
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 8   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 8   
 
 0030 120000      E     LCALL   ?C?LLDIDATA
 0033 D000              POP     AR0
@@ -485,7 +485,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0081 FF                MOV     R7,A
 ;---- Variable 'togglebit' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 107
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 9   
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 9   
 
 0082 900000      R     MOV     DPTR,#_RemoSystemCode
 0085 E0                MOVX    A,@DPTR
@@ -549,7 +549,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 321
                                            ; SOURCE LINE # 322
                                            ; SOURCE LINE # 324
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 10  
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 10  
 
 0000 E4                CLR     A
 0001 900000      R     MOV     DPTR,#ret
@@ -592,7 +592,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0035 22                RET     
              ; FUNCTION CheckRemo (END)
 
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 11  
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 11  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -655,7 +655,7 @@ CheckRemo. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   AutoKey. . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
   _RemoDataCode. . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0001H  1
   ret. . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0002H  1
-C51 COMPILER V9.00   REMO                                                                  05/31/2013 20:18:30 PAGE 12  
+C51 COMPILER V9.00   REMO                                                                  06/05/2014 15:34:54 PAGE 12  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

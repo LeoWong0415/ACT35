@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 1   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE EEPROM
 OBJECT MODULE PLACED IN .\Output\EEPROM.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE EEPROM.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE 
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE EEPROM.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE 
                     -MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\EEPROM.lst) OBJECT(.\Output\EEPROM.o
                     -bj)
 
@@ -62,7 +62,7 @@ line level    source
               #else
   52   1              if( EE_Read(3) != '5' ) return 0;               //5
   53   1      #endif
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 2   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 2   
 
   54   1      
   55   1              rev = (WORD)EE_Read(EEP_FWREV_MAJOR);
@@ -126,7 +126,7 @@ line level    source
                       return EE_Read(EEP_WIDEMODE);
               }
               void SaveWideModeEE(BYTE dl)
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 3   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 3   
 
               {
                       EE_Write(EEP_WIDEMODE, dl);
@@ -190,7 +190,7 @@ line level    source
  175          //=============================================================================
  176          #ifdef SUPPORT_FOSD_MENU
               /**
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 4   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 4   
 
               * get OSDPosition Move value
               */
@@ -254,7 +254,7 @@ line level    source
  237          //      EE[33]  EEP_BT656
  238          //-----------------------------------------------------------------------------------------
  239          
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 5   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 5   
 
  240          //=============================================================================
  241          //
@@ -318,7 +318,7 @@ line level    source
  299   1              InputMain = CurInput;
  300   1              //SetVideoMode(USER_VIDEOMODE);
  301   1      }
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 6   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 6   
 
  302          
  303          
@@ -382,7 +382,7 @@ line level    source
  361          //=============================================================================
  362          // EE[0x3F]     EEP_DVI_MODE
  363          //=============================================================================
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 7   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 7   
 
  364          #if 0
               /**
@@ -446,7 +446,7 @@ line level    source
  423          
  424          //=============================================================================
  425          //      EE[0x94]        EEP_ADC_GAIN_START
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 8   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 8   
 
  426          //=============================================================================
  427          
@@ -510,7 +510,7 @@ line level    source
                       #ifdef NTSC_TV
                       EE_Write(CHN_CURAIR, TVChannel);
                       TVInputSel = AIRTV; SetFineTuneEE(TVChannel, 0); //E2(55.25 Mhz)
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 9   
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 9   
 
                       EE_Write(CHN_CURCABLE, TVChannel);
                       TVInputSel = CABLETV;   SetFineTuneEE(TVChannel, 0); //E2(55.25 Mhz)
@@ -574,7 +574,7 @@ line level    source
  547   1              //---------------------
  548   1              // Link EEPROM(SFlash)
  549   1              ret=EE_FindCurrInfo();  //<--first EE function.
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 10  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 10  
 
  550   1              if(ret)
  551   1                      EE_RepairMoveDone();
@@ -638,7 +638,7 @@ line level    source
  609          /**
  610          * get PC Data
  611          */
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 11  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 11  
 
  612          BYTE GetPCDataEE(BYTE mode, BYTE offset)
  613          {
@@ -702,7 +702,7 @@ line level    source
  671          /**
  672          * save Phase value
  673          */
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 12  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 12  
 
  674          void SavePhaseEE(BYTE mode, BYTE val)
  675          {
@@ -766,7 +766,7 @@ line level    source
  733          //return:
  734          /**
  735          * get Horizontal Active value
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 13  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 13  
 
  736          */
  737          char GetHActiveEE(BYTE mode)
@@ -830,7 +830,7 @@ line level    source
               {
                       WriteEEP(EE_VDELAY, val);
               }
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 14  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 14  
 
               
               void SaveTRSP_Start(BYTE val)
@@ -894,7 +894,7 @@ line level    source
               */
               void SaveADCGainOffsetForDTVEE(BYTE mod)
               {
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 15  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 15  
 
                       BYTE i, dat;
               
@@ -945,7 +945,7 @@ line level    source
  906   1              dPrintf("\nInitPCDataEE start:%lx end+1:%x", EE_PCDATA, index);
  907   1      }
  908          #endif
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 16  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 16  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1009,7 +1009,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000D 7F01              MOV     R7,#01H
 000F 120000      R     LCALL   L?0064
 0012 6438              XRL     A,#038H
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 17  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 17  
 
 0014 6002              JZ      ?C0003
 0016         ?C0049:
@@ -1073,7 +1073,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0066 4F                ORL     A,R7
 0067 FF                MOV     R7,A
 0068 900000      R     MOV     DPTR,#rev
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 18  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 18  
 
 006B EE                MOV     A,R6
 006C F0                MOVX    @DPTR,A
@@ -1137,7 +1137,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001D 7E00              MOV     R6,#00H
 001F 120000      E     LCALL   _EE_Write
                                            ; SOURCE LINE # 74
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 19  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 19  
 
 0022 7D35              MOV     R5,#035H
 0024 7F03              MOV     R7,#03H
@@ -1201,7 +1201,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 213
                                            ; SOURCE LINE # 214
 0000 AD07              MOV     R5,AR7
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 20  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 20  
 
 0002 7F0F              MOV     R7,#0FH
 0004 7E00              MOV     R6,#00H
@@ -1265,7 +1265,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001D 6404              XRL     A,#04H
 001F 6004              JZ      ?C0017
 0021 EF                MOV     A,R7
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 21  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 21  
 
 0022 B40510            CJNE    A,#05H,?C0016
 0025         ?C0017:
@@ -1329,7 +1329,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0070 900000      E     MOV     DPTR,#InputMain
 0073 E0                MOVX    A,@DPTR
 0074 04                INC     A
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 22  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 22  
 
 0075 F0                MOVX    @DPTR,A
 0076 8095              SJMP    ?C0013
@@ -1393,7 +1393,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 377
 ;---- Variable 'mode' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 378
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 23  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 23  
 
                                            ; SOURCE LINE # 379
 0000 AD07              MOV     R5,AR7
@@ -1457,7 +1457,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0019 120000      R     LCALL   ResetAudioValue
                                            ; SOURCE LINE # 463
 001C 7F3F              MOV     R7,#03FH
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 24  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 24  
 
                                            ; SOURCE LINE # 467
 001E 120000      R     LCALL   L?0052
@@ -1521,7 +1521,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION ClearBasicEE (END)
 
              ; FUNCTION InitializeEE (BEGIN)
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 25  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 25  
 
                                            ; SOURCE LINE # 525
                                            ; SOURCE LINE # 526
@@ -1585,7 +1585,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0039 7BFF              MOV     R3,#0FFH
 003B 7A00        R     MOV     R2,#HIGH ?SC_217
 003D 7900        R     MOV     R1,#LOW ?SC_217
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 26  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 26  
 
 003F 120000      E     LCALL   _Printf
                                            ; SOURCE LINE # 564
@@ -1649,7 +1649,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'mode' assigned to Register 'R7' ----
 ;---- Variable 'val' assigned to Register 'R3' ----
 ;---- Variable 'offset' assigned to Register 'R5' ----
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 27  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 27  
 
                                            ; SOURCE LINE # 622
                                            ; SOURCE LINE # 624
@@ -1713,7 +1713,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _SavePhaseEE (BEGIN)
                                            ; SOURCE LINE # 674
 ;---- Variable 'val' assigned to Register 'R5' ----
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 28  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 28  
 
 ;---- Variable 'mode' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 675
@@ -1777,7 +1777,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _SaveHActiveEE (END)
 
              ; FUNCTION InitPCDataEE (BEGIN)
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 29  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 29  
 
                                            ; SOURCE LINE # 891
                                            ; SOURCE LINE # 892
@@ -1841,7 +1841,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'index' assigned to Register 'R6/R7' ----
                                            ; SOURCE LINE # 906
 0054 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 30  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 30  
 
 0056 7A00        R     MOV     R2,#HIGH ?SC_308
 0058 7900        R     MOV     R1,#LOW ?SC_308
@@ -1867,7 +1867,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0076 22                RET     
              ; FUNCTION InitPCDataEE (END)
 
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 31  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 31  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1930,7 +1930,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
 GetHdmiModeEE. . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
 _SaveCalibDataToEE . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _GetPCDataEE . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 32  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 32  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1993,7 +1993,7 @@ _GetVBackPorchEE . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   mode . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
   index. . . . . . . . . . . . . . . .  * REG *  DATA   U_INT    0006H  2
 _Printf. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
-C51 COMPILER V9.00   EEPROM                                                                05/31/2013 20:18:30 PAGE 33  
+C51 COMPILER V9.00   EEPROM                                                                06/05/2014 15:34:52 PAGE 33  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

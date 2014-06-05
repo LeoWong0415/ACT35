@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 1   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE DEBUGMSG
 OBJECT MODULE PLACED IN .\Output\DebugMsg.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE DebugMsg.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE DebugMsg.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
                     -E MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\DebugMsg.lst) OBJECT(.\Output\Debu
                     -gMsg.obj)
 
@@ -62,7 +62,7 @@ line level    source
               //#if 1 //BK120214 I need memory
               //      BYTE temp = vcode;
               //#else
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 2   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 2   
 
                       switch(vcode) {
                       case 1: dPuts("640x480p@60"); break;
@@ -126,7 +126,7 @@ line level    source
                       case 59: dPuts("720(1440)x480i @ 239.76/240Hz Pixel sent 2 times"); break;
                       default: dPrintf("Unknown:%bx",vcode); break;
                       }
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 3   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 3   
 
               //#endif
               }
@@ -190,7 +190,7 @@ line level    source
                       else if ( i==1 ) Puts("SMPTE 170M, ITU601");
                       else if ( i==2 ) Puts("ITU709");
                       else {
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 4   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 4   
 
                               Printf("Extended Colorimetry Info - %bd", (cVal[4]&0x70)>>4);
                               Puts("\n    0: xvYCC601");
@@ -254,7 +254,7 @@ line level    source
                       HTotal = HSync + HBPorch + HActive + HFPorch;
                       VTotal = VSync + VBPorch + VActive + VFPorch;
               
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 5   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 5   
 
                       HPol = Status & 0x40 ? 1:0;     //ActiveLow
                       VPol = Status & 0x80 ? 1:0;     //ActiveLow
@@ -318,7 +318,7 @@ line level    source
                       BYTE hPol_vPol;
                       WORD hSync,hBPorch,hBlank;      //hFPorch=hBlank-hSync-hBPorch;
                       WORD vSync,vBPorch,vBlank;
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 6   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 6   
 
                       BYTE hFreq_hi;
                       WORD hFreq_lo;
@@ -382,7 +382,7 @@ line level    source
              -CRT/Dig 770.2 [19]
               {16,1920,1080,PI_P|ASPECT_169,  /*2200,1125,*/  0x11,   44,148,280,     5,36,45,        67,500, 60,  0},        // 148.500,              
              -Dig
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 7   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 7   
 
               
               {18, 720, 576,PI_P|ASPECT_BOTH, /*864, 625,     */      0x00,   64,68,144,      5,39,49,        31,250, 50,  0},        //   27.000       
@@ -446,7 +446,7 @@ line level    source
                                       if(DviTable[i].aspect_p & ASPECT_169) Printf("16:9 ");
               
                                       Printf("%dx%d ",
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 8   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 8   
 
                                               DviTable[i].hActive+DviTable[i].hBlank,
                                               DviTable[i].vActive+DviTable[i].vBlank);        
@@ -471,7 +471,7 @@ line level    source
               
               
               #endif //..SUPPORT_HDMI_EP9351
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 9   
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 9   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -489,7 +489,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0009 22                RET     
              ; FUNCTION Dummy_DebugMsg_func (END)
 
-C51 COMPILER V9.00   DEBUGMSG                                                              05/31/2013 20:18:34 PAGE 10  
+C51 COMPILER V9.00   DEBUGMSG                                                              06/05/2014 15:35:00 PAGE 10  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

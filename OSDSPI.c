@@ -335,6 +335,8 @@ void SOsdWinBuffWrite2Hw(BYTE start, BYTE end)
 		//	dPrintf("%bx ",SpiWinBuff[i*16+j]);	
 		//}
 		//dPrintf("::%bx",*data_p);	
+		WaitVBlank(1);
+		SpiOsdWinHWEnable(1, 0);
 
 		WriteTW88(reg_i++, *data_p++);	//0
 		WriteTW88(reg_i++, *data_p++);	//1
@@ -351,6 +353,7 @@ void SOsdWinBuffWrite2Hw(BYTE start, BYTE end)
 		WriteTW88(reg_i++, *data_p++);	//C
 		WriteTW88(reg_i++, *data_p++);	//D
 		WriteTW88(reg_i++, *data_p++);	//E
+		SpiOsdWinHWEnable(1, 1);
 		if(i) {
 			data_p++;						//F
 		}

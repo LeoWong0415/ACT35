@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 1   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE TEST_FOSD
 OBJECT MODULE PLACED IN .\Output\test_FOSD.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE test_FOSD.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROW
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE test_FOSD.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROW
                     -SE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\test_FOSD.lst) OBJECT(.\Output\te
                     -st_FOSD.obj)
 
@@ -62,7 +62,7 @@ line level    source
               //128 - 2BPP
               //
               //256 - 3bpp
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 2   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 2   
 
               //
               //384 - 4bpp
@@ -126,7 +126,7 @@ line level    source
  113   1              //disable all FontOsd/SpiOsd Windows
  114   1              InitFontRamByNum(FONT_NUM_DEF12X18, 0); //InitFontRam(0, &default_font,"def");
  115   1              //FOsdInitBpp3AlphaTable();
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 3   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 3   
 
  116   1              for(i=0; i < 4; i++) {
  117   2                      FOsdWinInit(i);
@@ -190,7 +190,7 @@ line level    source
  175   1              BYTE bgColor = 1;
  176   1              BYTE columns = 16;
  177   1              BYTE lines = 10;
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 4   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 4   
 
  178   1              BYTE max = 160;
  179   1      
@@ -254,7 +254,7 @@ line level    source
  237   1      
  238   1              BYTE fgColor = 15;
  239   1              BYTE bgColor = 1;
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 5   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 5   
 
  240   1              BYTE columns = 16;
  241   1              BYTE lines = 20;
@@ -318,7 +318,7 @@ line level    source
  298   1      
  299   1              //working 
  300   1              WriteTW88(REG304, ReadTW88(REG304) | 0x20);     //set UP256 before update attr.
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 6   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 6   
 
  301   1      
  302   1              FOsdRamSetAddrAttr(0x100, (bgColor << 4) | fgColor);
@@ -382,7 +382,7 @@ line level    source
  359   1      
  360   1      
  361   1              FOsdWinScreenXY(fosd->win, 0,0);                //0x20, 0x10);          //max 512 = 32x16
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 7   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 7   
 
  362   1              FOsdWinScreenWH(fosd->win, columns, lines);             //0x20, 0x10);          //max 512 = 32x16
  363   1              FOsdWinZoom(fosd->win, 1, 0);                                           //fosd->zoom>>4, fosd->zoom & 0x0F);
@@ -446,7 +446,7 @@ line level    source
  420                  0xF7DE,0x0000,0x5AAB,0xC000
  421          }; 
  422          
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 8   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 8   
 
  423          code WORD consolas16x26_606C90_3BPP[8] = {
  424                  0xFFFF,0x0000,0xDEDB,0x9492,0x6B6D,0xB5B6,0x4A49,0x2124
@@ -510,7 +510,7 @@ line level    source
  482          //      |10             Lime                                    
  483          //      |9              Blue                                    
  484          //      |8              Silver                                  
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 9   
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 9   
 
  485          //      |7              Gray                                    
  486          //      |6              DK Yellow                                       
@@ -574,7 +574,7 @@ line level    source
                       for(i=0; i < 10; i++) {
                               WriteTW88(REG307, i+0x10);
                       }
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 10  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 10  
 
                       palette = 48;
                       FOsdSetPaletteColorArray(palette, consolas16x26_606C90_4BPP, 16, 0);    //BUG_BANK
@@ -638,7 +638,7 @@ line level    source
  606   1              //forth line - 3BPP with Black & alpha.
  607   1              palette = FOSD_LUT_MAP_BPP3_START;
  608   1              FOsdWinSetBpp3Alpha(fosd->win,palette); //use BPP3_alpha_lut_offset[].
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 11  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 11  
 
  609   1              FOsdSetPaletteColor(palette, FOSD_COLOR_VALUE_BLACK, 8, 0);     //all black             
  610   1              FOsdRamSetAddrAttr(30, palette >> 2);           //multi-bpp
@@ -702,7 +702,7 @@ line level    source
  668   1              /*D:Magenta*/           FOSD_COLOR_VALUE_MAGENTA,
  669   1              /*E:Yellow*/            FOSD_COLOR_VALUE_YELLOW,
  670   1              /*F:White*/                     FOSD_COLOR_VALUE_WHITE 
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 12  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 12  
 
  671   1              };
  672   1      
@@ -766,7 +766,7 @@ line level    source
  730   1              FOsdWinScreenXY(FOSD_WIN2,80,37*2);
  731   1              FOsdWinScreenWH(FOSD_WIN2,16,1);
  732   1              FOsdWinZoom(FOSD_WIN2, 2, 1);
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 13  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 13  
 
  733   1              FOsdWinSetOsdRamStartAddr(FOSD_WIN2,WIN2_OSDRAM);
  734   1              FOsdWinEnable(FOSD_WIN2,ON);
@@ -778,7 +778,7 @@ line level    source
  740          //}
  741          
  742          
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 14  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 14  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -842,7 +842,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0041 35F0              ADDC    A,B
 0043 22                RET     
 0044         L?0106:
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 15  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 15  
 
 0044 740C              MOV     A,#0CH
 0046         L?0107:
@@ -906,7 +906,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0084 F0                MOVX    @DPTR,A
 0085 E500        E     MOV     A,regTW88+01H
 0087 2404              ADD     A,#04H
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 16  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 16  
 
 0089 22                RET     
 008A         L?0121:
@@ -970,7 +970,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D5 EF                MOV     A,R7
 00D6 F0                MOVX    @DPTR,A
 00D7         L?0134:
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 17  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 17  
 
 00D7 900000      R     MOV     DPTR,#i
 00DA E0                MOVX    A,@DPTR
@@ -1034,7 +1034,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0038 7F01              MOV     R7,#01H
 003A 120000      E     LCALL   _WaitVBlank
                                            ; SOURCE LINE # 122
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 18  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 18  
 
 003D 900000      R     MOV     DPTR,#fosd
 0040 120000      R     LCALL   L?0097
@@ -1098,7 +1098,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00A1 25E0              ADD     A,ACC
 00A3 FF                MOV     R7,A
 00A4 EE                MOV     A,R6
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 19  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 19  
 
 00A5 33                RLC     A
 00A6 FE                MOV     R6,A
@@ -1162,7 +1162,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F0         ?C0006:
 00F0 900000      R     MOV     DPTR,#i
 00F3 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 20  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 20  
 
 00F4 04                INC     A
 00F5 F0                MOVX    @DPTR,A
@@ -1226,7 +1226,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003B E4                CLR     A
 003C FD                MOV     R5,A
 003D FC                MOV     R4,A
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 21  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 21  
 
 003E 120000      E     LCALL   _FOsdWinSetOsdRamStartAddr
                                            ; SOURCE LINE # 195
@@ -1290,7 +1290,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 009F C3                CLR     C
 00A0 9F                SUBB    A,R7
 00A1 5047              JNC     ?C0016
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 22  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 22  
 
                                            ; SOURCE LINE # 208
 ;---- Variable 'j' assigned to Register 'R4' ----
@@ -1354,7 +1354,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00E7 0D                INC     R5
 00E8 80AF              SJMP    ?C0015
 00EA         ?C0016:
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 23  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 23  
 
                                            ; SOURCE LINE # 219
 00EA E500        E     MOV     A,regTW88+01H
@@ -1418,7 +1418,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0039 FD                MOV     R5,A
 003A 120000      E     LCALL   _FOsdWinEnable
                                            ; SOURCE LINE # 256
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 24  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 24  
 
 003D E4                CLR     A
 003E FD                MOV     R5,A
@@ -1482,7 +1482,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0097 120000      R     LCALL   L?0129
 009A 5014              JNC     ?C0026
                                            ; SOURCE LINE # 280
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 25  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 25  
 
 009C 120000      R     LCALL   L?0103
 009F A3                INC     DPTR
@@ -1546,7 +1546,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F4 7D10              MOV     R5,#010H
 00F6         ?C0030:
 00F6 900000      R     MOV     DPTR,#lines
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 26  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 26  
 
 00F9 E0                MOVX    A,@DPTR
 00FA FF                MOV     R7,A
@@ -1610,7 +1610,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0141 E500        E     MOV     A,regTW88+01H
 0143 2404              ADD     A,#04H
 0145 120000      R     LCALL   L?0102
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 27  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 27  
 
                                            ; SOURCE LINE # 319
 0148 120000      R     LCALL   L?0119
@@ -1674,7 +1674,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0043 900000      R     MOV     DPTR,#fosd
 0046 120000      R     LCALL   L?0097
 0049 900000      R     MOV     DPTR,#columns
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 28  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 28  
 
 004C E0                MOVX    A,@DPTR
 004D FD                MOV     R5,A
@@ -1738,7 +1738,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 378
 00A2 120000      R     LCALL   L?0100
 00A5 EF                MOV     A,R7
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 29  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 29  
 
 00A6 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 379
@@ -1802,7 +1802,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F2 E0                MOVX    A,@DPTR
 00F3 FE                MOV     R6,A
 00F4 A3                INC     DPTR
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 30  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 30  
 
 00F5 E0                MOVX    A,@DPTR
 00F6 7802              MOV     R0,#02H
@@ -1866,7 +1866,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0146 120000      R     LCALL   L?0102
 0149 E0                MOVX    A,@DPTR
 014A 4440              ORL     A,#040H
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 31  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 31  
 
 014C F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 407
@@ -1930,7 +1930,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0048 120000      R     LCALL   L?0123
 004B E5F0              MOV     A,B
 004D FF                MOV     R7,A
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 32  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 32  
 
 004E E500        E     MOV     A,regTW88+01H
 0050 240D              ADD     A,#0DH
@@ -1994,7 +1994,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002C FD                MOV     R5,A
 002D 120000      E     LCALL   _FOsdWinEnable
                                            ; SOURCE LINE # 527
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 33  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 33  
 
 0030 E4                CLR     A
 0031 FD                MOV     R5,A
@@ -2058,7 +2058,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008C 120000      R     LCALL   L?0125
 008F 120000      R     LCALL   L?0101
 0092 EE                MOV     A,R6
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 34  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 34  
 
 0093 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 570
@@ -2122,7 +2122,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00E5 EE                MOV     A,R6
 00E6 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 605
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 35  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 35  
 
 00E7 0F                INC     R7
 00E8 EF                MOV     A,R7
@@ -2186,7 +2186,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0138         ?C0068:
                                            ; SOURCE LINE # 624
 0138 E500        E     MOV     A,regTW88+01H
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 36  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 36  
 
 013A 2404              ADD     A,#04H
 013C 120000      R     LCALL   L?0102
@@ -2250,7 +2250,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0003 EF                MOV     A,R7
 0004 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 646
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 37  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 37  
 
                                            ; SOURCE LINE # 647
 0005 E4                CLR     A
@@ -2314,7 +2314,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005C E0                MOVX    A,@DPTR
 005D B408E3            CJNE    A,#08H,?C0071
 0060         ?C0072:
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 38  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 38  
 
                                            ; SOURCE LINE # 690
 0060 E4                CLR     A
@@ -2378,7 +2378,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00B5 7F01              MOV     R7,#01H
 00B7 7E00              MOV     R6,#00H
 00B9 120000      E     LCALL   _delay1ms
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 39  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 39  
 
                                            ; SOURCE LINE # 705
 00BC         ?C0079:
@@ -2442,7 +2442,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0109 FC                MOV     R4,A
 010A FF                MOV     R7,A
 010B 120000      E     LCALL   _FOsdWinScreenXY
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 40  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 40  
 
                                            ; SOURCE LINE # 719
 010E 7B01              MOV     R3,#01H
@@ -2506,7 +2506,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 016D 120000      R     LCALL   L?0137
 0170 7F02              MOV     R7,#02H
 0172 120000      E     LCALL   _FOsdWinEnable
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 41  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 41  
 
                                            ; SOURCE LINE # 736
 0175 E4                CLR     A
@@ -2546,7 +2546,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01A7 22                RET     
              ; FUNCTION _FOsdTest_1 (END)
 
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 42  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 42  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2609,7 +2609,7 @@ menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
   texts. . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0008H  3
 menu_page_info_t . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  11
   type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 43  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 43  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2672,7 +2672,7 @@ RLE2_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  16
 _FOsdWinScreenWH . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _delay1ms. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _FOsdWinSetOsdRamStartAddr . . . . . .  EXTERN   CODE   PROC     -----  -----
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 44  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 44  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2735,7 +2735,7 @@ menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
   rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000AH  1
   dx . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000BH  2
   dy . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 45  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 45  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2798,7 +2798,7 @@ SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
 consolas16x26_606C90_4BPP. . . . . . .  PUBLIC   CODE   ARRAY    0038H  32
 SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
   start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 46  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 46  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2861,7 +2861,7 @@ LongRegisterInfo . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
   Min. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0000H  2
   Max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0002H  2
   Default. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
-C51 COMPILER V9.00   TEST_FOSD                                                             05/31/2013 20:18:44 PAGE 47  
+C51 COMPILER V9.00   TEST_FOSD                                                             06/05/2014 15:35:09 PAGE 47  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

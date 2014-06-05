@@ -1158,6 +1158,7 @@ void InitWithNTSC(void)
 #endif
 
 	WriteTW88Page(PAGE0_GENERAL);
+	WriteTW88(REG0D6, 0x01);
 							//SSPLL FREQ R0F8[3:0]R0F9[7:0]R0FA[7:0]
 #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
 	WriteTW88(REG0F8, 0x01);	//65MHz

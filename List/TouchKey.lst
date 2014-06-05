@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 1   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE TOUCHKEY
 OBJECT MODULE PLACED IN .\Output\TouchKey.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE TouchKey.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE TouchKey.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
                     -E MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\TouchKey.lst) OBJECT(.\Output\Touc
                     -hKey.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          #define ADC_MODE_Z2             2
   52          #define ADC_MODE_Y              3
   53          #define ADC_MODE_AUX0   4
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 2   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 2   
 
   54          #define ADC_MODE_AUX1   5
   55          #define ADC_MODE_AUX2   6
@@ -126,7 +126,7 @@ line level    source
               #else
                       ADC = _TscGetAdcDataOutput(0x40+ channel);
               #endif
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 3   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 3   
 
                       WriteTW88Page(page );
                       return ( ADC );
@@ -190,7 +190,7 @@ line level    source
  173          
  174          #if defined(MODEL_TW8835) || defined(MODEL_TW8836)
  175          #define KEYPAD_INPUT    3
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 4   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 4   
 
  176          #else
               #define KEYPAD_INPUT    0
@@ -254,7 +254,7 @@ line level    source
                       case 2: Puts("KEY_MENU");               break;
                       case 3: Puts("KEY_UP");                 break;
                       case 4: Puts("KEY_DOWN");               break;
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 5   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 5   
 
                       case 5: Puts("KEY_RIGHT");              break;
                       case 6: Puts("KEY_LEFT");               break;
@@ -318,7 +318,7 @@ line level    source
  297          #endif
  298          
  299          /**
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 6   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 6   
 
  300          * get keypad input
  301          *
@@ -382,7 +382,7 @@ line level    source
  359          //      TraceAuto
  360          //      TouchAuto
  361          /**
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 7   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 7   
 
  362          * set TouchAuto flag. only for test
  363          */
@@ -446,7 +446,7 @@ line level    source
  420          *
  421          * input
  422          *       TouchX,TouchY
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 8   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 8   
 
  423          * output
  424          *       PosX,PosY
@@ -510,7 +510,7 @@ line level    source
  480   3                              calcX *= ( CalibDataX[2] - CalibDataX[4] );
  481   3                              calcX /= ( TouchCalibX[2] - TouchCalibX[4] );
  482   3                              if ( calcX >= CalibDataX[4] )   PosX = RES_X - 1;
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 9   
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 9   
 
  483   3                              else                                                    PosX = CalibDataX[4] + calcX;
  484   3      
@@ -574,7 +574,7 @@ line level    source
  542   1              WriteTW88(REG0B4, 0x0A );                               // div 8, rsel=10k, continuous sensing mode
  543   1      #else
                       WriteTW88(REG0B4, 0x0C );                               // div 32, rsel=10k, continuous sensing mode
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 10  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 10  
 
               #endif
  546   1      
@@ -638,7 +638,7 @@ line level    source
  604   2                      if(TouchStatus==TOUCHMOVED && ((TscTimeEnd + TSC_MOVED_THRESHOLD) < SystemClock)) {                     //500msec delay
  605   3                              dTscPrintf("\nTouch TOUCHMOVED Action dt:%ld", SystemClock - TscTimeEnd);
  606   3                              return 1;                       
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 11  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 11  
 
  607   3                      }
  608   2                      return 0;                       // no measurement
@@ -702,7 +702,7 @@ line level    source
  666   3                              //NOTE:update TscTimeEnd
  667   3      
  668   3                              dt_start = TscTimeCurr - TscTimeStart;  //pressed position(previous)
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 12  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 12  
 
  669   3                              dt_end   = TscTimeCurr - TscTimeEnd;    //detached position(previous)
  670   3      
@@ -766,7 +766,7 @@ line level    source
  728   2                      if(TP) {
  729   3      //-----------
  730   3      //LABEL_TP01: /*Detached=>Pressed.*/
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 13  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 13  
 
  731   3      //-----------
  732   3                              //NOTE:update TscTimeStart. StartX,StartY
@@ -830,7 +830,7 @@ line level    source
  789   1              TouchX = CpuTouchX;
  790   1              TouchY = CpuTouchY;
  791   1              SFR_EA = 1;
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 14  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 14  
 
  792   1      
  793   1              //CheckTouch();
@@ -894,7 +894,7 @@ line level    source
                                               else                    dPuts("UP ");
                                       } 
                                       if(TscStatus & 0x08) {
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 15  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 15  
 
                                               if(     TscStatus & 0x04)       dPuts("RIGHT ");
                                               else                    dPuts("LEFT ");
@@ -958,7 +958,7 @@ line level    source
  913          //=============================================================================
  914          //              SetTouchStatus 
  915          //              SetTouchStatus 
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 16  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 16  
 
  916          //=============================================================================
  917          #ifdef SUPPORT_TOUCH
@@ -1022,7 +1022,7 @@ line level    source
  975   3                              TouchCalibX[i] = Temp_TouchCalibX[i];
  976   3                              TouchCalibY[i] = Temp_TouchCalibY[i];
  977   3                      }
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 17  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 17  
 
  978   2              }
  979   1      
@@ -1086,7 +1086,7 @@ line level    source
 1037   2                      Printf("%dx",value);
 1038   2                      value = (BYTE)EE_Read( EEP_TOUCH_CALIB_Y + i*2);
 1039   2                      value <<= 8;
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 18  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 18  
 
 1040   2                      value |= (BYTE)EE_Read( EEP_TOUCH_CALIB_Y + i*2+1);
 1041   2                      Printf("%d\t",value);
@@ -1150,7 +1150,7 @@ line level    source
 1099   3                      }
 1100   2              }
 1101   1              CalibX /= (DWORD)count;
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 19  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 19  
 
 1102   1              CalibY /= (DWORD)count;
 1103   1              dTscPrintf("\nCalibration data %bd: (%d, %d) --> (%ld, %ld)", n, TouchCalibX[n], TouchCalibY[n], CalibX, 
@@ -1214,7 +1214,7 @@ line level    source
                               //check keypad every 100ms.(if timer 1 is 10ms)
               
                               timer1_intr_count = 0;
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 20  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 20  
 
                               //---------------------
                               //read KeyPad value.
@@ -1278,7 +1278,7 @@ line level    source
                       else                                diff = TscByte - TscZ1;
               
                       if ( diff > 0x08 ) {
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 21  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 21  
 
               #ifdef DEBUG_TOUCH_HW
                               Printf("\n\tTscPseudoISR Z1 diff %bx:%bx ignore",TscZ1,TscByte);
@@ -1319,7 +1319,7 @@ line level    source
               #undef ReadTscData
               #endif //.. MODEL_TW8835_EXTI2C
 1263          
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 22  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 22  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1383,7 +1383,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0044 E0                MOVX    A,@DPTR
 0045 FC                MOV     R4,A
 0046 A3                INC     DPTR
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 23  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 23  
 
 0047 E0                MOVX    A,@DPTR
 0048 FD                MOV     R5,A
@@ -1447,7 +1447,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0087 120000      E     LCALL   ?C?LMUL
 008A         L?0191:
 008A 900000      R     MOV     DPTR,#calcY
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 24  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 24  
 
 008D 020000      E     LJMP    ?C?LSTXDATA
 0090         L?0192:
@@ -1511,7 +1511,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00CF         L?0203:
 00CF F582              MOV     DPL,A
 00D1 E4                CLR     A
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 25  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 25  
 
 00D2 3500        E     ADDC    A,regTW88
 00D4 F583              MOV     DPH,A
@@ -1575,7 +1575,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 011D         L?0218:
 011D         L?0219:
 011D EC                MOV     A,R4
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 26  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 26  
 
 011E F0                MOVX    @DPTR,A
 011F A3                INC     DPTR
@@ -1639,7 +1639,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0162 E0                MOVX    A,@DPTR
 0163 FE                MOV     R6,A
 0164 A3                INC     DPTR
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 27  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 27  
 
 0165 E0                MOVX    A,@DPTR
 0166 FF                MOV     R7,A
@@ -1703,7 +1703,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01B7 3400        R     ADDC    A,#HIGH Temp_TouchCalibX
 01B9 F583              MOV     DPH,A
 01BB 22                RET     
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 28  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 28  
 
 01BC         L?0238:
 01BC 25E0              ADD     A,ACC
@@ -1767,7 +1767,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0206 F8                MOV     R0,A
 0207 22                RET     
 0208         L?0245:
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 29  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 29  
 
 0208 E4                CLR     A
 0209 7F64              MOV     R7,#064H
@@ -1831,7 +1831,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002D EF                MOV     A,R7
 002E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 275
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 30  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 30  
 
 ;---- Variable 'j' assigned to Register 'R4/R5' ----
 002F E4                CLR     A
@@ -1895,7 +1895,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0078 A3                INC     DPTR
 0079 EF                MOV     A,R7
 007A F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 31  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 31  
 
                                            ; SOURCE LINE # 283
 007B         ?C0005:
@@ -1959,7 +1959,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00C0 EE                MOV     A,R6
 00C1 900000      R     MOV     DPTR,#key_in
 00C4 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 32  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 32  
 
                                            ; SOURCE LINE # 288
 00C5 E0                MOVX    A,@DPTR
@@ -2023,7 +2023,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 327
 001C C200        R     CLR     RepeatKey
                                            ; SOURCE LINE # 328
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 33  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 33  
 
 001E C200        R     CLR     KeyReady
                                            ; SOURCE LINE # 329
@@ -2087,7 +2087,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 375
 ;---- Variable 'on' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 376
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 34  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 34  
 
                                            ; SOURCE LINE # 377
 0000 C200        R     CLR     TouchAuto
@@ -2151,7 +2151,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003A 900000      R     MOV     DPTR,#CalibDataX
                                            ; SOURCE LINE # 436
 003D 120000      R     LCALL   L?0176
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 35  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 35  
 
 0040 C006              PUSH    AR6
 0042 C007              PUSH    AR7
@@ -2215,7 +2215,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00B6 020000      R     LJMP    ?C0158
 00B9         ?C0030:
                                            ; SOURCE LINE # 444
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 36  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 36  
 
                                            ; SOURCE LINE # 445
 00B9 020000      R     LJMP    ?C0159
@@ -2279,7 +2279,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 012A E0                MOVX    A,@DPTR
 012B 900000      R     MOV     DPTR,#CalibDataY+06H
 012E 120000      R     LCALL   L?0189
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 37  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 37  
 
                                            ; SOURCE LINE # 457
 0131 900000      R     MOV     DPTR,#calcY
@@ -2343,7 +2343,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 019C 900000      R     MOV     DPTR,#TouchCalibX+03H
 019F E0                MOVX    A,@DPTR
 01A0 9F                SUBB    A,R7
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 38  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 38  
 
 01A1 FF                MOV     R7,A
 01A2 900000      R     MOV     DPTR,#TouchCalibX+02H
@@ -2407,7 +2407,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0216         ?C0041:
                                            ; SOURCE LINE # 475
 0216         ?C0159:
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 39  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 39  
 
 0216 900000      R     MOV     DPTR,#calcY
 0219 A3                INC     DPTR
@@ -2471,7 +2471,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0282 120000      R     LCALL   L?0183
                                            ; SOURCE LINE # 486
 0285 900000      R     MOV     DPTR,#calcY
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 40  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 40  
 
 0288 120000      R     LCALL   L?0174
 028B 900000      R     MOV     DPTR,#CalibDataY+08H
@@ -2535,7 +2535,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02F0         ?C0048:
 02F0 22                RET     
              ; FUNCTION _TscGetScreenPos (END)
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 41  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 41  
 
 
              ; FUNCTION InitTouch (BEGIN)
@@ -2599,7 +2599,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0059 E0                MOVX    A,@DPTR
 005A 900000      R     MOV     DPTR,#val
 005D F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 42  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 42  
 
                                            ; SOURCE LINE # 528
 005E C3                CLR     C
@@ -2663,7 +2663,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 554
 00AE 22                RET     
              ; FUNCTION InitTouch (END)
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 43  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 43  
 
 
              ; FUNCTION GetTouch2 (BEGIN)
@@ -2727,7 +2727,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0048 A3                INC     DPTR
 0049 E0                MOVX    A,@DPTR
 004A 2432              ADD     A,#032H
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 44  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 44  
 
 004C FF                MOV     R7,A
 004D E4                CLR     A
@@ -2791,7 +2791,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 009E 900000      R     MOV     DPTR,#PosX
 00A1 E0                MOVX    A,@DPTR
 00A2 9E                SUBB    A,R6
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 45  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 45  
 
 00A3 900000      R     MOV     DPTR,#movX
 00A6 F0                MOVX    @DPTR,A
@@ -2855,7 +2855,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 636
 00F8 120000      R     LCALL   L?0226
 00FB 401D              JC      ?C0065
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 46  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 46  
 
                                            ; SOURCE LINE # 637
 00FD 120000      R     LCALL   L?0229
@@ -2919,7 +2919,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0147 FF                MOV     R7,A
 0148 A3                INC     DPTR
 0149 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 47  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 47  
 
 014A CF                XCH     A,R7
                                            ; SOURCE LINE # 657
@@ -2983,7 +2983,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 019F 7F04              MOV     R7,#04H
                                            ; SOURCE LINE # 680
                                            ; SOURCE LINE # 681
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 48  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 48  
 
 01A1 803F              SJMP    ?C0167
 01A3         ?C0074:
@@ -3047,7 +3047,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 703
 01E5 900000      R     MOV     DPTR,#ret
 01E8 7401              MOV     A,#01H
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 49  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 49  
 
 01EA F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 704
@@ -3111,7 +3111,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0242 03                DB      03H
 0243 E8                DB      0E8H
                                            ; SOURCE LINE # 717
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 50  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 50  
 
 0244 900000      R     MOV     DPTR,#veloX
 0247 120000      R     LCALL   L?0174
@@ -3175,7 +3175,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02C3 E0                MOVX    A,@DPTR
 02C4 B44002            CJNE    A,#040H,?C0085
                                            ; SOURCE LINE # 738
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 51  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 51  
 
                                            ; SOURCE LINE # 739
                                            ; SOURCE LINE # 740
@@ -3239,7 +3239,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0317 A3                INC     DPTR
 0318 EF                MOV     A,R7
 0319 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 52  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 52  
 
 031A 900000      R     MOV     DPTR,#OldPosY
 031D EE                MOV     A,R6
@@ -3303,7 +3303,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 788
 0002 A200        E     MOV     C,CpuTouchPressed
 0004 9200        R     MOV     TouchPressedOld,C
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 53  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 53  
 
                                            ; SOURCE LINE # 789
 0006 900000      E     MOV     DPTR,#CpuTouchX
@@ -3367,7 +3367,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0048 E4                CLR     A
 0049 FF                MOV     R7,A
 004A 120000      E     LCALL   _FOsdWinScreenWH
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 54  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 54  
 
                                            ; SOURCE LINE # 810
                                            ; SOURCE LINE # 811
@@ -3431,7 +3431,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0022 6404              XRL     A,#04H
 0024 6008              JZ      ?C0100
 0026 EF                MOV     A,R7
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 55  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 55  
 
 0027 6440              XRL     A,#040H
 0029 6003              JZ      ?C0100
@@ -3495,7 +3495,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0005 22                RET     
              ; FUNCTION _SetLastTouchStatus (END)
 
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 56  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 56  
 
              ; FUNCTION _SaveCalibDataToEE (BEGIN)
                                            ; SOURCE LINE # 962
@@ -3559,7 +3559,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0049 EF                MOV     A,R7
 004A 120000      R     LCALL   L?0200
                                            ; SOURCE LINE # 976
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 57  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 57  
 
 004D 120000      R     LCALL   L?0219
 0050 FF                MOV     R7,A
@@ -3623,7 +3623,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00A4 C3                CLR     C
 00A5 9405              SUBB    A,#05H
 00A7 40E2              JC      ?C0121
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 58  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 58  
 
                                            ; SOURCE LINE # 990
 00A9         ?C0124:
@@ -3687,7 +3687,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1004
 0021 120000      R     LCALL   L?0239
 0024 80DF              SJMP    ?C0125
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 59  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 59  
 
 0026         ?C0126:
                                            ; SOURCE LINE # 1005
@@ -3751,7 +3751,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0074 900000      R     MOV     DPTR,#value
 0077 E4                CLR     A
 0078 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 60  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 60  
 
 0079 A3                INC     DPTR
 007A EF                MOV     A,R7
@@ -3815,7 +3815,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0038         ?C0135:
                                            ; SOURCE LINE # 1029
 0038 120000      R     LCALL   L?0246
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 61  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 61  
 
 003B 120000      R     LCALL   L?0199
 003E E0                MOVX    A,@DPTR
@@ -3879,7 +3879,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1041
 0092 7A00        R     MOV     R2,#HIGH ?SC_121
 0094 7900        R     MOV     R1,#LOW ?SC_121
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 62  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 62  
 
                                            ; SOURCE LINE # 1042
 0096 120000      R     LCALL   L?0209
@@ -3943,7 +3943,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00E8 F0                MOVX    @DPTR,A
 00E9 FE                MOV     R6,A
 00EA A3                INC     DPTR
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 63  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 63  
 
 00EB EF                MOV     A,R7
 00EC F0                MOVX    @DPTR,A
@@ -4007,7 +4007,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0027         ?C0142:
                                            ; SOURCE LINE # 1071
 0027 C3                CLR     C
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 64  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 64  
 
 0028 900000      R     MOV     DPTR,#count+01H
 002B E0                MOVX    A,@DPTR
@@ -4071,7 +4071,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1090
                                            ; SOURCE LINE # 1091
 008A         ?C0145:
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 65  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 65  
 
                                            ; SOURCE LINE # 1092
                                            ; SOURCE LINE # 1093
@@ -4135,7 +4135,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00EE EF                MOV     A,R7
 00EF F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1110
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 66  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 66  
 
 00F0 22                RET     
              ; FUNCTION _CalibTouch (END)
@@ -4147,7 +4147,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 22                RET     
              ; FUNCTION TouchDump (END)
 
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 67  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 67  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4210,7 +4210,7 @@ Def_TouchCalibX. . . . . . . . . . . .  PUBLIC   CODE   ARRAY    007DH  10
 OldPosY. . . . . . . . . . . . . . . .  PUBLIC   XDATA  U_INT    001AH  2
 _Puts. . . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 Def_TouchCalibY. . . . . . . . . . . .  PUBLIC   CODE   ARRAY    0087H  10
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 68  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 68  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4273,7 +4273,7 @@ TscTimeStart . . . . . . . . . . . . .  PUBLIC   XDATA  U_LONG   005EH  4
 _RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
   id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
   c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 69  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 69  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4336,7 +4336,7 @@ WaitTouchButtonUp. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
 FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
   size . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
-C51 COMPILER V9.00   TOUCHKEY                                                              05/31/2013 20:18:30 PAGE 70  
+C51 COMPILER V9.00   TOUCHKEY                                                              06/05/2014 15:34:54 PAGE 70  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

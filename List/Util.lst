@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 1   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE UTIL
 OBJECT MODULE PLACED IN .\Output\Util.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Util.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Util.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
                     -DDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Util.lst) OBJECT(.\Output\Util.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
   52   2                      if( *str=='\0' || *str==' ' ) break;
   53   2                      num = num*0x10 + Asc1Bin(*str);
   54   2              }
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 2   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 2   
 
   55   1              return num;
   56   1      }
@@ -126,7 +126,7 @@ line level    source
                       return 0;
               #else
  116   1              while (1) {
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 3   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 3   
 
  117   2                      if( toupper(*ptr1) != toupper(*ptr2) ) return 1;
  118   2                      if (*ptr1 == 0) return 0;
@@ -190,7 +190,7 @@ line level    source
  176          {
  177   1              BYTE nibble;
  178   1              nibble = n >> 4;
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 4   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 4   
 
  179   1              if(nibble <= 9) buff[0] = '0'+nibble;
  180   1              else            buff[0] = 'A'+nibble - 0x0A;
@@ -254,7 +254,7 @@ line level    source
                       return 1;
               }
               #endif
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 5   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 5   
 
  241          
  242          #if 0
@@ -318,7 +318,7 @@ line level    source
  300          *
  301          * note, *d must have same or more buffer reserved as *s
  302          */
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 6   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 6   
 
  303          BYTE *TWstrcpy(BYTE *d,BYTE *s)
  304          {
@@ -382,7 +382,7 @@ line level    source
               *
               * same: int memcmp( const void * ptr1, const void * ptr2, size_t num )
               */
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 7   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 7   
 
               int TWmemcmp( const void * ptr1, const void * ptr2, WORD num )
               {
@@ -446,7 +446,7 @@ line level    source
               #else
                       WORD addr;
                       addr = page;
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 8   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 8   
 
                       addr <<= 8;
                       addr |= reg;
@@ -455,7 +455,7 @@ line level    source
               #endif
               #endif
  433          
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 9   
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 9   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -519,7 +519,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0037         L?0077:
 0037 E0                MOVX    A,@DPTR
 0038 F8                MOV     R0,A
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 10  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 10  
 
 0039 A3                INC     DPTR
 003A E0                MOVX    A,@DPTR
@@ -583,7 +583,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001A 9466              SUBB    A,#066H
 001C 5005              JNC     ?C0003
 001E EF                MOV     A,R7
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 11  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 11  
 
 001F 24A9              ADD     A,#0A9H
 0021 FF                MOV     R7,A
@@ -647,7 +647,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0032 E4                CLR     A
 0033 FC                MOV     R4,A
 0034 FD                MOV     R5,A
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 12  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 12  
 
 0035 FE                MOV     R6,A
 0036 C004              PUSH    AR4
@@ -711,7 +711,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 68
 0022 E4                CLR     A
 0023 7F0A              MOV     R7,#0AH
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 13  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 13  
 
 0025 FE                MOV     R6,A
 0026 FD                MOV     R5,A
@@ -775,7 +775,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 EF                MOV     A,R7
 0001 C3                CLR     C
 0002 9461              SUBB    A,#061H
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 14  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 14  
 
 0004 400B              JC      ?C0017
 0006 EF                MOV     A,R7
@@ -839,7 +839,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0045 80BF              SJMP    ?C0019
              ; FUNCTION _stricmp (END)
 
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 15  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 15  
 
              ; FUNCTION _TWitoa (BEGIN)
                                            ; SOURCE LINE # 138
@@ -903,7 +903,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004A E0                MOVX    A,@DPTR
 004B         ?C0060:
 004B 700E              JNZ     ?C0025
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 16  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 16  
 
                                            ; SOURCE LINE # 152
 004D 120000      R     LCALL   L?0066
@@ -967,7 +967,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 009E E0                MOVX    A,@DPTR
 009F B5070F            CJNE    A,AR7,?C0032
 00A2 D3                SETB    C
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 17  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 17  
 
 00A3 900000      R     MOV     DPTR,#q+01H
 00A6 E0                MOVX    A,@DPTR
@@ -1031,7 +1031,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 167
 00FA 120000      R     LCALL   L?0067
 00FD A3                INC     DPTR
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 18  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 18  
 
 00FE E0                MOVX    A,@DPTR
 00FF FF                MOV     R7,A
@@ -1095,7 +1095,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0031 EF                MOV     A,R7
 0032 C4                SWAP    A
 0033 540F              ANL     A,#0FH
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 19  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 19  
 
 0035 6003              JZ      ?C0038
                                            ; SOURCE LINE # 186
@@ -1159,7 +1159,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 290
 002E         ?C0046:
                                            ; SOURCE LINE # 291
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 20  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 20  
 
 002E         ?C0064:
 002E 900000      R     MOV     DPTR,#p+01H
@@ -1223,7 +1223,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003C 22                RET     
              ; FUNCTION _TWstrcpy (END)
 
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 21  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 21  
 
              ; FUNCTION _TWstrcat (BEGIN)
                                            ; SOURCE LINE # 317
@@ -1287,7 +1287,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000A 5003              JNC     ?C0056
                                            ; SOURCE LINE # 335
 000C 7F01              MOV     R7,#01H
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 22  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 22  
 
 000E 22                RET     
 000F         ?C0056:
@@ -1325,7 +1325,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0013 22                RET     
              ; FUNCTION _TWabsShort (END)
 
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 23  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 23  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1388,7 +1388,7 @@ _TWitoa. . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   n. . . . . . . . . . . . . . . . . .  AUTO     XDATA  INT      0000H  2
   buff . . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0002H  3
   next . . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0005H  1
-C51 COMPILER V9.00   UTIL                                                                  05/31/2013 20:18:28 PAGE 24  
+C51 COMPILER V9.00   UTIL                                                                  06/05/2014 15:34:46 PAGE 24  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

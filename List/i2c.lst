@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 1   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE I2C
 OBJECT MODULE PLACED IN .\Output\i2c.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE i2c.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE i2c.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
                     -DP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\i2c.lst) OBJECT(.\Output\i2c.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
   52                                                                                                                                                     TW8835 Slave 
   53                                                                                                                                                     MIN          MAX
   54          1: Hold Time START Condition                                                                                    74ns    -
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 2   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 2   
 
   55          2: Clock Low Time(5+6)
   56          3: Clock High Time                                                              i2c_delay_clockhigh             
@@ -126,7 +126,7 @@ line level    source
                       #define I2CDelay_5              //dd(1)                 //need 2
                       #define I2CDelay_6                                              //need 2
                       #define I2CDelay_7              dd(2)                   //need 100
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 3   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 3   
 
                       #define I2CDelay_8              dd(2)                   //need 200
                       #define I2CDelay_9              dd(2)
@@ -190,7 +190,7 @@ line level    source
  176          {
  177   1              I2C_SCL=1;      
  178   1              //NOTE:It can hangup the system.
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 4   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 4   
 
  179   1              while(I2C_SCL==0);      
  180   1      }
@@ -254,7 +254,7 @@ line level    source
  238          //=============================================================================
  239          
  240          //monitor can change these i2c_delay global variables.
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 5   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 5   
 
  241          BYTE i2c_delay_start = 160;
  242          BYTE i2c_delay_restart = 2;
@@ -318,7 +318,7 @@ line level    source
  300   1              BYTE error;
  301   1              BYTE i;
  302   1      
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 6   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 6   
 
  303   1              for(i=0;i<8;i++) {
  304   2                      if(value & 0x80) I2C_SDA = 1;
@@ -382,7 +382,7 @@ line level    source
                       I2C2_SDA = 0;           dd(30);
                       I2C2SetSclWait();       dd(30);
                       I2C2_SDA = 1;
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 7   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 7   
 
               }
               static BYTE I2C2WriteData(BYTE value)
@@ -446,7 +446,7 @@ line level    source
  424          //void ReadI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
  425          //
  426          //void WriteSlowI2CByte(BYTE i2cid, BYTE index, BYTE val)
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 8   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 8   
 
  427          //BYTE ReadSlowI2CByte(BYTE i2cid, BYTE index)
  428          //                                                                                
@@ -510,7 +510,7 @@ line level    source
  486          * @param data
  487          */
  488          BYTE WriteI2CByte(BYTE i2cid, BYTE index, BYTE val)
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 9   
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 9   
 
  489          {
  490   1              BYTE ret;
@@ -574,7 +574,7 @@ line level    source
  548   1      //SFR_EA=1;
  549   1      #if defined(DEBUG_I2C)
                       if(ret)
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 10  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 10  
 
                               Printf("\nWriteSlowI2CByte[%bx:%bx,%bx] FAIL:%bx",i2cid, index,val, ret);       
               #endif
@@ -638,7 +638,7 @@ line level    source
               #endif
  611   1              return value;
  612   1      }
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 11  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 11  
 
  613          
  614          /**
@@ -702,7 +702,7 @@ line level    source
               #endif
  673   1              return val;
  674   1      }
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 12  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 12  
 
  675          
  676          /**
@@ -766,7 +766,7 @@ line level    source
                       I2C2Start();
                       I2C2WriteData(addr);
                       I2C2WriteData(index);
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 13  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 13  
 
                       I2C2WriteData(val);
                       I2C2Stop();
@@ -830,7 +830,7 @@ line level    source
  796   2      #ifdef DEBUG_TW88
               #ifdef SUPPORT_8BIT_CHIP_ACCESS
                               dPrintf("\n    addr=%02x  index=%02x   val=%02x", (WORD)addr, (WORD)index, (WORD)val );
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 14  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 14  
 
               #else
                               dPrintf("\n    addr=%02x  index=%03x   val=%02x", (WORD)addr, w_page | index, (WORD)val );
@@ -894,7 +894,7 @@ line level    source
               void ReadI2CfromTW88(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
               {
                       PORT_I2CCMD_GPIO_MASTER=0;  //Start
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 15  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 15  
 
                       ReadI2C(BYTE i2cid, BYTE index, BYTE *val, BYTE cnt)
                       PORT_I2CCMD_GPIO_MASTER=1;       //Stop
@@ -958,7 +958,7 @@ line level    source
               #ifdef I2CISP_PROGRESSBAR
                       DWORD horizontal;
               #endif
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 16  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 16  
 
                       BYTE vlen_high;
                       BYTE ret;
@@ -1022,7 +1022,7 @@ line level    source
               
                       WriteI2CByte(TW88I2CAddress,REG410, 0xA0 );     //assign byte ptr       
                       WriteI2CByte(TW88I2CAddress,REG411, 0x03);      //address
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 17  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 17  
 
                       WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //B             
                       WriteI2CByte(TW88I2CAddress,REG412, 0xFF);      //G
@@ -1086,7 +1086,7 @@ line level    source
               
               //#if 0 //test
               //      WriteI2CByte(TW88I2CAddress,REG4C1, 0x01 );                                     // start at vertical blank
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 18  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 18  
 
               //#endif
                                                                                                                                       // DMA buff use REG4D0~REG4D7
@@ -1150,7 +1150,7 @@ line level    source
                       if(ptr==NULL)   w_data = 0;
                       else                    w_data = *ptr++;
                       progress = 0;
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 19  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 19  
 
               
               #ifdef MODEL_TW8836
@@ -1214,7 +1214,7 @@ line level    source
                               progress += 8;
                               horizontal = progress * 600 / len;
                               WriteI2CByte(TW88I2CAddress, REG4A4, vlen_high | ((horizontal>> 8) & 0x0F));
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 20  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 20  
 
                               WriteI2CByte(TW88I2CAddress, REG4A5, horizontal);
               #endif
@@ -1278,7 +1278,7 @@ line level    source
                       //save SPI Read Mode and set it as FAST MODE. Reuse w_data.
                       //FYI. QuadRead can not use DMA_DEST_CHIPREG.
                       w_data = ReadI2CByte(TW88I2CAddress,REG4C0) & 0x07;
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 21  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 21  
 
                       if(w_data != 1) {
                               WriteI2CByte(TW88I2CAddress,REG4C0, 1);
@@ -1342,7 +1342,7 @@ line level    source
                               if(j < 0x41)
                                       j++;
                       }
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 22  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 22  
 
                       Printf("\rSPI %06lx:",addr-1);
               
@@ -1402,7 +1402,7 @@ line level    source
 1348          
 1349          
 1350          
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 23  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 23  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1466,7 +1466,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003B 120000      R     LCALL   _dd
 003E C290              CLR     P1_0
 0040         L?0120:
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 24  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 24  
 
 0040 EC                MOV     A,R4
 0041 25E0              ADD     A,ACC
@@ -1530,7 +1530,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0002 D290              SETB    P1_0
                                            ; SOURCE LINE # 171
 0004 7F01              MOV     R7,#01H
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 25  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 25  
 
 0006 120000      R     LCALL   _dd
                                            ; SOURCE LINE # 172
@@ -1594,7 +1594,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000E 30E704            JNB     ACC.7,?C0013
 0011 D291              SETB    P1_1
 0013 8002              SJMP    ?C0014
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 26  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 26  
 
 0015         ?C0013:
                                            ; SOURCE LINE # 195
@@ -1658,7 +1658,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0014 4401              ORL     A,#01H
 0016 FC                MOV     R4,A
 0017         ?C0021:
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 27  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 27  
 
                                            ; SOURCE LINE # 224
 0017 C290              CLR     P1_0
@@ -1722,7 +1722,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0001 FF                MOV     R7,A
 0002         ?C0029:
 0002 900000      R     MOV     DPTR,#i2c_delay_restart
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 28  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 28  
 
 0005 E0                MOVX    A,@DPTR
 0006 FE                MOV     R6,A
@@ -1786,7 +1786,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 270
                                            ; SOURCE LINE # 272
 ;---- Variable 'i' assigned to Register 'R7' ----
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 29  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 29  
 
 0000 E4                CLR     A
 0001 FF                MOV     R7,A
@@ -1850,7 +1850,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0008 D291              SETB    P1_1
                                            ; SOURCE LINE # 297
 000A 22                RET     
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 30  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 30  
 
              ; FUNCTION I2CStopSlow (END)
 
@@ -1914,7 +1914,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 321
 ;---- Variable 'fLast' assigned to Register 'R5' ----
 0000 AD07              MOV     R5,AR7
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 31  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 31  
 
                                            ; SOURCE LINE # 322
                                            ; SOURCE LINE # 324
@@ -1978,7 +1978,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 442
                                            ; SOURCE LINE # 447
 ;---- Variable 'value' assigned to Register 'R4' ----
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 32  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 32  
 
 0000 AC07              MOV     R4,AR7
                                            ; SOURCE LINE # 448
@@ -2042,7 +2042,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0042 120000      R     LCALL   _dd
                                            ; SOURCE LINE # 475
 0045 D291              SETB    P1_1
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 33  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 33  
 
 0047 120000      R     LCALL   _dd
                                            ; SOURCE LINE # 477
@@ -2106,7 +2106,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F 25E0              ADD     A,ACC
 0011 F9                MOV     R1,A
 0012 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 34  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 34  
 
                                            ; SOURCE LINE # 523
 0013 900000      R     MOV     DPTR,#index
@@ -2170,7 +2170,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0005 AC07              MOV     R4,AR7
 ;---- Variable 'val' assigned to Register 'R1' ----
 0007 A903              MOV     R1,AR3
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 35  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 35  
 
                                            ; SOURCE LINE # 540
                                            ; SOURCE LINE # 543
@@ -2234,7 +2234,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002E F0                MOVX    @DPTR,A
 002F A3                INC     DPTR
 0030 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 36  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 36  
 
 0031         ?C0082:
 0031 900000      R     MOV     DPTR,#cnt
@@ -2298,7 +2298,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0004 F0                MOVX    @DPTR,A
 ;---- Variable 'i2cid' assigned to Register 'R1' ----
 0005 A907              MOV     R1,AR7
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 37  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 37  
 
                                            ; SOURCE LINE # 593
                                            ; SOURCE LINE # 597
@@ -2362,7 +2362,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F FF                MOV     R7,A
 0010 120000      R     LCALL   _I2CWriteData
 ;---- Variable 'ret' assigned to Register 'R1' ----
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 38  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 38  
 
 0013 A907              MOV     R1,AR7
 0015 E9                MOV     A,R1
@@ -2426,7 +2426,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0003 ED                MOV     A,R5
 0004 F0                MOVX    @DPTR,A
 ;---- Variable 'i2cid' assigned to Register 'R1' ----
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 39  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 39  
 
 0005 A907              MOV     R1,AR7
                                            ; SOURCE LINE # 653
@@ -2490,7 +2490,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0022 120000      R     LCALL   I2CStart
                                            ; SOURCE LINE # 693
 0025 900000      R     MOV     DPTR,#i2cid
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 40  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 40  
 
 0028 E0                MOVX    A,@DPTR
 0029 4401              ORL     A,#01H
@@ -2554,7 +2554,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 761
                                            ; SOURCE LINE # 762
 ;---- Variable 'cnt' assigned to Register 'R6/R7' ----
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 41  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 41  
 
 000B E4                CLR     A
                                            ; SOURCE LINE # 765
@@ -2618,7 +2618,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0059 FF                MOV     R7,A
 005A 900000      R     MOV     DPTR,#w_page
 005D E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 42  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 42  
 
 005E 3400              ADDC    A,#00H
 0060 FE                MOV     R6,A
@@ -2667,7 +2667,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0097 22                RET     
              ; FUNCTION _I2CDeviceInitialize (END)
 
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 43  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 43  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2730,7 +2730,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   offseth. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0010H  2
   offsetv. . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0012H  2
   dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 44  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 44  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2793,7 +2793,7 @@ SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
   start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
   length . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0004H  4
 RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 45  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 45  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2857,7 +2857,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      5      45
    PDATA SIZE       =   ----    ----
-C51 COMPILER V9.00   I2C                                                                   05/31/2013 20:18:29 PAGE 46  
+C51 COMPILER V9.00   I2C                                                                   06/05/2014 15:34:48 PAGE 46  
 
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

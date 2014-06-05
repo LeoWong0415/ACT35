@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 1   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE OSDFONT
 OBJECT MODULE PLACED IN .\Output\OSDFont.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE OSDFont.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE OSDFont.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
                     - MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\OSDFont.lst) OBJECT(.\Output\OSDFon
                     -t.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51                  /*7:Gray*/                      FOSD_COLOR_VALUE_GRAY,
   52                  /*8:Silver*/            FOSD_COLOR_VALUE_SILVER,
   53                  /*9:Blue*/                      FOSD_COLOR_VALUE_BLUE,
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 2   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 2   
 
   54                  /*A:Lime*/                      FOSD_COLOR_VALUE_LIME,
   55                  /*B:Cyan*/                      FOSD_COLOR_VALUE_CYAN,
@@ -126,7 +126,7 @@ line level    source
  113          
  114          
  115          /**
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 3   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 3   
 
  116          * FOSD FontInfo_s
  117          */
@@ -190,7 +190,7 @@ line level    source
               code    BYTE    FOSDWinBase[] = { FONTWIN1_ST, FONTWIN2_ST, FONTWIN3_ST, FONTWIN4_ST };
               #else
  177          #ifdef MODEL_TW8836
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 4   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 4   
 
               code    WORD    FOSDWinBase[] = { FONTWIN1_ST, FONTWIN2_ST, FONTWIN3_ST, FONTWIN4_ST, FONTWIN5_ST, FONTWIN6_ST, 
              -FONTWIN7_ST, FONTWIN8_ST };
@@ -254,7 +254,7 @@ line level    source
  236   1      }
  237          
  238          
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 5   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 5   
 
  239          /**
  240          * set FOSD FontRam Fifo
@@ -318,7 +318,7 @@ line level    source
  298          *       r303[7:0]
  299          */ 
  300          void FOsdSetDeValue(void)
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 6   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 6   
 
  301          {
  302   1      #if 1 //NEW, But NG
@@ -382,7 +382,7 @@ line level    source
  360   1              WriteTW88Page(PAGE3_FOSD);
  361   1              if(fOn) WriteTW88(REG304, ReadTW88(REG304) | 0x80);
  362   1              else    WriteTW88(REG304, ReadTW88(REG304) & ~0x80);
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 7   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 7   
 
  363   1      }
  364          
@@ -446,7 +446,7 @@ line level    source
  422          *
  423          * FW selects FontRAM before it starts a FontRam download
  424          * and selects OsdRam when it finish a FontRam download.
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 8   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 8   
 
  425          *
  426          * @param fType   
@@ -510,7 +510,7 @@ line level    source
               * NOTE: You need FOsdSetAccessMode(FOSD_ACCESS_FONTRAM),
               *       FOsdSetAccessMode(FOSD_ACCESS_OSDRAM)
               * NOTE: You need a FIFO delay if you are using FIFO. 
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 9   
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 9   
 
               *       So, the better higher function is a FOsdDownloadFontBySerial().
               *
@@ -574,7 +574,7 @@ line level    source
  546          
  547          
  548          //r30C[5:0]
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 10  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 10  
 
  549          //r30D[7:0]
  550          //r30E[7:0]
@@ -638,7 +638,7 @@ line level    source
  608   2                      WriteTW88(REG30E, (BYTE)array[i]);
  609   2              }
  610   1      #if defined(MODEL_TW8836FPGA) || defined(MODEL_TW8835FPGA)
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 11  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 11  
 
                       //BK120615. for test clock source
               #else
@@ -702,7 +702,7 @@ line level    source
               *       FOsdRamSetAddrAttr(,);
               *       FOsdRamWriteByteStrBypassFifo("   ",len);
               *       FOsdRamSetFifo(ON,1)
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 12  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 12  
 
               */
               void FOsdRamWriteByteStrBypassFifo(BYTE *str, BYTE len)
@@ -766,7 +766,7 @@ line level    source
  732   1              dat = ReadTW88(index);
  733   1              if( dat & 0x80 )        WriteTW88(index, dat & 0x7F);   //ON->OFF
  734   1              else                            WriteTW88(index, dat | 0x80);   //OFF->ON
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 13  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 13  
 
  735   1      }
  736          
@@ -830,7 +830,7 @@ line level    source
  794   1      
  795   1              WriteTW88Page(PAGE3_FOSD );
  796   1      
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 14  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 14  
 
  797   1              temp = (zoomH << 2) + zoomV;
  798   1              temp += (ReadTW88(index ) & 0xf0);
@@ -894,7 +894,7 @@ line level    source
  856          {
  857   1      #ifdef SUPPORT_8BIT_CHIP_ACCESS
                       BYTE index = FOSDWinBase[winno] + FONT_ALPHA;
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 15  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 15  
 
               #else
  860   1              WORD index = FOSDWinBase[winno] + FONT_ALPHA;
@@ -958,7 +958,7 @@ line level    source
  918   1              WriteTW88(index+6, w );
  919   1      
  920   1              FontOsdInfo.win[winno].column = w;
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 16  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 16  
 
  921   1              FontOsdInfo.win[winno].line = h;
  922   1      }
@@ -1022,7 +1022,7 @@ line level    source
                       Pos = ReadTW88(index+2)&0x03;
                       Pos <<= 8;
                       Pos += ReadTW88(index+4);
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 17  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 17  
 
                       return (Pos);
               }
@@ -1086,7 +1086,7 @@ line level    source
 1042          //                      NOTE: 3D need a Border.
 1043          //r31B[4] Select BorderOrShadow. 1=Shadow
 1044          //r31B[3:0]     Shadow Color
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 18  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 18  
 
 1045          
 1046          //note:winno 0~3.
@@ -1150,7 +1150,7 @@ line level    source
 1104          //-------------------------------------------------------------------
 1105          /**
 1106          * Init FontOSD
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 19  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 19  
 
 1107          */
 1108          void FontOsdInit(void)
@@ -1214,7 +1214,7 @@ line level    source
 1166   1              WORD alpha_table_Y[8];
 1167   1      
 1168   1              if(fCalculate==0) {
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 20  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 20  
 
 1169   2                      //use the calculated table and save a time.
 1170   2                      for(i=0; i < 8; i++)
@@ -1278,7 +1278,7 @@ line level    source
 1228          //=======================================
 1229          //=======================================
 1230          
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 21  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 21  
 
 1231          
 1232          //=======================================
@@ -1342,7 +1342,7 @@ line level    source
 1290   2                      FOsdSetPaletteColorArray(FOSD_LUT_MAP_BPP4_START,                       FOsdDefPaletteBpp4,     16, 0);
 1291   2              }
 1292   1              else if(mode==1) {
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 22  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 22  
 
 1293   2                      FOsdSetPaletteColorArray(0,                                                                     FOsdSwDefPaletteBpp1,8, 0);
 1294   2                      FOsdSetPaletteColorArray(FOSD_LUT_MAP_BPP3_ALPHA_R_START,       FOsdDefPaletteBpp3,8, 0);
@@ -1406,7 +1406,7 @@ line level    source
 1352   1              FOsdSetAccessMode(FOSD_ACCESS_FONTRAM);                 //FontRam Access
 1353   1      
 1354   1              SpiFlashDmaRead(DMA_DEST_FONTRAM, dest_loc, src_loc, size);
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 23  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 23  
 
 1355   1      
 1356   1              WaitVBlank(1);  
@@ -1470,7 +1470,7 @@ line level    source
                       FOsdDownloadFontBySerial(0, &RAMFONTDATA[0][0], 27, 0x80);
               }
               #endif
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 24  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 24  
 
 1417          
 1418          /**
@@ -1534,7 +1534,7 @@ line level    source
 1476   1      
 1477   1              DumpFontInfo();
 1478   1      }
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 25  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 25  
 
 1479          
 1480          /**
@@ -1598,7 +1598,7 @@ line level    source
 1538   1              osdram =  FontOsdInfo.win[FOSD_MSG_WIN].osdram;
 1539   1      
 1540   1      //      dPrintf(" col:%bd attr:%02bx osdram:%x ",columns, attr, osdram);
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 26  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 26  
 
 1541   1      
 1542   1      
@@ -1662,7 +1662,7 @@ line level    source
 1600   1              FOsdWinEnable(winno,OFF);       //winno disable
 1601   1      
 1602   1              FOsdWinScreenXY(winno, 0x70,0); //start 0,0  16 colums 1 line
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 27  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 27  
 
 1603   1              FOsdWinScreenWH(winno, 16, 2);  //start 0,0  16 colums 1 line
 1604   1              FOsdWinZoom(winno, 1, 0);                       //zoom 1,1
@@ -1726,7 +1726,7 @@ line level    source
 1662          {
 1663   1              GetInputMainString(FOsdMsgBuff);
 1664   1      }
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 28  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 28  
 
 1665          
 1666          
@@ -1790,7 +1790,7 @@ line level    source
                               if(start==FONT_2BPP_START)
                                       WriteTW88(REG308, FOSD_LUT_MAP_BPP2_START >>2);
                               else if(start==FONT_3BPP_START)
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 29  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 29  
 
                                       WriteTW88(REG308, FOSD_LUT_MAP_BPP3_START >>2);
                               else if(start==FONT_4BPP_START)
@@ -1854,7 +1854,7 @@ line level    source
                       if(dat < 0x100) WriteTW88(REG304, ReadTW88(REG304)& ~0x20);                     // clear Upper 256 it
                       else                    WriteTW88(REG304, ReadTW88(REG304)| 0x20);                      // upper 256
                       w_count = 1;
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 30  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 30  
 
                       for(i=0; i < len; i++) {
                               WriteTW88(REG307, (BYTE)dat);
@@ -1918,7 +1918,7 @@ line level    source
 1848          //                      Init Menu Window Data initialize 
 1849          //=============================================================================
 1850          #ifdef SUPPORT_FOSD_MENU
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 31  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 31  
 
               // counter
               //              reg win
@@ -1982,7 +1982,7 @@ line level    source
 1910          
 1911          //=============================================================================
 1912          //                                 void FontLUT( void )
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 32  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 32  
 
 1913          //=============================================================================
 1914          #ifdef SUPPORT_FOSD_MENU
@@ -2046,7 +2046,7 @@ line level    source
 1972   1              WORD *wptr;
 1973   1      
 1974   1              Printf("\nLoc:%lx",font->loc );
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 33  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 33  
 
 1975   1              Printf(" size:%x",font->size);
 1976   1              Printf(" %bdx%bd",font->width, font->height);
@@ -2110,7 +2110,7 @@ line level    source
 2033          /**
 2034          * dump current downloaded font
 2035          */
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 34  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 34  
 
 2036          void DumpFont(void)
 2037          {
@@ -2174,7 +2174,7 @@ line level    source
 2093   1              //WIN2 for 3BPP
 2094   1              FOsdWinInit(2);
 2095   1              start = next;
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 35  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 35  
 
 2096   1              next = FontOsdInfo.font.bpp4;
 2097   1              size = next - start;
@@ -2223,7 +2223,7 @@ line level    source
 2139          
 2140          
 2141          
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 36  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 36  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -2287,7 +2287,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003B         L?0274:
 003B EF                MOV     A,R7
 003C 240F              ADD     A,#0FH
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 37  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 37  
 
 003E         L?0275:
 003E FF                MOV     R7,A
@@ -2351,7 +2351,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0076 FB                MOV     R3,A
 0077 EA                MOV     A,R2
 0078 C4                SWAP    A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 38  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 38  
 
 0079 F8                MOV     R0,A
 007A 54F0              ANL     A,#0F0H
@@ -2415,7 +2415,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00C1 EE                MOV     A,R6
 00C2 F0                MOVX    @DPTR,A
 00C3 A3                INC     DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 39  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 39  
 
 00C4 EF                MOV     A,R7
 00C5 F0                MOVX    @DPTR,A
@@ -2479,7 +2479,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0104 E0                MOVX    A,@DPTR
 0105 FE                MOV     R6,A
 0106 A3                INC     DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 40  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 40  
 
 0107 E0                MOVX    A,@DPTR
 0108 FF                MOV     R7,A
@@ -2543,7 +2543,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 015B         L?0323:
 015B 120000      R     LCALL   _FOsdWinMulticolor
 015E 900000      R     MOV     DPTR,#start
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 41  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 41  
 
 0161 E0                MOVX    A,@DPTR
 0162 FC                MOV     R4,A
@@ -2607,7 +2607,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 019D EF                MOV     A,R7
 019E F0                MOVX    @DPTR,A
 019F 22                RET     
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 42  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 42  
 
 01A0         L?0339:
 01A0 900010            MOV     DPTR,#010H
@@ -2671,7 +2671,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01E8 7400        R     MOV     A,#LOW ?SC_300
 01EA F0                MOVX    @DPTR,A
 01EB         L?0349:
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 43  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 43  
 
 01EB 7BFF              MOV     R3,#0FFH
 01ED 7A00        E     MOV     R2,#HIGH default_font
@@ -2735,7 +2735,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0237 FC                MOV     R4,A
 0238 A3                INC     DPTR
 0239 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 44  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 44  
 
 023A 2500        E     ADD     A,regTW88+01H
 023C 22                RET     
@@ -2799,7 +2799,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 027C E0                MOVX    A,@DPTR
 027D 3400              ADDC    A,#00H
 027F F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 45  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 45  
 
 0280 22                RET     
 0281         L?0372:
@@ -2863,7 +2863,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02BF 93                MOVC    A,@A+DPTR
 02C0 3400              ADDC    A,#00H
 02C2 22                RET     
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 46  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 46  
 
 02C3         L?0383:
 02C3 120000      E     LCALL   ?C?LSTXDATA
@@ -2927,7 +2927,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0021 7900        R     MOV     R1,#LOW ?SC_18
 0023 900000      R     MOV     DPTR,#FontOsdInfo+014H
 0026 120000      R     LCALL   L?0310
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 47  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 47  
 
 0029 120000      E     LCALL   _ePrintf
                                            ; SOURCE LINE # 198
@@ -2991,7 +2991,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _FOsdRamSetFifo (END)
 
              ; FUNCTION _FOsdFontSetFifo (BEGIN)
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 48  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 48  
 
                                            ; SOURCE LINE # 252
 ;---- Variable 'fOn' assigned to Register 'R7' ----
@@ -3055,7 +3055,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001F C3                CLR     C
 0020 13                RRC     A
 0021 FE                MOV     R6,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 49  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 49  
 
 0022 E500        E     MOV     A,regTW88+01H
 0024 2450              ADD     A,#050H
@@ -3119,7 +3119,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'Mixing' assigned to Register 'R4' ----
 0031 AC07              MOV     R4,AR7
                                            ; SOURCE LINE # 315
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 50  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 50  
 
 0033 ED                MOV     A,R5
 0034 FF                MOV     R7,A
@@ -3183,7 +3183,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 324
 007C 7BFF              MOV     R3,#0FFH
 007E 7A00        R     MOV     R2,#HIGH ?SC_53
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 51  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 51  
 
 0080 7900        R     MOV     R1,#LOW ?SC_53
 0082 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
@@ -3247,7 +3247,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 EF                MOV     A,R7
 0001 6008              JZ      ?C0021
 0003 120000      R     LCALL   L?0259
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 52  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 52  
 
 0006 E0                MOVX    A,@DPTR
 0007 4401              ORL     A,#01H
@@ -3311,7 +3311,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 EE                MOV     A,R6
 0001 30E009            JNB     ACC.0,?C0025
 0004 120000      R     LCALL   L?0259
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 53  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 53  
 
 0007 E0                MOVX    A,@DPTR
 0008 4420              ORL     A,#020H
@@ -3375,7 +3375,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001D 6003              JZ      ?C0031
                                            ; SOURCE LINE # 531
 001F 120000      E     LCALL   _WaitVBlank
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 54  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 54  
 
 0022         ?C0031:
                                            ; SOURCE LINE # 532
@@ -3439,7 +3439,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000C EB                MOV     A,R3
 000D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 561
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 55  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 55  
 
                                            ; SOURCE LINE # 565
 000E A3                INC     DPTR
@@ -3503,7 +3503,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005A 120000      R     LCALL   L?0260
 005D EF                MOV     A,R7
 005E F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 56  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 56  
 
                                            ; SOURCE LINE # 575
 005F 900000      R     MOV     DPTR,#color
@@ -3567,7 +3567,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003A 2E                ADD     A,R6
 003B FF                MOV     R7,A
 003C 900000      R     MOV     DPTR,#r30c
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 57  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 57  
 
 003F E0                MOVX    A,@DPTR
 0040 4F                ORL     A,R7
@@ -3631,7 +3631,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0019 120000      R     LCALL   _FOsdRamSetWriteMode
                                            ; SOURCE LINE # 636
 001C AE02              MOV     R6,AR2
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 58  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 58  
 
 001E AF03              MOV     R7,AR3
 0020 020000      R     LJMP    _FOsdRamSetAddress
@@ -3695,7 +3695,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 659
 004D 7F01              MOV     R7,#01H
 004F 7E00              MOV     R6,#00H
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 59  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 59  
 
 0051 120000      E     LCALL   _delay1ms
                                            ; SOURCE LINE # 660
@@ -3759,7 +3759,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 729
 0000 EF                MOV     A,R7
 0001 120000      R     LCALL   L?0283
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 60  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 60  
 
 0004 120000      R     LCALL   L?0372
 0007 900000      R     MOV     DPTR,#index
@@ -3823,7 +3823,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 754
 ;---- Variable 'en' assigned to Register 'R1' ----
 0000 A905              MOV     R1,AR5
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 61  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 61  
 
 ;---- Variable 'winno' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 755
@@ -3887,7 +3887,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001A 120000      R     LCALL   L?0359
 001D 120000      R     LCALL   L?0268
 0020 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 62  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 62  
 
 0021 54F0              ANL     A,#0F0H
 0023 2F                ADD     A,R7
@@ -3951,7 +3951,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0010 A3                INC     DPTR
 0011 CE                XCH     A,R6
 0012 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 63  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 63  
 
                                            ; SOURCE LINE # 865
 ;---- Variable 'i' assigned to Register 'R1' ----
@@ -4015,7 +4015,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'temp' assigned to Register 'R3' ----
                                            ; SOURCE LINE # 890
 001A C4                SWAP    A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 64  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 64  
 
 001B 54F0              ANL     A,#0F0H
 001D FB                MOV     R3,A
@@ -4079,7 +4079,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0079 E4                CLR     A
 007A 3400        R     ADDC    A,#HIGH FontOsdInfo+023H
 007C 120000      R     LCALL   L?0378
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 65  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 65  
 
                                            ; SOURCE LINE # 898
 007F 22                RET     
@@ -4143,7 +4143,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0051 3400        R     ADDC    A,#HIGH FontOsdInfo+026H
 0053 F583              MOV     DPH,A
 0055 EF                MOV     A,R7
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 66  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 66  
 
 0056 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 922
@@ -4207,7 +4207,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1108
                                            ; SOURCE LINE # 1109
                                            ; SOURCE LINE # 1111
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 67  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 67  
 
 0000 900000      R     MOV     DPTR,#columns
 0003 7428              MOV     A,#028H
@@ -4271,7 +4271,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0056 FC                MOV     R4,A
 0057 120000      R     LCALL   _FOsdWinScreenXY
                                            ; SOURCE LINE # 1127
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 68  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 68  
 
 005A 900000      R     MOV     DPTR,#winno
 005D E0                MOVX    A,@DPTR
@@ -4335,7 +4335,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000C 2D                ADD     A,R5
 000D 120000      R     LCALL   L?0315
 0010 EF                MOV     A,R7
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 69  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 69  
 
 0011 F0                MOVX    @DPTR,A
 0012 0D                INC     R5
@@ -4399,7 +4399,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0054 13                RRC     A
 0055 CE                XCH     A,R6
 0056 13                RRC     A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 70  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 70  
 
 0057 D8F9              DJNZ    R0,?C0213
                                            ; SOURCE LINE # 1186
@@ -4463,7 +4463,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1199
 00A4 120000      R     LCALL   L?0303
 00A7 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 71  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 71  
 
 00A8 FB                MOV     R3,A
 00A9 A3                INC     DPTR
@@ -4527,7 +4527,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00EC 900000      R     MOV     DPTR,#BPP3_alpha_lut_offset
 00EF F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1217
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 72  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 72  
 
 00F0 900000      R     MOV     DPTR,#Y
 00F3 E0                MOVX    A,@DPTR
@@ -4591,7 +4591,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002E E4                CLR     A
 002F 3C                ADDC    A,R4
 0030 120000      R     LCALL   L?0276
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 73  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 73  
 
                                            ; SOURCE LINE # 1259
 0033 120000      R     LCALL   L?0326
@@ -4655,7 +4655,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1283
 0007 7BFF              MOV     R3,#0FFH
 0009 7A00        R     MOV     R2,#HIGH FOsdHwDefPaletteBpp1
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 74  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 74  
 
 000B 7900        R     MOV     R1,#LOW FOsdHwDefPaletteBpp1
                                            ; SOURCE LINE # 1284
@@ -4719,7 +4719,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0055 120000      R     LCALL   _FOsdSetPaletteColorArray
                                            ; SOURCE LINE # 1306
 0058 120000      R     LCALL   L?0270
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 75  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 75  
 
 005B 7F18              MOV     R7,#018H
 005D 120000      R     LCALL   _FOsdSetPaletteColorArray
@@ -4783,7 +4783,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0032 E4                CLR     A
 0033 FF                MOV     R7,A
 0034 120000      R     LCALL   _FOsdFontSetFifo
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 76  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 76  
 
                                            ; SOURCE LINE # 1352
 0037 0F                INC     R7
@@ -4847,7 +4847,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002F C007              PUSH    AR7
 0031 120000      R     LCALL   L?0319
 0034 D007              POP     AR7
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 77  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 77  
 
 0036 D006              POP     AR6
 0038 020000      R     LJMP    _FOsdDownloadFontByDMA
@@ -4911,7 +4911,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0068 E0                MOVX    A,@DPTR
 0069 4402              ORL     A,#02H
 006B F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 78  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 78  
 
 006C         ?C0104:
                                            ; SOURCE LINE # 1449
@@ -4975,7 +4975,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1458
 00D3 7BFF              MOV     R3,#0FFH
 00D5 7A00        R     MOV     R2,#HIGH FOsdHwDefPaletteBpp1
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 79  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 79  
 
 00D7 7900        R     MOV     R1,#LOW FOsdHwDefPaletteBpp1
 00D9 120000      R     LCALL   L?0367
@@ -5039,7 +5039,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0147 F9                MOV     R1,A
 0148 900000      E     MOV     DPTR,#?_TWstrcpy?BYTE+03H
 014B EB                MOV     A,R3
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 80  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 80  
 
 014C F0                MOVX    @DPTR,A
 014D A3                INC     DPTR
@@ -5103,7 +5103,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0003 7400        R     MOV     A,#HIGH ?SC_155
 0005 F0                MOVX    @DPTR,A
 0006 7400        R     MOV     A,#LOW ?SC_155
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 81  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 81  
 
 0008 120000      R     LCALL   L?0362
 000B 020000      R     LJMP    _InitFontRam
@@ -5167,7 +5167,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0047 E0                MOVX    A,@DPTR
 0048 FD                MOV     R5,A
 0049 120000      R     LCALL   _FOsdRamSetAddrAttr
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 82  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 82  
 
                                            ; SOURCE LINE # 1549
 004C 120000      R     LCALL   L?0356
@@ -5231,7 +5231,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002D A3                INC     DPTR
 002E 7400        R     MOV     A,#LOW ?SC_168
                                            ; SOURCE LINE # 1569
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 83  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 83  
 
 0030 803C              SJMP    ?C0239
                                            ; SOURCE LINE # 1570
@@ -5295,7 +5295,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1586
                                            ; SOURCE LINE # 1587
 0074         ?C0118:
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 84  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 84  
 
                                            ; SOURCE LINE # 1588
 0074 7F01              MOV     R7,#01H
@@ -5359,7 +5359,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0044 E0                MOVX    A,@DPTR
 0045 FF                MOV     R7,A
 0046 7D78              MOV     R5,#078H
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 85  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 85  
 
 0048 7C00              MOV     R4,#00H
 004A 120000      R     LCALL   _FOsdWinSetOsdRamStartAddr
@@ -5423,7 +5423,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0099 2437              ADD     A,#037H
 009B         ?C0240:
 009B FF                MOV     R7,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 86  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 86  
 
 009C E500        E     MOV     A,regTW88+01H
 009E 2407              ADD     A,#07H
@@ -5487,7 +5487,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0034 120000      R     LCALL   L?0298
 0037 7400        R     MOV     A,#HIGH ?SC_236
 0039 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 87  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 87  
 
 003A A3                INC     DPTR
 003B 7400        R     MOV     A,#LOW ?SC_236
@@ -5551,7 +5551,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0082 120000      R     LCALL   L?0298
 0085 7400        R     MOV     A,#HIGH ?SC_281
 0087 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 88  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 88  
 
 0088 A3                INC     DPTR
 0089 7400        R     MOV     A,#LOW ?SC_281
@@ -5615,7 +5615,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _FOsdRamClearAll (BEGIN)
                                            ; SOURCE LINE # 1832
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 89  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 89  
 
 0000 900000      R     MOV     DPTR,#dat
 0003 EE                MOV     A,R6
@@ -5679,7 +5679,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004A         ?C0220:
 004A E4                CLR     A
 004B B507E8            CJNE    A,AR7,?C0147
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 90  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 90  
 
 004E EE                MOV     A,R6
 004F B402E4            CJNE    A,#02H,?C0147
@@ -5743,7 +5743,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0033 120000      R     LCALL   _InitFontRam
                                            ; SOURCE LINE # 1951
 0036 900000      R     MOV     DPTR,#start+01H
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 91  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 91  
 
 0039 E0                MOVX    A,@DPTR
 003A 2480              ADD     A,#080H
@@ -5807,7 +5807,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _InitFontRamByNum (END)
 
              ; FUNCTION _FontInfo (BEGIN)
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 92  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 92  
 
                                            ; SOURCE LINE # 1969
 0000 900000      R     MOV     DPTR,#start
@@ -5871,7 +5871,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0088 601F              JZ      ?C0159
                                            ; SOURCE LINE # 1979
 008A 7A00        R     MOV     R2,#HIGH ?SC_375
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 93  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 93  
 
 008C 7900        R     MOV     R1,#LOW ?SC_375
                                            ; SOURCE LINE # 1980
@@ -5935,7 +5935,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F6 120000      R     LCALL   L?0393
 00F9 120000      R     LCALL   L?0290
                                            ; SOURCE LINE # 1993
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 94  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 94  
 
 00FC E4                CLR     A
 00FD 900000      R     MOV     DPTR,#i
@@ -5999,7 +5999,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 014F E4                CLR     A
 0150 75F002            MOV     B,#02H
 0153 120000      E     LCALL   ?C?ILDIX
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 95  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 95  
 
 0156 A9F0              MOV     R1,B
 0158 FA                MOV     R2,A
@@ -6063,7 +6063,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0013 7A00        R     MOV     R2,#HIGH ?SC_413
 0015 7900        R     MOV     R1,#LOW ?SC_413
 0017 120000      E     LCALL   _Puts
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 96  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 96  
 
                                            ; SOURCE LINE # 2009
 001A 120000      R     LCALL   L?0349
@@ -6127,7 +6127,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0062 120000      R     LCALL   L?0349
 0065 E4                CLR     A
 0066 FF                MOV     R7,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 97  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 97  
 
 0067 FE                MOV     R6,A
 0068 120000      R     LCALL   _FontInfo
@@ -6191,7 +6191,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003A EC                MOV     A,R4
 003B 9400              SUBB    A,#00H
 003D A3                INC     DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 98  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 98  
 
 003E F0                MOVX    @DPTR,A
 003F A3                INC     DPTR
@@ -6255,7 +6255,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008E E0                MOVX    A,@DPTR
 008F FE                MOV     R6,A
 0090 A3                INC     DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 99  
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 99  
 
 0091 E0                MOVX    A,@DPTR
 0092 FF                MOV     R7,A
@@ -6319,7 +6319,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D6 FF                MOV     R7,A
 00D7 120000      R     LCALL   _FOsdWinScreenWH
 00DA 900000      R     MOV     DPTR,#size
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 100 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 100 
 
 00DD E0                MOVX    A,@DPTR
 00DE C4                SWAP    A
@@ -6383,7 +6383,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0129 120000      R     LCALL   L?0350
 012C A3                INC     DPTR
 012D F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 101 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 101 
 
 012E EF                MOV     A,R7
                                            ; SOURCE LINE # 2076
@@ -6447,7 +6447,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 017E 120000      R     LCALL   L?0284
                                            ; SOURCE LINE # 2088
 0181 120000      R     LCALL   L?0351
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 102 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 102 
 
 0184 7F01              MOV     R7,#01H
 0186 120000      R     LCALL   _FOsdWinZoom
@@ -6511,7 +6511,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01D9 900000      E     MOV     DPTR,#?_Printf?BYTE+05H
 01DC CD                XCH     A,R5
 01DD F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 103 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 103 
 
 01DE A3                INC     DPTR
 01DF ED                MOV     A,R5
@@ -6575,7 +6575,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 022E 120000      R     LCALL   L?0351
 0231 7F02              MOV     R7,#02H
 0233 120000      R     LCALL   _FOsdWinZoom
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 104 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 104 
 
                                            ; SOURCE LINE # 2111
 0236 7F02              MOV     R7,#02H
@@ -6639,7 +6639,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0286 13                RRC     A
 0287 D8F9              DJNZ    R0,?C0228
 0289 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 105 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 105 
 
 028A EE                MOV     A,R6
 028B 900000      R     MOV     DPTR,#size
@@ -6703,7 +6703,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02E0 120000      R     LCALL   L?0353
 02E3 4004              JC      ?C0208
 02E5 7D10              MOV     R5,#010H
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 106 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 106 
 
 02E7 8002              SJMP    ?C0209
 02E9         ?C0208:
@@ -6767,7 +6767,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 033B F0                MOVX    @DPTR,A
 033C A3                INC     DPTR
 033D EF                MOV     A,R7
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 107 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 107 
 
 033E F0                MOVX    @DPTR,A
 033F 120000      E     LCALL   _Printf
@@ -6831,7 +6831,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0394 120000      E     LCALL   _delay1ms
 0397 900000      R     MOV     DPTR,#addr+01H
 039A E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 108 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 108 
 
 039B 04                INC     A
 039C F0                MOVX    @DPTR,A
@@ -6885,7 +6885,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 03DD 22                RET     
              ; FUNCTION DumpFont (END)
 
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 109 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 109 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -6948,7 +6948,7 @@ menu_page_info_s . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  11
   type . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
   focus. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
   select . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 110 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 110 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -7011,7 +7011,7 @@ RLE2_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  16
   dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000FH  1
 _FOsdWinScreenWH . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   winno. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0001H  1
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 111 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 111 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -7074,7 +7074,7 @@ DumpFont . . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
 _FOsdInitBpp3AlphaTable. . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   fCalculate . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
   i. . . . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 112 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 112 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -7137,7 +7137,7 @@ menu_image_header_s. . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
   lut_size . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000FH  2
 menu_image_header_t. . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  17
   lut_loc. . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 113 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 113 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -7200,7 +7200,7 @@ SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
   bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
 _FOsdRamSetWriteMode . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   fMode. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 114 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 114 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -7263,7 +7263,7 @@ FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
   palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
   palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 115 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 115 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -7326,7 +7326,7 @@ _FOsdSetPaletteColorArray. . . . . . .  PUBLIC   CODE   PROC     0000H  -----
 _Printf. . . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 MY_RLE_INFO. . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  5
   rle. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
-C51 COMPILER V9.00   OSDFONT                                                               05/31/2013 20:18:34 PAGE 116 
+C51 COMPILER V9.00   OSDFONT                                                               06/05/2014 15:35:00 PAGE 116 
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

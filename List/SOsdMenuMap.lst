@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 1   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE SOSDMENUMAP
 OBJECT MODULE PLACED IN .\Output\SOsdMenuMap.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE SOsdMenuMap.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE SOsdMenuMap.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
                     -OWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\SOsdMenuMap.lst) OBJECT(.\Outpu
                     -t\SOsdMenuMap.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          #include "Demo.h"
   52          
   53          #ifdef SUPPORT_SPIOSD                                                                                                                                                     
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 2   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 2   
 
   54          //==========================
   55          // LEVEL 0 PAGE
@@ -126,7 +126,7 @@ line level    source
  104          //
  105          //
  106          //
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 3   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 3   
 
  107          //                                      return setting exit
  108          //------------------------------------------
@@ -190,7 +190,7 @@ line level    source
  144          { 0, proc_return_icon,          651,430,ALIGN_CENTER,   &img_input_return,&img_input_return1,   0,SOSD_WIN8,0x100,  ME
              -NU_SRC_CVBS,MENU_SRC_EXIT,MENU_SRC_HDMI,MENU_SRC_SETTING },
  145          { 0, proc_input_setting,        695,422,ALIGN_CENTER,   &img_navi_setup,&img_navi_setup1,               0,SOSD_WIN8,0x100,  MENU
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 4   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 4   
 
              -_SRC_CVBS,MENU_SRC_RETURN, MENU_SRC_HDMI,MENU_SRC_EXIT },
  146          { 0, proc_exit_icon,            750,423,ALIGN_CENTER,   &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  MENU_SR
@@ -254,7 +254,7 @@ line level    source
              -,0},
  188          { TYPE_MBG, NULL,                       0,0,    ALIGN_TOPLEFT,  &img_system_bg_top,NULL,                                        0,SOSD_WIN2,0x000,  0,0,0,0},
  189          
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 5   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 5   
 
  190          { 0, proc_return_icon,          697,426,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,                     0,SOSD_WIN8,0x100,  4
              -,3,8,3},        //2
@@ -318,7 +318,7 @@ line level    source
              -/8
  233          
  234          { 0,proc_phone_7,                        70,200,ALIGN_TOPLEFT,  &img_phone_70,&img_phone_71,                    0,SOSD_WIN8,0x0C0,  6,11,12,10},
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 6   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 6   
 
              -//9
  235          { 0,proc_phone_8,                       150,200,ALIGN_TOPLEFT,  &img_phone_80,&img_phone_81,                    0,SOSD_WIN8,0x0C0,  7,9,13,11}, 
@@ -382,7 +382,7 @@ line level    source
              -,2,2},
  276          { 0,proc_exit_icon,                     748,423,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x0C0,  1,1,1,
              -1}
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 7   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 7   
 
  277          };        
  278          struct menu_page_info_s menu_carinfo_page = { MENU_TYPE_NORMAL, 1,1, 3,0,       menu_carinfo_page_items, NULL };
@@ -446,7 +446,7 @@ line level    source
              -80,  7,7,7,7},//6
  322          { 0, proc_touch_button4,        80-10,432-9,ALIGN_TOPLEFT,      &img_touch_button,&img_touch_button1,   0,SOSD_WIN8,0x08
              -0,  8,8,8,8},//7
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 8   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 8   
 
  323          { 0, proc_touch_button5,        400-10,240-9,ALIGN_TOPLEFT,     &img_touch_button,&img_touch_button1,   0,SOSD_WIN8,0x0
              -80,  2,2,2,2} //8
@@ -510,7 +510,7 @@ line level    source
              -,  5,4,7,3},//2
  371          { 0, proc_home_icon,                    682,424,ALIGN_TOPLEFT,  &img_navi_home,&img_navi_home1,                 0,SOSD_WIN8,0x100,  5,2,7,
              -4},//3
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 9   
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 9   
 
  372          { 0, proc_exit_icon,                    743,424,ALIGN_TOPLEFT,  &img_navi_close,&img_navi_close1,               0,SOSD_WIN8,0x100,  5,3,7
              -,2},//4
@@ -574,7 +574,7 @@ line level    source
  414          struct menu_page_info_s menu_apc_list_page = { MENU_TYPE_LIST,  5,5, 5,8,       menu_apc_list_page_items, NULL };
              -                
  415          
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 10  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 10  
 
  416          
  417          
@@ -638,7 +638,7 @@ line level    source
  464          { TYPE_BG, proc_display_bg,             620,420,ALIGN_TOPLEFT,  &img_navi_menu,NULL,                                                    0,SOSD_WIN2,0x180,  0,0,0,0
              -},
  465          { TYPE_MBG, NULL,                               0,0,    ALIGN_TOPLEFT,  &img_display_bg,NULL,                                                   0,SOSD_WIN1,0x000,  0,0,0,0},
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 11  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 11  
 
  466          
  467          { 0, proc_menu_list_return,             623,424,ALIGN_TOPLEFT,  &img_navi_return,&img_navi_return1,                             0,SOSD_WIN8,0x1
@@ -702,7 +702,7 @@ line level    source
  513          
  514          { 0, proc_dvi_mode_ok,          306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x100,  3,2,
              -4,2},//1
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 12  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 12  
 
  515          { 0, proc_dvi_mode_cancel,      381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,         0,SOSD_WIN8,0x1
              -00,  3,1,4,1},//2
@@ -766,7 +766,7 @@ line level    source
  558          
  559          
  560          
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 13  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 13  
 
  561          code struct menu_sitem_info_s menu_autocolor_page_items[] = {
  562          { TYPE_BG,proc_autocolor_bg,    220,260,ALIGN_TOPLEFT,  &img_autocolor_bg,NULL,                                         0,SOSD_WIN1,0x000,  0,0,0
@@ -830,7 +830,7 @@ line level    source
  605          { 0,proc_flip_ok,                       306,385,ALIGN_TOPLEFT,  &img_dialog_ok,&img_dialog_ok1,                         0,SOSD_WIN8,0x080,  2,2,2,2}
              -,
  606          { 0,proc_flip_undo,                     381,385,ALIGN_TOPLEFT,  &img_dialog_cancel,&img_dialog_cancel1,         0,SOSD_WIN8,0x080,  
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 14  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 14  
 
              -1,1,1,1}
  607          };
@@ -894,7 +894,7 @@ line level    source
  659          };
  660          code struct menu_fitem_info_s menu_sys_info_text_items[] = {                    //BK110811
  661                  { 0,0,  306-220,313-260,        10,1, 0,0,      0x1F,    16,0x07E0      },      //EVB
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 15  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 15  
 
  662                  { 1,10, 420-220,344-260,        10,1, 0,0,      0x1F,    16,0x07E0      }       //FW REV
  663          };
@@ -958,7 +958,7 @@ line level    source
  709          { TYPE_BG, NULL,                                243,190,ALIGN_TOPLEFT,                  &img_slide3_bg,NULL,                                    0,SOSD_WIN2,0x040,  0,0,0,0},   //tit
              -le
  710          
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 16  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 16  
 
  711          { 0, proc_slider_ok,                    306,385,ALIGN_TOPLEFT,                  &img_dialog_ok,&img_dialog_ok1,                 0,SOSD_WIN8,0x100,  9,3,
              -5,3},        //2 
@@ -1022,7 +1022,7 @@ line level    source
  751          //=====================
  752          
  753          
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 17  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 17  
 
  754          //----------------------
  755          // position popup MENU
@@ -1086,18 +1086,18 @@ line level    source
  803          //      { proc_lang_jpn,                450,350,ALIGN_TOPLEFT,  image_lang_jpn, 0xC0, SOSD_WIN4, 0,0,0,0},
  804          //      { proc_lang_chn,                450,350,ALIGN_TOPLEFT,  img_ok, 0xC0, SOSD_WIN4, 0,0,0,0},
  805          //      { proc_lang_ok,                 450,350,ALIGN_TOPLEFT,  img_ok, 0xC0, SOSD_WIN4, 0,0,0,0},
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 18  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 18  
 
  806          //};
  807          
  808          #endif //..SUPPORT_SPIOSD
  809          
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 19  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 19  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 20  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 20  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1160,7 +1160,7 @@ img_touch_bg_end . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_phone_down1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_input_return1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_input_hdmi1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 21  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 21  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1223,7 +1223,7 @@ menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
   osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
   x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
   y. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0005H  2
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 22  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 22  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1286,7 +1286,7 @@ menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
   osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
   p. . . . . . . . . . . . . . . . . .  MEMBER   -----  PTR      0001H  3
   x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0004H  2
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 23  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 23  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1349,7 +1349,7 @@ img_position_left. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_autocolor_bg . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_display_flip . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_system_bg_top. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 24  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 24  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1412,7 +1412,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   support. . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
   han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
   van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 25  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 25  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1475,7 +1475,7 @@ proc_yuv_list_hue. . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 proc_autocolor_cancel. . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 proc_position_right_tsc. . . . . . . .  EXTERN   CODE   PROC     -----  -----
 img_rgb_bright . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 26  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 26  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1538,7 +1538,7 @@ img_system_sys_info1 . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 proc_phone_7 . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 menu_input_page. . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00C6H  11
 img_hdmi_mode. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 27  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 27  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1601,7 +1601,7 @@ proc_rgb_list_bright . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 img_apc_color. . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_input_return . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_input_hdmi . . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 28  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 28  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1664,7 +1664,7 @@ menu_phone_text_items. . . . . . . . .  PUBLIC   CODE   ARRAY    0605H  30
 menu_gps_page. . . . . . . . . . . . .  PUBLIC   XDATA  STRUCT   00F2H  11
 img_popup_aspect_zoom. . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 img_system_restore1. . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 29  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 29  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1727,7 +1727,7 @@ proc_main_gps. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 proc_osd_trans . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 menu_dvi_mode_page_items . . . . . . .  PUBLIC   CODE   ARRAY    0CF7H  161
 img_apc_bright1. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 30  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 30  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1790,7 +1790,7 @@ img_touch_button1. . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
 proc_touch_ok. . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 proc_wait_menu_start . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 img_phone_help0. . . . . . . . . . . .  EXTERN   CODE   STRUCT   -----  9
-C51 COMPILER V9.00   SOSDMENUMAP                                                           05/31/2013 20:18:35 PAGE 31  
+C51 COMPILER V9.00   SOSDMENUMAP                                                           06/05/2014 15:35:03 PAGE 31  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 1   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE SPI
 OBJECT MODULE PLACED IN .\Output\SPI.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE SPI.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE SPI.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
                     -DP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\SPI.lst) OBJECT(.\Output\SPI.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
                       WriteTW88(REG4C0, (ReadTW88(REG4C0) & ~0x07) | mode);
               }
               BYTE SpiFlashGetReadMode(void)
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 2   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 2   
 
               {
                       return(ReadTW88(REG4C0) & 0x07);
@@ -126,7 +126,7 @@ line level    source
  114          //-----------------------------------------------------------------------------
  115          /**
  116          * set DMA Length
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 3   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 3   
 
  117          */
  118          void SpiFlashSetCmdLength(BYTE len)
@@ -190,7 +190,7 @@ line level    source
  176   1              WriteTW88Page(4);
  177   1              WriteTW88(REG4C4, dat);
  178   1              SpiFlashDmaWait(200,1,call_line);
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 4   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 4   
 
  179   1      }
  180          
@@ -254,7 +254,7 @@ line level    source
  238          *       R4CB - DMA Command buffer2
  239          *       R4CC - DMA Command buffer3
  240          *       R4CD - DMA Command buffer4
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 5   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 5   
 
  241          *       R4CE - DMA Command buffer5
  242          *       REG4C3[3:0] - Command write byte count
@@ -318,7 +318,7 @@ line level    source
  300          void SpiFlashDmaRead(BYTE dest_type,WORD dest_loc, DWORD src_loc, WORD size)
  301          {
  302   1      //#ifdef MODEL_TW8835_EXTI2C
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 6   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 6   
 
  303   1      //      if(dest_type==DMA_DEST_MCU_XMEM) {
  304   1      //              //use 8 registers and copy to XMem
@@ -382,7 +382,7 @@ line level    source
  362   2                              SPICMD_x_BYTES  = 4;    //(8+24)/8
  363   2                              break;
  364   2                      case 1: //--- Fast
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 7   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 7   
 
  365   2                              SPICMD_x_READ   = 0x0b; 
  366   2                              SPICMD_x_BYTES  = 5;   //(8+24+8)/8. 8 dummy
@@ -446,7 +446,7 @@ line level    source
  424          *       WriteTW88(REG4C9, 0x00 );               // Read count
  425          *       WriteTW88(REG4C4, 0x07 );               // DMA-Write start, Busy check
  426          *       #endif
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 8   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 8   
 
  427          *
  428          * @see SPI_WriteEnable
@@ -510,7 +510,7 @@ line level    source
  486          *       WriteTW88(REG4CD, spiaddr );                            // SPI address
  487          *       WriteTW88(REG4C6, xaddr>>8 );                           // Buffer address
  488          *       WriteTW88(REG4C7, xaddr );                                      // Buffer address
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 9   
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 9   
 
  489          *       WriteTW88(REG4C8, cnt>>8 );                                     // Write count
  490          *       WriteTW88(REG4C9, cnt );                                        // Write count
@@ -574,7 +574,7 @@ line level    source
                       SpiFlashDmaReadLenByte(2);
                       SpiFlashDmaStart(SPIDMA_READ,0, __LINE__);
                       dat0 = SPIDMA_READDATA(0);
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 10  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 10  
 
                       temp = SPIDMA_READDATA(1);
                       Printf("\nNon-Volatile Register: %02bx, %02bx", dat0, temp );
@@ -638,7 +638,7 @@ line level    source
  610   1              if(ret==SFLASH_VENDOR_MICRON && cid==0x18) {
  611   2                      SPI_QuadInit_MICRON();
  612   2                      return ret;
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 11  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 11  
 
  613   2              }
  614   1      
@@ -702,7 +702,7 @@ line level    source
                               SpiFlashCmd(SPICMD_RDSR, 1);
                               SpiFlashDmaReadLenByte(1);
                               SpiFlashDmaStart(SPIDMA_READ,0, __LINE__);
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 12  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 12  
 
                               dat0 = SPIDMA_READDATA(0);
                               Printf("\nStatus after QUAD enable %02bx", dat0 );
@@ -766,7 +766,7 @@ line level    source
  734          //
  735          
  736          #ifdef USE_SFLASH_EEPROM                //=============================================
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 13  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 13  
 
  737          
  738          BYTE EE_CurrBank[EE_BLOCKS];
@@ -830,7 +830,7 @@ line level    source
  796          * @return
  797          *       indexed eeprom data.
  798          *       if no data, return 0.
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 14  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 14  
 
  799          */
  800          BYTE EE_Read(WORD index)
@@ -894,7 +894,7 @@ line level    source
  858   2                      if(ret) {
  859   3                              wPrintf("\nWarning:");
  860   3                              if(ret & 0xF0) wPrintf("BankMove ");
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 15  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 15  
 
  861   3                              if(ret & 0x0F) wPrintf("SectorErase ");
  862   3                              wPrintf(" in EE_Write");
@@ -958,7 +958,7 @@ line level    source
  919   3                              //check Blank Bank
  920   3                              if((SPI_Buffer[0]==0xFF)                
  921   3                              && (SPI_Buffer[1]==0xFF)                
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 16  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 16  
 
  922   3                              && (SPI_Buffer[2]==0xFF)                
  923   3                              && (SPI_Buffer[3]==0xFF) ) {    
@@ -1022,7 +1022,7 @@ line level    source
               #else
  981   3                              SpiFlashDmaRead2XMem(SPI_Buffer, sector_addr + j * EE_BUF_SIZE, EE_BUF_SIZE); //same SpiFlashDmaRead
  982   3      #endif
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 17  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 17  
 
  983   3      
  984   3                              EE_WritePos[i] = SPI_SECTOR_SIZE;
@@ -1086,7 +1086,7 @@ line level    source
                               SpiFlashHostDmaRead2XMem(SPI_Buffer, sector_addr + j * EE_BUF_SIZE, read_cnt); //same SpiFlashDmaRead
               #else
 1044   2                      SpiFlashDmaRead2XMem(SPI_Buffer, sector_addr + j * EE_BUF_SIZE, read_cnt); //same SpiFlashDmaRead
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 18  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 18  
 
 1045   2      #endif
 1046   2      
@@ -1150,7 +1150,7 @@ line level    source
 1104   5                                              //we already have a valid item. just skip.
 1105   5                                      }
 1106   4                                      else {
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 19  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 19  
 
 1107   5                                              mask[ch0>>3] |= (1 << (ch0 & 0x07));
 1108   5                                              buf[ch0] = ch2;
@@ -1214,7 +1214,7 @@ line level    source
 1166          * we assume, we have a enough space on current bank.  ===>WRONG
 1167          * When we have a broken bank, the item number of current bank is alwasy less then 64.
 1168          */
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 20  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 20  
 
 1169          void EE_RepairMoveDone(void) //need new name
 1170          {
@@ -1278,7 +1278,7 @@ line level    source
 1228   1      
 1229   1              if( (SPI_Buffer[0]==0x00) && (SPI_Buffer[1]==0x00) && (SPI_Buffer[2]==0x00) && (SPI_Buffer[3]==0x00) )
 1230   1                      return 1;       //TRUE
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 21  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 21  
 
 1231   1              return 0;
 1232   1      }
@@ -1342,7 +1342,7 @@ line level    source
 1290          *       If item is bigger then threshold, move to next bank.
 1291          *       If no blank bank when it is moving, do SectorErase first.
 1292          *       If fSkipErase is 0, do SectorErase for garbage banks.
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 22  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 22  
 
 1293          * @param
 1294          *       fSkipErase- to reduce SectorErase. 
@@ -1406,7 +1406,7 @@ line level    source
 1352          
 1353          
 1354          /**
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 23  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 23  
 
 1355          * clean banks
 1356          */
@@ -1470,7 +1470,7 @@ line level    source
 1414   3                              if(ret) {
 1415   4                                      Printf("_");                    //blank
 1416   4                              }
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 24  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 24  
 
 1417   3                              else {
 1418   4                                      ret=EE_CheckMoveDoneBank(block, bank);
@@ -1534,7 +1534,7 @@ line level    source
               /* 130 */ 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x32, 0xFF, 0x32, 0x32, 0x32, 
               /* 140 */ 0x32, 0xFF, 0x32, 0x32, 0x32, 0x32, 0xFF, 0x32, 0x32, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
               /* 150 */ 0x00, 0x00, 0x00, 0x00, 0x32, 0xFF, 0x32, 0x32, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 25  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 25  
 
               /* 160 */ 0x00, 0x00, 0x00, 0x32, 0xFF, 0x32, 0x32, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
               /* 170 */ 0x00, 0x00, 0x32, 0xFF, 0x32, 0x32, 0x32, 0x32, 0xFF, 0x32, 0x32, 0x32, 0x32, 0xFF, 0x32, 0x32, 
@@ -1559,7 +1559,7 @@ line level    source
 1499          
 1500          
 1501          
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 26  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 26  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1623,7 +1623,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0042 E4                CLR     A
 0043 3C                ADDC    A,R4
 0044 FC                MOV     R4,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 27  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 27  
 
 0045 22                RET     
 0046         L?0239:
@@ -1687,7 +1687,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008F 3400        R     ADDC    A,#HIGH EE_CurrBank
 0091 F583              MOV     DPH,A
 0093 22                RET     
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 28  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 28  
 
 0094         L?0252:
 0094         L?0253:
@@ -1751,7 +1751,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D7 22                RET     
 00D8         L?0263:
 00D8 24FC              ADD     A,#0FCH
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 29  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 29  
 
 00DA FF                MOV     R7,A
 00DB EE                MOV     A,R6
@@ -1815,7 +1815,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 011E 5407              ANL     A,#07H
 0120 FF                MOV     R7,A
 0121 7401              MOV     A,#01H
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 30  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 30  
 
 0123 7E00              MOV     R6,#00H
 0125 A807              MOV     R0,AR7
@@ -1879,7 +1879,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0163 22                RET     
 0164         L?0290:
 0164         L?0291:
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 31  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 31  
 
 0164 7D00              MOV     R5,#00H
 0166         L?0292:
@@ -1943,7 +1943,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01AB F0                MOVX    @DPTR,A
 01AC A3                INC     DPTR
 01AD 22                RET     
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 32  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 32  
 
 01AE         L?0305:
 01AE FF                MOV     R7,A
@@ -2007,7 +2007,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION SpiFlashDmaStop (BEGIN)
                                            ; SOURCE LINE # 67
                                            ; SOURCE LINE # 68
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 33  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 33  
 
                                            ; SOURCE LINE # 76
 0000 E500        E     MOV     A,regTW88+01H
@@ -2071,7 +2071,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000E FE                MOV     R6,A
 ;---- Variable 'dat' assigned to Register 'R6' ----
                                            ; SOURCE LINE # 109
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 34  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 34  
 
 000F EF                MOV     A,R7
 0010 C4                SWAP    A
@@ -2135,7 +2135,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000A E4                CLR     A
 000B FC                MOV     R4,A
 000C         ?C0005:
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 35  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 35  
 
 000C EC                MOV     A,R4
 000D C3                CLR     C
@@ -2199,7 +2199,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _SpiFlashDmaStart (BEGIN)
                                            ; SOURCE LINE # 168
 ;---- Variable 'fWrite' assigned to Register 'R7' ----
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 36  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 36  
 
 ;---- Variable 'call_line' assigned to Register 'R2/R3' ----
 ;---- Variable 'fBusy' assigned to Register 'R5' ----
@@ -2263,7 +2263,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0003 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 205
                                            ; SOURCE LINE # 206
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 37  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 37  
 
 0006 900000      R     MOV     DPTR,#len
 0009 120000      R     LCALL   L?0244
@@ -2327,7 +2327,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0007 FF                MOV     R7,A
 0008 900000      R     MOV     DPTR,#SPICMD_x_BYTES
 000B E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 38  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 38  
 
 000C FD                MOV     R5,A
              ; FUNCTION _SpiFlashCmd (BEGIN)
@@ -2391,7 +2391,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 284
 0006 900000      R     MOV     DPTR,#addr
 0009 120000      R     LCALL   L?0244
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 39  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 39  
 
 000C FF                MOV     R7,A
 000D 7810              MOV     R0,#010H
@@ -2455,7 +2455,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0029 E4                CLR     A
 002A FF                MOV     R7,A
 002B 020000      R     LJMP    _SpiFlashDmaStart
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 40  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 40  
 
              ; FUNCTION _SpiFlashDmaRead (END)
 
@@ -2519,7 +2519,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001C 14                DEC     A
 001D 6024              JZ      ?C0028
 001F 14                DEC     A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 41  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 41  
 
 0020 6028              JZ      ?C0029
 0022 14                DEC     A
@@ -2583,7 +2583,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0057 900000      R     MOV     DPTR,#SPICMD_x_READ
 005A 74EB              MOV     A,#0EBH
 005C F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 42  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 42  
 
                                            ; SOURCE LINE # 382
 005D 900000      R     MOV     DPTR,#SPICMD_x_BYTES
@@ -2647,7 +2647,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _SPI_BlockErase (BEGIN)
                                            ; SOURCE LINE # 463
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 43  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 43  
 
 0000 900000      R     MOV     DPTR,#spiaddr
 0003 120000      E     LCALL   ?C?LSTXDATA
@@ -2711,7 +2711,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0035 7BFA              MOV     R3,#0FAH
 0037 120000      R     LCALL   L?0316
 003A 020000      R     LJMP    _SpiFlashDmaStart
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 44  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 44  
 
              ; FUNCTION _SPI_PageProgram (END)
 
@@ -2775,7 +2775,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 541
 0056 7F04              MOV     R7,#04H
                                            ; SOURCE LINE # 542
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 45  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 45  
 
 0058 120000      R     LCALL   L?0274
                                            ; SOURCE LINE # 543
@@ -2839,7 +2839,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0040 E500        E     MOV     A,regTW88+01H
 0042 24D2              ADD     A,#0D2H
 0044 120000      R     LCALL   L?0241
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 46  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 46  
 
 0047 E0                MOVX    A,@DPTR
 0048 FD                MOV     R5,A
@@ -2903,7 +2903,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 009D         ?C0039:
                                            ; SOURCE LINE # 610
 009D 900000      R     MOV     DPTR,#ret
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 47  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 47  
 
 00A0 E0                MOVX    A,@DPTR
 00A1 B4040D            CJNE    A,#04H,?C0047
@@ -2967,7 +2967,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F5 7900        R     MOV     R1,#LOW ?SC_138
 00F7 900000      E     MOV     DPTR,#?_dPrintf?BYTE+03H
 00FA F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 48  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 48  
 
 00FB 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 633
@@ -3031,7 +3031,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 680
 014C 120000      R     LCALL   L?0275
                                            ; SOURCE LINE # 681
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 49  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 49  
 
 014F 7BA9              MOV     R3,#0A9H
                                            ; SOURCE LINE # 682
@@ -3095,7 +3095,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 019A 120000      R     LCALL   _SpiFlashDmaStart
 019D 22                RET     
 019E         L?0313:
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 50  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 50  
 
 019E 7A02              MOV     R2,#02H
 01A0 120000      R     LCALL   _SpiFlashDmaStart
@@ -3159,7 +3159,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0054 04                INC     A
 0055 F0                MOVX    @DPTR,A
 0056 020000      R     LJMP    ?C0057
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 51  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 51  
 
                                            ; SOURCE LINE # 760
 0059         ?C0060:
@@ -3223,7 +3223,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0052 900000      R     MOV     DPTR,#j
 0055 120000      R     LCALL   L?0311
 0058 40D5              JC      ?C0064
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 52  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 52  
 
 005A         ?C0065:
                                            ; SOURCE LINE # 783
@@ -3287,7 +3287,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 811
 0024 120000      R     LCALL   L?0254
 0027 900000      R     MOV     DPTR,#block
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 53  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 53  
 
 002A 120000      R     LCALL   L?0236
 002D 900000      R     MOV     DPTR,#sector_addr
@@ -3351,7 +3351,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0080 E0                MOVX    A,@DPTR
 0081 FB                MOV     R3,A
 0082 D007              POP     AR7
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 54  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 54  
 
 0084 C3                CLR     C
 0085 EF                MOV     A,R7
@@ -3415,7 +3415,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D7 F582              MOV     DPL,A
 00D9 7400        R     MOV     A,#HIGH SPI_Buffer
 00DB 3E                ADDC    A,R6
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 55  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 55  
 
 00DC F583              MOV     DPH,A
 00DE E0                MOVX    A,@DPTR
@@ -3479,7 +3479,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0129 F4                CPL     A
 012A 4C                ORL     A,R4
 012B 7001              JNZ     ?C0074
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 56  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 56  
 
                                            ; SOURCE LINE # 829
 012D 22                RET     
@@ -3543,7 +3543,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000C CE                XCH     A,R6
 000D C3                CLR     C
 000E 13                RRC     A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 57  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 57  
 
 000F CE                XCH     A,R6
 0010 13                RRC     A
@@ -3607,7 +3607,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0069 7900        R     MOV     R1,#LOW ?SC_386
 006B 120000      E     LCALL   _wPrintf
                                            ; SOURCE LINE # 863
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 58  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 58  
 
                                            ; SOURCE LINE # 864
 006E         ?C0078:
@@ -3671,7 +3671,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0016 08                DB      08H
 0017 00                DB      00H
 0018 00                DB      00H
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 59  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 59  
 
 0019 900000      E     MOV     DPTR,#?_ePrintf?BYTE+07H
 001C 120000      E     LCALL   ?C?LSTKXDATA
@@ -3735,7 +3735,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0078 E0                MOVX    A,@DPTR
 0079 B4FF0F            CJNE    A,#0FFH,?C0089
                                            ; SOURCE LINE # 923
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 60  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 60  
 
                                            ; SOURCE LINE # 926
 007C 900000      R     MOV     DPTR,#i
@@ -3799,7 +3799,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D3 FF                MOV     R7,A
 00D4 7401              MOV     A,#01H
 00D6 A807              MOV     R0,AR7
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 61  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 61  
 
 00D8 08                INC     R0
 00D9 8002              SJMP    ?C0209
@@ -3863,7 +3863,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0125 900000      R     MOV     DPTR,#j
 0128 F0                MOVX    @DPTR,A
 0129         ?C0098:
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 62  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 62  
 
 0129 900000      R     MOV     DPTR,#j
 012C E0                MOVX    A,@DPTR
@@ -3927,7 +3927,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0188 A3                INC     DPTR
 0189 EF                MOV     A,R7
 018A F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 63  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 63  
 
                                            ; SOURCE LINE # 988
 018B 900000      R     MOV     DPTR,#j
@@ -3991,7 +3991,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000C         ?C0107:
 000C 900000      R     MOV     DPTR,#i
 000F E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 64  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 64  
 
 0010 FF                MOV     R7,A
 0011 C3                CLR     C
@@ -4055,7 +4055,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 006C FC                MOV     R4,A
 006D A3                INC     DPTR
 006E E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 65  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 65  
 
 006F FD                MOV     R5,A
 0070 4C                ORL     A,R4
@@ -4119,7 +4119,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00C9 9F                SUBB    A,R7
 00CA 505D              JNC     ?C0115
                                            ; SOURCE LINE # 1050
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 66  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 66  
 
 00CC E0                MOVX    A,@DPTR
 00CD FF                MOV     R7,A
@@ -4183,7 +4183,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 011B EC                MOV     A,R4
 011C 120000      E     LCALL   ?C?CSTOPTR
                                            ; SOURCE LINE # 1058
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 67  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 67  
 
                                            ; SOURCE LINE # 1059
 011F         ?C0121:
@@ -4247,7 +4247,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003B 020000      R     LJMP    ?C0136
                                            ; SOURCE LINE # 1082
 003E         ?C0127:
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 68  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 68  
 
                                            ; SOURCE LINE # 1083
 003E C3                CLR     C
@@ -4311,7 +4311,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0099 2400        R     ADD     A,#LOW SPI_Buffer
 009B 120000      R     LCALL   L?0269
 009E E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 69  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 69  
 
 009F FE                MOV     R6,A
 00A0 900000      R     MOV     DPTR,#ch0
@@ -4375,7 +4375,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00E9 120000      E     LCALL   ?C?CLDPTR
 00EC FE                MOV     R6,A
 00ED EF                MOV     A,R7
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 70  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 70  
 
 00EE 5407              ANL     A,#07H
 00F0 FF                MOV     R7,A
@@ -4439,7 +4439,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0013 E4                CLR     A
 0014 900000      R     MOV     DPTR,#wptr
 0017 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 71  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 71  
 
                                            ; SOURCE LINE # 1135
 0018 900000      R     MOV     DPTR,#i
@@ -4503,7 +4503,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0064 EF                MOV     A,R7
 0065 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1144
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 72  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 72  
 
 0066 900000      R     MOV     DPTR,#buf
 0069 120000      R     LCALL   L?0280
@@ -4567,7 +4567,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00C1 FB                MOV     R3,A
 00C2 900000      R     MOV     DPTR,#?_SPI_PageProgram?BYTE+06H
 00C5 E4                CLR     A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 73  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 73  
 
 00C6 F0                MOVX    @DPTR,A
 00C7 A3                INC     DPTR
@@ -4631,7 +4631,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0018 020000      R     LJMP    ?C0151
                                            ; SOURCE LINE # 1178
 001B 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 74  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 74  
 
 001D 7A00        R     MOV     R2,#HIGH ?SC_504
 001F 7900        R     MOV     R1,#LOW ?SC_504
@@ -4695,7 +4695,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008A 120000      R     LCALL   L?0261
 008D 120000      R     LCALL   _EE_WriteBlock
                                            ; SOURCE LINE # 1189
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 75  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 75  
 
 0090 120000      R     LCALL   L?0307
 0093 120000      R     LCALL   _EE_WriteMoveDone
@@ -4759,7 +4759,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _EE_CheckMoveDoneBank (BEGIN)
                                            ; SOURCE LINE # 1218
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 76  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 76  
 
 0000 900000      R     MOV     DPTR,#bank
 ;---- Variable 'block' assigned to Register 'R7' ----
@@ -4823,7 +4823,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0014 EF                MOV     A,R7
 0015 24FC              ADD     A,#0FCH
 0017 FF                MOV     R7,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 77  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 77  
 
 0018 EE                MOV     A,R6
 0019 340F              ADDC    A,#0FH
@@ -4887,7 +4887,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003F E4                CLR     A
 0040 F0                MOVX    @DPTR,A
 0041 A3                INC     DPTR
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 78  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 78  
 
 0042 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1273
@@ -4951,7 +4951,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0008 E4                CLR     A
 0009 900000      R     MOV     DPTR,#ret
 000C F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 79  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 79  
 
                                            ; SOURCE LINE # 1317
 000D ED                MOV     A,R5
@@ -5015,7 +5015,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0060 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1332
 0061 EE                MOV     A,R6
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 80  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 80  
 
 0062 FF                MOV     R7,A
 0063 120000      R     LCALL   L?0255
@@ -5079,7 +5079,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0000 7BFF              MOV     R3,#0FFH
 0002 7A00        R     MOV     R2,#HIGH ?SC_538
 0004 7900        R     MOV     R1,#LOW ?SC_538
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 81  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 81  
 
 0006 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 1363
@@ -5143,7 +5143,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0014 7900        R     MOV     R1,#LOW ?SC_568
 0016 120000      R     LCALL   L?0310
 0019 120000      R     LCALL   L?0250
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 82  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 82  
 
 001C E0                MOVX    A,@DPTR
 001D FF                MOV     R7,A
@@ -5207,7 +5207,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0074 900000      R     MOV     DPTR,#j
 0077 E0                MOVX    A,@DPTR
 0078 FD                MOV     R5,A
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 83  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 83  
 
 0079 C3                CLR     C
 007A 9410              SUBB    A,#010H
@@ -5271,7 +5271,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00CB FF                MOV     R7,A
 00CC 900000      R     MOV     DPTR,#i
 00CF E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 84  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 84  
 
 00D0 75F010            MOV     B,#010H
 00D3 A4                MUL     AB
@@ -5335,7 +5335,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000A C3                CLR     C
 000B 9408              SUBB    A,#08H
 000D 5065              JNC     ?C0187
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 85  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 85  
 
                                            ; SOURCE LINE # 1411
 000F 7BFF              MOV     R3,#0FFH
@@ -5399,7 +5399,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0061         ?C0231:
 0061 120000      E     LCALL   _Printf
                                            ; SOURCE LINE # 1421
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 86  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 86  
 
                                            ; SOURCE LINE # 1422
 0064         ?C0191:
@@ -5463,7 +5463,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00B5 C3                CLR     C
 00B6 EF                MOV     A,R7
 00B7 9D                SUBB    A,R5
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 87  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 87  
 
 00B8 EE                MOV     A,R6
 00B9 9C                SUBB    A,R4
@@ -5527,7 +5527,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 011B F0                MOVX    @DPTR,A
 011C 900000      R     MOV     DPTR,#SPI_Buffer+02H
 011F E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 88  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 88  
 
 0120 900000      E     MOV     DPTR,#?_Printf?BYTE+0BH
 0123 F0                MOVX    @DPTR,A
@@ -5563,7 +5563,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 014F 22                RET     
              ; FUNCTION EE_Check (END)
 
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 89  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 89  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -5626,7 +5626,7 @@ EE_PrintCurrInfo . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
 _SPI_PageProgram . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   spiaddr. . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0000H  4
   xaddr. . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0004H  2
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 90  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 90  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -5689,7 +5689,7 @@ _SpiFlashDmaStart. . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   fWrite . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0007H  1
   fBusy. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0005H  1
   call_line. . . . . . . . . . . . . .  * REG *  DATA   U_INT    0002H  2
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 91  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 91  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -5752,7 +5752,7 @@ _SpiFlashDmaRead2XMem. . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   src_loc. . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0003H  4
   size . . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0007H  2
 EE_DumpBlocks. . . . . . . . . . . . .  STATIC   CODE   PROC     0000H  -----
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 92  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 92  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -5816,7 +5816,7 @@ _EE_Write. . . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-C51 COMPILER V9.00   SPI                                                                   05/31/2013 20:18:28 PAGE 93  
+C51 COMPILER V9.00   SPI                                                                   06/05/2014 15:34:48 PAGE 93  
 
    CODE SIZE        =   5175    ----
    CONSTANT SIZE    =    703    ----

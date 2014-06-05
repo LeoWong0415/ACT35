@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 1   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE SPIFLASHMAP
 OBJECT MODULE PLACED IN .\Output\SpiFlashMap.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE SpiFlashMap.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE SpiFlashMap.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BR
                     -OWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\SpiFlashMap.lst) OBJECT(.\Outpu
                     -t\SpiFlashMap.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          // |  start:0x404000 size:0x2800|
   52          // | test16x32xA0_20_20_20      |
   53          // |  start:0x407000 size:0x2800|
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 2   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 2   
 
   54          // | consolas22_16x26_2BPP      |
   55          // |  start:0x40A000 size:0x2700|
@@ -126,7 +126,7 @@ line level    source
  113          
  114          #define MAP0_START      SFLASH_IMG_ADDR
  115          //#define MAP0_START    0
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 3   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 3   
 
  116          
  117          //===================================
@@ -190,7 +190,7 @@ line level    source
              -LL };
  166          //next 0x400000+0xB000
  167          //next you have to move the menu images.
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 4   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 4   
 
  168          
  169          
@@ -254,7 +254,7 @@ line level    source
  224          //code image_item_info_t img_ = {+0x000000, 0x0010F0 },    // FontAll 
  225          code image_item_info_t img_logo                                                 = {1, MENU_B_FLASH_START+0x000000, NULL,        0xff};    // Intersil-Techw
              -ell
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 5   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 5   
 
  226          code image_item_info_t img_navi_menu                                    = {1, MENU_B_FLASH_START+0x0049B1, NULL,        0x00};    // img_navi_
              -bg 
@@ -318,7 +318,7 @@ line level    source
              -ut_cvbs1 
  256          code image_item_info_t img_input_svideo                                 = {2, MENU_B_FLASH_START+0x06FA63, &img_input_svideo0_header,
              -        0xff};    // img_input_svideo 
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 6   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 6   
 
  257          code image_item_info_t img_input_svideo1                                = {1, MENU_B_FLASH_START+0x071195, NULL,        0xff};    // img_in
              -put_svideo1 
@@ -382,7 +382,7 @@ line level    source
  287          code image_item_info_t img_phone_10                                     = {1, MENU_B_FLASH_START+0x0EAAD2, NULL,        0xff};    // img_phone_1
              -0          
  288          code image_item_info_t img_phone_11                                     = {1, MENU_B_FLASH_START+0x0EB948, NULL,        0xff};    // img_phone_1
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 7   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 7   
 
              -1          
  289          code image_item_info_t img_phone_20                                     = {1, MENU_B_FLASH_START+0x0EC832, NULL,        0xff};    // img_phone_2
@@ -446,7 +446,7 @@ line level    source
  318          code image_item_info_t img_phone_right1                                 = {1, MENU_B_FLASH_START+0x10AC08, NULL,        0xff};    // img_phon
              -e_right1  
  319          code image_item_info_t img_phone_check0                                 = {1, MENU_B_FLASH_START+0x10BAF2, NULL,        0xff};    // img_phon
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 8   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 8   
 
              -e_check0  
  320          code image_item_info_t img_phone_check1                                 = {1, MENU_B_FLASH_START+0x10C968, NULL,        0xff};    // img_phon
@@ -510,7 +510,7 @@ line level    source
  349          code image_item_info_t img_btooth_bg                                    = {1, MENU_B_FLASH_START+0x16458F, NULL,        0xff};    // img_btoot
              -h_bg 
  350          code image_item_info_t img_yuv_menu_bg                                  = {1, MENU_B_FLASH_START+0x188842, NULL,        0x00};    // img_yuv_
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 9   
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 9   
 
              -menu_bg 
  351          code image_item_info_t img_yuv_bright                                   = {1, MENU_B_FLASH_START+0x19B0D2, NULL,        0xff};    // img_yuv_
@@ -574,7 +574,7 @@ line level    source
  380          code image_item_info_t img_apc_pclock1                                  = {1, MENU_B_FLASH_START+0x209DD3, NULL,        0xff};    // img_apc_
              -pclock1 
  381          code image_item_info_t img_apc_autoadj                                  = {1, MENU_B_FLASH_START+0x20B996, NULL,        0xff};    // img_apc_
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 10  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 10  
 
              -autoadj 
  382          code image_item_info_t img_apc_autoadj1                                 = {1, MENU_B_FLASH_START+0x20D559, NULL,        0xff};    // img_apc
@@ -638,7 +638,7 @@ line level    source
              -ocolor_bg 
  412          code image_item_info_t img_flip_bg                                      = {1, MENU_B_FLASH_START+0x2A602D, NULL,        0xff};    // img_flip_bg
              - 
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 11  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 11  
 
  413          code image_item_info_t img_sysrestore_bg                                = {1, MENU_B_FLASH_START+0x2A81A9, NULL,        0xff};    // img_sy
              -srestore_bg 
@@ -702,7 +702,7 @@ line level    source
              -spect_bg 
  443          code image_item_info_t img_popup_aspect_normal                  = {1, MENU_B_FLASH_START+0x2C9F88, NULL,        0xff};    // im
              -g_aspect_normal 
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 12  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 12  
 
  444          code image_item_info_t img_popup_aspect_normal1                 = {1, MENU_B_FLASH_START+0x2CA8DE, NULL,        0xff};    // im
              -g_aspect_normal1 
@@ -766,7 +766,7 @@ line level    source
  477          code image_item_info_t img_fpga_400                     = {1, FPGA_TEST_IMG+0x000AE9, NULL, 0xff};
  478          code image_item_info_t img_fpga_800                     = {1, FPGA_TEST_IMG+0x000FF3, NULL, 0xff};
  479          
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 13  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 13  
 
  480          #define FPGA_TEST_IMG2  0x330000
  481          code image_item_info_t img_bgr_bar                      = {1, FPGA_TEST_IMG2+0x000000, NULL, 0xff};
@@ -830,7 +830,7 @@ line level    source
  539          void MonOsdLutLoad(BYTE img_n, BYTE sosd_win, WORD lut)
  540          {
  541   1              struct image_item_info_s *image;
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 14  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 14  
 
  542   1              menu_image_header_t *header = &header_table;    //link header buffer.
  543   1      
@@ -894,7 +894,7 @@ line level    source
  601   1      #if 1
  602   1              if(UseSOsdHwBuff) 
  603   1              {
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 15  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 15  
 
  604   2                      if(header->rle)
  605   2                              SOsdHwBuffSetRle(sosd_win,header->bpp,header->rle);
@@ -957,7 +957,7 @@ line level    source
  662          
  663          
  664          #endif //..SUPPORT_SPIOSD
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 16  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 16  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1021,7 +1021,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0041         L?0037:
 0041 900000      R     MOV     DPTR,#sosd_win
 0044 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 17  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 17  
 
 0045 FF                MOV     R7,A
 0046         L?0038:
@@ -1085,7 +1085,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0082 22                RET     
 0083         L?0048:
 0083 AC00              MOV     R4,AR0
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 18  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 18  
 
 0085 AD01              MOV     R5,AR1
 0087 AE02              MOV     R6,AR2
@@ -1149,7 +1149,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003B 900000      R     MOV     DPTR,#image
 003E 120000      R     LCALL   L?0027
 0041 900001            MOV     DPTR,#01H
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 19  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 19  
 
 0044 120000      E     LCALL   ?C?LLDOPTR
 0047 900000      E     MOV     DPTR,#?_Printf?BYTE+03H
@@ -1213,7 +1213,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00CC 7A00        R     MOV     R2,#HIGH ?SC_81
 00CE 7900        R     MOV     R1,#LOW ?SC_81
 00D0 8004              SJMP    ?C0005
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 20  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 20  
 
 00D2         ?C0004:
 00D2 7A00        R     MOV     R2,#HIGH ?SC_83
@@ -1277,7 +1277,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000A 7BFF              MOV     R3,#0FFH
 000C 7A00        R     MOV     R2,#HIGH ?SC_85
 000E 7900        R     MOV     R1,#LOW ?SC_85
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 21  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 21  
 
 0010 900000      R     MOV     DPTR,#img_n
 0013 E0                MOVX    A,@DPTR
@@ -1341,7 +1341,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 566
 000C 7BFF              MOV     R3,#0FFH
 000E 7A00        R     MOV     R2,#HIGH ?SC_112
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 22  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 22  
 
 0010 7900        R     MOV     R1,#LOW ?SC_112
 0012 900000      R     MOV     DPTR,#img_n
@@ -1405,7 +1405,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 007F 120000      E     LCALL   _SpiOsdWinImageSizeWH
                                            ; SOURCE LINE # 584
 0082 120000      R     LCALL   L?0024
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 23  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 23  
 
 0085 120000      R     LCALL   L?0052
 0088 FD                MOV     R5,A
@@ -1469,7 +1469,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00DD 120000      E     LCALL   _SpiOsdWinPixelAlpha
 00E0 8007              SJMP    ?C0010
 00E2         ?C0009:
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 24  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 24  
 
                                            ; SOURCE LINE # 591
                                            ; SOURCE LINE # 592
@@ -1533,7 +1533,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0139 E0                MOVX    A,@DPTR
 013A FA                MOV     R2,A
 013B A3                INC     DPTR
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 25  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 25  
 
 013C E0                MOVX    A,@DPTR
 013D 120000      E     LCALL   ?C?LLDPTR0
@@ -1597,7 +1597,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0195 120000      R     LCALL   L?0029
 0198 E0                MOVX    A,@DPTR
 0199 54F7              ANL     A,#0F7H
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 26  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 26  
 
 019B F0                MOVX    @DPTR,A
 019C         ?C0016:
@@ -1661,7 +1661,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 659
                                            ; SOURCE LINE # 661
 01EC         ?C0020:
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 27  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 27  
 
 01EC 22                RET     
 01ED         L?0057:
@@ -1673,7 +1673,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01F6 22                RET     
              ; FUNCTION _MonOsdImgLoad (END)
 
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 28  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 28  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1736,7 +1736,7 @@ img_yuv_contrast1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   06ABH  9
 img_phone_star1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   04FBH  9
 img_main_input1. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   02A0H  9
 img_navi_home1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   024FH  9
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 29  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 29  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1799,7 +1799,7 @@ menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
   BPP1Color. . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000BH  1
   BPP3_palette . . . . . . . . . . . .  MEMBER   -----  U_CHAR   000CH  1
   BPP3_color . . . . . . . . . . . . .  MEMBER   -----  U_INT    000DH  2
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 30  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 30  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1862,7 +1862,7 @@ menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
   win. . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0010H  1
   lut. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0011H  2
   up . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0013H  1
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 31  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 31  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1925,7 +1925,7 @@ img_apc_contrast . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0744H  9
 img_yuv_hue. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   06B4H  9
 img_input_dvi1 . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0378H  9
 _SpiOsdWinLutOffset. . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 32  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 32  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1988,7 +1988,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
   dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
   dummy3 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0018H  1
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 33  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 33  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2051,7 +2051,7 @@ img_yuv_menu_bg. . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0687H  9
 img_navi_close1_header . . . . . . . .  PUBLIC   CODE   STRUCT   0192H  6
 img_hdmi_mode_tv1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   0A9BH  9
 img_popup_aspect_zoom_select . . . . .  PUBLIC   CODE   STRUCT   09F9H  9
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 34  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 34  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2114,7 +2114,7 @@ _SpiOsdWinBuffEnable . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 header_table . . . . . . . . . . . . .  EXTERN   XDATA  STRUCT   -----  17
 img_hdmi_setting1. . . . . . . . . . .  PUBLIC   CODE   STRUCT   07E6H  9
 SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 35  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 35  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2177,7 +2177,7 @@ img_phone_bg . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   0435H  9
 img_navi_menu. . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   022BH  9
 kor_font . . . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   014BH  25
 FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 36  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 36  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2240,7 +2240,7 @@ img_phone_sharp1 . . . . . . . . . . .  PUBLIC   CODE   STRUCT   050DH  9
 UseSOsdHwBuff. . . . . . . . . . . . .  EXTERN   XDATA  U_CHAR   -----  1
 img_demo_bg. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   05E5H  9
 img_main_bg. . . . . . . . . . . . . .  PUBLIC   CODE   STRUCT   028EH  9
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 37  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 37  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -2304,7 +2304,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    CONSTANT SIZE    =   3039    ----
    XDATA SIZE       =   ----      28
    PDATA SIZE       =   ----    ----
-C51 COMPILER V9.00   SPIFLASHMAP                                                           05/31/2013 20:18:35 PAGE 38  
+C51 COMPILER V9.00   SPIFLASHMAP                                                           06/05/2014 15:35:10 PAGE 38  
 
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

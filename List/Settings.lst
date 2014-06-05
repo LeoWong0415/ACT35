@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 1   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE SETTINGS
 OBJECT MODULE PLACED IN .\Output\Settings.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Settings.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Settings.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
                     -E MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Settings.lst) OBJECT(.\Output\Sett
                     -ings.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          
   52          #if 0
               void SW_Reset(void)
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 2   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 2   
 
               {
                       DECLARE_LOCAL_page
@@ -126,7 +126,7 @@ line level    source
  113          * set 27MHz clock. only for test
  114          */
  115          void Clock27(void)
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 3   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 3   
 
  116          {
  117   1              dPrintf("\n27MHz");     
@@ -190,7 +190,7 @@ line level    source
  175   1      
  176   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       //FPGA do not return the correct ppf value. type "PCLK 666" for 66.6MKz
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 4   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 4   
 
                       ppf = 66560180;
                       dPrintf("->%ld", ppf);
@@ -254,7 +254,7 @@ line level    source
  237   1              else {
  238   2                      WriteTW88Page(PAGE0_SSPLL);
  239   2                      dFPLL = ReadTW88(REG0F8_FPLL0)&0x0F;
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 5   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 5   
 
  240   2                      dFPLL <<=8;
  241   2                      dFPLL |= ReadTW88(REG0F9_FPLL1);
@@ -318,7 +318,7 @@ line level    source
  299   1              FPLL <<= POST;
  300   1              FPLL <<= 12;
  301   1              FPLL = FPLL / 3375L;
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 6   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 6   
 
  302   1              return FPLL;
  303   1      }
@@ -382,7 +382,7 @@ line level    source
  361          //R0F9
  362          //R0FA
  363          //R0FD
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 7   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 7   
 
  364          //R0FC
  365          //R20D[4]       Pixel clock polarity control
@@ -446,7 +446,7 @@ line level    source
  423          * set PCLK divider
  424          */
  425          void PclkSetDividerReg(BYTE divider)
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 8   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 8   
 
  426          {
  427   1              WriteTW88Page(0);
@@ -510,7 +510,7 @@ line level    source
  485          *
  486          */
  487          void PclkoSetDiv(/*BYTE pol,*/ BYTE div)
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 9   
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 9   
 
  488          {
  489   1              BYTE value;
@@ -574,7 +574,7 @@ line level    source
  547   1              DWORD clkpll,spi_clk;
  548   1              BYTE i=0;
  549   1      
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 10  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 10  
 
  550   1              //check & move MCU CLK source to 27M 
  551   1              mcu_sel = McuSpiClkReadSelectReg();
@@ -638,7 +638,7 @@ line level    source
  609   2              case 2: temp32 = clkpll*2;              break;
  610   2              case 3: temp32 = clkpll*2/5;    break;
  611   2              case 4: temp32 = clkpll*3;              break;
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 11  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 11  
 
  612   2              case 5: temp32 = clkpll*2/7;    break;
  613   2              case 6: temp32 = clkpll*4;              break;
@@ -702,7 +702,7 @@ line level    source
               //PORT_DEBUG = 0;
                       WriteTW88Page(PAGE4_CLOCK);
                       WriteTW88(REG4E0, shadow_r4e0 & 0xFE);  //select PCLK.
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 12  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 12  
 
                       WriteTW88(REG4E1, 0x20 | divider);
               //PORT_DEBUG = 1;
@@ -766,7 +766,7 @@ line level    source
  733          * Select McuSpi clock source
  734          *
  735          *       register
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 13  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 13  
 
  736          *       R4E1[5:4]
  737          * @param McuSpiClkSel clock source
@@ -830,7 +830,7 @@ line level    source
  795          */
  796          DWORD SpiClkGetFreq(BYTE fHost, DWORD mcu_clk)
  797          {
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 14  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 14  
 
  798   1              BYTE divider;
  799   1              DWORD temp32;
@@ -894,7 +894,7 @@ line level    source
  856          #if 0
               void SetDefaultPClock(void)
               {
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 15  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 15  
 
                       WriteTW88Page(PAGE0_SSPLL);
                       WriteTW88(REG0F9, 0x50);                //SSPLL 70MKz. 0x50:70MHz, 0x3C:66.6MHz..Pls use SspllSetFreqReg(0x015000);
@@ -958,7 +958,7 @@ line level    source
  918          //!GPIO3        R083    R08B    R093    R09B
  919          //!GPIO4        R084    R08C    R094    R09C
  920          //!GPIO6        R085    R08D    R095    R09D
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 16  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 16  
 
  921          //!GPIO7        R086    R08E    R096    R09E
  922          //!
@@ -1022,7 +1022,7 @@ line level    source
               #endif
  981   2                      WriteTW88(REG0E8, 0xF2);        //Printf("\nREG0E8:F2[%bd]",ReadTW88(REG0EA)>>4);
  982   2                      WriteTW88(REG0E8, 0x02);        //Printf("\nREG0E8:02[%bd]",ReadTW88(REG0EA)>>4);
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 17  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 17  
 
  983   2                      WriteTW88(REG0E8, 0x03);        //Printf("\nREG0E8:03[%bd]",ReadTW88(REG0EA)>>4);
  984   2                      WriteTW88(REG0E8, 0x01);        //Printf("\nREG0E8:01[%bd]",ReadTW88(REG0EA)>>4);
@@ -1086,7 +1086,7 @@ line level    source
 1042   2              }
 1043   1      #endif
 1044   1      #endif  
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 18  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 18  
 
 1045   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       WriteTW88Page(PAGE0_GENERAL);
@@ -1150,7 +1150,7 @@ line level    source
 1104   1              WriteTW88Page(PAGE0_GPIO);
 1105   1              WriteTW88(REG084, 0x00);        //FP_BiasOnOff(OFF);
 1106   1              WriteTW88(REG08C, 0x00);        //FP_PWC_OnOff(OFF);
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 19  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 19  
 
 1107   1              WriteTW88(REG094, 0x00);        //output
 1108   1      
@@ -1207,34 +1207,35 @@ line level    source
 1158   1      #endif
 1159   1      
 1160   1              WriteTW88Page(PAGE0_GENERAL);
-1161   1                                                              //SSPLL FREQ R0F8[3:0]R0F9[7:0]R0FA[7:0]
-1162   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
+1161   1              WriteTW88(REG0D6, 0x01);
+1162   1                                                              //SSPLL FREQ R0F8[3:0]R0F9[7:0]R0FA[7:0]
+1163   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       WriteTW88(REG0F8, 0x01);        //65MHz
                       WriteTW88(REG0F9, 0x34);        
                       WriteTW88(REG0FA, 0x26);        
                       WriteTW88(REG0F6, 0x00);        //PCLK_div_by_1 SPICLK_div_by_1
-                      WriteTW88(REG0FD, 0x34);        //SSPLL Analog Control
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 20  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 20  
 
+                      WriteTW88(REG0FD, 0x34);        //SSPLL Analog Control
                                                                               //              POST[7:6]=0 VCO[5:4]=3 IPMP[2:0]=4
               #else
-1170   1              WriteTW88(REG0F8, 0x02);        //108MHz
-1171   1              WriteTW88(REG0F9, 0x00);        
-1172   1              WriteTW88(REG0FA, 0x00);        
-1173   1              WriteTW88(REG0F6, 0x00);        //PCLK_div_by_1 SPICLK_div_by_1
-1174   1              WriteTW88(REG0FD, 0x34);        //SSPLL Analog Control
-1175   1                                                                      //              POST[7:6]=0 VCO[5:4]=3 IPMP[2:0]=4
-1176   1      #endif
-1177   1      
-1178   1              WriteTW88Page(PAGE2_SCALER);
-1179   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
+1171   1              WriteTW88(REG0F8, 0x02);        //108MHz
+1172   1              WriteTW88(REG0F9, 0x00);        
+1173   1              WriteTW88(REG0FA, 0x00);        
+1174   1              WriteTW88(REG0F6, 0x00);        //PCLK_div_by_1 SPICLK_div_by_1
+1175   1              WriteTW88(REG0FD, 0x34);        //SSPLL Analog Control
+1176   1                                                                      //              POST[7:6]=0 VCO[5:4]=3 IPMP[2:0]=4
+1177   1      #endif
+1178   1      
+1179   1              WriteTW88Page(PAGE2_SCALER);
+1180   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       WriteTW88(REG20D, 0x01);        //pclko div 2.  65/2 = 32.5MHz 
               #else
-1182   1              WriteTW88(REG20D, 0x02);        //pclko div 3.  108/3=36MHz
-1183   1      #endif
-1184   1      
+1183   1              WriteTW88(REG20D, 0x02);        //pclko div 3.  108/3=36MHz
+1184   1      #endif
 1185   1      
-1186   1      #if 0   //if you want CLKPLL 72MHz or 54MHz
+1186   1      
+1187   1      #if 0   //if you want CLKPLL 72MHz or 54MHz
                       WriteTW88Page(PAGE0_GENERAL);
                       WriteTW88(REG0FC, ReadTW88(REG0FC) & ~0x80);    //Turn off SSPLL PowerDown first.
                       WriteTW88(REG0F6, ReadTW88(REG0F6) | 0x20);     //SPICLK_div_by_3
@@ -1242,435 +1243,435 @@ line level    source
                       WriteTW88Page(PAGE4_CLOCK);
                       WriteTW88(REG4E1, ReadTW88(REG4E1) | 0x20);             //SPI_CK_SEL[5:4]=2. CLKPLL
               #endif
-1194   1      
-1195   1              //---------------------------
-1196   1              WriteTW88Page(PAGE1_DECODER);
-1197   1              WriteTW88(REG1C0, 0x01);                //LLPLL input def 0x00
-1198   1              WriteTW88(REG105, 0x2f);                //Reserved def 0x0E
-1199   1      
+1195   1      
+1196   1              //---------------------------
+1197   1              WriteTW88Page(PAGE1_DECODER);
+1198   1              WriteTW88(REG1C0, 0x01);                //LLPLL input def 0x00
+1199   1              WriteTW88(REG105, 0x2f);                //Reserved def 0x0E
 1200   1      
-1201   1              //---------------------------
-1202   1              WriteTW88Page(PAGE2_SCALER);
-1203   1              WriteTW88(REG21E, 0x03);                //BLANK def 0x00.       --enable screen blanking with AUTO
-1204   1      
-1205   1              //---------------------------
-1206   1              WriteTW88Page(PAGE0_LEDC);
-1207   1              WriteTW88(REG0E0, 0xF2);                //LEDC. default. 
-1208   1                                                                              //      R0E0[1]=1       Analog block power down
-1209   1                                                                              //      R0E0[0]=0       LEDC digital block disable
-1210   1              //---------------------------
-1211   1                                                                              //DCDC. default. HW:0xF2
-1212   1                                                                              //      R0E8[1]=1       Sense block power down
-1213   1                                                                              //      R0E8[0]=0       DC converter digital block disable.
-1214   1      
-1215   1              WriteTW88(REG0E8, 0x70);                //Masami
-1216   1              //WriteTW88(REG0E8, 0xF2);
-1217   1              WriteTW88(REG0EA, 0x3F);                //Van. 110909
-1218   1      
-1219   1                                                                                                      //SSPLL_PowerDown
-1220   1                                                                                                      //TWTerCmd:     "b 8a fc 77 ff"
-1221   1              //WriteTW88Page(PAGE0_SSPLL);                           //DocDefault:0x30. HWDefault:0xB0
-1222   1              //WriteTW88(REG0FC, ReadTW88(REG0FC) | 0x80);   //      R0FC[7]=1       SSPLL power down
-1223   1      
-1224   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
+1201   1      
+1202   1              //---------------------------
+1203   1              WriteTW88Page(PAGE2_SCALER);
+1204   1              WriteTW88(REG21E, 0x03);                //BLANK def 0x00.       --enable screen blanking with AUTO
+1205   1      
+1206   1              //---------------------------
+1207   1              WriteTW88Page(PAGE0_LEDC);
+1208   1              WriteTW88(REG0E0, 0xF2);                //LEDC. default. 
+1209   1                                                                              //      R0E0[1]=1       Analog block power down
+1210   1                                                                              //      R0E0[0]=0       LEDC digital block disable
+1211   1              //---------------------------
+1212   1                                                                              //DCDC. default. HW:0xF2
+1213   1                                                                              //      R0E8[1]=1       Sense block power down
+1214   1                                                                              //      R0E8[0]=0       DC converter digital block disable.
+1215   1      
+1216   1              WriteTW88(REG0E8, 0x70);                //Masami
+1217   1              //WriteTW88(REG0E8, 0xF2);
+1218   1              WriteTW88(REG0EA, 0x3F);                //Van. 110909
+1219   1      
+1220   1                                                                                                      //SSPLL_PowerDown
+1221   1                                                                                                      //TWTerCmd:     "b 8a fc 77 ff"
+1222   1              //WriteTW88Page(PAGE0_SSPLL);                           //DocDefault:0x30. HWDefault:0xB0
+1223   1              //WriteTW88(REG0FC, ReadTW88(REG0FC) | 0x80);   //      R0FC[7]=1       SSPLL power down
+1224   1      
+1225   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       //set external decoder
                       WriteSlowI2CByte(I2CID_TW9910, 0x03, 0x82);
                       WriteSlowI2CByte(I2CID_TW9910, 0x1A, 0x02);
                       WriteSlowI2CByte(I2CID_TW9910, 0x1F, 0x01);
-              #endif
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 21  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 21  
 
-1230   1      
+              #endif
 1231   1      
 1232   1      
-1233   1              //=====================
-1234   1              //All Register setting
-1235   1              //=====================
-1236   1      
-1237   1              //-------------------
-1238   1              // PAGE 0
-1239   1              //-------------------
-1240   1              WriteTW88Page(PAGE0_GENERAL);
-1241   1      
-1242   1      //R000 74       Product ID Code Register
-1243   1      
-1244   1      //R002 0A       IRQ
-1245   1      //R003 FE       IMASK
-1246   1      //R004 01       Status
-1247   1      
-1248   1      //R006 00       SRST
-1249   1      
-1250   1      //R007 00       Output Ctrl I
-1251   1      //      [7]     SWPPRT
-1252   1      //      [6]     SWPNIT
-1253   1      //      [5:4]   SHFT2
-1254   1      //      [3]             EN656OUT
-1255   1      //      [2:0]   TCONSEL                                         
-1256   1      #if defined(PANEL_SRGB)
+1233   1      
+1234   1              //=====================
+1235   1              //All Register setting
+1236   1              //=====================
+1237   1      
+1238   1              //-------------------
+1239   1              // PAGE 0
+1240   1              //-------------------
+1241   1              WriteTW88Page(PAGE0_GENERAL);
+1242   1      
+1243   1      //R000 74       Product ID Code Register
+1244   1      
+1245   1      //R002 0A       IRQ
+1246   1      //R003 FE       IMASK
+1247   1      //R004 01       Status
+1248   1      
+1249   1      //R006 00       SRST
+1250   1      
+1251   1      //R007 00       Output Ctrl I
+1252   1      //      [7]     SWPPRT
+1253   1      //      [6]     SWPNIT
+1254   1      //      [5:4]   SHFT2
+1255   1      //      [3]             EN656OUT
+1256   1      //      [2:0]   TCONSEL                                         
+1257   1      #if defined(PANEL_SRGB)
                       WriteTW88(REG007, 0x01);        // Serial RGB
               #elif defined(PANEL_FP_LSB)     
                       WriteTW88(REG007, 0x02);        // FP LSB
               #else
-1261   1              WriteTW88(REG007, 0x00);        // TCON
-1262   1      #endif                  
-1263   1      //R008 30       Output Ctrl II  
-1264   1      //      [7:6]   TCKDRV  =10     8mA     
-1265   1      //      [5]             TRI_FPD =1      1:Tristate all FP data pins.
-1266   1      //      [4]             TRI_EN  =0      1:Tristate all output pins
-1267   1      //      [3:0]   GPOSEL  =9      sDE(Serial RGB DE)
-1268   1      //      SW use 0xA9. TRI_FPD will turn on at FP module.
-1269   1      
-1270   1      #ifdef MODEL_TW8835_EXTI2C      
+1262   1              WriteTW88(REG007, 0x00);        // TCON
+1263   1      #endif                  
+1264   1      //R008 30       Output Ctrl II  
+1265   1      //      [7:6]   TCKDRV  =10     8mA     
+1266   1      //      [5]             TRI_FPD =1      1:Tristate all FP data pins.
+1267   1      //      [4]             TRI_EN  =0      1:Tristate all output pins
+1268   1      //      [3:0]   GPOSEL  =9      sDE(Serial RGB DE)
+1269   1      //      SW use 0xA9. TRI_FPD will turn on at FP module.
+1270   1      
+1271   1      #ifdef MODEL_TW8835_EXTI2C      
                       WriteTW88(REG008, 0xA0);        //GPOSEL for IRQ. 0=Negative IRQ(Use).1=Positive IRQ
               #elif defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       WriteTW88(REG008, 0x89);                
               #else
-1275   1              WriteTW88(REG008, 0xA9);                
-1276   1      #endif
-1277   1      
-1278   1      //R00F 00       INT0 WRITE PORT
-1279   1      //R01F 00       TEST
-1280   1                                                                                                              
-1281   1      //R040 00       INPUT Control I
-1282   1      //      [7:6]   IPHDLY  Input H cropping position control in implicit DE mode. This is a 10-bit register.
-1283   1      //      [4]             CKINP   Scaler input clock polarity control
-1284   1      //                                      1 = Inversion 0 = no inversion
-1285   1      //      [3]             DTVDE_EN
-1286   1      //                                      1 = INT_4 pin is turn into dtvde pin 
-1287   1      //                                      0 = INT_4 pin is normal operation
-1288   1      //      [2]             DTVCK2_EN
-1289   1      //                                      1 = dtv_vs pin is turn into 2nd DTV clock pin 
-1290   1      //                                      0 = dtv_vs pin is normal operation
-1291   1      //      [1:0]   IPSEL   Input selection
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 22  
+1276   1              WriteTW88(REG008, 0xA9);                
+1277   1      #endif
+1278   1      
+1279   1      //R00F 00       INT0 WRITE PORT
+1280   1      //R01F 00       TEST
+1281   1                                                                                                              
+1282   1      //R040 00       INPUT Control I
+1283   1      //      [7:6]   IPHDLY  Input H cropping position control in implicit DE mode. This is a 10-bit register.
+1284   1      //      [4]             CKINP   Scaler input clock polarity control
+1285   1      //                                      1 = Inversion 0 = no inversion
+1286   1      //      [3]             DTVDE_EN
+1287   1      //                                      1 = INT_4 pin is turn into dtvde pin 
+1288   1      //                                      0 = INT_4 pin is normal operation
+1289   1      //      [2]             DTVCK2_EN
+1290   1      //                                      1 = dtv_vs pin is turn into 2nd DTV clock pin 
+1291   1      //                                      0 = dtv_vs pin is normal operation
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 22  
 
-1292   1      //                                      0 = Internal decoder 1 = Analog RGB/YUV 2 = DTV
-1293   1              WriteTW88(REG040, 0x10);                
-1294   1      
-1295   1      //R041 00       INPUT CONTROL II
-1296   1      //      [5]             PROG    Field control for progressive input
-1297   1      //      [4]             IMPDE   1 = implicit DE mode. It is only available in DTV input mode
-1298   1      //      [3]             IPVDET  Input V sync detection edge control
-1299   1      //                              1 = falling edge 0 = rising edge
-1300   1      //      [2]             IPHDET  Input H sync detection edge control
-1301   1      //                              1 = falling edge 0 = rising edge
-1302   1      //      [1]             IPFD    Input field control
-1303   1      //                              1 = inversion 0 = no inversion
-1304   1      //      [0]             RGBIN   Input data format selection
-1305   1      //                              1 = RGB 0 = YCbCr
-1306   1              WriteTW88(REG041, 0x0C);
-1307   1      
-1308   1      //R042 02       INPUT CROP_HI
-1309   1      //      [6:4]   IPVACT_HI       
-1310   1      //                              Input V cropping length control in number of input lines for 
-1311   1      //                              use in implicit DE mode. This is an 11-bit register.
-1312   1      //      [3:0]   IPHACT_HI       
-1313   1      //                              Input H cropping length control in number of input pixels for 
-1314   1      //                              use in implicit DE mode. This is a 12-bit register.
-1315   1      //R043 20       INPUT V CROP Position
-1316   1      //      [7:0]   IPVDLY
-1317   1      //                              Input V cropping starting position in number of lines relative to the V sync. 
-1318   1      //                              This is used in implicit DE mode
-1319   1      //R044 F0       INPUT V CROP LENGTH LO
-1320   1      //      [7:0]   IPVACT_LO
-1321   1      //                              Input V cropping length control in number of input lines for 
-1322   1      //                              use in implicit DE mode. This is an 11-bit register.
-1323   1      //R045 20       IINPUT H CROP POSITION LO
-1324   1      //      [7:0]   IPHDLY_LO
-1325   1      //                              Input H cropping position control relative to leading edge of 
-1326   1      //                              H sync in implicit DE mode. This is a 10-bit register.
-1327   1      //R046 D0       INPUT H CROP LENGTH LO
-1328   1      //      [7:0]   IPHACT_LO
-1329   1      //                              Input H cropping length control in number of input pixels for 
-1330   1      //                              use in implicit DE mode. This is a 12-bit register.
-1331   1      //---------------------------
-1332   1      //      input h start 0x082     length 0x2D0 
-1333   1      //  input v start 0x10  length 0x0F0    
-1334   1              WriteTW88(REG042, 0x02);        
-1335   1              WriteTW88(REG043, 0x10);        
-1336   1              WriteTW88(REG044, 0xF0);        
-1337   1              WriteTW88(REG045, 0x82);        
-1338   1              WriteTW88(REG046, 0xD0);        
-1339   1      
-1340   1      //R047 00       BT656 DECODER CONTROL I
-1341   1      //      [7]             FRUN    BT656 input control
-1342   1      //                              0 = External input 1 = Internal pattern generator
-1343   1      //      [6]             HZ50    Internal pattern generator field frequency control.
-1344   1      //                              0 = 60 Hz 1 = 50 Hz
-1345   1      //      [5]             DTVCKP  BT656 input clock control
-1346   1      //                              0 = no inversion 1 = Inversion
-1347   1      //      [4:0]   EVDELAY BT656 input V delay control in number of lines.
-1348   1      //R048 00       BT646 DECODER CONTROL II
-1349   1      //      [7]             NONSTA  Non-standard BT656 signal decoding.
-1350   1      //      [5:0]   EHDELAY BT656 input H delay control in number of pixels.
-1351   1      //R049 00       BT656 Status I
-1352   1      //      [7:0]   LNPF656[9:2]    BT656 Input line count per frame status.
-1353   1      //R04A 01       BT656 STATUS II
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 23  
+1292   1      //      [1:0]   IPSEL   Input selection
+1293   1      //                                      0 = Internal decoder 1 = Analog RGB/YUV 2 = DTV
+1294   1              WriteTW88(REG040, 0x10);                
+1295   1      
+1296   1      //R041 00       INPUT CONTROL II
+1297   1      //      [5]             PROG    Field control for progressive input
+1298   1      //      [4]             IMPDE   1 = implicit DE mode. It is only available in DTV input mode
+1299   1      //      [3]             IPVDET  Input V sync detection edge control
+1300   1      //                              1 = falling edge 0 = rising edge
+1301   1      //      [2]             IPHDET  Input H sync detection edge control
+1302   1      //                              1 = falling edge 0 = rising edge
+1303   1      //      [1]             IPFD    Input field control
+1304   1      //                              1 = inversion 0 = no inversion
+1305   1      //      [0]             RGBIN   Input data format selection
+1306   1      //                              1 = RGB 0 = YCbCr
+1307   1              WriteTW88(REG041, 0x0C);
+1308   1      
+1309   1      //R042 02       INPUT CROP_HI
+1310   1      //      [6:4]   IPVACT_HI       
+1311   1      //                              Input V cropping length control in number of input lines for 
+1312   1      //                              use in implicit DE mode. This is an 11-bit register.
+1313   1      //      [3:0]   IPHACT_HI       
+1314   1      //                              Input H cropping length control in number of input pixels for 
+1315   1      //                              use in implicit DE mode. This is a 12-bit register.
+1316   1      //R043 20       INPUT V CROP Position
+1317   1      //      [7:0]   IPVDLY
+1318   1      //                              Input V cropping starting position in number of lines relative to the V sync. 
+1319   1      //                              This is used in implicit DE mode
+1320   1      //R044 F0       INPUT V CROP LENGTH LO
+1321   1      //      [7:0]   IPVACT_LO
+1322   1      //                              Input V cropping length control in number of input lines for 
+1323   1      //                              use in implicit DE mode. This is an 11-bit register.
+1324   1      //R045 20       IINPUT H CROP POSITION LO
+1325   1      //      [7:0]   IPHDLY_LO
+1326   1      //                              Input H cropping position control relative to leading edge of 
+1327   1      //                              H sync in implicit DE mode. This is a 10-bit register.
+1328   1      //R046 D0       INPUT H CROP LENGTH LO
+1329   1      //      [7:0]   IPHACT_LO
+1330   1      //                              Input H cropping length control in number of input pixels for 
+1331   1      //                              use in implicit DE mode. This is a 12-bit register.
+1332   1      //---------------------------
+1333   1      //      input h start 0x082     length 0x2D0 
+1334   1      //  input v start 0x10  length 0x0F0    
+1335   1              WriteTW88(REG042, 0x02);        
+1336   1              WriteTW88(REG043, 0x10);        
+1337   1              WriteTW88(REG044, 0xF0);        
+1338   1              WriteTW88(REG045, 0x82);        
+1339   1              WriteTW88(REG046, 0xD0);        
+1340   1      
+1341   1      //R047 00       BT656 DECODER CONTROL I
+1342   1      //      [7]             FRUN    BT656 input control
+1343   1      //                              0 = External input 1 = Internal pattern generator
+1344   1      //      [6]             HZ50    Internal pattern generator field frequency control.
+1345   1      //                              0 = 60 Hz 1 = 50 Hz
+1346   1      //      [5]             DTVCKP  BT656 input clock control
+1347   1      //                              0 = no inversion 1 = Inversion
+1348   1      //      [4:0]   EVDELAY BT656 input V delay control in number of lines.
+1349   1      //R048 00       BT646 DECODER CONTROL II
+1350   1      //      [7]             NONSTA  Non-standard BT656 signal decoding.
+1351   1      //      [5:0]   EHDELAY BT656 input H delay control in number of pixels.
+1352   1      //R049 00       BT656 Status I
+1353   1      //      [7:0]   LNPF656[9:2]    BT656 Input line count per frame status.
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 23  
 
-1354   1      //      [2:1]   LNPF656[1:0]
-1355   1      //      [0]             VDET656         BT656 input video loss detection.
-1356   1      //                              0 = video detected 1 = no video input
-1357   1              WriteTW88(REG047, 0x80);        
-1358   1              //WriteTW88(REG048, 0x00);
-1359   1              WriteTW88(REG049, 0x41);        //def 0x00
-1360   1      
-1361   1      //R050~R05F     DTV
-1362   1              //WriteTW88(REG05F, 0x00);
-1363   1              
-1364   1      //R080~R09E     GPIO
-1365   1      
-1366   1      //R0A0~ MBIST
-1367   1      
-1368   1      //R0B0~ TSC CONTROL
-1369   1              WriteTW88(REG0B1, 0xC0); //disable Touch Ready&Pen interrupt
-1370   1      
-1371   1      //R0D4
-1372   1      
-1373   1      //R0E0 LEDC CONTROL
-1374   1      //      WriteTW88(REG0F7, 0x16); def
-1375   1      //      WriteTW88(REG0F8, 0x01); def
-1376   1      //                                                                      
-1377   1      //;DC/DC setting
-1378   1      //      WriteTW88(REG0e8, 0xf1);  DC sense powerup. DC digital enable. DCDC-on. DONOT change it here. 
-1379   1      //      WriteTW88(REG0e9, 0x06);  def
-1380   1      //      WriteTW88(REG0ea, 0x0a);        ??
-1381   1      //      WriteTW88(REG0eb, 0x40);        def
-1382   1      //      WriteTW88(REG0ec, 0x20);        def
-1383   1              WriteTW88(REG0ED, 0x40);        //def:0x80
-1384   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
+1354   1      //R04A 01       BT656 STATUS II
+1355   1      //      [2:1]   LNPF656[1:0]
+1356   1      //      [0]             VDET656         BT656 input video loss detection.
+1357   1      //                              0 = video detected 1 = no video input
+1358   1              WriteTW88(REG047, 0x80);        
+1359   1              //WriteTW88(REG048, 0x00);
+1360   1              WriteTW88(REG049, 0x41);        //def 0x00
+1361   1      
+1362   1      //R050~R05F     DTV
+1363   1              //WriteTW88(REG05F, 0x00);
+1364   1              
+1365   1      //R080~R09E     GPIO
+1366   1      
+1367   1      //R0A0~ MBIST
+1368   1      
+1369   1      //R0B0~ TSC CONTROL
+1370   1              WriteTW88(REG0B1, 0xC0); //disable Touch Ready&Pen interrupt
+1371   1      
+1372   1      //R0D4
+1373   1      
+1374   1      //R0E0 LEDC CONTROL
+1375   1      //      WriteTW88(REG0F7, 0x16); def
+1376   1      //      WriteTW88(REG0F8, 0x01); def
+1377   1      //                                                                      
+1378   1      //;DC/DC setting
+1379   1      //      WriteTW88(REG0e8, 0xf1);  DC sense powerup. DC digital enable. DCDC-on. DONOT change it here. 
+1380   1      //      WriteTW88(REG0e9, 0x06);  def
+1381   1      //      WriteTW88(REG0ea, 0x0a);        ??
+1382   1      //      WriteTW88(REG0eb, 0x40);        def
+1383   1      //      WriteTW88(REG0ec, 0x20);        def
+1384   1              WriteTW88(REG0ED, 0x40);        //def:0x80
+1385   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       WriteTW88(REG0F1, 0xC0);        //[7]FP_PWC [6]FP_BIAS          
               #endif
-1387   1      //
-1388   1      //                                                      SSPLL FREQ R0F8[3:0]R0F9[7:0]R0FA[7:0]
-1389   1      //      WriteTW88(REG0F9, 0x50);        //70MHz NOT HERE
-1390   1      //      WriteTW88(REG0FA, 0x00);        //def
-1391   1      //      WriteTW88(REG0FB, 0x40);        //def
-1392   1      //;FPCLK_PD
-1393   1      //      WriteTW88(REG0FC, 0x23);        En.SSPLL
-1394   1      //      WriteTW88(REG0FD, 0x00);
-1395   1      
-1396   1              //-------------------
-1397   1              // PAGE 1
-1398   1              //-------------------
-1399   1              WriteTW88Page(PAGE1_DECODER);
-1400   1              WriteTW88(REG11C, 0x0F);        //*** Disable Shadow
-1401   1              WriteTW88(REG102, 0x40);
-1402   1              //WriteTW88(REG104, 0x00);
-1403   1              //moveup                WriteTW88(REG105, 0x2f);        //Reserved def 0x0E
-1404   1              WriteTW88(REG106, 0x03);        //ACNTL def 0x00
-1405   1              WriteTW88(REG107, 0x02);        //Cropping Register High(CROP_HI) def 0x12
-1406   1              //WriteTW88(REG108, 0x12);
-1407   1              WriteTW88(REG109, 0xF0);        //Vertical Active Register,Low(VACTIVE_LO) def 0x20
-1408   1              WriteTW88(REG10A, 0x0B);        //Horizontal Delay,Low(HDELAY_LO) def 0x10
-1409   1              //WriteTW88(REG10B, 0xD0);
-1410   1              //WriteTW88(REG10C, 0xCC);
-1411   1              //WriteTW88(REG110, 0x00);
-1412   1              WriteTW88(REG111, 0x5C);        //CONTRAST def 0x64
-1413   1              //WriteTW88(REG112, 0x11);
-1414   1              //WriteTW88(REG113, 0x80);
-1415   1              //WriteTW88(REG114, 0x80);
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 24  
+1388   1      //
+1389   1      //                                                      SSPLL FREQ R0F8[3:0]R0F9[7:0]R0FA[7:0]
+1390   1      //      WriteTW88(REG0F9, 0x50);        //70MHz NOT HERE
+1391   1      //      WriteTW88(REG0FA, 0x00);        //def
+1392   1      //      WriteTW88(REG0FB, 0x40);        //def
+1393   1      //;FPCLK_PD
+1394   1      //      WriteTW88(REG0FC, 0x23);        En.SSPLL
+1395   1      //      WriteTW88(REG0FD, 0x00);
+1396   1      
+1397   1              //-------------------
+1398   1              // PAGE 1
+1399   1              //-------------------
+1400   1              WriteTW88Page(PAGE1_DECODER);
+1401   1              WriteTW88(REG11C, 0x0F);        //*** Disable Shadow
+1402   1              WriteTW88(REG102, 0x40);
+1403   1              //WriteTW88(REG104, 0x00);
+1404   1              //moveup                WriteTW88(REG105, 0x2f);        //Reserved def 0x0E
+1405   1              WriteTW88(REG106, 0x03);        //ACNTL def 0x00
+1406   1              WriteTW88(REG107, 0x02);        //Cropping Register High(CROP_HI) def 0x12
+1407   1              //WriteTW88(REG108, 0x12);
+1408   1              WriteTW88(REG109, 0xF0);        //Vertical Active Register,Low(VACTIVE_LO) def 0x20
+1409   1              WriteTW88(REG10A, 0x0B);        //Horizontal Delay,Low(HDELAY_LO) def 0x10
+1410   1              //WriteTW88(REG10B, 0xD0);
+1411   1              //WriteTW88(REG10C, 0xCC);
+1412   1              //WriteTW88(REG110, 0x00);
+1413   1              WriteTW88(REG111, 0x5C);        //CONTRAST def 0x64
+1414   1              //WriteTW88(REG112, 0x11);
+1415   1              //WriteTW88(REG113, 0x80);
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 24  
 
-1416   1              //WriteTW88(REG115, 0x00);
-1417   1              WriteTW88(REG117, 0x80);        //Vertical Peaking Control I    def 0x30
-1418   1              //WriteTW88(REG118, 0x44);
-1419   1              //WriteTW88(REG11D, 0x7F);       //BK120418. Masami request 0x01(NTSC only) on the RCD mode.
-1420   1              WriteTW88(REG11E, 0x00);        //Component video format: def 0x08
-1421   1              //WriteTW88(REG120, 0x50);      
-1422   1              WriteTW88(REG121, 0x22);        //Individual AGC Gain def 0x48
-1423   1              //WriteTW88(REG122, 0xF0);
-1424   1              //WriteTW88(REG123, 0xD8);
-1425   1              //WriteTW88(REG124, 0xBC);
-1426   1              //WriteTW88(REG125, 0xB8);
-1427   1              //WriteTW88(REG126, 0x44);
-1428   1              WriteTW88(REG127, 0x38);        //Clamp Position(PCLAMP)        def 0x2A
-1429   1              WriteTW88(REG128, 0x00);
-1430   1              //WriteTW88(REG129, 0x00);
-1431   1              //WriteTW88(REG12A, 0x78);
-1432   1              WriteTW88(REG12B, 0x44);        //Comb Filter   def -100-100b
-1433   1              //WriteTW88(REG12C, 0x30);
-1434   1              //WriteTW88(REG12D, 0x14);
-1435   1              //WriteTW88(REG12E, 0xA5);
-1436   1              //WriteTW88(REG12F, 0xE0);
-1437   1              WriteTW88(REG130, 0x00);
-1438   1              //WriteTW88(REG133, 0x05);      //CLMD
-1439   1              WriteTW88(REG134, 0x1A);
-1440   1              WriteTW88(REG135, 0x00);
-1441   1                                                                      //ADCLLPLL
-1442   1              //moveup        WriteTW88(REG1C0, 0x01);                //LLPLL input def 0x00
-1443   1              //WriteTW88(REG1C2, 0x01);
-1444   1              //WriteTW88(REG1C3, 0x03);
-1445   1              //WriteTW88(REG1C4, 0x5A);
-1446   1              //WriteTW88(REG1C5, 0x00);
-1447   1              WriteTW88(REG1C6, 0x20); //WriteTW88(REG1C6, 0x27);     //WriteTW88(REG1C6, 0x20);  Use VAdcSetFilterBandwidt
+1416   1              //WriteTW88(REG114, 0x80);
+1417   1              //WriteTW88(REG115, 0x00);
+1418   1              WriteTW88(REG117, 0x80);        //Vertical Peaking Control I    def 0x30
+1419   1              //WriteTW88(REG118, 0x44);
+1420   1              //WriteTW88(REG11D, 0x7F);       //BK120418. Masami request 0x01(NTSC only) on the RCD mode.
+1421   1              WriteTW88(REG11E, 0x00);        //Component video format: def 0x08
+1422   1              //WriteTW88(REG120, 0x50);      
+1423   1              WriteTW88(REG121, 0x22);        //Individual AGC Gain def 0x48
+1424   1              //WriteTW88(REG122, 0xF0);
+1425   1              //WriteTW88(REG123, 0xD8);
+1426   1              //WriteTW88(REG124, 0xBC);
+1427   1              //WriteTW88(REG125, 0xB8);
+1428   1              //WriteTW88(REG126, 0x44);
+1429   1              WriteTW88(REG127, 0x38);        //Clamp Position(PCLAMP)        def 0x2A
+1430   1              WriteTW88(REG128, 0x00);
+1431   1              //WriteTW88(REG129, 0x00);
+1432   1              //WriteTW88(REG12A, 0x78);
+1433   1              WriteTW88(REG12B, 0x44);        //Comb Filter   def -100-100b
+1434   1              //WriteTW88(REG12C, 0x30);
+1435   1              //WriteTW88(REG12D, 0x14);
+1436   1              //WriteTW88(REG12E, 0xA5);
+1437   1              //WriteTW88(REG12F, 0xE0);
+1438   1              WriteTW88(REG130, 0x00);
+1439   1              //WriteTW88(REG133, 0x05);      //CLMD
+1440   1              WriteTW88(REG134, 0x1A);
+1441   1              WriteTW88(REG135, 0x00);
+1442   1                                                                      //ADCLLPLL
+1443   1              //moveup        WriteTW88(REG1C0, 0x01);                //LLPLL input def 0x00
+1444   1              //WriteTW88(REG1C2, 0x01);
+1445   1              //WriteTW88(REG1C3, 0x03);
+1446   1              //WriteTW88(REG1C4, 0x5A);
+1447   1              //WriteTW88(REG1C5, 0x00);
+1448   1              WriteTW88(REG1C6, 0x20); //WriteTW88(REG1C6, 0x27);     //WriteTW88(REG1C6, 0x20);  Use VAdcSetFilterBandwidt
              -h()
-1448   1              //WriteTW88(REG1C7, 0x04);
-1449   1              //WriteTW88(REG1C8, 0x00);
-1450   1              //WriteTW88(REG1C9, 0x06);
-1451   1              //WriteTW88(REG1CA, 0x06);
-1452   1              WriteTW88(REG1CB, 0x3A);        //WriteTW88(REG1CB, 0x30);
-1453   1              //WriteTW88(REG1CC, 0x00);
-1454   1              //WriteTW88(REG1CD, 0x54);
-1455   1              //WriteTW88(REG1D0, 0x00);
-1456   1              //WriteTW88(REG1D1, 0xF0);
-1457   1              //WriteTW88(REG1D2, 0xF0);
-1458   1              //WriteTW88(REG1D3, 0xF0);
-1459   1              //WriteTW88(REG1D4, 0x00);
-1460   1              //WriteTW88(REG1D5, 0x00);
-1461   1              //WriteTW88(REG1D6, 0x10);
-1462   1              //WriteTW88(REG1D7, 0x70);
-1463   1              //WriteTW88(REG1D8, 0x00);
-1464   1              //WriteTW88(REG1D9, 0x04);
-1465   1              //WriteTW88(REG1DA, 0x80);
-1466   1              //WriteTW88(REG1DB, 0x80);
-1467   1              //WriteTW88(REG1DC, 0x20);
-1468   1              //WriteTW88(REG1E2, 0xD9);
-1469   1              //WriteTW88(REG1E3, 0x07);
-1470   1              //WriteTW88(REG1E4, 0x33);
-1471   1              //WriteTW88(REG1E5, 0x31);
-1472   1              //WriteTW88(REG1E6, 0x00);
-1473   1              //WriteTW88(REG1E7, 0x2A);
-1474   1      
-1475   1              //-------------------
-1476   1              // PAGE 2
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 25  
+1449   1              //WriteTW88(REG1C7, 0x04);
+1450   1              //WriteTW88(REG1C8, 0x00);
+1451   1              //WriteTW88(REG1C9, 0x06);
+1452   1              //WriteTW88(REG1CA, 0x06);
+1453   1              WriteTW88(REG1CB, 0x3A);        //WriteTW88(REG1CB, 0x30);
+1454   1              //WriteTW88(REG1CC, 0x00);
+1455   1              //WriteTW88(REG1CD, 0x54);
+1456   1              //WriteTW88(REG1D0, 0x00);
+1457   1              //WriteTW88(REG1D1, 0xF0);
+1458   1              //WriteTW88(REG1D2, 0xF0);
+1459   1              //WriteTW88(REG1D3, 0xF0);
+1460   1              //WriteTW88(REG1D4, 0x00);
+1461   1              //WriteTW88(REG1D5, 0x00);
+1462   1              //WriteTW88(REG1D6, 0x10);
+1463   1              //WriteTW88(REG1D7, 0x70);
+1464   1              //WriteTW88(REG1D8, 0x00);
+1465   1              //WriteTW88(REG1D9, 0x04);
+1466   1              //WriteTW88(REG1DA, 0x80);
+1467   1              //WriteTW88(REG1DB, 0x80);
+1468   1              //WriteTW88(REG1DC, 0x20);
+1469   1              //WriteTW88(REG1E2, 0xD9);
+1470   1              //WriteTW88(REG1E3, 0x07);
+1471   1              //WriteTW88(REG1E4, 0x33);
+1472   1              //WriteTW88(REG1E5, 0x31);
+1473   1              //WriteTW88(REG1E6, 0x00);
+1474   1              //WriteTW88(REG1E7, 0x2A);
+1475   1      
+1476   1              //-------------------
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 25  
 
-1477   1              //-------------------
-1478   1              WriteTW88Page(PAGE2_SCALER);
-1479   1              //WriteTW88(REG201, 0x00);
-1480   1              //WriteTW88(REG202, 0x20);
-1481   1              WriteTW88(REG203, 0xCC);                //XSCALE: 0x1C00. def:0x2000
-1482   1              WriteTW88(REG204, 0x1C);                //XSCALE:
-1483   1              WriteTW88(REG205, 0x8A);                //YSCALE: 0x0F8A. def:0x2000
-1484   1              WriteTW88(REG206, 0x0F);                //YSCALE:
-1485   1              WriteTW88(REG207, 0x40);                //PXSCALE[11:4] def 0x800
-1486   1              WriteTW88(REG208, 0x20);                //PXINC def 0x10
-1487   1              WriteTW88(REG209, 0x00);                //HDSCALE:0x0400 def:0x0100
-1488   1              WriteTW88(REG20A, 0x04);                //HDSCALE
-1489   1              WriteTW88(REG20B, 0x08);                //HDELAY2 def:0x30
-1490   1              //WriteTW88(REG20C, 0xD0);      //HACTIVE2_LO
-1491   1              WriteTW88(REG20D, 0x90 | (ReadTW88(REG20D) & 0x03));  //LNTT_HI def 0x80. 
-1492   1              WriteTW88(REG20E, 0x20);                //HPADJ def 0x0000.  20E[6:4] HACTIVE2_HI
-1493   1              WriteTW88(REG20F, 0x00);
-1494   1              WriteTW88(REG210, 0x21);                //HA_POS        def 0x10
-1495   1              
-1496   1              //HA_LEN                Output DE length control in number of the output clocks.
-1497   1              //      R212[3:0]R211[7:0] = PANEL_H+1
-1498   1      #if 0
+1477   1              // PAGE 2
+1478   1              //-------------------
+1479   1              WriteTW88Page(PAGE2_SCALER);
+1480   1              //WriteTW88(REG201, 0x00);
+1481   1              //WriteTW88(REG202, 0x20);
+1482   1              WriteTW88(REG203, 0xCC);                //XSCALE: 0x1C00. def:0x2000
+1483   1              WriteTW88(REG204, 0x1C);                //XSCALE:
+1484   1              WriteTW88(REG205, 0x8A);                //YSCALE: 0x0F8A. def:0x2000
+1485   1              WriteTW88(REG206, 0x0F);                //YSCALE:
+1486   1              WriteTW88(REG207, 0x40);                //PXSCALE[11:4] def 0x800
+1487   1              WriteTW88(REG208, 0x20);                //PXINC def 0x10
+1488   1              WriteTW88(REG209, 0x00);                //HDSCALE:0x0400 def:0x0100
+1489   1              WriteTW88(REG20A, 0x04);                //HDSCALE
+1490   1              WriteTW88(REG20B, 0x08);                //HDELAY2 def:0x30
+1491   1              //WriteTW88(REG20C, 0xD0);      //HACTIVE2_LO
+1492   1              WriteTW88(REG20D, 0x90 | (ReadTW88(REG20D) & 0x03));  //LNTT_HI def 0x80. 
+1493   1              WriteTW88(REG20E, 0x20);                //HPADJ def 0x0000.  20E[6:4] HACTIVE2_HI
+1494   1              WriteTW88(REG20F, 0x00);
+1495   1              WriteTW88(REG210, 0x21);                //HA_POS        def 0x10
+1496   1              
+1497   1              //HA_LEN                Output DE length control in number of the output clocks.
+1498   1              //      R212[3:0]R211[7:0] = PANEL_H+1
+1499   1      #if 0
                       WriteTW88(REG211, 0x21);                //HA_LEN        def 0x0300
                       WriteTW88(REG212, 0x03);                //PXSCALE[3:0]  def:0x800 HALEN_H[3:0] def:0x03
               #else
-1502   1              WriteTW88(REG211, (BYTE)(PANEL_H+1));           //HA_LEN        def 0x0300
-1503   1              WriteTW88(REG212, (PANEL_H+1)>>8);              //PXSCALE[3:0]  def:0x800 HALEN_H[3:0] def:0x03
-1504   1      #endif
-1505   1              WriteTW88(REG213, 0x00);                //HS_POS        def 0x10
-1506   1              WriteTW88(REG214, 0x20);                //HS_LEN
-1507   1              WriteTW88(REG215, 0x2E);                //VA_POS        def 0x20
-1508   1              //VA_LEN        Output DE control in number of the output lines.
-1509   1              //      R217[7:0]R216[7:0] = PANEL_V
-1510   1      #if 0
+1503   1              WriteTW88(REG211, (BYTE)(PANEL_H+1));           //HA_LEN        def 0x0300
+1504   1              WriteTW88(REG212, (PANEL_H+1)>>8);              //PXSCALE[3:0]  def:0x800 HALEN_H[3:0] def:0x03
+1505   1      #endif
+1506   1              WriteTW88(REG213, 0x00);                //HS_POS        def 0x10
+1507   1              WriteTW88(REG214, 0x20);                //HS_LEN
+1508   1              WriteTW88(REG215, 0x2E);                //VA_POS        def 0x20
+1509   1              //VA_LEN        Output DE control in number of the output lines.
+1510   1              //      R217[7:0]R216[7:0] = PANEL_V
+1511   1      #if 0
                       WriteTW88(REG216, 0xE0);                //VA_LEN_LO     def 0x0300
                       WriteTW88(REG217, 0x01);                //VA_LEN_HI
               #else
-1514   1              WriteTW88(REG216, PANEL_V);             //VA_LEN_LO     def 0x0300
-1515   1              WriteTW88(REG217, PANEL_V>>8);  //VA_LEN_HI
-1516   1      #endif
-1517   1              
-1518   1              //WriteTW88(REG218, 0x00);      //VA_LEN_POS
-1519   1              //WriteTW88(REG219, 0x00);
-1520   1              //WriteTW88(REG21A, 0x00);
-1521   1              //WriteTW88(REG21B, 0x00);
-1522   1              WriteTW88(REG21C, 0x42);        //PANEL_FRUN. def 0x40
-1523   1              //WriteTW88(REG21D, 0x00);
-1524   1              WriteTW88(REG21E, 0x03);                //BLANK def 0x00.       --enable screen blanking. SW have to remove 21E[0]
-1525   1              WriteTW88(REG280, 0x20);                //Image Adjustment register
-1526   1              //WriteTW88(REG281, 0x80);
-1527   1              //WriteTW88(REG282, 0x80);
-1528   1              //WriteTW88(REG283, 0x80);
-1529   1              //WriteTW88(REG284, 0x80);
-1530   1              //WriteTW88(REG285, 0x80);
-1531   1              //WriteTW88(REG286, 0x80);
-1532   1              //WriteTW88(REG287, 0x80);
-1533   1              //WriteTW88(REG288, 0x80);
-1534   1              //WriteTW88(REG289, 0x80);
-1535   1              //WriteTW88(REG28A, 0x80);
-1536   1              WriteTW88(REG28B, 0x44);
-1537   1              //WriteTW88(REG28C, 0x00);
-1538   1              //WriteTW88(REG2B0, 0x10);      //Image Adjustment register     
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 26  
+1515   1              WriteTW88(REG216, PANEL_V);             //VA_LEN_LO     def 0x0300
+1516   1              WriteTW88(REG217, PANEL_V>>8);  //VA_LEN_HI
+1517   1      #endif
+1518   1              
+1519   1              //WriteTW88(REG218, 0x00);      //VA_LEN_POS
+1520   1              //WriteTW88(REG219, 0x00);
+1521   1              //WriteTW88(REG21A, 0x00);
+1522   1              //WriteTW88(REG21B, 0x00);
+1523   1              WriteTW88(REG21C, 0x42);        //PANEL_FRUN. def 0x40
+1524   1              //WriteTW88(REG21D, 0x00);
+1525   1              WriteTW88(REG21E, 0x03);                //BLANK def 0x00.       --enable screen blanking. SW have to remove 21E[0]
+1526   1              WriteTW88(REG280, 0x20);                //Image Adjustment register
+1527   1              //WriteTW88(REG281, 0x80);
+1528   1              //WriteTW88(REG282, 0x80);
+1529   1              //WriteTW88(REG283, 0x80);
+1530   1              //WriteTW88(REG284, 0x80);
+1531   1              //WriteTW88(REG285, 0x80);
+1532   1              //WriteTW88(REG286, 0x80);
+1533   1              //WriteTW88(REG287, 0x80);
+1534   1              //WriteTW88(REG288, 0x80);
+1535   1              //WriteTW88(REG289, 0x80);
+1536   1              //WriteTW88(REG28A, 0x80);
+1537   1              WriteTW88(REG28B, 0x44);
+1538   1              //WriteTW88(REG28C, 0x00);
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 26  
 
-1539   1              //WriteTW88(REG2B1, 0x40);      
-1540   1              //WriteTW88(REG2B2, 0x40);
-1541   1              //WriteTW88(REG2B6, 0x67);
-1542   1              //WriteTW88(REG2B7, 0x94);
-1543   1              //WriteTW88(REG2BF, 0x00);      //Test Pattern Generator Register
-1544   1              //WriteTW88(REG2E0, 0x00);      //--disable gamma
-1545   1              WriteTW88(REG2E4, 0x21);                //--dither
-1546   1              //WriteTW88(REG2F8, 0x00);      //8bit Panel interface
-1547   1              //WriteTW88(REG2F9, 0x00);      //8bit Panel interface  TW8832:0x80
-1548   1      
-1549   1              //-------------
-1550   1              //Enable TCON
-1551   1              //TW8835                                        TW8832
-1552   1              WriteTW88Page(PAGE2_TCON);
-1553   1              WriteTW88(REG240, 0x10);                //WriteTW88(REG240, 0x11);
-1554   1              WriteTW88(REG241, 0x00);                //WriteTW88(REG241, 0x0A);
-1555   1              WriteTW88(REG242, 0x05);                //WriteTW88(REG242, 0x05);
-1556   1              WriteTW88(REG243, 0x01);                //WriteTW88(REG243, 0x01);
-1557   1              WriteTW88(REG244, 0x64);                //WriteTW88(REG244, 0x64);
-1558   1              WriteTW88(REG245, 0xF4);                //WriteTW88(REG245, 0xF4);
-1559   1              WriteTW88(REG246, 0x00);                //WriteTW88(REG246, 0x00);
-1560   1              WriteTW88(REG247, 0x0A);                //WriteTW88(REG247, 0x0A);
-1561   1              WriteTW88(REG248, 0x36);                //WriteTW88(REG248, 0x36);
-1562   1              WriteTW88(REG249, 0x10);                //WriteTW88(REG249, 0x10);
-1563   1              WriteTW88(REG24A, 0x00);                //WriteTW88(REG24A, 0x00);
-1564   1              WriteTW88(REG24B, 0x00);                //WriteTW88(REG24B, 0x00);
-1565   1              WriteTW88(REG24C, 0x00);                //WriteTW88(REG24C, 0x00);
-1566   1              WriteTW88(REG24D, 0x44);                //WriteTW88(REG24D, 0x44);
-1567   1              WriteTW88(REG24E, 0x04);                //WriteTW88(REG24E, 0x04);
-1568   1      
-1569   1              WriteTW88Page(PAGE0_GENERAL);
-1570   1              WriteTW88(REG006, 0x06);        //display direction. TSCP,TRSP
-1571   1      #if defined(PANEL_SRGB)
+1539   1              //WriteTW88(REG2B0, 0x10);      //Image Adjustment register     
+1540   1              //WriteTW88(REG2B1, 0x40);      
+1541   1              //WriteTW88(REG2B2, 0x40);
+1542   1              //WriteTW88(REG2B6, 0x67);
+1543   1              //WriteTW88(REG2B7, 0x94);
+1544   1              //WriteTW88(REG2BF, 0x00);      //Test Pattern Generator Register
+1545   1              //WriteTW88(REG2E0, 0x00);      //--disable gamma
+1546   1              WriteTW88(REG2E4, 0x21);                //--dither
+1547   1              //WriteTW88(REG2F8, 0x00);      //8bit Panel interface
+1548   1              //WriteTW88(REG2F9, 0x00);      //8bit Panel interface  TW8832:0x80
+1549   1      
+1550   1              //-------------
+1551   1              //Enable TCON
+1552   1              //TW8835                                        TW8832
+1553   1              WriteTW88Page(PAGE2_TCON);
+1554   1              WriteTW88(REG240, 0x10);                //WriteTW88(REG240, 0x11);
+1555   1              WriteTW88(REG241, 0x00);                //WriteTW88(REG241, 0x0A);
+1556   1              WriteTW88(REG242, 0x05);                //WriteTW88(REG242, 0x05);
+1557   1              WriteTW88(REG243, 0x01);                //WriteTW88(REG243, 0x01);
+1558   1              WriteTW88(REG244, 0x64);                //WriteTW88(REG244, 0x64);
+1559   1              WriteTW88(REG245, 0xF4);                //WriteTW88(REG245, 0xF4);
+1560   1              WriteTW88(REG246, 0x00);                //WriteTW88(REG246, 0x00);
+1561   1              WriteTW88(REG247, 0x0A);                //WriteTW88(REG247, 0x0A);
+1562   1              WriteTW88(REG248, 0x36);                //WriteTW88(REG248, 0x36);
+1563   1              WriteTW88(REG249, 0x10);                //WriteTW88(REG249, 0x10);
+1564   1              WriteTW88(REG24A, 0x00);                //WriteTW88(REG24A, 0x00);
+1565   1              WriteTW88(REG24B, 0x00);                //WriteTW88(REG24B, 0x00);
+1566   1              WriteTW88(REG24C, 0x00);                //WriteTW88(REG24C, 0x00);
+1567   1              WriteTW88(REG24D, 0x44);                //WriteTW88(REG24D, 0x44);
+1568   1              WriteTW88(REG24E, 0x04);                //WriteTW88(REG24E, 0x04);
+1569   1      
+1570   1              WriteTW88Page(PAGE0_GENERAL);
+1571   1              WriteTW88(REG006, 0x06);        //display direction. TSCP,TRSP
+1572   1      #if defined(PANEL_SRGB)
                       WriteTW88(REG007, 0x01);        // Serial RGB
               #elif defined(PANEL_FP_LSB)     
                       WriteTW88(REG007, 0x02);        // FP LSB
               #else
-1576   1              WriteTW88(REG007, 0x00);        // TCON
-1577   1      #endif
-1578   1      
-1579   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
+1577   1              WriteTW88(REG007, 0x00);        // TCON
+1578   1      #endif
+1579   1      
+1580   1      #if defined(MODEL_TW8835FPGA) || defined(MODEL_TW8836FPGA)
                       WriteTW88Page(4);
                       WriteTW88(REG4E1, 0x21);                        //SPI_CK_DIV[2:0]=1. SPI_CK_SEL[5:4]=2(CLKPLLMHz) will be changed later 
               #endif
-1583   1      
-1584   1                              
-1585   1      }
-1586          
-1587          //-----------------------------------------------------------------------------
-1588          /**
-1589          * turn on DCDC
-1590          *
-1591          *       DCDC startup step
-1592          *       SSPLL ON
-1593          *       FP PWC ON
-1594          *       call DCDC_on(0) & DCDC_on(1)
-1595          *       delay
-1596          *       wait VBlank
-1597          *       Enable FP Data Out
-1598          *       delay
-1599          *       call DCDC_on(2)
-1600          *       FP Bias On
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 27  
+1584   1      
+1585   1                              
+1586   1      }
+1587          
+1588          //-----------------------------------------------------------------------------
+1589          /**
+1590          * turn on DCDC
+1591          *
+1592          *       DCDC startup step
+1593          *       SSPLL ON
+1594          *       FP PWC ON
+1595          *       call DCDC_on(0) & DCDC_on(1)
+1596          *       delay
+1597          *       wait VBlank
+1598          *       Enable FP Data Out
+1599          *       delay
+1600          *       call DCDC_on(2)
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 27  
 
-1601          *
-1602          * DCDC data out needs more then 200ms delay after SSPLL_PowerUp(ON).
-1603          */
-1604          BYTE DCDC_StartUP_sub(void)
-1605          {
-1606   1              BYTE ret;
-1607   1      #if 0
+1601          *       FP Bias On
+1602          *
+1603          * DCDC data out needs more then 200ms delay after SSPLL_PowerUp(ON).
+1604          */
+1605          BYTE DCDC_StartUP_sub(void)
+1606          {
+1607   1              BYTE ret;
+1608   1      #if 0
                               ret = ReadTW88(REG008);
                               Printf("\nREG008:%bx FPData:%bd Output:%bx",ret, ret&0x20?0:1, ret&0x10?0:1 );
                               Printf("\nREG0E8:%bx", ReadTW88(REG0E8));
@@ -1679,80 +1680,80 @@ line level    source
                               Printf("\nREG0FC:%bx PD_SSPLL:%bd", ret, ret & 0x80);
                               Printf("\nREG21E:%bx", ReadTW88(REG21E));
               #endif
-1616   1      
-1617   1              //-------------
-1618   1              //FPPWC ON
-1619   1              FP_PWC_OnOff(ON);
-1620   1      
-1621   1              ret=DCDC_On(0);
-1622   1              ret=DCDC_On(1);
-1623   1      
-1624   1              //-------------
-1625   1              // wait
-1626   1      #ifdef EVB_10
+1617   1      
+1618   1              //-------------
+1619   1              //FPPWC ON
+1620   1              FP_PWC_OnOff(ON);
+1621   1      
+1622   1              ret=DCDC_On(0);
+1623   1              ret=DCDC_On(1);
+1624   1      
+1625   1              //-------------
+1626   1              // wait
+1627   1      #ifdef EVB_10
                       delay1ms(100);
               #endif
-1629   1      
-1630   1              WaitVBlank(1);
-1631   1              //-------------
-1632   1              //FP Data Out
-1633   1              OutputEnablePin(ON,ON);         //Output enable. FP data: enable
-1634   1      
+1630   1      
+1631   1              WaitVBlank(1);
+1632   1              //-------------
+1633   1              //FP Data Out
+1634   1              OutputEnablePin(ON,ON);         //Output enable. FP data: enable
 1635   1      
-1636   1      #ifdef EVB_10
+1636   1      
+1637   1      #ifdef EVB_10
                       delay1ms(15);
               #endif
-1639   1      
-1640   1              //DCDC final
-1641   1              ret=DCDC_On(2);
-1642   1      
-1643   1              //-------------
-1644   1              //FPBIAS ON 
-1645   1              FP_BiasOnOff(ON);
-1646   1      
-1647   1              //disable Blank
-1648   1              //WriteTW88Page(PAGE2_SCALER);
-1649   1              //WriteTW88(REG21E, ReadTW88(REG21E) & ~0x01);
-1650   1      
-1651   1              PrintSystemClockMsg("DCDC_StartUp END");
-1652   1              if(ret!=ERR_SUCCESS) {
-1653   2                      Puts(" FAIL");
-1654   2      
-1655   2                      //WriteTW88Page(PAGE0_DCDC);
-1656   2                      //WriteTW88(REG0E8, 0xF2);      Printf("\nREG0E8:F2[%bd]",ReadTW88(REG0EA)>>4);
-1657   2                      //WriteTW88(REG0E8, 0x02);      Printf("\nREG0E8:02[%bd]",ReadTW88(REG0EA)>>4);
-1658   2                      //WriteTW88(REG0E8, 0x03);      Printf("\nREG0E8:03[%bd]",ReadTW88(REG0EA)>>4);
-1659   2                      //WriteTW88(REG0E8, 0x01);      Printf("\nREG0E8:01[%bd]",ReadTW88(REG0EA)>>4);
-1660   2                      //WriteTW88(REG0E8, 0x11);      Printf("\nREG0E8:11[%bd]",ReadTW88(REG0EA)>>4);
-1661   2                      //WriteTW88(REG0E8, 0x71);      Printf("\nREG0E8:71[%bd]",ReadTW88(REG0EA)>>4);
-1662   2              }
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 28  
+1640   1      
+1641   1              //DCDC final
+1642   1              ret=DCDC_On(2);
+1643   1      
+1644   1              //-------------
+1645   1              //FPBIAS ON 
+1646   1              FP_BiasOnOff(ON);
+1647   1      
+1648   1              //disable Blank
+1649   1              //WriteTW88Page(PAGE2_SCALER);
+1650   1              //WriteTW88(REG21E, ReadTW88(REG21E) & ~0x01);
+1651   1      
+1652   1              PrintSystemClockMsg("DCDC_StartUp END");
+1653   1              if(ret!=ERR_SUCCESS) {
+1654   2                      Puts(" FAIL");
+1655   2      
+1656   2                      //WriteTW88Page(PAGE0_DCDC);
+1657   2                      //WriteTW88(REG0E8, 0xF2);      Printf("\nREG0E8:F2[%bd]",ReadTW88(REG0EA)>>4);
+1658   2                      //WriteTW88(REG0E8, 0x02);      Printf("\nREG0E8:02[%bd]",ReadTW88(REG0EA)>>4);
+1659   2                      //WriteTW88(REG0E8, 0x03);      Printf("\nREG0E8:03[%bd]",ReadTW88(REG0EA)>>4);
+1660   2                      //WriteTW88(REG0E8, 0x01);      Printf("\nREG0E8:01[%bd]",ReadTW88(REG0EA)>>4);
+1661   2                      //WriteTW88(REG0E8, 0x11);      Printf("\nREG0E8:11[%bd]",ReadTW88(REG0EA)>>4);
+1662   2                      //WriteTW88(REG0E8, 0x71);      Printf("\nREG0E8:71[%bd]",ReadTW88(REG0EA)>>4);
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 28  
 
-1663   1              return ret;
-1664   1      }
-1665          
-1666          //-----------------------------------------------------------------------------
-1667          /**
-1668          * turn on DCDC
-1669          *
-1670          * @see DCDC_StartUP_sub
-1671          */
-1672          BYTE DCDC_StartUP(void)
-1673          {
-1674   1              BYTE ret;
-1675   1              ret=DCDC_StartUP_sub();
-1676   1              if(ret == ERR_SUCCESS)
-1677   1                      return ERR_SUCCESS;
-1678   1      
-1679   1              ret=DCDC_StartUP_sub();
-1680   1              if(ret == ERR_SUCCESS)
-1681   1                      return ERR_SUCCESS;
-1682   1      
-1683   1              ret=DCDC_StartUP_sub();
-1684   1              return ret;
-1685   1      }
-1686          
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 29  
+1663   2              }
+1664   1              return ret;
+1665   1      }
+1666          
+1667          //-----------------------------------------------------------------------------
+1668          /**
+1669          * turn on DCDC
+1670          *
+1671          * @see DCDC_StartUP_sub
+1672          */
+1673          BYTE DCDC_StartUP(void)
+1674          {
+1675   1              BYTE ret;
+1676   1              ret=DCDC_StartUP_sub();
+1677   1              if(ret == ERR_SUCCESS)
+1678   1                      return ERR_SUCCESS;
+1679   1      
+1680   1              ret=DCDC_StartUP_sub();
+1681   1              if(ret == ERR_SUCCESS)
+1682   1                      return ERR_SUCCESS;
+1683   1      
+1684   1              ret=DCDC_StartUP_sub();
+1685   1              return ret;
+1686   1      }
+1687          
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 29  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1816,7 +1817,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0044         L?0146:
 0044 F582              MOV     DPL,A
 0046 E4                CLR     A
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 30  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 30  
 
 0047 3500        E     ADDC    A,regTW88
 0049 F583              MOV     DPH,A
@@ -1880,7 +1881,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 008C         L?0162:
 008C 900000      R     MOV     DPTR,#dFPLL
 008F 120000      E     LCALL   ?C?LSTXDATA
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 31  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 31  
 
 0092 900000      R     MOV     DPTR,#dFPLL
 0095 22                RET     
@@ -1944,7 +1945,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D8 FA                MOV     R2,A
 00D9 F9                MOV     R1,A
 00DA F8                MOV     R0,A
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 32  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 32  
 
 00DB 22                RET     
              ; FUNCTION Com0085 (END)
@@ -2008,7 +2009,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 128
 0011 7F05              MOV     R7,#05H
 0013 020000      E     LJMP    _SPI_SetReadModeByRegister
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 33  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 33  
 
              ; FUNCTION Clock27 (END)
 
@@ -2072,7 +2073,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _SspllSetFreqReg (BEGIN)
                                            ; SOURCE LINE # 208
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 34  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 34  
 
 0000 900000      R     MOV     DPTR,#FPLL
 0003 120000      E     LCALL   ?C?LSTXDATA
@@ -2136,7 +2137,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'fHost' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 226
                                            ; SOURCE LINE # 229
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 35  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 35  
 
 0000 EF                MOV     A,R7
                                            ; SOURCE LINE # 231
@@ -2200,7 +2201,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0007 EF                MOV     A,R7
 0008 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 261
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 36  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 36  
 
 0009 22                RET     
              ; FUNCTION _SspllSetAnalogControl (END)
@@ -2264,7 +2265,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 302
 0029 120000      R     LCALL   L?0163
 002C 120000      R     LCALL   L?0137
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 37  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 37  
 
                                            ; SOURCE LINE # 303
 002F         ?C0016:
@@ -2328,7 +2329,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 383
 002E C3                CLR     C
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 38  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 38  
 
 002F 941B              SUBB    A,#01BH
 0031 5013              JNC     ?C0018
@@ -2392,7 +2393,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0089 900000      R     MOV     DPTR,#?_SspllFREQ2FPLL?BYTE+04H
 008C F0                MOVX    @DPTR,A
 008D 120000      R     LCALL   _SspllFREQ2FPLL
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 39  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 39  
 
 ;---- Variable 'FPLL' assigned to Register 'R4/R5/R6/R7' ----
                                            ; SOURCE LINE # 394
@@ -2456,7 +2457,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00E3 FF                MOV     R7,A
 00E4         ?C0119:
 00E4 120000      R     LCALL   _PclkSetDividerReg
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 40  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 40  
 
                                            ; SOURCE LINE # 406
 00E7         ?C0025:
@@ -2520,7 +2521,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 446
 000F         ?C0029:
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 41  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 41  
 
                                            ; SOURCE LINE # 447
 000F 900000      R     MOV     DPTR,#divider
@@ -2584,7 +2585,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 466
                                            ; SOURCE LINE # 467
                                            ; SOURCE LINE # 469
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 42  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 42  
 
 0001 120000      R     LCALL   L?0141
 0004 E0                MOVX    A,@DPTR
@@ -2648,7 +2649,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F 54EF              ANL     A,#0EFH
 0011 FE                MOV     R6,A
 0012         ?C0041:
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 43  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 43  
 
                                            ; SOURCE LINE # 510
 0012 120000      R     LCALL   L?0141
@@ -2712,7 +2713,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0007 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 545
                                            ; SOURCE LINE # 548
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 44  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 44  
 
 0008 E4                CLR     A
 0009 900000      R     MOV     DPTR,#i
@@ -2776,7 +2777,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0066 120000      R     LCALL   L?0155
 0069 D3                SETB    C
 006A 120000      E     LCALL   ?C?ULCMP
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 45  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 45  
 
 006D 50B6              JNC     ?C0050
                                            ; SOURCE LINE # 566
@@ -2840,7 +2841,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0024 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 593
 0027 900000      R     MOV     DPTR,#temp32
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 46  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 46  
 
 002A 120000      R     LCALL   L?0137
 002D 900000      R     MOV     DPTR,#?_PclkGetFreq?BYTE+01H
@@ -2904,7 +2905,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0086 120000      R     LCALL   L?0137
 0089 A3                INC     DPTR
 008A 020000      R     LJMP    ?C0129
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 47  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 47  
 
                                            ; SOURCE LINE # 608
 008D         ?C0062:
@@ -2968,7 +2969,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 617
 00E6         ?C0069:
 00E6 22                RET     
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 48  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 48  
 
              ; FUNCTION _ClkPllGetFreq (END)
 
@@ -3032,7 +3033,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0017 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 717
 0018 22                RET     
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 49  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 49  
 
              ; FUNCTION McuSpiClkRestore (END)
 
@@ -3096,7 +3097,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 777
 000D         ?C0075:
                                            ; SOURCE LINE # 778
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 50  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 50  
 
 000D 900000      R     MOV     DPTR,#temp8
 0010 E0                MOVX    A,@DPTR
@@ -3160,7 +3161,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000C 900000      R     MOV     DPTR,#divider
 000F F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 807
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 51  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 51  
 
 0010         ?C0083:
                                            ; SOURCE LINE # 808
@@ -3224,7 +3225,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0021 F0                MOVX    @DPTR,A
 0022 120000      R     LCALL   _SspllFPLL2FREQ
 0025 900000      R     MOV     DPTR,#ppf
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 52  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 52  
 
 0028 120000      E     LCALL   ?C?LSTXDATA
                                            ; SOURCE LINE # 884
@@ -3288,7 +3289,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00BA 120000      E     LCALL   ?C?LSTXDATA
 00BD 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 894
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 53  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 53  
 
 00C0 7BFF              MOV     R3,#0FFH
 00C2 7A00        R     MOV     R2,#HIGH ?SC_187
@@ -3352,7 +3353,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 989
 002B         ?C0092:
                                            ; SOURCE LINE # 990
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 54  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 54  
 
 002B 120000      R     LCALL   L?0145
 002E 7471              MOV     A,#071H
@@ -3416,7 +3417,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0009 EF                MOV     A,R7
 000A 6007              JZ      ?C0098
                                            ; SOURCE LINE # 1036
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 55  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 55  
 
                                            ; SOURCE LINE # 1037
 000C 120000      R     LCALL   L?0170
@@ -3480,7 +3481,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0016 4401              ORL     A,#01H
 0018         ?C0132:
 0018 FB                MOV     R3,A
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 56  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 56  
 
 0019 E4                CLR     A
 001A FD                MOV     R5,A
@@ -3544,7 +3545,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION FP_GpioDefault (END)
 
              ; FUNCTION InitWithNTSC (BEGIN)
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 57  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 57  
 
                                            ; SOURCE LINE # 1126
                                            ; SOURCE LINE # 1127
@@ -3572,578 +3573,584 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0019 120000      R     LCALL   L?0150
 001C 7401              MOV     A,#01H
 001E F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1170
+                                           ; SOURCE LINE # 1161
 001F E500        E     MOV     A,regTW88+01H
-0021 24F8              ADD     A,#0F8H
+0021 24D6              ADD     A,#0D6H
 0023 120000      R     LCALL   L?0146
-0026 7402              MOV     A,#02H
+0026 7401              MOV     A,#01H
 0028 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1171
 0029 E500        E     MOV     A,regTW88+01H
-002B 24F9              ADD     A,#0F9H
+002B 24F8              ADD     A,#0F8H
 002D 120000      R     LCALL   L?0146
-0030 E4                CLR     A
-0031 F0                MOVX    @DPTR,A
+0030 7402              MOV     A,#02H
+0032 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1172
-0032 E500        E     MOV     A,regTW88+01H
-0034 24FA              ADD     A,#0FAH
-0036 120000      R     LCALL   L?0146
-0039 E4                CLR     A
-003A F0                MOVX    @DPTR,A
+0033 E500        E     MOV     A,regTW88+01H
+0035 24F9              ADD     A,#0F9H
+0037 120000      R     LCALL   L?0146
+003A E4                CLR     A
+003B F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1173
-003B E500        E     MOV     A,regTW88+01H
-003D 24F6              ADD     A,#0F6H
-003F 120000      R     LCALL   L?0146
-0042 E4                CLR     A
-0043 F0                MOVX    @DPTR,A
+003C E500        E     MOV     A,regTW88+01H
+003E 24FA              ADD     A,#0FAH
+0040 120000      R     LCALL   L?0146
+0043 E4                CLR     A
+0044 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1174
-0044 E500        E     MOV     A,regTW88+01H
-0046 24FD              ADD     A,#0FDH
-0048 120000      R     LCALL   L?0146
-004B 7434              MOV     A,#034H
-                                           ; SOURCE LINE # 1182
-004D 120000      R     LCALL   L?0140
-0050 7402              MOV     A,#02H
-0052 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1197
-0053 120000      R     LCALL   L?0157
-0056 7401              MOV     A,#01H
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 58  
+0045 E500        E     MOV     A,regTW88+01H
+0047 24F6              ADD     A,#0F6H
+0049 120000      R     LCALL   L?0146
+004C E4                CLR     A
+004D F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1175
+004E E500        E     MOV     A,regTW88+01H
+0050 24FD              ADD     A,#0FDH
+0052 120000      R     LCALL   L?0146
+0055 7434              MOV     A,#034H
+                                           ; SOURCE LINE # 1183
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 58  
 
-0058 F0                MOVX    @DPTR,A
+0057 120000      R     LCALL   L?0140
+005A 7402              MOV     A,#02H
+005C F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1198
-0059 E500        E     MOV     A,regTW88+01H
-005B 2405              ADD     A,#05H
-005D 120000      R     LCALL   L?0158
-0060 742F              MOV     A,#02FH
+005D 120000      R     LCALL   L?0157
+0060 7401              MOV     A,#01H
 0062 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1203
+                                           ; SOURCE LINE # 1199
 0063 E500        E     MOV     A,regTW88+01H
-0065 241E              ADD     A,#01EH
-0067 120000      R     LCALL   L?0142
-006A 7403              MOV     A,#03H
+0065 2405              ADD     A,#05H
+0067 120000      R     LCALL   L?0158
+006A 742F              MOV     A,#02FH
 006C F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1207
+                                           ; SOURCE LINE # 1204
 006D E500        E     MOV     A,regTW88+01H
-006F 24E0              ADD     A,#0E0H
-                                           ; SOURCE LINE # 1215
-0071 120000      R     LCALL   L?0143
-0074 7470              MOV     A,#070H
+006F 241E              ADD     A,#01EH
+0071 120000      R     LCALL   L?0142
+0074 7403              MOV     A,#03H
 0076 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1217
+                                           ; SOURCE LINE # 1208
 0077 E500        E     MOV     A,regTW88+01H
-0079 24EA              ADD     A,#0EAH
-007B 120000      R     LCALL   L?0146
-007E 743F              MOV     A,#03FH
+0079 24E0              ADD     A,#0E0H
+                                           ; SOURCE LINE # 1216
+007B 120000      R     LCALL   L?0143
+007E 7470              MOV     A,#070H
 0080 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1261
+                                           ; SOURCE LINE # 1218
 0081 E500        E     MOV     A,regTW88+01H
-0083 2407              ADD     A,#07H
+0083 24EA              ADD     A,#0EAH
 0085 120000      R     LCALL   L?0146
-0088 E4                CLR     A
-0089 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1275
-008A E500        E     MOV     A,regTW88+01H
-008C 2408              ADD     A,#08H
-008E 120000      R     LCALL   L?0146
-0091 74A9              MOV     A,#0A9H
+0088 743F              MOV     A,#03FH
+008A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1262
+008B E500        E     MOV     A,regTW88+01H
+008D 2407              ADD     A,#07H
+008F 120000      R     LCALL   L?0146
+0092 E4                CLR     A
 0093 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1293
+                                           ; SOURCE LINE # 1276
 0094 E500        E     MOV     A,regTW88+01H
-0096 2440              ADD     A,#040H
+0096 2408              ADD     A,#08H
 0098 120000      R     LCALL   L?0146
-009B 7410              MOV     A,#010H
+009B 74A9              MOV     A,#0A9H
 009D F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1306
+                                           ; SOURCE LINE # 1294
 009E E500        E     MOV     A,regTW88+01H
-00A0 2441              ADD     A,#041H
+00A0 2440              ADD     A,#040H
 00A2 120000      R     LCALL   L?0146
-00A5 740C              MOV     A,#0CH
+00A5 7410              MOV     A,#010H
 00A7 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1334
+                                           ; SOURCE LINE # 1307
 00A8 E500        E     MOV     A,regTW88+01H
-00AA 2442              ADD     A,#042H
+00AA 2441              ADD     A,#041H
 00AC 120000      R     LCALL   L?0146
-00AF 7402              MOV     A,#02H
+00AF 740C              MOV     A,#0CH
 00B1 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1335
 00B2 E500        E     MOV     A,regTW88+01H
-00B4 2443              ADD     A,#043H
+00B4 2442              ADD     A,#042H
 00B6 120000      R     LCALL   L?0146
-00B9 7410              MOV     A,#010H
+00B9 7402              MOV     A,#02H
 00BB F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 59  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 59  
 
                                            ; SOURCE LINE # 1336
 00BC E500        E     MOV     A,regTW88+01H
-00BE 2444              ADD     A,#044H
+00BE 2443              ADD     A,#043H
 00C0 120000      R     LCALL   L?0146
-00C3 74F0              MOV     A,#0F0H
+00C3 7410              MOV     A,#010H
 00C5 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1337
 00C6 E500        E     MOV     A,regTW88+01H
-00C8 2445              ADD     A,#045H
+00C8 2444              ADD     A,#044H
 00CA 120000      R     LCALL   L?0146
-00CD 7482              MOV     A,#082H
+00CD 74F0              MOV     A,#0F0H
 00CF F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1338
 00D0 E500        E     MOV     A,regTW88+01H
-00D2 2446              ADD     A,#046H
+00D2 2445              ADD     A,#045H
 00D4 120000      R     LCALL   L?0146
-00D7 74D0              MOV     A,#0D0H
+00D7 7482              MOV     A,#082H
 00D9 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1357
+                                           ; SOURCE LINE # 1339
 00DA E500        E     MOV     A,regTW88+01H
-00DC 2447              ADD     A,#047H
+00DC 2446              ADD     A,#046H
 00DE 120000      R     LCALL   L?0146
-00E1 7480              MOV     A,#080H
+00E1 74D0              MOV     A,#0D0H
 00E3 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1359
+                                           ; SOURCE LINE # 1358
 00E4 E500        E     MOV     A,regTW88+01H
-00E6 2449              ADD     A,#049H
+00E6 2447              ADD     A,#047H
 00E8 120000      R     LCALL   L?0146
-00EB 7441              MOV     A,#041H
+00EB 7480              MOV     A,#080H
 00ED F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1369
+                                           ; SOURCE LINE # 1360
 00EE E500        E     MOV     A,regTW88+01H
-00F0 24B1              ADD     A,#0B1H
+00F0 2449              ADD     A,#049H
 00F2 120000      R     LCALL   L?0146
-00F5 74C0              MOV     A,#0C0H
+00F5 7441              MOV     A,#041H
 00F7 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1383
+                                           ; SOURCE LINE # 1370
 00F8 E500        E     MOV     A,regTW88+01H
-00FA 24ED              ADD     A,#0EDH
+00FA 24B1              ADD     A,#0B1H
 00FC 120000      R     LCALL   L?0146
-00FF 7440              MOV     A,#040H
+00FF 74C0              MOV     A,#0C0H
 0101 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1400
+                                           ; SOURCE LINE # 1384
 0102 E500        E     MOV     A,regTW88+01H
-0104 241C              ADD     A,#01CH
-0106 120000      R     LCALL   L?0158
-0109 740F              MOV     A,#0FH
+0104 24ED              ADD     A,#0EDH
+0106 120000      R     LCALL   L?0146
+0109 7440              MOV     A,#040H
 010B F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1401
 010C E500        E     MOV     A,regTW88+01H
-010E 2402              ADD     A,#02H
+010E 241C              ADD     A,#01CH
 0110 120000      R     LCALL   L?0158
-0113 7440              MOV     A,#040H
+0113 740F              MOV     A,#0FH
 0115 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1404
+                                           ; SOURCE LINE # 1402
 0116 E500        E     MOV     A,regTW88+01H
-0118 2406              ADD     A,#06H
+0118 2402              ADD     A,#02H
 011A 120000      R     LCALL   L?0158
-011D 7403              MOV     A,#03H
+011D 7440              MOV     A,#040H
 011F F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1405
 0120 E500        E     MOV     A,regTW88+01H
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 60  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 60  
 
-0122 2407              ADD     A,#07H
+0122 2406              ADD     A,#06H
 0124 120000      R     LCALL   L?0158
-0127 7402              MOV     A,#02H
+0127 7403              MOV     A,#03H
 0129 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1407
+                                           ; SOURCE LINE # 1406
 012A E500        E     MOV     A,regTW88+01H
-012C 2409              ADD     A,#09H
+012C 2407              ADD     A,#07H
 012E 120000      R     LCALL   L?0158
-0131 74F0              MOV     A,#0F0H
+0131 7402              MOV     A,#02H
 0133 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1408
 0134 E500        E     MOV     A,regTW88+01H
-0136 240A              ADD     A,#0AH
+0136 2409              ADD     A,#09H
 0138 120000      R     LCALL   L?0158
-013B 740B              MOV     A,#0BH
+013B 74F0              MOV     A,#0F0H
 013D F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1412
+                                           ; SOURCE LINE # 1409
 013E E500        E     MOV     A,regTW88+01H
-0140 2411              ADD     A,#011H
+0140 240A              ADD     A,#0AH
 0142 120000      R     LCALL   L?0158
-0145 745C              MOV     A,#05CH
+0145 740B              MOV     A,#0BH
 0147 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1417
+                                           ; SOURCE LINE # 1413
 0148 E500        E     MOV     A,regTW88+01H
-014A 2417              ADD     A,#017H
+014A 2411              ADD     A,#011H
 014C 120000      R     LCALL   L?0158
-014F 7480              MOV     A,#080H
+014F 745C              MOV     A,#05CH
 0151 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1420
+                                           ; SOURCE LINE # 1418
 0152 E500        E     MOV     A,regTW88+01H
-0154 241E              ADD     A,#01EH
+0154 2417              ADD     A,#017H
 0156 120000      R     LCALL   L?0158
-0159 E4                CLR     A
-015A F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1422
-015B E500        E     MOV     A,regTW88+01H
-015D 2421              ADD     A,#021H
-015F 120000      R     LCALL   L?0158
-0162 7422              MOV     A,#022H
+0159 7480              MOV     A,#080H
+015B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1421
+015C E500        E     MOV     A,regTW88+01H
+015E 241E              ADD     A,#01EH
+0160 120000      R     LCALL   L?0158
+0163 E4                CLR     A
 0164 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1428
+                                           ; SOURCE LINE # 1423
 0165 E500        E     MOV     A,regTW88+01H
-0167 2427              ADD     A,#027H
+0167 2421              ADD     A,#021H
 0169 120000      R     LCALL   L?0158
-016C 7438              MOV     A,#038H
+016C 7422              MOV     A,#022H
 016E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1429
 016F E500        E     MOV     A,regTW88+01H
-0171 2428              ADD     A,#028H
+0171 2427              ADD     A,#027H
 0173 120000      R     LCALL   L?0158
-0176 E4                CLR     A
-0177 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1432
-0178 E500        E     MOV     A,regTW88+01H
-017A 242B              ADD     A,#02BH
-017C 120000      R     LCALL   L?0158
-017F 7444              MOV     A,#044H
+0176 7438              MOV     A,#038H
+0178 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1430
+0179 E500        E     MOV     A,regTW88+01H
+017B 2428              ADD     A,#028H
+017D 120000      R     LCALL   L?0158
+0180 E4                CLR     A
 0181 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1437
+                                           ; SOURCE LINE # 1433
 0182 E500        E     MOV     A,regTW88+01H
-0184 2430              ADD     A,#030H
+0184 242B              ADD     A,#02BH
 0186 120000      R     LCALL   L?0158
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 61  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 61  
 
-0189 E4                CLR     A
-018A F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1439
-018B E500        E     MOV     A,regTW88+01H
-018D 2434              ADD     A,#034H
-018F 120000      R     LCALL   L?0158
-0192 741A              MOV     A,#01AH
+0189 7444              MOV     A,#044H
+018B F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1438
+018C E500        E     MOV     A,regTW88+01H
+018E 2430              ADD     A,#030H
+0190 120000      R     LCALL   L?0158
+0193 E4                CLR     A
 0194 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1440
 0195 E500        E     MOV     A,regTW88+01H
-0197 2435              ADD     A,#035H
+0197 2434              ADD     A,#034H
 0199 120000      R     LCALL   L?0158
-019C E4                CLR     A
-019D F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1447
-019E E500        E     MOV     A,regTW88+01H
-01A0 24C6              ADD     A,#0C6H
-01A2 120000      R     LCALL   L?0158
-01A5 7420              MOV     A,#020H
+019C 741A              MOV     A,#01AH
+019E F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1441
+019F E500        E     MOV     A,regTW88+01H
+01A1 2435              ADD     A,#035H
+01A3 120000      R     LCALL   L?0158
+01A6 E4                CLR     A
 01A7 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1452
+                                           ; SOURCE LINE # 1448
 01A8 E500        E     MOV     A,regTW88+01H
-01AA 24CB              ADD     A,#0CBH
+01AA 24C6              ADD     A,#0C6H
 01AC 120000      R     LCALL   L?0158
-01AF 743A              MOV     A,#03AH
+01AF 7420              MOV     A,#020H
 01B1 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1481
+                                           ; SOURCE LINE # 1453
 01B2 E500        E     MOV     A,regTW88+01H
-01B4 2403              ADD     A,#03H
-01B6 120000      R     LCALL   L?0142
-01B9 74CC              MOV     A,#0CCH
+01B4 24CB              ADD     A,#0CBH
+01B6 120000      R     LCALL   L?0158
+01B9 743A              MOV     A,#03AH
 01BB F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1482
 01BC E500        E     MOV     A,regTW88+01H
-01BE 2404              ADD     A,#04H
+01BE 2403              ADD     A,#03H
 01C0 120000      R     LCALL   L?0142
-01C3 741C              MOV     A,#01CH
+01C3 74CC              MOV     A,#0CCH
 01C5 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1483
 01C6 E500        E     MOV     A,regTW88+01H
-01C8 2405              ADD     A,#05H
+01C8 2404              ADD     A,#04H
 01CA 120000      R     LCALL   L?0142
-01CD 748A              MOV     A,#08AH
+01CD 741C              MOV     A,#01CH
 01CF F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1484
 01D0 E500        E     MOV     A,regTW88+01H
-01D2 2406              ADD     A,#06H
+01D2 2405              ADD     A,#05H
 01D4 120000      R     LCALL   L?0142
-01D7 740F              MOV     A,#0FH
+01D7 748A              MOV     A,#08AH
 01D9 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1485
 01DA E500        E     MOV     A,regTW88+01H
-01DC 2407              ADD     A,#07H
+01DC 2406              ADD     A,#06H
 01DE 120000      R     LCALL   L?0142
-01E1 7440              MOV     A,#040H
+01E1 740F              MOV     A,#0FH
 01E3 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1486
 01E4 E500        E     MOV     A,regTW88+01H
-01E6 2408              ADD     A,#08H
+01E6 2407              ADD     A,#07H
 01E8 120000      R     LCALL   L?0142
-01EB 7420              MOV     A,#020H
+01EB 7440              MOV     A,#040H
 01ED F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 62  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 62  
 
                                            ; SOURCE LINE # 1487
 01EE E500        E     MOV     A,regTW88+01H
-01F0 2409              ADD     A,#09H
+01F0 2408              ADD     A,#08H
 01F2 120000      R     LCALL   L?0142
-01F5 E4                CLR     A
-01F6 F0                MOVX    @DPTR,A
+01F5 7420              MOV     A,#020H
+01F7 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1488
-01F7 E500        E     MOV     A,regTW88+01H
-01F9 240A              ADD     A,#0AH
-01FB 120000      R     LCALL   L?0142
-01FE 7404              MOV     A,#04H
+01F8 E500        E     MOV     A,regTW88+01H
+01FA 2409              ADD     A,#09H
+01FC 120000      R     LCALL   L?0142
+01FF E4                CLR     A
 0200 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1489
 0201 E500        E     MOV     A,regTW88+01H
-0203 240B              ADD     A,#0BH
+0203 240A              ADD     A,#0AH
 0205 120000      R     LCALL   L?0142
-0208 7408              MOV     A,#08H
-                                           ; SOURCE LINE # 1491
-020A 120000      R     LCALL   L?0140
-020D E0                MOVX    A,@DPTR
-020E 5403              ANL     A,#03H
-0210 4490              ORL     A,#090H
-0212 FF                MOV     R7,A
-0213 120000      R     LCALL   L?0141
-0216 EF                MOV     A,R7
-0217 F0                MOVX    @DPTR,A
+0208 7404              MOV     A,#04H
+020A F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1490
+020B E500        E     MOV     A,regTW88+01H
+020D 240B              ADD     A,#0BH
+020F 120000      R     LCALL   L?0142
+0212 7408              MOV     A,#08H
                                            ; SOURCE LINE # 1492
-0218 E500        E     MOV     A,regTW88+01H
-021A 240E              ADD     A,#0EH
-021C 120000      R     LCALL   L?0142
-021F 7420              MOV     A,#020H
+0214 120000      R     LCALL   L?0140
+0217 E0                MOVX    A,@DPTR
+0218 5403              ANL     A,#03H
+021A 4490              ORL     A,#090H
+021C FF                MOV     R7,A
+021D 120000      R     LCALL   L?0141
+0220 EF                MOV     A,R7
 0221 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1493
 0222 E500        E     MOV     A,regTW88+01H
-0224 240F              ADD     A,#0FH
+0224 240E              ADD     A,#0EH
 0226 120000      R     LCALL   L?0142
-0229 E4                CLR     A
-022A F0                MOVX    @DPTR,A
+0229 7420              MOV     A,#020H
+022B F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1494
-022B E500        E     MOV     A,regTW88+01H
-022D 2410              ADD     A,#010H
-022F 120000      R     LCALL   L?0142
-0232 7421              MOV     A,#021H
+022C E500        E     MOV     A,regTW88+01H
+022E 240F              ADD     A,#0FH
+0230 120000      R     LCALL   L?0142
+0233 E4                CLR     A
 0234 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1502
+                                           ; SOURCE LINE # 1495
 0235 E500        E     MOV     A,regTW88+01H
-0237 2411              ADD     A,#011H
+0237 2410              ADD     A,#010H
 0239 120000      R     LCALL   L?0142
 023C 7421              MOV     A,#021H
 023E F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1503
 023F E500        E     MOV     A,regTW88+01H
-0241 2412              ADD     A,#012H
+0241 2411              ADD     A,#011H
 0243 120000      R     LCALL   L?0142
-0246 7403              MOV     A,#03H
+0246 7421              MOV     A,#021H
 0248 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1505
+                                           ; SOURCE LINE # 1504
 0249 E500        E     MOV     A,regTW88+01H
-024B 2413              ADD     A,#013H
+024B 2412              ADD     A,#012H
 024D 120000      R     LCALL   L?0142
-0250 E4                CLR     A
-0251 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 63  
+0250 7403              MOV     A,#03H
+0252 F0                MOVX    @DPTR,A
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 63  
 
                                            ; SOURCE LINE # 1506
-0252 E500        E     MOV     A,regTW88+01H
-0254 2414              ADD     A,#014H
-0256 120000      R     LCALL   L?0142
-0259 7420              MOV     A,#020H
+0253 E500        E     MOV     A,regTW88+01H
+0255 2413              ADD     A,#013H
+0257 120000      R     LCALL   L?0142
+025A E4                CLR     A
 025B F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1507
 025C E500        E     MOV     A,regTW88+01H
-025E 2415              ADD     A,#015H
+025E 2414              ADD     A,#014H
 0260 120000      R     LCALL   L?0142
-0263 742E              MOV     A,#02EH
+0263 7420              MOV     A,#020H
 0265 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1514
+                                           ; SOURCE LINE # 1508
 0266 E500        E     MOV     A,regTW88+01H
-0268 2416              ADD     A,#016H
+0268 2415              ADD     A,#015H
 026A 120000      R     LCALL   L?0142
-026D 74E0              MOV     A,#0E0H
+026D 742E              MOV     A,#02EH
 026F F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1515
 0270 E500        E     MOV     A,regTW88+01H
-0272 2417              ADD     A,#017H
+0272 2416              ADD     A,#016H
 0274 120000      R     LCALL   L?0142
-0277 7401              MOV     A,#01H
+0277 74E0              MOV     A,#0E0H
 0279 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1522
+                                           ; SOURCE LINE # 1516
 027A E500        E     MOV     A,regTW88+01H
-027C 241C              ADD     A,#01CH
+027C 2417              ADD     A,#017H
 027E 120000      R     LCALL   L?0142
-0281 7442              MOV     A,#042H
+0281 7401              MOV     A,#01H
 0283 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1524
+                                           ; SOURCE LINE # 1523
 0284 E500        E     MOV     A,regTW88+01H
-0286 241E              ADD     A,#01EH
+0286 241C              ADD     A,#01CH
 0288 120000      R     LCALL   L?0142
-028B 7403              MOV     A,#03H
+028B 7442              MOV     A,#042H
 028D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1525
 028E E500        E     MOV     A,regTW88+01H
-0290 2480              ADD     A,#080H
+0290 241E              ADD     A,#01EH
 0292 120000      R     LCALL   L?0142
-0295 7420              MOV     A,#020H
+0295 7403              MOV     A,#03H
 0297 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1536
+                                           ; SOURCE LINE # 1526
 0298 E500        E     MOV     A,regTW88+01H
-029A 248B              ADD     A,#08BH
+029A 2480              ADD     A,#080H
 029C 120000      R     LCALL   L?0142
-029F 7444              MOV     A,#044H
+029F 7420              MOV     A,#020H
 02A1 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1545
+                                           ; SOURCE LINE # 1537
 02A2 E500        E     MOV     A,regTW88+01H
-02A4 24E4              ADD     A,#0E4H
+02A4 248B              ADD     A,#08BH
 02A6 120000      R     LCALL   L?0142
-02A9 7421              MOV     A,#021H
+02A9 7444              MOV     A,#044H
 02AB F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1553
+                                           ; SOURCE LINE # 1546
 02AC E500        E     MOV     A,regTW88+01H
-02AE 2440              ADD     A,#040H
+02AE 24E4              ADD     A,#0E4H
 02B0 120000      R     LCALL   L?0142
-02B3 7410              MOV     A,#010H
+02B3 7421              MOV     A,#021H
 02B5 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1554
 02B6 E500        E     MOV     A,regTW88+01H
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 64  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 64  
 
-02B8 2441              ADD     A,#041H
+02B8 2440              ADD     A,#040H
 02BA 120000      R     LCALL   L?0142
-02BD E4                CLR     A
-02BE F0                MOVX    @DPTR,A
+02BD 7410              MOV     A,#010H
+02BF F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1555
-02BF E500        E     MOV     A,regTW88+01H
-02C1 2442              ADD     A,#042H
-02C3 120000      R     LCALL   L?0142
-02C6 7405              MOV     A,#05H
+02C0 E500        E     MOV     A,regTW88+01H
+02C2 2441              ADD     A,#041H
+02C4 120000      R     LCALL   L?0142
+02C7 E4                CLR     A
 02C8 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1556
 02C9 E500        E     MOV     A,regTW88+01H
-02CB 2443              ADD     A,#043H
+02CB 2442              ADD     A,#042H
 02CD 120000      R     LCALL   L?0142
-02D0 7401              MOV     A,#01H
+02D0 7405              MOV     A,#05H
 02D2 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1557
 02D3 E500        E     MOV     A,regTW88+01H
-02D5 2444              ADD     A,#044H
+02D5 2443              ADD     A,#043H
 02D7 120000      R     LCALL   L?0142
-02DA 7464              MOV     A,#064H
+02DA 7401              MOV     A,#01H
 02DC F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1558
 02DD E500        E     MOV     A,regTW88+01H
-02DF 2445              ADD     A,#045H
+02DF 2444              ADD     A,#044H
 02E1 120000      R     LCALL   L?0142
-02E4 74F4              MOV     A,#0F4H
+02E4 7464              MOV     A,#064H
 02E6 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1559
 02E7 E500        E     MOV     A,regTW88+01H
-02E9 2446              ADD     A,#046H
+02E9 2445              ADD     A,#045H
 02EB 120000      R     LCALL   L?0142
-02EE E4                CLR     A
-02EF F0                MOVX    @DPTR,A
+02EE 74F4              MOV     A,#0F4H
+02F0 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1560
-02F0 E500        E     MOV     A,regTW88+01H
-02F2 2447              ADD     A,#047H
-02F4 120000      R     LCALL   L?0142
-02F7 740A              MOV     A,#0AH
+02F1 E500        E     MOV     A,regTW88+01H
+02F3 2446              ADD     A,#046H
+02F5 120000      R     LCALL   L?0142
+02F8 E4                CLR     A
 02F9 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1561
 02FA E500        E     MOV     A,regTW88+01H
-02FC 2448              ADD     A,#048H
+02FC 2447              ADD     A,#047H
 02FE 120000      R     LCALL   L?0142
-0301 7436              MOV     A,#036H
+0301 740A              MOV     A,#0AH
 0303 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1562
 0304 E500        E     MOV     A,regTW88+01H
-0306 2449              ADD     A,#049H
+0306 2448              ADD     A,#048H
 0308 120000      R     LCALL   L?0142
-030B 7410              MOV     A,#010H
+030B 7436              MOV     A,#036H
 030D F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1563
 030E E500        E     MOV     A,regTW88+01H
-0310 244A              ADD     A,#04AH
+0310 2449              ADD     A,#049H
 0312 120000      R     LCALL   L?0142
-0315 E4                CLR     A
-0316 F0                MOVX    @DPTR,A
+0315 7410              MOV     A,#010H
+0317 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1564
-0317 E500        E     MOV     A,regTW88+01H
-0319 244B              ADD     A,#04BH
-031B 120000      R     LCALL   L?0142
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 65  
+0318 E500        E     MOV     A,regTW88+01H
+031A 244A              ADD     A,#04AH
+031C 120000      R     LCALL   L?0142
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 65  
 
-031E E4                CLR     A
-031F F0                MOVX    @DPTR,A
+031F E4                CLR     A
+0320 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1565
-0320 E500        E     MOV     A,regTW88+01H
-0322 244C              ADD     A,#04CH
-0324 120000      R     LCALL   L?0142
-0327 E4                CLR     A
-0328 F0                MOVX    @DPTR,A
+0321 E500        E     MOV     A,regTW88+01H
+0323 244B              ADD     A,#04BH
+0325 120000      R     LCALL   L?0142
+0328 E4                CLR     A
+0329 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1566
-0329 E500        E     MOV     A,regTW88+01H
-032B 244D              ADD     A,#04DH
-032D 120000      R     LCALL   L?0142
-0330 7444              MOV     A,#044H
+032A E500        E     MOV     A,regTW88+01H
+032C 244C              ADD     A,#04CH
+032E 120000      R     LCALL   L?0142
+0331 E4                CLR     A
 0332 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1567
 0333 E500        E     MOV     A,regTW88+01H
-0335 244E              ADD     A,#04EH
+0335 244D              ADD     A,#04DH
 0337 120000      R     LCALL   L?0142
-033A 7404              MOV     A,#04H
+033A 7444              MOV     A,#044H
 033C F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1570
+                                           ; SOURCE LINE # 1568
 033D E500        E     MOV     A,regTW88+01H
-033F 2406              ADD     A,#06H
-0341 120000      R     LCALL   L?0146
-0344 7406              MOV     A,#06H
+033F 244E              ADD     A,#04EH
+0341 120000      R     LCALL   L?0142
+0344 7404              MOV     A,#04H
 0346 F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1576
+                                           ; SOURCE LINE # 1571
 0347 E500        E     MOV     A,regTW88+01H
-0349 2407              ADD     A,#07H
+0349 2406              ADD     A,#06H
 034B 120000      R     LCALL   L?0146
-034E E4                CLR     A
-034F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1585
-0350 22                RET     
+034E 7406              MOV     A,#06H
+0350 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1577
+0351 E500        E     MOV     A,regTW88+01H
+0353 2407              ADD     A,#07H
+0355 120000      R     LCALL   L?0146
+0358 E4                CLR     A
+0359 F0                MOVX    @DPTR,A
+                                           ; SOURCE LINE # 1586
+035A 22                RET     
              ; FUNCTION InitWithNTSC (END)
 
              ; FUNCTION DCDC_StartUP_sub (BEGIN)
-                                           ; SOURCE LINE # 1604
                                            ; SOURCE LINE # 1605
-                                           ; SOURCE LINE # 1619
+                                           ; SOURCE LINE # 1606
+                                           ; SOURCE LINE # 1620
 0000 7F01              MOV     R7,#01H
 0002 120000      R     LCALL   _FP_PWC_OnOff
-                                           ; SOURCE LINE # 1621
+                                           ; SOURCE LINE # 1622
 0005 E4                CLR     A
 0006 FF                MOV     R7,A
-                                           ; SOURCE LINE # 1622
+                                           ; SOURCE LINE # 1623
 0007 120000      R     LCALL   L?0172
-                                           ; SOURCE LINE # 1630
+                                           ; SOURCE LINE # 1631
 000A 120000      R     LCALL   L?0172
 000D 120000      E     LCALL   _WaitVBlank
-                                           ; SOURCE LINE # 1633
+                                           ; SOURCE LINE # 1634
 0010 7D01              MOV     R5,#01H
 0012 7F01              MOV     R7,#01H
 0014 120000      E     LCALL   _OutputEnablePin
-                                           ; SOURCE LINE # 1641
+                                           ; SOURCE LINE # 1642
 0017 0F                INC     R7
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 66  
+
 0018 120000      R     LCALL   _DCDC_On
 001B 900000      R     MOV     DPTR,#ret
 001E EF                MOV     A,R7
 001F F0                MOVX    @DPTR,A
-                                           ; SOURCE LINE # 1645
+                                           ; SOURCE LINE # 1646
 0020 7F01              MOV     R7,#01H
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 66  
-
 0022 120000      R     LCALL   _FP_BiasOnOff
-                                           ; SOURCE LINE # 1651
+                                           ; SOURCE LINE # 1652
 0025 7BFF              MOV     R3,#0FFH
 0027 7A00        R     MOV     R2,#HIGH ?SC_247
 0029 7900        R     MOV     R1,#LOW ?SC_247
 002B 120000      E     LCALL   _PrintSystemClockMsg
-                                           ; SOURCE LINE # 1652
+                                           ; SOURCE LINE # 1653
 002E 900000      R     MOV     DPTR,#ret
 0031 E0                MOVX    A,@DPTR
 0032 6009              JZ      ?C0110
-                                           ; SOURCE LINE # 1653
+                                           ; SOURCE LINE # 1654
 0034 7BFF              MOV     R3,#0FFH
 0036 7A00        R     MOV     R2,#HIGH ?SC_264
 0038 7900        R     MOV     R1,#LOW ?SC_264
 003A 120000      E     LCALL   _Puts
-                                           ; SOURCE LINE # 1662
-003D         ?C0110:
                                            ; SOURCE LINE # 1663
+003D         ?C0110:
+                                           ; SOURCE LINE # 1664
 003D 900000      R     MOV     DPTR,#ret
 0040 E0                MOVX    A,@DPTR
 0041 FF                MOV     R7,A
-                                           ; SOURCE LINE # 1664
+                                           ; SOURCE LINE # 1665
 0042         ?C0111:
 0042 22                RET     
 0043         L?0172:
@@ -4156,38 +4163,38 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION DCDC_StartUP_sub (END)
 
              ; FUNCTION DCDC_StartUP (BEGIN)
-                                           ; SOURCE LINE # 1672
                                            ; SOURCE LINE # 1673
-                                           ; SOURCE LINE # 1675
+                                           ; SOURCE LINE # 1674
+                                           ; SOURCE LINE # 1676
 0000 120000      R     LCALL   DCDC_StartUP_sub
 ;---- Variable 'ret' assigned to Register 'R7' ----
-                                           ; SOURCE LINE # 1676
+                                           ; SOURCE LINE # 1677
 0003 EF                MOV     A,R7
 0004 7002              JNZ     ?C0112
-                                           ; SOURCE LINE # 1677
+                                           ; SOURCE LINE # 1678
 0006 FF                MOV     R7,A
 0007 22                RET     
 0008         ?C0112:
-                                           ; SOURCE LINE # 1679
-0008 120000      R     LCALL   DCDC_StartUP_sub
                                            ; SOURCE LINE # 1680
+0008 120000      R     LCALL   DCDC_StartUP_sub
+                                           ; SOURCE LINE # 1681
 000B EF                MOV     A,R7
 000C 7002              JNZ     ?C0114
-                                           ; SOURCE LINE # 1681
+                                           ; SOURCE LINE # 1682
 000E FF                MOV     R7,A
 000F 22                RET     
 0010         ?C0114:
-                                           ; SOURCE LINE # 1683
-0010 120000      R     LCALL   DCDC_StartUP_sub
                                            ; SOURCE LINE # 1684
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 67  
+
+0010 120000      R     LCALL   DCDC_StartUP_sub
                                            ; SOURCE LINE # 1685
+                                           ; SOURCE LINE # 1686
 0013         ?C0113:
 0013 22                RET     
              ; FUNCTION DCDC_StartUP (END)
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 67  
 
-
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 68  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 68  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4250,7 +4257,7 @@ _SspllFREQ2FPLL. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   FPLL . . . . . . . . . . . . . . . .  AUTO     XDATA  U_LONG   0005H  4
 _delay1ms. . . . . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 DCDC_StartUP . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 69  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 69  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4313,7 +4320,7 @@ _PclkoSetDiv . . . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   value. . . . . . . . . . . . . . . .  * REG *  DATA   U_CHAR   0006H  1
 _RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
   id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 70  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 70  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4376,7 +4383,7 @@ FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
 FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
   loc. . . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
-C51 COMPILER V9.00   SETTINGS                                                              05/31/2013 20:18:30 PAGE 71  
+C51 COMPILER V9.00   SETTINGS                                                              06/05/2014 15:34:52 PAGE 71  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4426,7 +4433,7 @@ _ReadSlowI2CByte . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   3150    ----
+   CODE SIZE        =   3160    ----
    CONSTANT SIZE    =    500    ----
    XDATA SIZE       =      2     119
    PDATA SIZE       =   ----    ----

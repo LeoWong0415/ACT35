@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 1   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE FOSDTABLE
 OBJECT MODULE PLACED IN .\Output\FOsdTable.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE FOsdTable.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROW
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE FOsdTable.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROW
                     -SE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\FOsdTable.lst) OBJECT(.\Output\FO
                     -sdTable.obj)
 
@@ -62,7 +62,7 @@ line level    source
               //=============================================================================
               CODE BYTE Init_Osd_DisplayLogo[] = {
                       16,
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 2   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 2   
 
                       OSD_Win_Num                             ( TECHWELLOGO_OSDWIN ), // 1 byte Offset for windows
                       OSD_Win_CONTROL_00              ( WIN_MULTI_EN | WIN_V_EXT_EN0 | WIN_VZOOM(3) | WIN_HZOOM(3) ),
@@ -126,7 +126,7 @@ line level    source
                       OSD_Win_Width_06                ( 12 ),
                       OSD_Win_BorderColor_07  ( FG_COLOR_WHITE ),
                       OSD_Win_Border_08               ( WIN_BD_EN0 | WIN_BD_WIDTH(0) ),
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 3   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 3   
 
                       OSD_Win_HBorder_09              ( WIN_H_BD_W(0) ),
                       OSD_Win_VBorder_0A              ( WIN_V_BD_W(0) ),
@@ -190,7 +190,7 @@ line level    source
               };
               //=============================================================================
               //                      Initialize Window for DisplayTvchannel
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 4   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 4   
 
               //=============================================================================
               CODE BYTE Init_Osd_DisplayTVChannel[] = {
@@ -254,7 +254,7 @@ line level    source
                       OSD_Win_Width_06                ( 9 ),
                       OSD_Win_BorderColor_07  ( FG_COLOR_WHITE ),
                       OSD_Win_Border_08               ( WIN_BD_EN0 | WIN_BD_WIDTH(1) ),
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 5   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 5   
 
                       OSD_Win_HBorder_09              ( WIN_H_BD_W(1) ),
                       OSD_Win_VBorder_0A              ( WIN_V_BD_W(0) ),
@@ -318,7 +318,7 @@ line level    source
                       OSD_Win_Width_06                ( 11 ),
                       OSD_Win_BorderColor_07  ( FG_COLOR_WHITE ),
                       OSD_Win_Border_08               ( WIN_BD_EN0 | WIN_BD_WIDTH(1) ),
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 6   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 6   
 
                       OSD_Win_HBorder_09              ( WIN_H_BD_W(1) ),
                       OSD_Win_VBorder_0A              ( WIN_V_BD_W(0) ),
@@ -382,7 +382,7 @@ line level    source
                       OSD_Win_Blending_01             ( 3 ),
                       OSD_Win_Start_02_4              ( ((OSDHSTART_MAX/2)+FONT_W*4+18+14), (OSDVSTART_MAX/2+FONT_H+10) ),    // 3 bytes
                       OSD_Win_Height_05               ( MENU_HEIGHT ),
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 7   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 7   
 
                       OSD_Win_Width_06                ( MENU_WIDTH ),
                       OSD_Win_BorderColor_07  ( FG_COLOR_WHITE ),
@@ -446,7 +446,7 @@ line level    source
               //=============================================================================
               //      struct_IdName           
               //=============================================================================
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 8   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 8   
 
               
               CODE struct struct_IdName       struct_InputSelection[]={
@@ -510,7 +510,7 @@ line level    source
               
               // Color style IV ---------------------------------------------
               /*
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 9   
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 9   
 
               #define BACK_COLOR                              BG_COLOR_BLACK | EXTENDED_COLOR
               #define DEFAULT_COLOR                   BG_COLOR_BLACK   | FG_COLOR_WHITE | EXTENDED_COLOR
@@ -574,7 +574,7 @@ line level    source
              -ROM
               CODE BYTE AUDIO_ICON[]={        FONT_3BPP, 0x06, 0x09, FONT_ROM, 0};
               CODE BYTE TV_ICON[]={           FONT_3BPP, 0x0c, 0x0f, FONT_ROM, 0};
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 10  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 10  
 
               CODE BYTE INPUT_ICON[]={        FONT_3BPP, 0x12, 0x15, FONT_ROM, 0};
               CODE BYTE PC_ADJ_ICON[]={       0xB8,   0xB9,   0};                                        //BUGBUG
@@ -638,7 +638,7 @@ line level    source
               #endif
               
               //#ifdef SUPPORT_HDMI
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 11  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 11  
 
               //#define ADD_HDMI              1
               //#else
@@ -702,7 +702,7 @@ line level    source
               //              svideo
               //              component
               //              pc
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 12  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 12  
 
               //              dvi
               //              ...
@@ -766,7 +766,7 @@ line level    source
               {       0,                 {0},NIL,             0,NIL,                                                  0,0,            0,0,    0,0}     //Terminator
               };
               
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 13  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 13  
 
               //----------------------------------------------------------------------------------
               
@@ -830,7 +830,7 @@ line level    source
               //              Audio           =>DM_Sound
               //              Utility         =>DM_Utility
               //----------------------------------------------------------------------------------
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 14  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 14  
 
               CODE struct DefineMenu DM_MainMenu[]={
               {       MIT_MENU, INPUT_ICON,TOPICON_COLOR,Str_Input,NIL,               NIL,NIL,        DM_INPUTSOURCE,NO,              0,              InputSourceMenu         },
@@ -894,7 +894,7 @@ line level    source
               };
               
               //----------------------------------------------------------------------------------
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 15  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 15  
 
               
               CODE struct DefineMenu DM_PCMenuList[]={
@@ -930,7 +930,7 @@ line level    source
               
               #endif //..SUPPORT_FOSD_MENU
  864          
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 16  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 16  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -948,7 +948,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0009 22                RET     
              ; FUNCTION Dummy_FosdInitTable_func (END)
 
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 17  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 17  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1011,7 +1011,7 @@ KeyDef . . . . . . . . . . . . . . . .  * TAG *  -----  ENUM     -----  -----
 EnumType . . . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  17
   Sz . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
   ByLang . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0001H  1
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 18  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 18  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -1074,7 +1074,7 @@ FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   palette_bpp2 . . . . . . . . . . . .  MEMBER   -----  PTR      0010H  3
   palette_bpp3 . . . . . . . . . . . .  MEMBER   -----  PTR      0013H  3
   palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
-C51 COMPILER V9.00   FOSDTABLE                                                             05/31/2013 20:18:35 PAGE 19  
+C51 COMPILER V9.00   FOSDTABLE                                                             06/05/2014 15:35:01 PAGE 19  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

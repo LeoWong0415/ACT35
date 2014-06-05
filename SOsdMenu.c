@@ -424,7 +424,7 @@ void InitLogo1(void)
 
 	//init DE
 	SpiOsdSetDeValue();
-	SpiOsdWinHWOffAll(0); //without wait
+	//SpiOsdWinHWOffAll(0); //without wait
 
 	SpiOsdEnable(ON);
 
@@ -449,11 +449,11 @@ void InitLogo1(void)
 		SpiOsdWin0Animation( 1, 0, 0, 0);
 	}
 	SpiOsdWinPixelAlpha( WIN_LOGO, ON );
-	SpiOsdWinGlobalAlpha( WIN_LOGO, 0);							////////
+	//SpiOsdWinGlobalAlpha( WIN_LOGO, 0);							////////
 	SpiOsdWinPixelWidth(WIN_LOGO, header->bpp);
 	SpiOsdWinLutOffset(WIN_LOGO, 0 /* menu_item->osd_s.lut */);
 
-	SpiOsdWinBuffEnable( WIN_LOGO, ON );
+	//SpiOsdWinBuffEnable( WIN_LOGO, ON );
 	//SpiOsdWinBuffEnable( WIN_LOGO, OFF );
 
 	//write to HW

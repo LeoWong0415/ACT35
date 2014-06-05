@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 1   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE DTV
 OBJECT MODULE PLACED IN .\Output\DTV.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE DTV.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE DTV.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MOD
                     -DP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\DTV.lst) OBJECT(.\Output\DTV.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
   52          {
   53   1              BYTE temp;
   54   1              temp = DUMMY_DTV_CODE;
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 2   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 2   
 
   55   1      }
   56          #endif
@@ -126,7 +126,7 @@ line level    source
  113   1              WriteTW88(REG052, (ReadTW88(REG052) & 0xF8) | route);
  114   1              WriteTW88(REG053, (ReadTW88(REG053) & 0xF0) | format);
  115   1      }
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 3   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 3   
 
  116          #endif
  117          
@@ -190,7 +190,7 @@ line level    source
               
                       Meas_HPulse = MeasGetHSyncRiseToFallWidth();
                       Meas_VPulse = MeasGetVSyncRiseToFallWidth();
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 4   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 4   
 
                       vtotal = MeasGetVPeriod();
                       hActive = MeasGetHActive( &hstart );
@@ -254,7 +254,7 @@ line level    source
               
                       //=============HDE=====================
                       HDE = ScalerCalcHDE();
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 5   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 5   
 
               #ifdef DEBUG_DTV
                       dPrintf("\n\tH-DE start = %bd", HDE);
@@ -318,7 +318,7 @@ line level    source
                               MeasHLen = MeasGetHActive( &Meas_HStart );                              //h_active_start h_active_perios
               #ifdef DEBUG_DTV
                               dPrintf("\nDVI Measure Value: %dx%d HS:%d VS:%d",MeasHLen,MeasVLen, Meas_HStart, MeasVStart);
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 6   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 6   
 
                               dPrintf("==>Htotal:%d",  MeasGetVsyncRisePos());
               #endif
@@ -382,7 +382,7 @@ line level    source
               
                       //=============HDE=====================
                       HDE = ScalerCalcHDE();
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 7   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 7   
 
               #ifdef DEBUG_DTV
                       dPrintf("\n\tH-DE start = %bd", HDE);
@@ -446,7 +446,7 @@ line level    source
                       WriteTW88(REG20D, (ReadTW88(REG20D)&0x3F)|(VTotal>>2)&0xC0);
                       WriteTW88(REG219, (BYTE)VTotal );
               
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 8   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 8   
 
               
                       //================= FreerunAutoManual, MuteAutoManual =====================
@@ -510,7 +510,7 @@ line level    source
               //#endif
                       result = 0;
                       if (bTemp==1)           result = 0x50;
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 9   
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 9   
 
                       else if (bTemp==2)  result = 0x10;
               
@@ -574,7 +574,7 @@ line level    source
               
                       BYTE Status;
                       BYTE HPol,VPol;         
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 10  
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 10  
 
                       WORD HTotal,VTotal;
               
@@ -638,7 +638,7 @@ line level    source
                               if((HActive > 700) && (VActive > 200)) {
                                       Printf("\ntime_reg check success @:%d",ii);
                                       break;
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 11  
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 11  
 
                               }
                               delay1ms(10);
@@ -702,7 +702,7 @@ line level    source
                       VTotal   = ReadI2CByte(I2CID_SIL9127_DEV0,0x3D) & 0x07; VTotal  <<= 8;  VTotal  |= ReadI2CByte(I2CID_SIL9
              -127_DEV0,0x3C);       //Video V Refresh       0x3D[2:0]0x3C[7:0]
                       HActive  = ReadI2CByte(I2CID_SIL9127_DEV0,0x4F) & 0x0F; HActive <<= 8;  HActive |= ReadI2CByte(I2CID_SIL9
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 12  
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 12  
 
              -127_DEV0,0x4E);       //Video DE Pixel                0x4F[3:0]0x4E[7:0]
                       VActive  = ReadI2CByte(I2CID_SIL9127_DEV0,0x51) & 0x07; VActive <<= 8;  VActive |= ReadI2CByte(I2CID_SIL9
@@ -766,7 +766,7 @@ line level    source
                       //------------------------------------
                       //Do not update $41[6] register, we can not know it's real polarity.
                       //If someone updates $41[6], we have to add HSync width here.
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 13  
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 13  
 
                       //DTV perfer a short value.
                       //------------------------------------
@@ -813,7 +813,7 @@ line level    source
               #endif //..defined(SUPPORT_HDMI_EP9351) || defined(SUPPORT_HDMI_SiIRX)
  766          
  767          
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 14  
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 14  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -874,7 +874,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0022 22                RET     
              ; FUNCTION _DtvSetRouteFormat (END)
 
-C51 COMPILER V9.00   DTV                                                                   05/31/2013 20:18:31 PAGE 15  
+C51 COMPILER V9.00   DTV                                                                   06/05/2014 15:34:54 PAGE 15  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

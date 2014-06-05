@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 1   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE FOSDSTRING
 OBJECT MODULE PLACED IN .\Output\FOsdString.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE FOsdString.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BRO
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE FOsdString.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BRO
                     -WSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\FOsdString.lst) OBJECT(.\Output\
                     -FOsdString.obj)
 
@@ -62,7 +62,7 @@ line level    source
               CODE BYTE Enter_Password_Str_E[] = {' ',' ',' ',' ','E','n','t','e','r',' ','P','I','N',' ',':',' ','-','-
              -','-','-',0};
               CODE BYTE Enter_Password_Str_F[] = {' ',' ',' ','E','n','t','r','e','r',' ','P','I','N',' ',':',' ','-','-
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 2   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 2   
 
              -','-','-',0};
               CODE BYTE Enter_Password_Str_D[] = {' ',' ','E','i','n','g','a','b','e',' ','P','I','N',' ',':',' ','-','-
@@ -126,7 +126,7 @@ line level    source
               CODE BYTE Str_Picture_D[] = {'B', 'i', 'l', 'd',0};
               CODE BYTE Str_Picture_S[] = {'P', 'a', 'n', 't', 'a', 'l', 'l', 'a',0};
               CODE BYTE Str_Picture_K[] = {FONT_RAM,CH_KR_HWA,CH_KR_MYEON,CH_KR_SPACE,CH_KR_JO,CH_KR_JEONG,FONT_ROM,0};
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 3   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 3   
 
               
               //--------------------------------------------------------------------------------
@@ -190,7 +190,7 @@ line level    source
               CODE BYTE Str_Component_E[] = {'C','o','m','p','o','n','e','n','t',0};
                       #endif
               
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 4   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 4   
 
                       #ifdef SUPPORT_BT656
               CODE BYTE Str_Dtv_E[] = {'6','5','6',0};
@@ -254,7 +254,7 @@ line level    source
               CODE BYTE Str_Volume_E[] = {'V','o','l','u','m','e',0};
               CODE BYTE Str_Volume_D[] = {'V','o','l','u','m','e','n',0};
               CODE BYTE Str_Volume_S[] = {'L', 'a', 'u', 't', 's', 't', 'a', 'r', 'k', 'e',0};
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 5   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 5   
 
               CODE BYTE Str_Volume_K[] = {FONT_RAM,CH_KR_EUM,CH_KR_RYANG,CH_KR_SPACE,CH_KR_JO,CH_KR_JEONG,FONT_ROM,0};
               //--------------------------------------------------------------------------------
@@ -318,7 +318,7 @@ line level    source
               CODE BYTE Str_Sharpness_K[] = {FONT_RAM,CH_KR_SEON,CH_KR_MYEONG,CH_KR_DO,CH_KR_SPACE,CH_KR_JO,CH_KR_JEONG,
              -FONT_ROM,0};
               
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 6   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 6   
 
               //--------------------------------------------------------------------------------
               CODE BYTE Str_Contrast_E[] = {'C','o','n','t','r','a','s','t',0};
@@ -382,7 +382,7 @@ line level    source
               
               //--------------------------------------------------------------------------------
               #ifdef WIDE_SCREEN
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 7   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 7   
 
               CODE BYTE Str_WideScreen_E[] = {'W','i','d','e',' ','S','c','r','e','e','n',0};
               CODE BYTE Str_WideScreen_K[] = {'W','I','D','E',' ',FONT_RAM,CH_KR_HWA,CH_KR_MYEON,CH_KR_SPACE,CH_KR_SEON,
@@ -446,7 +446,7 @@ line level    source
                                       'N','T','S','C','4','.','4','3',0,      
               #endif
               #ifdef SUPPORT_PALM
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 8   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 8   
 
                                       'P','A','L','M',0,      
               #endif
@@ -510,7 +510,7 @@ line level    source
              -mp_K};
               
               CODE BYTE       *Str_Comments[]=                {Str_Comments_E,Str_Comments_E,Str_Comments_E,Str_Comments_E,Str_Comments_K};
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 9   
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 9   
 
               //============================================================================================
               //  OSD Menu String Table
@@ -574,7 +574,7 @@ line level    source
               CODE BYTE       *Str_Contrast[]=                {Str_Contrast_E,Str_Contrast_F,Str_Contrast_D,Str_Contrast_S,Str_Contrast_K};
               CODE BYTE       *Str_Brightness[]=              {Str_Brightness_E,Str_Brightness_F,Str_Brightness_D,Str_Brightness_S,Str_Br
              -ightness_K};
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 10  
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 10  
 
               CODE BYTE       *Str_Saturation[]=              {Str_Saturation_E,Str_Saturation_E,Str_Saturation_D,Str_Saturation_S,Str_Sa
              -turation_K};
@@ -596,7 +596,7 @@ line level    source
               
               #endif //.. SUPPORT_FOSD_MENU
  520          
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 11  
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 11  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -614,7 +614,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0009 22                RET     
              ; FUNCTION Dummy_FosdString_func (END)
 
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 12  
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 12  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -677,7 +677,7 @@ RegisterInfo . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  6
   Min. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0000H  2
   Max. . . . . . . . . . . . . . . . .  MEMBER   -----  INT      0002H  2
   Default. . . . . . . . . . . . . . .  MEMBER   -----  INT      0004H  2
-C51 COMPILER V9.00   FOSDSTRING                                                            05/31/2013 20:18:35 PAGE 13  
+C51 COMPILER V9.00   FOSDSTRING                                                            06/05/2014 15:35:01 PAGE 13  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

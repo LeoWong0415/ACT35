@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 1   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE SCALER
 OBJECT MODULE PLACED IN .\Output\Scaler.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE Scaler.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE 
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Scaler.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE 
                     -MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\Scaler.lst) OBJECT(.\Output\Scaler.o
                     -bj)
 
@@ -62,7 +62,7 @@ line level    source
   51          //                      It controls the scaler total output lines when LNFIX=1. It is used in special case. A 10-bit register
              -.
   52          //other name: Limit V Total
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 2   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 2   
 
   53          #ifdef UNCALLED_SEGMENT
               void ScalerSetOutputFixedVline(BYTE onoff)
@@ -126,7 +126,7 @@ line level    source
  112          
  113          //-----------------------------------------------------------------------------
  114          /**
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 3   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 3   
 
  115          * write Horizontal Down Scale register
  116          *
@@ -190,7 +190,7 @@ line level    source
  173   1      
  174   1              WriteTW88Page(PAGE2_SCALER);
  175   1              if(PANEL_H >= Length) {                                         
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 4   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 4   
 
  176   2                      //UP SCALE
  177   2                      temp = Length * 0x2000L;
@@ -254,7 +254,7 @@ line level    source
  235   1              WriteTW88Page(PAGE2_SCALER);
  236   1              if(PANEL_H >= X1) {
  237   2                      //
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 5   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 5   
 
  238   2                      //UP SCALE
  239   2                      //
@@ -318,7 +318,7 @@ line level    source
  297   2              }
  298   1              else {
  299   2                      //upscale
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 6   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 6   
 
  300   2                      ScalerWriteXDownReg(0x0400);            // clear down scale
  301   2                      temp = 0x2000L;
@@ -382,7 +382,7 @@ line level    source
  359          *       register
  360          *       R206[7:0]R205[7:0]      YSCALE  
  361          */
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 7   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 7   
 
  362          void ScalerWriteVScaleReg(WORD value)
  363          {
@@ -446,7 +446,7 @@ line level    source
  421   2                      dPrintf("\nLength:%d",Length);
  422   2                      temp = Length;  
  423   2                      temp = temp * 800 / 720;
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 8   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 8   
 
  424   2                      temp = temp - Length;   
  425   2                      Length = Length - temp;
@@ -510,7 +510,7 @@ line level    source
  483          
  484          //-------------------------------------
  485          //      Scaler LineBuffer
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 9   
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 9   
 
  486          //-------------------------------------
  487          //Output Buffer Delay R20B[7;0]
@@ -574,7 +574,7 @@ line level    source
                       ScalerWriteLineBufferDelay(delay);
                       ScalerSetLineBufferSize(len);
               }
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 10  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 10  
 
               #endif
  549          
@@ -638,7 +638,7 @@ line level    source
  607          *       result = Buffer_Delay + 32
  608          */
  609          WORD ScalerCalcHDE(void)
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 11  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 11  
 
  610          {
  611   1              WORD wTemp;
@@ -702,7 +702,7 @@ line level    source
  669          /**
  670          * Read Vertical DE register
  671          */
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 12  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 12  
 
  672          BYTE ScalerReadVDEReg(void)
  673          {
@@ -766,7 +766,7 @@ line level    source
  731   1              WriteTW88Page(PAGE5_MEAS);
  732   1              Read2TW88(REG536,REG537, VStart);
  733   1              Read2TW88(REG52A,REG52B, VPulse);
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 13  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 13  
 
  734   1      
  735   1              if(InputMain==INPUT_DVI) {
@@ -830,7 +830,7 @@ line level    source
  793          //set the "VSstart" and "VSwidth" on Vertical Timming Flow.
  794          //Scaler set output VSynch
  795          #ifdef UNCALLED_SEGMENT
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 14  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 14  
 
               void ScalerSetVSyncPosLen(BYTE pos, BYTE len)
               {
@@ -894,7 +894,7 @@ line level    source
  855   1      }
  856          
  857          
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 15  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 15  
 
  858          //-----------------------------------------------------------------------------
  859          //DM_TOP        R21A[7:0]       top      
@@ -958,7 +958,7 @@ line level    source
  917   1              PCLKO = ReadTW88(REG20D)&0x03;
  918   1      
  919   1      
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 16  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 16  
 
  920   1              temp32 = MeasGetHPeriod();
  921   1              temp32 *= VScale;
@@ -1022,7 +1022,7 @@ line level    source
  978   1      }
  979          //-----------------------------------------------------------------------------
  980          /**
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 17  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 17  
 
  981          * set MuteAuto & MuteManual
  982          */
@@ -1086,7 +1086,7 @@ line level    source
 1040   1              WORD HTotal;
 1041   1              WORD VTotal;
 1042   1              BYTE ret;
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 18  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 18  
 
 1043   1      
 1044   1              if(fForce) {
@@ -1150,7 +1150,7 @@ line level    source
 1102   1              //Vertical
 1103   1              Total = ScalerReadFreerunVtotal();
 1104   1              Min = ScalerReadOutputHeight(); //V Width
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 19  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 19  
 
 1105   1              Min += ScalerReadVDEReg();              //V-DE
 1106   1              Min += 2;
@@ -1167,7 +1167,7 @@ line level    source
 1117   2              }
 1118   1      }
 1119          
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 20  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 20  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1231,7 +1231,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0041         L?0115:
 0041 E0                MOVX    A,@DPTR
 0042 FE                MOV     R6,A
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 21  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 21  
 
 0043 A3                INC     DPTR
 0044 E0                MOVX    A,@DPTR
@@ -1295,7 +1295,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0086 EF                MOV     A,R7
 0087 F0                MOVX    @DPTR,A
 0088 E500        E     MOV     A,regTW88+01H
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 22  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 22  
 
 008A 22                RET     
 008B         L?0125:
@@ -1359,7 +1359,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D5         L?0131:
 00D5 F9                MOV     R1,A
 00D6 F8                MOV     R0,A
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 23  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 23  
 
 00D7 120000      E     LCALL   ?C?ULDIV
 00DA         L?0132:
@@ -1423,7 +1423,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0122 FE                MOV     R6,A
 0123 A3                INC     DPTR
 0124 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 24  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 24  
 
 0125 22                RET     
 0126         L?0148:
@@ -1487,7 +1487,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 016E 900000      R     MOV     DPTR,#temp32
 0171 22                RET     
 0172         L?0161:
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 25  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 25  
 
 0172 7404              MOV     A,#04H
 0174 F0                MOVX    @DPTR,A
@@ -1551,7 +1551,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01B2 EF                MOV     A,R7
 01B3 F0                MOVX    @DPTR,A
 01B4 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 26  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 26  
 
 01B6 22                RET     
 01B7         L?0170:
@@ -1615,7 +1615,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 129
 0026 22                RET     
              ; FUNCTION _ScalerWriteXDownReg (END)
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 27  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 27  
 
 
              ; FUNCTION ScalerReadXDownReg (BEGIN)
@@ -1679,7 +1679,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0022 E4                CLR     A
 0023 FC                MOV     R4,A
 0024 FD                MOV     R5,A
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 28  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 28  
 
 0025 120000      R     LCALL   L?0162
 0028 120000      R     LCALL   L?0136
@@ -1743,7 +1743,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0085 EF                MOV     A,R7
 0086 6404              XRL     A,#04H
 0088 6009              JZ      ?C0010
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 29  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 29  
 
 008A EF                MOV     A,R7
 008B 6406              XRL     A,#06H
@@ -1807,7 +1807,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00DF 900000      R     MOV     DPTR,#temp
 00E2 A3                INC     DPTR
 00E3 120000      R     LCALL   L?0109
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 30  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 30  
 
 00E6 120000      R     LCALL   _ScalerWriteXDownReg
                                            ; SOURCE LINE # 208
@@ -1871,7 +1871,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0013 3400              ADDC    A,#00H
 0015 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 236
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 31  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 31  
 
 0016 D3                SETB    C
 0017 A3                INC     DPTR
@@ -1935,7 +1935,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0076 120000      R     LCALL   L?0109
                                            ; SOURCE LINE # 249
 0079 120000      R     LCALL   L?0143
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 32  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 32  
 
                                            ; SOURCE LINE # 250
 007C 7BFF              MOV     R3,#0FFH
@@ -1999,7 +1999,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00DE A3                INC     DPTR
 00DF 120000      R     LCALL   L?0109
 00E2 120000      R     LCALL   _ScalerWriteXDownReg
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 33  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 33  
 
                                            ; SOURCE LINE # 262
 00E5 7BFF              MOV     R3,#0FFH
@@ -2063,7 +2063,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0016 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 279
 0019 7F01              MOV     R7,#01H
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 34  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 34  
 
 001B 120000      R     LCALL   _ScalerWriteLineBufferDelay
                                            ; SOURCE LINE # 280
@@ -2127,7 +2127,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0078 00                DB      00H
                                            ; SOURCE LINE # 294
                                            ; SOURCE LINE # 295
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 35  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 35  
 
 0079 120000      R     LCALL   L?0106
                                            ; SOURCE LINE # 296
@@ -2191,7 +2191,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F EF                MOV     A,R7
 0010 F0                MOVX    @DPTR,A
 0011         ?C0022:
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 36  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 36  
 
                                            ; SOURCE LINE # 326
 0011 900000      E     MOV     DPTR,#InputMain
@@ -2255,7 +2255,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0060 E0                MOVX    A,@DPTR
 0061 FF                MOV     R7,A
 0062 120000      R     LCALL   _ScalerSetHScale_FULL
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 37  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 37  
 
                                            ; SOURCE LINE # 348
 0065         ?C0028:
@@ -2319,7 +2319,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0013 120000      R     LCALL   L?0134
 0016 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 394
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 38  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 38  
 
 0019 900000      R     MOV     DPTR,#Length
 001C 120000      R     LCALL   L?0121
@@ -2383,7 +2383,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0080 7BE0              MOV     R3,#0E0H
 0082 7A01              MOV     R2,#01H
                                            ; SOURCE LINE # 403
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 39  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 39  
 
 0084 120000      R     LCALL   L?0131
 0087 A3                INC     DPTR
@@ -2447,7 +2447,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0060 900000      R     MOV     DPTR,#temp
 0063 A3                INC     DPTR
 0064 120000      R     LCALL   L?0109
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 40  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 40  
 
 0067 C3                CLR     C
 0068 900000      R     MOV     DPTR,#Length+01H
@@ -2511,7 +2511,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 437
                                            ; SOURCE LINE # 438
                                            ; SOURCE LINE # 440
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 41  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 41  
 
 00C2         ?C0037:
                                            ; SOURCE LINE # 441
@@ -2575,7 +2575,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 476
                                            ; SOURCE LINE # 478
 0006 EA                MOV     A,R2
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 42  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 42  
 
 0007 C4                SWAP    A
 0008 F8                MOV     R0,A
@@ -2639,7 +2639,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0002 240B              ADD     A,#0BH
 0004 120000      R     LCALL   L?0112
 0007 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 43  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 43  
 
 0008 FF                MOV     R7,A
                                            ; SOURCE LINE # 518
@@ -2703,7 +2703,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'pos' assigned to Register 'R7' ----
                                            ; SOURCE LINE # 583
                                            ; SOURCE LINE # 587
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 44  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 44  
 
 0000 E500        E     MOV     A,regTW88+01H
 0002 2410              ADD     A,#010H
@@ -2767,7 +2767,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0013 FD                MOV     R5,A
 0014 ED                MOV     A,R5
 0015 FF                MOV     R7,A
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 45  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 45  
 
                                            ; SOURCE LINE # 632
                                            ; SOURCE LINE # 633
@@ -2831,7 +2831,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION ScalerCalcVDE (BEGIN)
                                            ; SOURCE LINE # 725
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 46  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 46  
 
                                            ; SOURCE LINE # 726
                                            ; SOURCE LINE # 732
@@ -2895,7 +2895,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 005B 3500        E     ADDC    A,regTW88
 005D F583              MOV     DPH,A
 005F E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 47  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 47  
 
 0060 30E304            JNB     ACC.3,?C0058
 0063 7F01              MOV     R7,#01H
@@ -2959,7 +2959,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00C0 120000      R     LCALL   L?0122
 00C3 2439              ADD     A,#039H
 00C5 120000      R     LCALL   L?0140
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 48  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 48  
 
 00C8 FD                MOV     R5,A
 00C9 ED                MOV     A,R5
@@ -3023,7 +3023,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0128 900000      R     MOV     DPTR,#dTemp
 012B A3                INC     DPTR
 012C 120000      R     LCALL   L?0109
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 49  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 49  
 
                                            ; SOURCE LINE # 760
 012F         ?C0062:
@@ -3087,7 +3087,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F         ?C0100:
 000F C3                CLR     C
 0010 33                RLC     A
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 50  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 50  
 
 0011 CE                XCH     A,R6
 0012 33                RLC     A
@@ -3151,7 +3151,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003C         ?C0065:
 003C 22                RET     
              ; FUNCTION ScalerCalcFreerunVtotal (END)
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 51  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 51  
 
 
              ; FUNCTION _ScalerWriteFreerunHtotal (BEGIN)
@@ -3215,7 +3215,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0019 120000      R     LCALL   L?0112
 001C E0                MOVX    A,@DPTR
 001D FD                MOV     R5,A
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 52  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 52  
 
 001E EF                MOV     A,R7
 001F 4D                ORL     A,R5
@@ -3279,7 +3279,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0052 F8                MOV     R0,A
 0053 D007              POP     AR7
 0055 D006              POP     AR6
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 53  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 53  
 
 0057 120000      E     LCALL   ?C?ULDIV
 005A 900000      R     MOV     DPTR,#temp32
@@ -3343,7 +3343,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000A EF                MOV     A,R7
 000B 6006              JZ      ?C0073
 000D EE                MOV     A,R6
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 54  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 54  
 
 000E 4402              ORL     A,#02H
 0010 FE                MOV     R6,A
@@ -3407,7 +3407,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0017         ?C0080:
                                            ; SOURCE LINE # 991
 0017 EE                MOV     A,R6
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 55  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 55  
 
 0018 54FD              ANL     A,#0FDH
 001A FE                MOV     R6,A
@@ -3471,7 +3471,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1011
 0025         ?C0088:
 0025 22                RET     
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 56  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 56  
 
              ; FUNCTION _ScalerSetMuteManual (END)
 
@@ -3535,7 +3535,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1067
 003F 7F01              MOV     R7,#01H
 0041 120000      E     LCALL   _MeasEnableChangedDetection
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 57  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 57  
 
                                            ; SOURCE LINE # 1068
 0044         ?C0090:
@@ -3599,7 +3599,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0005 120000      R     LCALL   ScalerReadFreerunHtotal
 0008 900000      R     MOV     DPTR,#Total
 000B EE                MOV     A,R6
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 58  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 58  
 
 000C F0                MOVX    @DPTR,A
 000D A3                INC     DPTR
@@ -3663,7 +3663,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0055 5010              JNC     ?C0095
                                            ; SOURCE LINE # 1108
 0057 7A00        R     MOV     R2,#HIGH ?SC_470
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 59  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 59  
 
 0059 7900        R     MOV     R1,#LOW ?SC_470
                                            ; SOURCE LINE # 1109
@@ -3719,7 +3719,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0099 22                RET     
              ; FUNCTION ScalerCheckPanelFreerunValue (END)
 
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 60  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 60  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3782,7 +3782,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   han. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
   van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
   vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 61  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 61  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3845,7 +3845,7 @@ SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
   bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
 _ScalerSetHScale_Panorama. . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   Length . . . . . . . . . . . . . . .  AUTO     XDATA  U_INT    0000H  2
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 62  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 62  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3908,7 +3908,7 @@ FONT_SPI_INFO_t. . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  25
   palette_bpp4 . . . . . . . . . . . .  MEMBER   -----  PTR      0016H  3
 _ScalerSetFreerunValue . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   fForce . . . . . . . . . . . . . . .  AUTO     XDATA  U_CHAR   0000H  1
-C51 COMPILER V9.00   SCALER                                                                05/31/2013 20:18:29 PAGE 63  
+C51 COMPILER V9.00   SCALER                                                                06/05/2014 15:34:50 PAGE 63  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

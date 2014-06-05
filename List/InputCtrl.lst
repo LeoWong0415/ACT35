@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 1   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE INPUTCTRL
 OBJECT MODULE PLACED IN .\Output\InputCtrl.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE InputCtrl.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROW
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE InputCtrl.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROW
                     -SE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\InputCtrl.lst) OBJECT(.\Output\In
                     -putCtrl.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          #include "InputCtrl.h"
   52          #include "EEPROM.h"
   53          #include "ImageCtrl.h"
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 2   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 2   
 
   54          #include "Settings.h"
   55          #include "measure.h"
@@ -126,7 +126,7 @@ line level    source
  113          */
  114          BYTE GetInputMain(void)
  115          {
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 3   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 3   
 
  116   1              return InputMain;
  117   1      }
@@ -190,7 +190,7 @@ line level    source
  175   1              WORD loop;
  176   1              DECLARE_LOCAL_page
  177   1      
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 4   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 4   
 
  178   1              ReadTW88Page(page);
  179   1              WriteTW88Page(PAGE0_GENERAL );
@@ -254,7 +254,7 @@ line level    source
  237   2              }
  238   1              else if(path==INPUT_PATH_DTV) {         //DTV
  239   2                                                                                      //clock normal
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 5   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 5   
 
  240   2                      r040 |= 0x08;                                   //INT_4 pin is turn into dtvde pin
  241   2                      //r041 |= 0x20;                                 // progressive
@@ -318,7 +318,7 @@ line level    source
               //-----------------------------------------------------------------------------
               //class:Input
               BYTE InputGetFieldPolarity(void)
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 6   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 6   
 
               {
                       BYTE r041;
@@ -382,7 +382,7 @@ line level    source
  361          */
  362          void InputSetCrop( WORD x, WORD y, WORD w, WORD h )
  363          {
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 7   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 7   
 
  364   1              WriteTW88Page( PAGE0_INPUT );
  365   1      
@@ -446,7 +446,7 @@ line level    source
               void InputSetVStart( WORD y)
               {
                       WriteTW88Page( PAGE0_INPUT );
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 8   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 8   
 
               
                       WriteTW88(REG043, (BYTE)y);
@@ -510,7 +510,7 @@ line level    source
  485          *       R047[5]
  486          */
  487          void BT656InputFreerunClk(BYTE fFreerun, BYTE fInvClk)
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 9   
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 9   
 
  488          {
  489   1              BYTE value;
@@ -574,7 +574,7 @@ line level    source
  547          *       - INPUT_HDMITV: ChangeHDMI
  548          *       - INPUT_BT656: ChangeBT656
  549          * @see ChangeCVBS
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 10  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 10  
 
  550          */
  551          void ChangeInput( BYTE mode )
@@ -638,7 +638,7 @@ line level    source
  609   1      
  610   1      #if defined(SUPPORT_HDMI_EP9351) || defined(SUPPORT_HDMI_SiIRX)
                       if(InputMain==INPUT_HDMIPC)
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 11  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 11  
 
                               next_input = InputMain + 2;
                       else
@@ -702,7 +702,7 @@ line level    source
  671          *
  672          *       select input path
  673          *       turnoff freerun manual & turnon freerun auto.
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 12  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 12  
 
  674          *       assign default freerun Htotal&Vtotal
  675          *
@@ -766,7 +766,7 @@ line level    source
  733   2                      InputSetSource(INPUT_PATH_DTV,INPUT_FORMAT_RGB);                
  734   2                      break;
  735   2              case INPUT_HDMIPC:
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 13  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 13  
 
  736   2              case INPUT_HDMITV:      //target R040: R041:
  737   2                      InputSetSource(INPUT_PATH_DTV,INPUT_FORMAT_RGB);                
@@ -830,7 +830,7 @@ line level    source
               #endif
                               break;
               #endif
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 14  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 14  
 
  798   2              case INPUT_HDMIPC:
  799   2              case INPUT_HDMITV:
@@ -894,7 +894,7 @@ line level    source
  857   2              case INPUT_HDMIPC:
  858   2              case INPUT_HDMITV:
  859   2                      MeasSetWindow( 0, 0, 0xfff, 0xfff );    //set dummy window. 1600x600
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 15  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 15  
 
  860   2                      MeasSetField(2);                                                //field:Both
  861   2                      MeasEnableDeMeasure(ON);                                //Enable DE Measure
@@ -958,7 +958,7 @@ line level    source
  919          * call when CheckAndSet[Input] is failed.
  920          * oldname: VInputGotoFreerun
  921          * input
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 16  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 16  
 
  922          *       reason
  923          *               0: No Signal
@@ -1022,7 +1022,7 @@ line level    source
  981          * check and set the decoder input
  982          *
  983          * @return
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 17  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 17  
 
  984          *       0: success
  985          *       1: VDLOSS
@@ -1086,7 +1086,7 @@ line level    source
 1043   1              else if(VideoAspect==VIDEO_ASPECT_NORMAL) {
 1044   2                      if(x_ratio > y_ratio) {
 1045   3                              dPrintf(" use y. adjust X");
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 18  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 18  
 
 1046   3                              x_ratio = 0;
 1047   3                      }
@@ -1150,7 +1150,7 @@ line level    source
 1105   1                         || mode == 4 //PAL-M
 1106   1                     || mode == 6 //PAL-60                     
 1107   1              ) {                             
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 19  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 19  
 
 1108   2                      vPeriod = 228;
 1109   2                      vDelayAdd = 39;
@@ -1214,7 +1214,7 @@ line level    source
 1166          *       fSVIDEO         0:CVBS, 1:SVIDEO
 1167          * @return
 1168          *       - 0: success
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 20  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 20  
 
 1169          *       - 1: No Update happen
 1170          *       - 2: No Signal or unknown video sidnal.
@@ -1278,7 +1278,7 @@ line level    source
 1228          * Change to CVBS
 1229          *
 1230          * @return
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 21  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 21  
 
 1231          *       - 0: success
 1232          *       - 1: No Update happen
@@ -1342,7 +1342,7 @@ line level    source
 1290   1              InitInputAsDefault();
 1291   1      
 1292   1              //
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 22  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 22  
 
 1293   1              // Check and Set with measure
 1294   1              //
@@ -1406,7 +1406,7 @@ line level    source
 1352   1              InitInputAsDefault();
 1353   1      
 1354   1              //
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 23  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 23  
 
 1355   1              // Check and Set VADC,mesaure,Scaler for Analog PC input
 1356   1              //
@@ -1470,7 +1470,7 @@ line level    source
                       //
                       ret = CheckAndSetDVI();         //same as CheckAndSetInput()
                       if(ret==0) {
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 24  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 24  
 
                               //success
                               VInput_enableOutput(0);
@@ -1534,7 +1534,7 @@ line level    source
                       //wakeup(turn off the power down)
                       HdmiInitEp9351Chip();
               #endif
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 25  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 25  
 
 1479   1      
 1480   1              //
@@ -1598,7 +1598,7 @@ line level    source
 1538          //-----------------------------------------------------------------------------
 1539          #ifdef SUPPORT_BT656
 1540          //-----------------------------------------------------------------------------
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 26  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 26  
 
 1541          /**
 1542          * Change to BT656
@@ -1648,7 +1648,7 @@ line level    source
 1586   1      }
 1587          #endif
 1588          
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 27  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 27  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1712,7 +1712,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0042 22                RET     
 0043         L?0255:
 0043 900000      R     MOV     DPTR,#x_ratio
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 28  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 28  
 
 0046 E0                MOVX    A,@DPTR
 0047 F8                MOV     R0,A
@@ -1776,7 +1776,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION Com00EF (END)
 
              ; FUNCTION GetInputMain (BEGIN)
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 29  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 29  
 
                                            ; SOURCE LINE # 114
                                            ; SOURCE LINE # 115
@@ -1840,7 +1840,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0027 0E                INC     R6
 0028         ?C0193:
                                            ; SOURCE LINE # 158
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 30  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 30  
 
 0028 D3                SETB    C
 0029 EF                MOV     A,R7
@@ -1904,7 +1904,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0024 120000      E     LCALL   _wPrintf
                                            ; SOURCE LINE # 188
                                            ; SOURCE LINE # 189
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 31  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 31  
 
                                            ; SOURCE LINE # 190
                                            ; SOURCE LINE # 192
@@ -1968,7 +1968,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003F B4020F            CJNE    A,#02H,?C0017
                                            ; SOURCE LINE # 227
 0042 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 32  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 32  
 
 0043 4420              ORL     A,#020H
 0045 F0                MOVX    @DPTR,A
@@ -2032,7 +2032,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0086 EF                MOV     A,R7
 0087 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 250
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 33  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 33  
 
 0088 900000      R     MOV     DPTR,#r041
 008B E0                MOVX    A,@DPTR
@@ -2096,7 +2096,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'w' assigned to Register 'R2/R3' ----
                                            ; SOURCE LINE # 363
                                            ; SOURCE LINE # 366
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 34  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 34  
 
 0010 EE                MOV     A,R6
 0011 5403              ANL     A,#03H
@@ -2160,7 +2160,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0062 E0                MOVX    A,@DPTR
 0063 FF                MOV     R7,A
 0064 E500        E     MOV     A,regTW88+01H
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 35  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 35  
 
 0066 2444              ADD     A,#044H
 0068 120000      R     LCALL   L?0243
@@ -2224,7 +2224,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000B C3                CLR     C
 000C 33                RLC     A
 000D CE                XCH     A,R6
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 36  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 36  
 
 000E 33                RLC     A
 000F CE                XCH     A,R6
@@ -2288,7 +2288,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0025 2447              ADD     A,#047H
 0027 120000      R     LCALL   L?0243
 002A EE                MOV     A,R6
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 37  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 37  
 
 002B F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 498
@@ -2352,7 +2352,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0052 7900        R     MOV     R1,#LOW ?SC_70
 0054         ?C0207:
 0054 8032              SJMP    ?C0213
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 38  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 38  
 
                                            ; SOURCE LINE # 512
 0056         ?C0040:
@@ -2416,7 +2416,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00A0 F8                MOV     R0,A
 00A1 28                ADD     A,R0
 00A2 28                ADD     A,R0
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 39  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 39  
 
 00A3 73                JMP     @A+DPTR
 00A4         ?C0201:
@@ -2480,7 +2480,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F4         ?C0055:
 00F4 7BFF              MOV     R3,#0FFH
 00F6 7A00        R     MOV     R2,#HIGH ?SC_101
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 40  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 40  
 
 00F8 7900        R     MOV     R1,#LOW ?SC_101
 00FA         ?C0220:
@@ -2544,7 +2544,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 562
 0038         ?C0060:
                                            ; SOURCE LINE # 563
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 41  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 41  
 
                                            ; SOURCE LINE # 564
 0038 800C              SJMP    ?C0222
@@ -2608,7 +2608,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0014 60F0              JZ      ?C0069
                                            ; SOURCE LINE # 657
 0016 020000      R     LJMP    _ChangeInput
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 42  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 42  
 
              ; FUNCTION InputModeNext (END)
 
@@ -2672,7 +2672,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004E 020000      R     LJMP    ?C0076
 0051 020000      R     LJMP    ?C0076
 0054 020000      R     LJMP    ?C0077
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 43  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 43  
 
 0057 020000      R     LJMP    ?C0078
 005A 020000      R     LJMP    ?C0079
@@ -2736,7 +2736,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 745
 008A 900000      R     MOV     DPTR,#InputMain
 008D E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 44  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 44  
 
 008E FF                MOV     R7,A
 008F 120000      E     LCALL   _InMuxSetInput
@@ -2800,7 +2800,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00C8 E4                CLR     A
 00C9         ?C0230:
 00C9 FF                MOV     R7,A
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 45  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 45  
 
 00CA 120000      R     LCALL   _BT656InputFreerunClk
                                            ; SOURCE LINE # 774
@@ -2864,7 +2864,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 858
 00FF         ?C0109:
                                            ; SOURCE LINE # 859
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 46  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 46  
 
                                            ; SOURCE LINE # 860
 00FF 120000      R     LCALL   L?0249
@@ -2928,7 +2928,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000F A3                INC     DPTR
 0010 E500        E     MOV     A,VH_Loss_Changed+01H
 0012 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 47  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 47  
 
 0013 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 886
@@ -2992,7 +2992,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 927
 0000 900000      R     MOV     DPTR,#reason
 0003 EF                MOV     A,R7
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 48  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 48  
 
 0004 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 928
@@ -3056,7 +3056,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 956
 004E 120000      E     LCALL   getNoSignalLogoStatus
 0051 EF                MOV     A,R7
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 49  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 49  
 
 0052 7003              JNZ     ?C0125
                                            ; SOURCE LINE # 957
@@ -3120,7 +3120,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001F 7F01              MOV     R7,#01H
 0021 020000      E     LJMP    _ScalerSetFreerunManual
                                            ; SOURCE LINE # 1005
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 50  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 50  
 
                                            ; SOURCE LINE # 1006
 0024         ?C0128:
@@ -3184,7 +3184,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 007E 7BD0              MOV     R3,#0D0H
 0080 7A02              MOV     R2,#02H
 0082 F9                MOV     R1,A
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 51  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 51  
 
 0083 F8                MOV     R0,A
 0084 120000      E     LCALL   ?C?ULDIV
@@ -3248,7 +3248,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00EE         ?C0232:
 00EE 7A00        R     MOV     R2,#HIGH ?SC_323
 00F0 7900        R     MOV     R1,#LOW ?SC_323
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 52  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 52  
 
 00F2 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 1046
@@ -3312,7 +3312,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0133 7E00              MOV     R6,#00H
                                            ; SOURCE LINE # 1073
                                            ; SOURCE LINE # 1074
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 53  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 53  
 
 0135 120000      R     LCALL   L?0248
 0138 7400        R     MOV     A,#HIGH ?SC_340
@@ -3376,7 +3376,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0181 900000      R     MOV     DPTR,#vPeriod
 0184 120000      E     LCALL   ?C?LSTKXDATA
 0187 00                DB      00H
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 54  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 54  
 
 0188 00                DB      00H
 0189 00                DB      00H
@@ -3440,7 +3440,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1124
                                            ; SOURCE LINE # 1125
 01DC 900000      R     MOV     DPTR,#vPeriod
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 55  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 55  
 
 01DF 120000      E     LCALL   ?C?LSTKXDATA
 01E2 00                DB      00H
@@ -3504,7 +3504,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1142
 0233 7FD0              MOV     R7,#0D0H
 0235 7E02              MOV     R6,#02H
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 56  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 56  
 
 0237 120000      E     LCALL   _ScalerSetLineBufferSize
                                            ; SOURCE LINE # 1144
@@ -3568,7 +3568,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0291 A3                INC     DPTR
 0292 E0                MOVX    A,@DPTR
 0293 FF                MOV     R7,A
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 57  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 57  
 
 0294 A3                INC     DPTR
 0295 E0                MOVX    A,@DPTR
@@ -3632,7 +3632,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 02F6 7A00        E     MOV     R2,#HIGH FOsdMsgBuff
 02F8 7900        E     MOV     R1,#LOW FOsdMsgBuff
 02FA 120000      E     LCALL   _TWstrcat
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 58  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 58  
 
 02FD 22                RET     
 02FE         L?0263:
@@ -3696,7 +3696,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 002C E4                CLR     A
 002D 900000      R     MOV     DPTR,#InputMain
 0030 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 59  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 59  
 
                                            ; SOURCE LINE # 1194
 0031         ?C0167:
@@ -3760,7 +3760,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0005 22                RET     
              ; FUNCTION ChangeCVBS (END)
 
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 60  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 60  
 
              ; FUNCTION ChangeSVIDEO (BEGIN)
                                            ; SOURCE LINE # 1253
@@ -3824,7 +3824,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 1310
 0038 E4                CLR     A
 0039 FF                MOV     R7,A
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 61  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 61  
 
 003A 120000      R     LCALL   _VInput_gotoFreerun
                                            ; SOURCE LINE # 1312
@@ -3888,7 +3888,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0039 120000      R     LCALL   _VInput_gotoFreerun
                                            ; SOURCE LINE # 1375
 003C 7F02              MOV     R7,#02H
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 62  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 62  
 
                                            ; SOURCE LINE # 1376
 003E         ?C0178:
@@ -3952,7 +3952,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 ;---- Variable 'ret' assigned to Register 'R7' ----
 0049 7F01              MOV     R7,#01H
                                            ; SOURCE LINE # 1488
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 63  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 63  
 
 004B EF                MOV     A,R7
 004C 7007              JNZ     ?C0187
@@ -4016,7 +4016,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0018 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 1559
 0019 120000      E     LCALL   GetInputEE
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 64  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 64  
 
 001C 120000      R     LCALL   L?0254
 001F 6003              JZ      ?C0191
@@ -4050,7 +4050,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003B 22                RET     
              ; FUNCTION ChangeBT656 (END)
 
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 65  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 65  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4113,7 +4113,7 @@ menu_fitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  15
   winno. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
   osdram . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0001H  2
   x. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 66  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 66  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4176,7 +4176,7 @@ menu_sitem_info_s. . . . . . . . . . .  * TAG *  -----  STRUCT   -----  23
 _DecoderSetVActive . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 menu_sitem_info_t. . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  23
   osd_type . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0000H  1
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 67  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 67  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4239,7 +4239,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   dummy0 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0014H  1
   dummy1 . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0015H  1
   dummy2 . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0016H  2
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 68  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 68  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4302,7 +4302,7 @@ _ScalerSetVScale . . . . . . . . . . .  EXTERN   CODE   PROC     -----  -----
 _RLE_HEADER. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  15
   id . . . . . . . . . . . . . . . . .  MEMBER   -----  ARRAY    0000H  2
   c. . . . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0002H  1
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 69  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 69  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4365,7 +4365,7 @@ FONT_SPI_INFO_s. . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   bpp3 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
   bpp4 . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
   max. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 70  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 70  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -4429,7 +4429,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    CODE SIZE        =   2778    ----
    CONSTANT SIZE    =    649    ----
    XDATA SIZE       =      2      34
-C51 COMPILER V9.00   INPUTCTRL                                                             05/31/2013 20:18:30 PAGE 71  
+C51 COMPILER V9.00   INPUTCTRL                                                             06/05/2014 15:34:51 PAGE 71  
 
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----

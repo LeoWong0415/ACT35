@@ -1,9 +1,9 @@
-A51 MACRO ASSEMBLER  L51_BANK                                                             05/31/2013 20:18:28 PAGE     1
+A51 MACRO ASSEMBLER  L51_BANK                                                             06/05/2014 15:34:47 PAGE     1
 
 
 MACRO ASSEMBLER A51 V8.01
 OBJECT MODULE PLACED IN .\Output\L51_BANK.obj
-ASSEMBLER INVOKED BY: d:\Keil\C51\BIN\A51.EXE L51_BANK.A51 SET(LARGE) DEBUG PRINT(.\List\L51_BANK.lst) OBJECT(.\Output\L
+ASSEMBLER INVOKED BY: C:\Keil\C51\BIN\A51.EXE L51_BANK.A51 SET(LARGE) DEBUG PRINT(.\List\L51_BANK.lst) OBJECT(.\Output\L
                       51_BANK.obj) EP
 
 LOC  OBJ            LINE     SOURCE
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
                       55     ;                :                                                            *
                       56     ;      EXTRN CODE (?B_SWITCH0)                                                *
                       57     ;               CALL    ?B_SWITCH0    ; init bank mechanism to code bank 0    *
-A51 MACRO ASSEMBLER  L51_BANK                                                             05/31/2013 20:18:28 PAGE     2
+A51 MACRO ASSEMBLER  L51_BANK                                                             06/05/2014 15:34:47 PAGE     2
 
                       58     ;               LJMP    ?C_START      ; line already exits at the end of file *
                       59     ;                :                                                            *
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
                      121     ; to ?FCT?1.  This entry selects the bank where the function FCT is located   *
                      122     ; and calls that function via the routines defined in this L51_BANK.A51 file. *
                      123     ; The L51_BANK.A51 file contains two sets of functions for each bank:         *
-A51 MACRO ASSEMBLER  L51_BANK                                                             05/31/2013 20:18:28 PAGE     3
+A51 MACRO ASSEMBLER  L51_BANK                                                             06/05/2014 15:34:47 PAGE     3
 
                      124     ;                                                                             *
                      125     ; ?B_BANKn    is a routine which saves the entry of the ?B_SWITCHn function   *
@@ -201,7 +201,7 @@ LOC  OBJ            LINE     SOURCE
                      197       ELSE
                      198         ?B_SWITCH&N:
                      199       ENDIF
-A51 MACRO ASSEMBLER  L51_BANK                                                             05/31/2013 20:18:28 PAGE     4
+A51 MACRO ASSEMBLER  L51_BANK                                                             06/05/2014 15:34:47 PAGE     4
 
                      200                     MOV     ?B_CURRENTBANK,#LOW ?B_SWITCH&N
                      201                     SWITCH&N
@@ -269,7 +269,7 @@ LOC  OBJ            LINE     SOURCE
                      358                     DB      LOW ?B_SWITCH&N
                      359                     ENDM
                      360     
-A51 MACRO ASSEMBLER  L51_BANK                                                             05/31/2013 20:18:28 PAGE     5
+A51 MACRO ASSEMBLER  L51_BANK                                                             06/05/2014 15:34:47 PAGE     5
 
 0009                 361     switch_tab:     
   0000               362     CNT             SET     0
@@ -287,7 +287,7 @@ LOC  OBJ            LINE     SOURCE
                      382     
                              ENDIF  ; close block IF ?B_VAR_BANKING ****************************************
                      610     
-A51 MACRO ASSEMBLER  L51_BANK                                                             05/31/2013 20:18:28 PAGE     6
+A51 MACRO ASSEMBLER  L51_BANK                                                             06/05/2014 15:34:47 PAGE     6
 
 SYMBOL TABLE LISTING
 ------ ----- -------

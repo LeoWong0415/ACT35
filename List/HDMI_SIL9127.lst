@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 1   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE HDMI_SIL9127
 OBJECT MODULE PLACED IN .\Output\HDMI_SIL9127.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE HDMI_SIL9127.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) B
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE HDMI_SIL9127.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) B
                     -ROWSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\HDMI_SIL9127.lst) OBJECT(.\Out
                     -put\HDMI_SIL9127.obj)
 
@@ -62,7 +62,7 @@ line level    source
               
               //register offsets
               #define ADAC_CTRL1_ADDR     0x00
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 2   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 2   
 
               #define ADAC_CTRL2_ADDR     0x01
               #define ADAC_SPEED_PD_ADDR  0x02
@@ -126,7 +126,7 @@ line level    source
               
               //------------------------------------------------------------------------------
               // Function: HAL_WakeUpAudioDAC
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 3   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 3   
 
               // Description: Send wake up command to audio DAC
               //              Also un-mute the output by enabling output latch seperate from audio DAC
@@ -190,7 +190,7 @@ line level    source
                   WriteI2CByte(I2CID_SIL9127_EDID, REG__RPI_AUTO_CONFIG, BIT__CHECKSUM_EN|BIT__V_UNMUTE_EN|BIT__HCDP_EN|
              -BIT__TERM_EN);        //auto config
                   WriteI2CByte(I2CID_SIL9127_DEV0, DEV1_REG__SRST,      BIT__SWRST_AUTO);            //enable auto sw re
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 4   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 4   
 
              -set
                   WriteI2CByte(I2CID_SIL9127_DEV0, REG__VID_AOF,   CONF__OUTPUT_VIDEO_FORMAT);  //set output video forma
@@ -254,7 +254,7 @@ line level    source
                   TurnVideoMute(ON);
               
                       CurrentStatus.ResolutionChangeCount = 0;
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 5   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 5   
 
                   CurrentStatus.ColorDepth = 0;
                       CurrentStatus.AudioMode = AUDIO_MODE__NOT_INIT;
@@ -318,7 +318,7 @@ line level    source
               
                   WriteI2C(I2CID_SIL9127_COLOR, REG__FACTORY_A92,&EQTable[0],4);      //5.Repgrogram EQ table
                   WriteI2CByte(I2CID_SIL9127_COLOR, REG__FACTORY_AB5,0x40);           //  EnableEQ
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 6   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 6   
 
               
                   WriteI2CByte(I2CID_SIL9127_EDID, REG__FACTORY_9E5, 0x02);           //6. DLL by pass
@@ -382,7 +382,7 @@ line level    source
                       if (TIMER_Expired(TIMER__VIDEO)) {
                                       PclkCheck();
                               TIMER_Set(TIMER__VIDEO, VIDEO_STABLITY_CHECK_INTERVAL);  // start the video timer 
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 7   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 7   
 
                                       CurrentStatus.VideoStabilityCheckCount++;
               
@@ -446,7 +446,7 @@ line level    source
               
               //    if ((pinMask & GPIO_PIN__PORT_SELECT_SWITCH_0) && 0  /*BK111125 && (PinPortSelectSwitch0)*/)  pinSta
              -te |= GPIO_PIN__PORT_SELECT_SWITCH_0;
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 8   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 8   
 
               //    if ((pinMask & GPIO_PIN__PORT_SELECT_SWITCH_1) && 1  /*BK111125 && (PinPortSelectSwitch1)*/)  pinSta
              -te |= GPIO_PIN__PORT_SELECT_SWITCH_1;
@@ -510,7 +510,7 @@ line level    source
                               WriteTW88(REG090, ReadTW88(REG090) | 0x02);
                               WriteTW88Page(page);
                       }
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 9   
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 9   
 
                   if (pinMask & GPIO_PIN__VCCEN) {
                               Printf("\nGPIO_SetPins:VCCEN"); //PinVccEn   = 1;
@@ -574,7 +574,7 @@ line level    source
               
               
               
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 10  
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 10  
 
               
               
@@ -582,12 +582,12 @@ line level    source
               //--------------------------------------------------------------------------------------------------------
              ---------------
               #endif //..#HDMI_SiIRX SUPPORT_HDMI_SIL9XXXA
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 11  
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 11  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
-C51 COMPILER V9.00   HDMI_SIL9127                                                          05/31/2013 20:18:31 PAGE 12  
+C51 COMPILER V9.00   HDMI_SIL9127                                                          06/05/2014 15:34:56 PAGE 12  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

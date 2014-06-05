@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 1   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE OUTPUTCTRL
 OBJECT MODULE PLACED IN .\Output\OutputCtrl.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE OutputCtrl.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BRO
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE OutputCtrl.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BRO
                     -WSE MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\OutputCtrl.lst) OBJECT(.\Output\
                     -OutputCtrl.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          
   52          //=============================================================================
   53          //      void    BlackScrren( BYTE on )
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 2   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 2   
 
   54          //=============================================================================
   55          #ifdef UNCALLED_SEGMENT_CODE
@@ -126,7 +126,7 @@ line level    source
  113          
  114          //-----------------------------------------------------------------------------
  115          /**
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 3   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 3   
 
  116          * power up LED
  117          */
@@ -190,11 +190,11 @@ line level    source
  175   1              if(fFPDataPin==0)               value |= 0x20;
  176   1      #endif
  177   1              if(fOutputPin==0)               value |= 0x10;
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 4   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 4   
 
  178   1              WriteTW88(REG008,  value);
  179   1      }
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 5   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 5   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -258,7 +258,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0006 14                DEC     A
 0007 6028              JZ      ?C0007
 0009 2402              ADD     A,#02H
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 6   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 6   
 
 000B 702A              JNZ     ?C0004
                                            ; SOURCE LINE # 72
@@ -322,7 +322,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 004C 7E00              MOV     R6,#00H
 004E 120000      E     LCALL   _delay1ms
                                            ; SOURCE LINE # 95
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 7   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 7   
 
 0051 0C                INC     R4
 0052 EC                MOV     A,R4
@@ -386,7 +386,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0019 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 148
 001A ED                MOV     A,R5
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 8   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 8   
 
 001B 6005              JZ      ?C0018
                                            ; SOURCE LINE # 149
@@ -450,7 +450,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0038 22                RET     
              ; FUNCTION _OutputEnablePin (END)
 
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 9   
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 9   
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -513,7 +513,7 @@ SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
   left . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0008H  2
   top. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000AH  2
   right. . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000CH  2
-C51 COMPILER V9.00   OUTPUTCTRL                                                            05/31/2013 20:18:30 PAGE 10  
+C51 COMPILER V9.00   OUTPUTCTRL                                                            06/05/2014 15:34:51 PAGE 10  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

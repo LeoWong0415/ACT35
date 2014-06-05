@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 1   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE JUNK
 OBJECT MODULE PLACED IN .\Output\junk.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE junk.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE junk.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE MO
                     -DDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\junk.lst) OBJECT(.\Output\junk.obj)
 
 line level    source
@@ -62,7 +62,7 @@ line level    source
                       lcall ddH0      ;;;
                       setb I2C_SCL
                       lcall ddH
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 2   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 2   
 
               
                       clr     I2C_SCL
@@ -126,7 +126,7 @@ line level    source
                       clr             I2C_SCL
                       lcall   ddH
                       setb    I2C_SCL
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 3   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 3   
 
                       lcall   ddH
                       mov             c, I2C_SDA
@@ -190,7 +190,7 @@ line level    source
               
                       //return I2CD;
               }
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 4   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 4   
 
               #endif //..#ifdef I2C_ASSEMBLER
               #endif //======================================================
@@ -254,7 +254,7 @@ line level    source
                       //read AVI InfoFrame at 0x2A
                       ReadI2C(I2CID_EP9351, EP9351_AVI_InfoFrame, TempByte, 15);
                       DBG_PrintAviInfoFrame();
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 5   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 5   
 
               
                       //color convert to RGB
@@ -318,7 +318,7 @@ line level    source
               #endif
                       for(i=0; i < 100; i++) {
                               delay1ms(10);
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 6   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 6   
 
                               value = ReadI2C(I2CID_EP9351,EP9351_Status_Register_0);
                               if(value)
@@ -382,7 +382,7 @@ line level    source
  358          #if 0
               BYTE EP9351_Task(void)
               {
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 7   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 7   
 
                       status0 = ReadI2C(I2CID_EP9351, EP9351_Status_Register_0);
                       status1 = ReadI2C(I2CID_EP9351, EP9351_Status_Register_1);
@@ -446,7 +446,7 @@ line level    source
                       w_cnt = max-1;
                       r_cnt = va_arg(ap, BYTE);               //r_cnt
                       for(i=0; i < w_cnt; i++) {
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 8   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 8   
 
                               w_cmd[i]=va_arg(ap, BYTE);              //reg
                       }
@@ -510,7 +510,7 @@ line level    source
               * Should be called before any other crc function.  
               */
               static void init_crc8()
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 9   
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 9   
 
               {
                       int i,j;
@@ -574,7 +574,7 @@ line level    source
  544          #endif
  545          */
  546          /*
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 10  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 10  
 
  547          BYTE Getche(void)
  548          {
@@ -638,7 +638,7 @@ line level    source
               #define I2CDelay_6              N_O_P_20        //6
               #define I2CDelay_7              N_O_P_50        //27
               #define I2CDelay_8              N_O_P_100       //53
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 11  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 11  
 
               #define I2CDelay_9              N_O_P_5 //_nop_()
               #define I2CDelay_ACK    N_O_P_100
@@ -702,7 +702,7 @@ line level    source
                       WriteTW88Page(PAGE1_DECODER);
                       r105 = ReadTW88(REG105) & 0xFE;
                       r1c0 = ReadTW88(REG1C0) & 0xFE;
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 12  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 12  
 
                       if(fLoDecoder) {
                               r105 |= 0x01;   //set decoder
@@ -766,7 +766,7 @@ line level    source
                               LoDecoderMode(0);
                               break;
                       }
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 13  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 13  
 
                       AFESelectDecoderAndClock(!use_highspeed_path);
               }
@@ -830,7 +830,7 @@ line level    source
               //!     //WriteTW88Page(PAGE1_VADC );
               //!     if(InputVAdcMode >= EE_YUVDATA_START) {
               //!     }
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 14  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 14  
 
               //!     else {
               //!             if(mode==10) VAdcSetPhase(3, 0);        //WriteTW88(REG1C5, 3); 
@@ -894,7 +894,7 @@ line level    source
               
               #endif //.#else
  850          #if 0
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 15  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 15  
 
                                                                       //      480i,  576i,   480p, 576p,1080i50,1080i60,720p50,720p60,1080p5,1080p6
               //total scan pixel & line
@@ -958,7 +958,7 @@ line level    source
               BYTE SPI_QUADInit_Test(void)
               {
                       BYTE ret;
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 16  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 16  
 
                       BYTE temp;
                       ret = SFLASH_VENDOR_MICRON;
@@ -1022,7 +1022,7 @@ line level    source
  961          //=============================================================================
  962          #if 0 //BK111013
               //BKTODO111013 I don't know why it use a fixed value ????
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 17  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 17  
 
               void ScalerSetDeOnFreerun(void)
               {
@@ -1086,7 +1086,7 @@ line level    source
                               break;
                       case INPUT_BT656:
               //!             wTemp = ScalerCalcHDE();
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 18  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 18  
 
               //!             ScalerWriteHDEReg(wTemp, PANEL_H);
               //!             wTemp = FPGA_GetVDE();
@@ -1150,7 +1150,7 @@ line level    source
               }
               #endif
 1087          
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 19  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 19  
 
 1088          #ifdef UNCALLED_SEGMENT
               WORD GetHScaledRatio(WORD length)
@@ -1214,7 +1214,7 @@ line level    source
                       wTest = (WORD)(dTemp / wTemp);
               
                       dPrintf(" result:%d test:%d",wResult,wTest);
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 20  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 20  
 
                       return wResult;
               }
@@ -1278,7 +1278,7 @@ line level    source
               WORD GetCalcVDEStart(void)              ??sameas ScalerCalcVDE
               {
                       WORD VStart,VPulse,VScale;
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 21  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 21  
 
                       BYTE VPol;
                       WORD wResult;
@@ -1342,7 +1342,7 @@ line level    source
                       else if(type==1) {
                               //CVBS+PAL              720x576
               
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 22  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 22  
 
                               //need a default settings
               
@@ -1406,7 +1406,7 @@ line level    source
 1332          
 1333          /*
 1334          
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 23  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 23  
 
 1335          SDTV 480i/60M
 1336                   576i/50        
@@ -1470,7 +1470,7 @@ line level    source
 1394          
 1395          
 1396          //=============================================================================
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 24  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 24  
 
 1397          // 
 1398          //=============================================================================
@@ -1534,7 +1534,7 @@ line level    source
 1456          //!     FOsdSetAccessMode(FOSD_OSDRAM_WRITE_AUTO);      //WriteTW88(REG304, (ReadTW88(REG304)&0xF3)|0x04); // Auto 
              -addr increment with D or A
 1457          //!     FOsdRamSetAddress(addr);
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 25  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 25  
 
 1458          //!
 1459          //!     if(cnt) {
@@ -1598,7 +1598,7 @@ line level    source
 1517          //!BYTE    page;
 1518          //!
 1519          //!     ReadTW88Page(page);
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 26  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 26  
 
 1520          //!     WaitVBlank(1);  
 1521          //!     McuSpiClkToPclk(0x02);  //with divider 1=1.5(72MHz). try 2
@@ -1662,7 +1662,7 @@ line level    source
 1579          //!BYTE i, j, page;
 1580          //!
 1581          //!     ReadTW88Page(page);
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 27  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 27  
 
 1582          //!     WaitVBlank(1);  
 1583          //!     McuSpiClkToPclk(0x02);  //with divider 1=1.5(72MHz). try 2
@@ -1726,7 +1726,7 @@ line level    source
 1641          //!#ifdef UNCALLED_SEGMENT_CODE
 1642          //!void FontOsdWinAlphaGroup(BYTE winno, BYTE level)
 1643          //!{
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 28  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 28  
 
 1644          //!}
 1645          //!#endif
@@ -1790,7 +1790,7 @@ line level    source
               
                       
               
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 29  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 29  
 
                       //dPrintf("\nSPI_ReadData2xdata(%lx,,%lx)",spiaddr,cnt);
                       //dPrintf(" CMD:%02bx cmdlen:%bd",CMD_x_READ,CMD_x_BYTES);
@@ -1854,7 +1854,7 @@ line level    source
                       SpiFlashDmaBuffAddr(index);
                       SpiFlashDmaReadLen(size);                                               
                       SpiFlashDmaStart(SPIDMA_READ, SPIDMA_BUSYCHECK, __LINE__);
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 30  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 30  
 
               #endif
               }
@@ -1918,7 +1918,7 @@ line level    source
               {
                       WriteTW88Page(PAGE1_DECODER );  
                       if(input_mode==0) {
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 31  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 31  
 
                               WriteTW88(REG105, (ReadTW88(REG105) & 0xF0) | 0x04);    //? C is for decoder, not RGB   
                       }
@@ -1982,7 +1982,7 @@ line level    source
 1889          // ADC(AUX)
 1890          //===========================================
 1891          //internal
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 32  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 32  
 
 1892          //note: NO PAGE change. Parent have to take care.
 1893          #ifdef SUPPORT_ANALOG_SENSOR
@@ -2046,7 +2046,7 @@ line level    source
               //??    //dPrintf("\nTouch Y:%d", TouchY );
               //??}
               #endif
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 33  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 33  
 
               #endif //..
 1955          
@@ -2110,7 +2110,7 @@ line level    source
                       TouchCalibX[index] = x;
                       TouchCalibY[index] = y;
               }
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 34  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 34  
 
               #endif
 2016          //WORD TouchGetCalibedX(BYTE index) { return TouchCalibX[index]; }
@@ -2174,7 +2174,7 @@ line level    source
 2074          
 2075          //=============================================================================
 2076          //              GetTouch 
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 35  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 35  
 
 2077          //=============================================================================
 2078          #ifdef SUPPORT_TOUCH
@@ -2238,7 +2238,7 @@ line level    source
               //!                                                     TouchStatus = TOUCHMOVEDOWN;
               //!                                             else
               //!                                                     TouchStatus = TOUCHMOVEUP;
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 36  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 36  
 
               //!                                     }
               //!                             }
@@ -2302,7 +2302,7 @@ line level    source
               //!                     dTscPrintf("  Touch duration:%d", tsc_dt); //max 65536ms.
               //!
               //!                     if ( OldPosX > StartX ) {
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 37  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 37  
 
               //!                             dirX = 0;                                       // decrease
               //!                             movX = OldPosX - StartX;
@@ -2366,7 +2366,7 @@ line level    source
               //!                     //      veloX, veloY, 
               //!                     //      pressEndTime );
               //!                     dTscPrintf("\nTouch End:  OLDxypos=%dx%d Move: movx=%s%d, movy=%s%d Velocity: vx=%ld, vy=%ld", 
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 38  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 38  
 
               //!                             OldPosX, OldPosY, 
               //!                             dirX ? "+" : "-", movX, 
@@ -2430,7 +2430,7 @@ line level    source
 2309          //=============================================================================
 2310          #ifdef UNCALLED_SEGMENT
               WORD GetVeloX( void )
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 39  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 39  
 
               {...}
               WORD GetVeloY( void )
@@ -2494,15 +2494,15 @@ line level    source
               void CheckHWDefaultRegister()
               {
               }
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 40  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 40  
 
               #endif
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 41  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 41  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
 
-C51 COMPILER V9.00   JUNK                                                                  05/31/2013 20:18:44 PAGE 42  
+C51 COMPILER V9.00   JUNK                                                                  06/05/2014 15:35:09 PAGE 42  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====

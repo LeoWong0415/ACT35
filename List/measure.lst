@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 1   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MEASURE
 OBJECT MODULE PLACED IN .\Output\measure.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE measure.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE measure.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWSE
                     - MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\measure.lst) OBJECT(.\Output\measur
                     -e.obj)
 
@@ -62,7 +62,7 @@ line level    source
   51          #include "DTV.h"
   52          
   53          #include "spi.h"        
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 2   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 2   
 
   54          
   55          #include "DebugMsg.h"   //
@@ -126,7 +126,7 @@ line level    source
  113          *       R508[3:2]       Field Select for input Measure.
  114          *                               00b=Odd field only. 01b:Even field only, 10b or 11b=both field
  115          */
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 3   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 3   
 
  116          void MeasSetField(BYTE field)
  117          {
@@ -190,7 +190,7 @@ line level    source
  175          //      OLD value, ON or OFF
  176          //register
  177          //      R509[7] : Hidden. Use input clock when it read HPeriod. 
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 4   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 4   
 
  178          #if 0
               BYTE MeasSetInputClkForHPeriodReg(BYTE fOn)
@@ -254,7 +254,7 @@ line level    source
  237          *       step
  238          *       MeasEnableChangedDetection(OFF);
  239          *       MeasStartMeasure() with proper setting. It will save the reference value.
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 5   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 5   
 
  240          *       MeasEnableChangedDetection(ON);
  241          *       wait INTR
@@ -318,7 +318,7 @@ line level    source
               //      R510[7:0]       Phase_R Byte 3
               //      R511[7:0]       Phase_R Byte 2
               //      R512[7:0]       Phase_R Byte 1
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 6   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 6   
 
               //      R513[7:0]       Phase_R Byte 0
               DWORD MeasReadPhaseR(void)
@@ -382,7 +382,7 @@ line level    source
  361   1              return PhaseRGB;
  362   1      }
  363          #endif
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 7   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 7   
 
  364          
  365          
@@ -446,7 +446,7 @@ line level    source
  423   1      
  424   1              if(hPol) {
  425   2                      hTotal = MeasGetVsyncRisePos();
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 8   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 8   
 
  426   2              }
  427   1              else {
@@ -510,7 +510,7 @@ line level    source
  485          
  486          //-----------------------------------------------------------------------------
  487          /**
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 9   
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 9   
 
  488          * get "Hsync Rise to Horizontal Active End" value
  489          *
@@ -574,7 +574,7 @@ line level    source
  547          {
  548   1              WORD    period, end;
  549   1      
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 10  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 10  
 
  550   1              WriteTW88Page(PAGE5_MEAS );
  551   1      
@@ -638,7 +638,7 @@ line level    source
  608   1              hActive = MeasGetHActive( &hStart );
  609   1      
  610   1              //get HPol
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 11  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 11  
 
  611   1              if(SyncRiseToFall > hActive)    hPol = 0;       //high at active
  612   1              else                                                    hPol = 1;
@@ -702,7 +702,7 @@ line level    source
  670   1      
  671   1              period = end - *start + 1;
  672   1              return( period );
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 12  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 12  
 
  673   1      }
  674          #if defined(SUPPORT_COMPONENT)
@@ -766,7 +766,7 @@ line level    source
  731          //-----------------------------------------------------------------------------
  732          /**
  733          * rounddown Vertical Frequcncy value
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 13  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 13  
 
  734          *
  735          * PC wants to detect, 56Hz, 60Hz, ..
@@ -830,7 +830,7 @@ line level    source
  793   2                      RGBBufferPtr[i]  = MeasReadPhaseRGB();
  794   2      
  795   2                      dPrintf("\nPhase %02bd: %08ld", i, RGBBufferPtr[i]);
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 14  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 14  
 
  796   2              }
  797   1              
@@ -894,7 +894,7 @@ line level    source
  855   2                      GainB = nGainB; 
  856   2                      if(MeasStartMeasure())  {
  857   3                              WriteTW88Page(page );
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 15  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 15  
 
  858   3                              return;
  859   3                      }
@@ -958,7 +958,7 @@ line level    source
  917   1      }
  918          #endif
  919          
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 16  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 16  
 
  920          //===============================================
  921          // Measure 1 END
@@ -1022,7 +1022,7 @@ line level    source
  979   2                      hFPorch = hTotal - HRiseToActEnd;
  980   2                      hSync = SyncRiseToFall -1;
  981   2                      hBPorch = HRiseToActEnd - hActive - hSync;
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 17  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 17  
 
  982   2              }
  983   1      
@@ -1066,7 +1066,7 @@ line level    source
 1019          
 1020          
 1021          
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 18  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 18  
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -1130,7 +1130,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0044 FB                MOV     R3,A
 0045 22                RET     
 0046         L?0127:
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 19  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 19  
 
 0046 E0                MOVX    A,@DPTR
 0047 FF                MOV     R7,A
@@ -1194,7 +1194,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0088         L?0137:
 0088 F0                MOVX    @DPTR,A
 0089 A3                INC     DPTR
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 20  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 20  
 
 008A EF                MOV     A,R7
 008B F0                MOVX    @DPTR,A
@@ -1258,7 +1258,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00D0 900000      R     MOV     DPTR,#period
 00D3 E0                MOVX    A,@DPTR
 00D4 FC                MOV     R4,A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 21  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 21  
 
 00D5 A3                INC     DPTR
 00D6 E0                MOVX    A,@DPTR
@@ -1322,7 +1322,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0114 9F                SUBB    A,R7
 0115 FF                MOV     R7,A
 0116 E4                CLR     A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 22  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 22  
 
 0117 9400              SUBB    A,#00H
 0119 FE                MOV     R6,A
@@ -1386,7 +1386,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 015A FE                MOV     R6,A
 015B 22                RET     
 015C         L?0166:
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 23  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 23  
 
 015C FD                MOV     R5,A
 015D ED                MOV     A,R5
@@ -1450,7 +1450,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01A0 CF                XCH     A,R7
 01A1 F0                MOVX    @DPTR,A
 01A2 A3                INC     DPTR
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 24  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 24  
 
 01A3 EF                MOV     A,R7
 01A4 F0                MOVX    @DPTR,A
@@ -1514,7 +1514,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01E5         L?0181:
 01E5 EB                MOV     A,R3
 01E6 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 25  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 25  
 
 01E7 A3                INC     DPTR
 01E8 EA                MOV     A,R2
@@ -1578,7 +1578,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 001E 7402              MOV     A,#02H
 0020 F0                MOVX    @DPTR,A
 0021         ?C0001:
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 26  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 26  
 
                                            ; SOURCE LINE # 92
 0021 900000      R     MOV     DPTR,#x
@@ -1642,7 +1642,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
              ; FUNCTION _MeasSetField (BEGIN)
                                            ; SOURCE LINE # 116
 ;---- Variable 'field' assigned to Register 'R7' ----
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 27  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 27  
 
                                            ; SOURCE LINE # 117
                                            ; SOURCE LINE # 119
@@ -1706,7 +1706,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0029 B4C8E1            CJNE    A,#0C8H,?C0004
 002C         ?C0005:
                                            ; SOURCE LINE # 163
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 28  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 28  
 
 002C 7BFF              MOV     R3,#0FFH
 002E 7A00        R     MOV     R2,#HIGH ?SC_0
@@ -1770,7 +1770,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000A 22                RET     
 000B         ?C0013:
                                            ; SOURCE LINE # 251
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 29  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 29  
 
 000B 120000      R     LCALL   L?0120
 000E E0                MOVX    A,@DPTR
@@ -1834,7 +1834,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000D E500        E     MOV     A,regTW88+01H
 000F 2411              ADD     A,#011H
 0011 120000      R     LCALL   L?0121
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 30  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 30  
 
 0014 120000      R     LCALL   L?0122
 0017 E500        E     MOV     A,regTW88+01H
@@ -1898,7 +1898,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0002 2422              ADD     A,#022H
 0004 120000      R     LCALL   L?0121
 0007 E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 31  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 31  
 
 ;---- Variable 'period' assigned to Register 'R6/R7' ----
 0008 FE                MOV     R6,A
@@ -1962,7 +1962,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0018 020000      R     LJMP    ?C0025
                                            ; SOURCE LINE # 430
 001B FF                MOV     R7,A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 32  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 32  
 
 001C 120000      E     LCALL   _SspllGetPPF
 001F 900000      R     MOV     DPTR,#dTemp
@@ -2026,7 +2026,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 435
 008D 7A00        R     MOV     R2,#HIGH ?SC_43
 008F 7900        R     MOV     R1,#LOW ?SC_43
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 33  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 33  
 
 0091 900000      R     MOV     DPTR,#sspll
 0094 120000      R     LCALL   L?0138
@@ -2090,7 +2090,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0004 120000      R     LCALL   L?0121
 0007 E0                MOVX    A,@DPTR
 ;---- Variable 'wTemp' assigned to Register 'R6/R7' ----
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 34  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 34  
 
 0008 FE                MOV     R6,A
 0009 E500        E     MOV     A,regTW88+01H
@@ -2154,7 +2154,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
              ; FUNCTION _MeasGetHActive (BEGIN)
                                            ; SOURCE LINE # 546
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 35  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 35  
 
 0000 900000      R     MOV     DPTR,#start
                                            ; SOURCE LINE # 547
@@ -2218,7 +2218,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 006A 120000      R     LCALL   L?0121
 006D E0                MOVX    A,@DPTR
 006E FD                MOV     R5,A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 36  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 36  
 
 006F ED                MOV     A,R5
 0070 FF                MOV     R7,A
@@ -2282,7 +2282,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 592
                                            ; SOURCE LINE # 593
                                            ; SOURCE LINE # 607
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 37  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 37  
 
 0000 120000      R     LCALL   MeasGetHSyncRiseToFallWidth
 0003 900000      R     MOV     DPTR,#SyncRiseToFall
@@ -2346,7 +2346,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0051 AF03              MOV     R7,AR3
                                            ; SOURCE LINE # 624
 0053         ?C0038:
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 38  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 38  
 
 0053 22                RET     
              ; FUNCTION MeasGetDviDivider (END)
@@ -2410,7 +2410,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0041 120000      R     LCALL   L?0134
 0044 120000      E     LCALL   ?C?ILDPTR
 0047 FF                MOV     R7,A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 39  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 39  
 
 0048 E500        E     MOV     A,regTW88+01H
 004A 2439              ADD     A,#039H
@@ -2474,7 +2474,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00B4 9E                SUBB    A,R6
 00B5 4006              JC      ?C0041
                                            ; SOURCE LINE # 669
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 40  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 40  
 
 00B7 A3                INC     DPTR
 00B8 EC                MOV     A,R4
@@ -2538,7 +2538,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 000D 120000      R     LCALL   L?0157
 0010 120000      R     LCALL   L?0125
 0013 E500        E     MOV     A,regTW88+01H
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 41  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 41  
 
 0015 2444              ADD     A,#044H
 0017 120000      R     LCALL   L?0121
@@ -2602,7 +2602,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0014 EF                MOV     A,R7
 0015 C3                CLR     C
 0016 9447              SUBB    A,#047H
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 42  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 42  
 
 0018 5004              JNC     ?C0050
 001A 7F46              MOV     R7,#046H
@@ -2666,7 +2666,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0020 C3                CLR     C
 0021 9420              SUBB    A,#020H
 0023 505E              JNC     ?C0059
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 43  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 43  
 
                                            ; SOURCE LINE # 785
 0025 E4                CLR     A
@@ -2730,7 +2730,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0090 900000      R     MOV     DPTR,#j
 0093 F0                MOVX    @DPTR,A
                                            ; SOURCE LINE # 801
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 44  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 44  
 
 0094 900000      R     MOV     DPTR,#i
 0097 04                INC     A
@@ -2794,7 +2794,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00FB 120000      E     LCALL   _dPrintf
                                            ; SOURCE LINE # 813
 00FE 900000      R     MOV     DPTR,#RGBBufferPtr
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 45  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 45  
 
 0101 120000      R     LCALL   L?0134
 0104 900000      R     MOV     DPTR,#j
@@ -2858,7 +2858,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 819
 0170 8003              SJMP    ?C0114
 0172         ?C0067:
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 46  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 46  
 
                                            ; SOURCE LINE # 820
                                            ; SOURCE LINE # 822
@@ -2922,7 +2922,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 003D FE                MOV     R6,A
 003E A3                INC     DPTR
 003F E0                MOVX    A,@DPTR
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 47  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 47  
 
 0040 FF                MOV     R7,A
 0041 B5052C            CJNE    A,AR5,?C0070
@@ -2986,7 +2986,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0097 020000      R     LJMP    ?C0075
                                            ; SOURCE LINE # 859
 009A         ?C0074:
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 48  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 48  
 
                                            ; SOURCE LINE # 861
 009A E500        E     MOV     A,regTW88+01H
@@ -3050,7 +3050,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00F1 EA                MOV     A,R2
 00F2 900000      R     MOV     DPTR,#GainB
 00F5 120000      R     LCALL   L?0155
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 49  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 49  
 
 00F8 FC                MOV     R4,A
 00F9 A3                INC     DPTR
@@ -3114,7 +3114,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0155 6E                XRL     A,R6
 0156 7003              JNZ     ?C0108
 0158 A3                INC     DPTR
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 50  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 50  
 
 0159 E0                MOVX    A,@DPTR
 015A 6F                XRL     A,R7
@@ -3178,7 +3178,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01B6 7002              JNZ     ?C0109
 01B8 EC                MOV     A,R4
 01B9 6E                XRL     A,R6
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 51  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 51  
 
 01BA         ?C0109:
 01BA 6003              JZ      $ + 5H
@@ -3242,7 +3242,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0213 A3                INC     DPTR
 0214 E0                MOVX    A,@DPTR
 0215 FB                MOV     R3,A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 52  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 52  
 
 0216 120000      E     LCALL   _VAdcSetChannelGainReg
 0219 22                RET     
@@ -3306,7 +3306,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 908
                                            ; SOURCE LINE # 909
 003F 7BFF              MOV     R3,#0FFH
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 53  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 53  
 
 0041 7A00        R     MOV     R2,#HIGH ?SC_301
 0043 7900        R     MOV     R1,#LOW ?SC_301
@@ -3370,7 +3370,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0010 120000      R     LCALL   MeasGetHSyncRiseToHActiveEnd
 0013 900000      R     MOV     DPTR,#HRiseToActEnd
                                            ; SOURCE LINE # 950
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 54  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 54  
 
 0016 120000      R     LCALL   L?0174
 0019 7A00        R     MOV     R2,#HIGH hStart
@@ -3434,7 +3434,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 006E 900000      R     MOV     DPTR,#hPol
 0071 E0                MOVX    A,@DPTR
 0072 7053              JNZ     ?C0093
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 55  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 55  
 
                                            ; SOURCE LINE # 970
 0074 900000      R     MOV     DPTR,#HRiseToActEnd
@@ -3498,7 +3498,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00CA E0                MOVX    A,@DPTR
 00CB FA                MOV     R2,A
 00CC A3                INC     DPTR
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 56  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 56  
 
 00CD E0                MOVX    A,@DPTR
 00CE FB                MOV     R3,A
@@ -3562,7 +3562,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 011F 900000      R     MOV     DPTR,#vActive
 0122 EE                MOV     A,R6
 0123 F0                MOVX    @DPTR,A
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 57  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 57  
 
 0124 A3                INC     DPTR
 0125 EF                MOV     A,R7
@@ -3626,7 +3626,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0173 CB                XCH     A,R3
 0174 F0                MOVX    @DPTR,A
 0175 A3                INC     DPTR
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 58  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 58  
 
 0176 EB                MOV     A,R3
 0177 F0                MOVX    @DPTR,A
@@ -3690,7 +3690,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 01BD E0                MOVX    A,@DPTR
 01BE 9E                SUBB    A,R6
 01BF CF                XCH     A,R7
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 59  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 59  
 
 01C0 C3                CLR     C
 01C1 9B                SUBB    A,R3
@@ -3754,7 +3754,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0236 900000      R     MOV     DPTR,#hStart
 0239 120000      R     LCALL   L?0139
 023C 900000      R     MOV     DPTR,#vStart
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 60  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 60  
 
 023F 120000      R     LCALL   L?0153
 0242 020000      E     LJMP    _Printf
@@ -3768,7 +3768,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 024F 22                RET     
              ; FUNCTION CheckMeasure (END)
 
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 61  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 61  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3831,7 +3831,7 @@ _PCMODEDATA. . . . . . . . . . . . . .  * TAG *  -----  STRUCT   -----  25
   van. . . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0003H  2
   vfreq. . . . . . . . . . . . . . . .  MEMBER   -----  U_CHAR   0005H  1
   htotal . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    0006H  2
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 62  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 62  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3894,7 +3894,7 @@ SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
   bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
 _MeasGetHActive. . . . . . . . . . . .  PUBLIC   CODE   PROC     0000H  -----
   start. . . . . . . . . . . . . . . .  AUTO     XDATA  PTR      0000H  3
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 63  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 63  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -3958,7 +3958,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
-C51 COMPILER V9.00   MEASURE                                                               05/31/2013 20:18:29 PAGE 64  
+C51 COMPILER V9.00   MEASURE                                                               06/05/2014 15:34:50 PAGE 64  
 
 END OF MODULE INFORMATION.
 

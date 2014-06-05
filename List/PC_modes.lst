@@ -1,9 +1,9 @@
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 1   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE PC_MODES
 OBJECT MODULE PLACED IN .\Output\PC_modes.obj
-COMPILER INVOKED BY: d:\Keil\C51\BIN\C51.EXE PC_modes.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE PC_modes.c LARGE OPTIMIZE(9,SPEED) REGFILE(.\Output\TW8835_REV31.ORC) BROWS
                     -E MODDP2 DEFINE(EVB_30,EVB_31,nullFn=//) DEBUG OBJECTEXTEND CODE SYMBOLS PRINT(.\List\PC_modes.lst) OBJECT(.\Output\PC_m
                     -odes.obj)
 
@@ -62,7 +62,7 @@ line level    source
   49          // offsetv  Offset from vstart for scaler vstart input
   50          // dummy0       - for VAN adjust. removed
   51          // dummy1       - for VDE. removed
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 2   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 2   
 
   52          // IHF      - input HFreq based 100Hz
   53          // IPF          - input pixel clock based 10KHz
@@ -126,7 +126,7 @@ line level    source
  111          /*23*/  {  1,   1152,864,75,    1600,900,       1,1,    256,32,         5,      -6,             0,              0,              0,              0 },            // 1152x864x75
  112          
  113          /*24*/  {  1,   1280,720,60,    1664,746,       1,0,    192,26,         5,      -7,     0,              0,              0,              0 },            // 1280x720x60           // 
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 3   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 3   
 
  114          
  115          /*25*/  {  1,   1280,768,60,    1440,790,       1,0,    80, 12,         5,      -8,     2,              2,              0,              0 },            // 1280x768x60  REDUCED
@@ -190,7 +190,7 @@ line level    source
  161          /*53*/  {  3,   1920,526,50,    1000,100,   0,0,        356,87,         0,      0,              0,              0,              0,              0 },            // 1080i@50
  162          /*55*/  {  3,   1920,1080,50,   1000,100,   0,0,        217,48,         0,      0,              0,              0,              0,              0 },            // 1080P@50
  163          //--------------
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 4   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 4   
 
  164          };
  165          #endif  //.. defined( SUPPORT_PC ) || defined (SUPPORT_DVI)
@@ -254,7 +254,7 @@ line level    source
  223   1              FOsdSetInputMainString2FOsdMsgBuff();   //GetInputMainString(FOsdMsgBuff);                                                                                      
  224   1              TWstrcat(FOsdMsgBuff," ");
  225   1              switch(mode) {
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 5   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 5   
 
  226   2              case 0: TWstrcat(FOsdMsgBuff,"480i");   break;
  227   2              case 1: TWstrcat(FOsdMsgBuff,"576i");   break;
@@ -297,7 +297,7 @@ line level    source
               //BK110811      FOsdCopyMsgBuff2Osdram(OFF);
               }
               #endif
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 6   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 6   
 
 ASSEMBLY LISTING OF GENERATED OBJECT CODE
 
@@ -361,7 +361,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 203
 001C 120000      R     LCALL   L?0030
 001F 7400        R     MOV     A,#HIGH ?SC_2
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 7   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 7   
 
 0021 F0                MOVX    @DPTR,A
 0022 7400        R     MOV     A,#LOW ?SC_2
@@ -425,7 +425,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 0087 93                MOVC    A,@A+DPTR
 0088 FF                MOV     R7,A
 0089 7B01              MOV     R3,#01H
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 8   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 8   
 
 008B 7A00        R     MOV     R2,#HIGH itoa_buff
 008D 7900        R     MOV     R1,#LOW itoa_buff
@@ -489,7 +489,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 226
 003C         ?C0004:
 003C 120000      R     LCALL   L?0031
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 9   
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 9   
 
 003F 7400        R     MOV     A,#HIGH ?SC_7
 0041 F0                MOVX    @DPTR,A
@@ -553,7 +553,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
                                            ; SOURCE LINE # 233
 008B         ?C0011:
 008B 120000      R     LCALL   L?0031
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 10  
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 10  
 
 008E 7400        R     MOV     A,#HIGH ?SC_59
 0090 F0                MOVX    @DPTR,A
@@ -595,7 +595,7 @@ ASSEMBLY LISTING OF GENERATED OBJECT CODE
 00BB 22                RET     
              ; FUNCTION _YUV_PrepareInfoString (END)
 
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 11  
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 11  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
@@ -658,7 +658,7 @@ SPIIMAGE . . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  16
   bottom . . . . . . . . . . . . . . .  MEMBER   -----  U_INT    000EH  2
 SLIDEIMAGE . . . . . . . . . . . . . .  TYPEDEF  -----  STRUCT   -----  8
   start. . . . . . . . . . . . . . . .  MEMBER   -----  U_LONG   0000H  4
-C51 COMPILER V9.00   PC_MODES                                                              05/31/2013 20:18:31 PAGE 12  
+C51 COMPILER V9.00   PC_MODES                                                              06/05/2014 15:34:55 PAGE 12  
 
 NAME                                    CLASS   MSPACE  TYPE    OFFSET  SIZE
 ====                                    =====   ======  ====    ======  ====
